@@ -1,0 +1,21 @@
+{
+    "hardware": {
+        "gpu_type": "NVIDIA",
+        "cpu_threads": 24,
+        "memory_gb": 62.5539436340332,
+        "torch_wheel": "cu124"
+    },
+    "passport": {
+        "OS_Platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.39",
+        "OS_Release": "6.17.0-35-generic",
+        "Python_Version": "3.11.15",
+        "ORCA_Version": "6.1.1",
+        "CUDA_Target": "cu124"
+    },
+    "paths": {
+        "orca_binary": "/home/joshua/orca_6_1_1_avx2/orca",
+        "openmpi_binary": "/home/joshua/anaconda3/envs/TOPOS/bin/mpirun",
+        "oet_venv": "/media/joshua/Storage/OrcaJobs/Research_Computational_Chemistry/orca-external-tools/OET_VENV",
+        "molsym_path": "/media/joshua/Storage/OrcaJobs/Research_Computational_Chemistry/MolSym"
+    }
+}
