@@ -1,0 +1,51 @@
+name: CoChem-TOPOS CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Enforce Air-Gap Policy
+      run: |
+        echo "Verifying no restricted artifact files are tracked in version control..."
+        if git ls-files | grep -E '\.h5$|\.gbw$|\.tmp$|cochem_system_config\.json$'; then
+          echo "CRITICAL: Restricted files found in repository. Air-Gap policy violated."
+          exit 1
+        fi
+        echo "Air-Gap integrity verified."
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-mock
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all other errors as warnings
+        flake8 . --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
+
+    - name: Run Unit Tests
+      run: |
+        # Run pytest. Assumes tests mock the SubprocessBroker and HDF5 locks.
+        pytest tests/ -v

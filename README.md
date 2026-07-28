@@ -1,37 +1,50 @@
-# **CoChem-TOPOS: Topological Optimization & Deduplication Engine**
+# **CoChem-TOPOS: Topographical Search & Method Matrix Cascade**
 
-## **Overview**
+**Version:** 3.0.0
 
-**CoChem-TOPOS** (Topological Optimization of Potential and Orbital Surfaces) is the primary geometry engine for the CoChem ecosystem. It is responsible for taking a raw 2D graph or crude 3D geometry and rigorously mapping its conformational landscape.
+**Ecosystem Role:** Geometry Discovery, Basin Deduplication, and Thermodynamic Refinement.
 
-Unlike traditional pipelines that blindly run heavy DFT optimizations on thousands of conformers, TOPOS utilizes a **"Jiggle-Quench"** protocol driven by Machine Learning Force Fields (MACE-OFF23). It rapidly generates ensembles, quenches them to local minima using GPU-accelerated ML potentials, and deduplicates them using strict NetworkX graph hashing.
+CoChem-TOPOS is the core structural exploration engine of the CoChem ecosystem. It replaces manual, labor-intensive conformational searching with a fully automated, mathematically rigorous pipeline. It intakes raw geometries, explores the Potential Energy Surface (PES) using fast ML potentials (MACE-OFF23), deduplicates structures using graph isomorphism and Kabsch RMSD alignments (The Crusher), and escalates the verified unique local minima up an 11-tier computational Method Matrix to reach benchmark-quality DLPNO-CCSD(T) thermodynamic accuracy.
 
-## **Scientific & Technical Trade-offs**
+## **🚀 Installation & Bootstrapping**
 
-* **Graph Hashing over RMSD:** Traditional RMSD deduplication fails on highly flexible molecules. TOPOS relies on NetworkX connectivity hashing (detecting if bonds were broken during the quench) combined with Coulomb Matrix Eigenspectrum variance. This mathematically guarantees we don't calculate the same physical basin twice, though it costs slightly more CPU time upfront.  
-* **The Fallback Cascade:** Not all elements are supported by MACE-OFF23. If TOPOS detects an exotic transition metal or iodine, it automatically bypasses the PyTorch/MACE silo and "fails down" to g-xTB (semi-empirical). This trades absolute ML speed for guaranteed chemical stability without crashing the pipeline.
+CoChem-TOPOS is not a standalone application; it requires the CoChem-CORE micro-silos and orchestration registries to function safely.
 
-## **Installation & Setup**
+### **1\. Pre-Requisites**
 
-CoChem-TOPOS requires the cochem\_system\_config.json registry to know if it can use your GPU.
+Ensure that CoChem-CORE is installed and the Stage 0.0 Initialization Protocol has completed successfully, generating your cochem\_system\_config.json registry.
+
+### **2\. Clone the Repository**
+
+Clone the CoChem-TOPOS repository into your static execution tier (e.g., within your GitHub Codespace or local DevContainer):
 
 git clone \[https://github.com/CoChem/CoChem-TOPOS.git\](https://github.com/CoChem/CoChem-TOPOS.git)  
 cd CoChem-TOPOS
 
-## **How to Run**
+### **3\. Install Module Dependencies**
 
-TOPOS operates in distinct phases. It is recommended to run these via the master Jupyter Notebook, but they can be executed via CLI:
+While heavy computational engines (ORCA, PyTorch) are isolated in CoChem-CORE Conda micro-silos, TOPOS requires local routing libraries:
 
-1. **The Sieve (Initial Generation & Triage):**  
-   python cochem\_crusher.py \--input my\_molecule.xyz \--mode sieve  
-   *(Generates crude 3D geometries and identifies Weak vs. Strong complexes).*  
-2. **The Jiggle-Quench (GPU Accelerated Optimization):**  
-   python cochem\_jiggle\_quench.py  
-   *(Uses MACE-OFF23 to optimize 10,000+ conformers in minutes, writing to landscape.h5).*  
-3. **Ab Initio Escalation:**  
-   python cochem\_escalator.py  
-   *(Takes the unique minimums and routes them to ORCA 6.1.1 for high-accuracy DFT refinement).*
+pip install \-r requirements.txt
 
-## **Output**
+*(This will install networkx, scipy, h5py, and jinja2 into the active orchestrator environment).*
 
-All data is serialized into landscape.h5, preventing thousands of loose .xyz and .out files from clogging your filesystem.
+## **🔌 Integration into the Wider CoChem Ecosystem**
+
+CoChem-TOPOS occupies the critical space between raw geometry ingestion and final spectroscopic property prediction.
+
+* **Upstream Integration:** Receives validated inputs from CoChem-UNITY (the GUI dashboard) or directly from uploaded .xyz files mapped by CoChem-CORE's 01\_INGEST\_GC.py.  
+* **Execution Integration:** Hands off heavy compute tasks (ORCA 6.1.1 optimizations, MACE screenings) securely to the CoChem-CORE SubprocessBroker. It actively reads cochem\_system\_config.json to respect local RAM and CPU limits, dynamically applying Core-Dump Sweepers and Zombie Reapers if an engine crashes.  
+* **Downstream Integration (HDF5 SWMR):** The CascadeHDF5Serializer continuously writes verified geometries, electronic energies, and analytical Hessians into landscape.h5. Because it uses the Single-Writer/Multiple-Reader (SWMR) protocol, downstream spectroscopic modules like **CoChem-TORQ** (for rotational spectra) and **CoChem-LUMOS** (for photochemistry) can instantly read the matrices and begin calculating properties without waiting for the entire batch to finish.
+
+## **⚙️ Execution**
+
+Once configured, the overarching topological search and escalation pipeline is triggered via the Master Integrator:
+
+python3 core\_engine/cochem\_topos\_master.py
+
+*Note: The pipeline strictly obeys the Filesystem Air-Gap. All resulting data, including the FAIR submission archives generated by Stage 5.0, will be safely deposited in the $HOME/CoChem\_Artifacts/ directory.*
+
+## **📜 License**
+
+This project is licensed under the Apache 2.0 License. See the LICENSE file for details.
