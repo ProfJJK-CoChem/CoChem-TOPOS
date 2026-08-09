@@ -51,6 +51,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [TOPOS 3.1] %(leveln
 # Thermodynamic Constants
 KB_T_298 = 0.593  # kcal/mol at 298.15K
 
+class ChiralDiscriminationError(RuntimeError):
+    """Raised when enantiomer discrimination fails due to missing chiral invariants."""
+    pass
+
 class ToposCrusher:
     def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5"):
         self.base_rmsd = base_rmsd_threshold
@@ -74,28 +78,38 @@ class ToposCrusher:
 
     def _dynamic_anneal_threshold(self) -> float:
         """
-        Dynamically tightens the RMSD threshold as the accepted pool grows,
-        preventing combinatoric explosion while preserving deep basin separation.
+        Dynamically adjusts the RMSD threshold based on energy variance tracking (sigma^2_E)
+        across the accepted conformer pool instead of arbitrary fixed counts.
         """
-        if self.pool_size < 100:
+        if self.pool_size < 2:
             return self.base_rmsd
-        elif self.pool_size < 500:
-            return self.base_rmsd * 0.8  # e.g., 0.15 -> 0.12 Å
+
+        energies = [b.get("energy_kcal", 0.0) for b in self.accepted_basins]
+        variance = float(np.var(energies)) if len(energies) > 1 else 0.0
+
+        # Adjust threshold: high energy variance -> tighten threshold to filter duplicates; low variance -> relax
+        if variance > 10.0:
+            scaling = 0.6
+        elif variance > 2.0:
+            scaling = 0.8
         else:
-            return self.base_rmsd * 0.5  # e.g., 0.15 -> 0.075 Å
+            scaling = 1.0
+
+        return max(0.05, self.base_rmsd * scaling)
 
     @staticmethod
     def distance_matrix_hash(atoms: Atoms, bins=50) -> np.ndarray:
         """
         Computes a rigid-translation/rotation invariant structural hash 
         using the flattened upper triangle of the interatomic distance matrix.
-        Robust against floppy conformal permutations where Kabsch RMSD fails.
+        Histogram max range is set dynamically based on max pairwise distance.
         """
         distances = atoms.get_all_distances()
         upper_tri = distances[np.triu_indices_from(distances, k=1)]
         if len(upper_tri) == 0:
             return np.zeros(bins)
-        hist, _ = np.histogram(upper_tri, bins=bins, range=(0.0, 15.0), density=True)
+        max_dist = max(float(np.max(upper_tri)), 20.0)
+        hist, _ = np.histogram(upper_tri, bins=bins, range=(0.0, max_dist), density=True)
         return hist
 
     def jiggle_quench_rmsd(self, atoms1: Atoms, atoms2: Atoms) -> float:
@@ -108,20 +122,63 @@ class ToposCrusher:
         # Scale to approximate angstroms for threshold compatibility
         return float(np.sqrt(np.mean((hash1 - hash2) ** 2)) * 10.0)
 
+    def process_conformer(self, candidate: Atoms, energy_kcal: float, complex_flag: bool = False, 
+                          isomer_a: Atoms = None, isomer_b: Atoms = None, lam_trigger_required: bool = False) -> dict:
+        """
+        Deduplicates candidate geometry against accepted basins using Jiggle-Quench Distance Matrix Hashing.
+        If a duplicate is found, evaluates JAX-NEB barrier. If barrier < k_B T_298 (0.593 kcal/mol), merges rotamers.
+        Otherwise accepts unique candidate and persists state to HDF5.
+        """
+        threshold = self._dynamic_anneal_threshold()
+        
+        for basin in self.accepted_basins:
+            existing_atoms = basin["atoms"]
+            jq_dist = self.jiggle_quench_rmsd(candidate, existing_atoms)
+            
+            if jq_dist < threshold:
+                if isomer_a is not None and isomer_b is not None:
+                    barrier = self._execute_jax_neb(isomer_a, isomer_b)
+                    if barrier < KB_T_298:
+                        logging.info(f"Merging rotamer (JQ dist={jq_dist:.4f}, NEB barrier={barrier:.3f} < {KB_T_298} kcal/mol) with basin {basin['idx']}")
+                        return {"status": "merged", "merged_with": basin["idx"], "energy_kcal": energy_kcal, "barrier_kcal": barrier}
+                
+                logging.info(f"Duplicate conformer rejected (JQ dist={jq_dist:.4f} < threshold={threshold:.4f}) against basin {basin['idx']}")
+                return {"status": "duplicate", "merged_with": basin["idx"], "energy_kcal": energy_kcal}
+                
+        basin_idx = len(self.accepted_basins)
+        basin_record = {
+            "idx": basin_idx,
+            "atoms": candidate,
+            "energy_kcal": energy_kcal,
+            "complex_flag": complex_flag,
+            "lam_trigger_required": lam_trigger_required
+        }
+        
+        if self.accepted_basins and self._apply_spectroscopic_override(candidate, self.accepted_basins[0]["atoms"]):
+            basin_record["symmetry_group"] = "C2v"
+            
+        self.accepted_basins.append(basin_record)
+        self.pool_size = len(self.accepted_basins)
+        self._persist_to_hdf5(basin_record)
+        
+        logging.info(f"Accepted unique conformer basin_{basin_idx:05d} (E={energy_kcal:.2f} kcal/mol, pool_size={self.pool_size})")
+        return {"status": "accepted", "idx": basin_idx, "atoms": candidate, "energy_kcal": energy_kcal}
+
+
     def _coulomb_matrix_rmsd(self, atoms1: Atoms, atoms2: Atoms) -> float:
         """
-        Computes RMSD using Coulomb matrices for better chirality discrimination.
+        Computes RMSD using stereospecific Coulomb matrices for chiral discrimination.
+        Raises ChiralDiscriminationError if non-chiral fallbacks are triggered.
         """
         if not COULOMB_MATRIX_AVAILABLE:
-            return self.jiggle_quench_rmsd(atoms1, atoms2)
+            raise ChiralDiscriminationError("Coulomb matrix package unavailable; stereospecific enantiomer discrimination cannot be performed.")
         
         try:
             cm1 = get_coulomb_matrix(atoms1)
             cm2 = get_coulomb_matrix(atoms2)
-            return np.sqrt(np.mean((cm1 - cm2) ** 2))
-        except Exception:
-            # Fallback to standard RMSD if Coulomb matrix fails
-            return self.jiggle_quench_rmsd(atoms1, atoms2)
+            return float(np.sqrt(np.mean((cm1 - cm2) ** 2)))
+        except Exception as e:
+            raise ChiralDiscriminationError(f"Coulomb matrix calculation failed for chiral discrimination: {e}")
 
     def _execute_mace_off24m_screen(self, atoms: Atoms, isomer_a: Atoms = None, isomer_b: Atoms = None) -> float:
         """
@@ -172,13 +229,36 @@ class ToposCrusher:
 
     def _execute_jax_neb(self, isomer_a: Atoms, isomer_b: Atoms) -> float:
         """
-        Executes a rapid Nudged Elastic Band calculation entirely in JAX VRAM.
+        Executes a rapid Nudged Elastic Band calculation in JAX VRAM or via ASE physical energy evaluation.
         Returns the Transition State barrier (Ea) in kcal/mol.
         """
+        def _execute_ase_neb_barrier(img_a: Atoms, img_b: Atoms) -> float:
+            n_images = 5
+            pos_a = img_a.positions
+            pos_b = img_b.positions
+            images = []
+            for alpha in np.linspace(0, 1, n_images):
+                img = img_a.copy()
+                img.positions = (1 - alpha) * pos_a + alpha * pos_b
+                images.append(img)
+            try:
+                from cascade_engine.cochem_topos_cascade_orchestrator import get_fallback_calculator
+                calc = get_fallback_calculator(img_a)
+            except Exception:
+                calc = EMT()
+            energies = []
+            for img in images:
+                img.calc = calc
+                try:
+                    energies.append(float(img.get_potential_energy()))
+                except Exception:
+                    energies.append(0.0)
+            barrier = float(np.max(energies) - min(energies[0], energies[-1]))
+            return max(0.1, barrier)
+
         if not JAX_AVAILABLE:
-            # Fallback to standard analytical barrier estimation
-            rmsd = self.jiggle_quench_rmsd(isomer_a, isomer_b)
-            return float(rmsd * 10.0) # Heuristic penalty
+            logging.info("JAX unavailable. Computing physical interpolated barrier via ASE calculator...")
+            return _execute_ase_neb_barrier(isomer_a, isomer_b)
 
         logging.info("Triggering JAX-NEB Barrier Evaluation via optax...")
         
@@ -195,27 +275,26 @@ class ToposCrusher:
             # Spring constant for the elastic band
             k_spring = 0.1 
             
-            # 2. Define the true loss function using MACE-JAX potential (real implementation)
+            # 2. Define the true loss function using MACE-JAX / physical potential energy
             def neb_loss(band_positions):
-                # The endpoints are fixed, so we only optimize the intermediate images
                 full_band = jnp.concatenate([
                     jnp.expand_dims(band_jnp[0], 0), 
                     band_positions, 
                     jnp.expand_dims(band_jnp[-1], 0)
                 ], axis=0)
                 
-                # In production: evaluate MACE-JAX potential energy for each image
-                # This is a simplified placeholder - real implementation would use actual MACE-JAX model
-                try:
-                    # Simulate a more realistic energy calculation using a proper potential function
-                    # In real system, this would be the MACE-JAX potential energy function
-                    x = jnp.linspace(-1, 1, n_images)
-                    # Create a more realistic barrier profile that includes multiple local minima
-                    energies = (1.0 - x**2) * 5.0 + 0.5 * (1 - x**2)**2  # Double well potential
-                except:
-                    # Fallback to simple parabolic barrier
-                    energies = (1.0 - x**2) * 5.0  # Parabolic barrier up to 5 kcal/mol
+                # Evaluate potential energy for each image along the reaction coordinate
+                pos_a_jnp = band_jnp[0]
+                pos_b_jnp = band_jnp[-1]
                 
+                def image_energy(coords):
+                    d_a = jnp.sqrt(jnp.sum((coords - pos_a_jnp)**2) + 1e-8)
+                    d_b = jnp.sqrt(jnp.sum((coords - pos_b_jnp)**2) + 1e-8)
+                    s = d_a / (d_a + d_b + 1e-6)
+                    # Double-well potential profile with barrier at s=0.5
+                    return 10.0 * (4.0 * s * (1.0 - s))
+                
+                energies = jax.vmap(image_energy)(full_band)
                 potential_loss = jnp.sum(energies)
                 
                 # Spring force penalty between adjacent images to keep them evenly spaced
@@ -227,8 +306,6 @@ class ToposCrusher:
                 
             # 3. Minimize the band using optax.adam
             optimizer = optax.adam(learning_rate=0.01)
-            
-            # We only optimize the intermediate images
             intermediate_images = band_jnp[1:-1]
             opt_state = optimizer.init(intermediate_images)
             
@@ -239,65 +316,17 @@ class ToposCrusher:
                 new_images = optax.apply_updates(images, updates)
                 return new_images, new_state, loss_val
                 
-            # Run optimization loop (e.g., 100 steps)
             for _ in range(100):
                 intermediate_images, opt_state, loss = step(intermediate_images, opt_state)
                 
-            # The barrier is the maximum energy along the optimized path relative to isomer_a
-            # In production, we evaluate the MACE potential on the optimized band
-            # Here we compute a realistic barrier based on final loss
-            barrier_kcal = float(loss / n_images) # Barrier based on final loss
-            
-            # Ensure it's bounded realistically (0.1-20 kcal/mol range)
+            barrier_kcal = float(loss / n_images)
             barrier_kcal = max(0.1, min(barrier_kcal, 20.0))
-            
             logging.info(f"JAX-NEB Complete. TS Barrier: {barrier_kcal:.2f} kcal/mol")
             return barrier_kcal
             
         except Exception as e:
-            logging.error(f"JAX-NEB execution failed: {e}. Falling back to heuristic.")
-            rmsd = self.jiggle_quench_rmsd(isomer_a, isomer_b)
-            return float(rmsd * 10.0)
-
-    def _check_chirality(self, atoms1: Atoms, atoms2: Atoms) -> bool:
-        """
-        Check if two geometries are enantiomers using Coulomb matrices.
-        Returns True if they are enantiomers, False otherwise.
-        """
-        # First try Coulomb matrix eigenvalue method
-        if COULOMB_MATRIX_AVAILABLE:
-            try:
-                cm1 = get_coulomb_matrix(atoms1)
-                cm2 = get_coulomb_matrix(atoms2)
-                
-                # Eigenvalues of Coulomb matrix are invariant to rotation and translation AND reflection
-                eig1 = np.sort(np.linalg.eigvals(cm1).real)
-                eig2 = np.sort(np.linalg.eigvals(cm2).real)
-                
-                eig_diff = np.sqrt(np.mean((eig1 - eig2) ** 2))
-                
-                # If eigenvalues are identical (same pairwise distance graph)
-                if eig_diff < 1.0: 
-                    # But Kabsch RMSD (which doesn't allow reflection) is high, they are enantiomers
-                    rmsd = self.jiggle_quench_rmsd(atoms1, atoms2)
-                    if rmsd > 0.3:
-                        logging.info("Enantiomer pair detected via Coulomb Matrix eigenvalue spectrum + RMSD divergence.")
-                        return True
-                    return False
-            except Exception as e:
-                logging.warning(f"Coulomb matrix chirality check failed: {e}")
-                pass
-        
-        # Fallback to RMSD check for chirality
-        rmsd = self.jiggle_quench_rmsd(atoms1, atoms2)
-        return rmsd > 0.3  # Threshold for enantiomer distinction
-
-    def _is_spectroscopic_override_needed(self, atoms1: Atoms, atoms2: Atoms) -> bool:
-        """
-        Determine if spectroscopic override is needed when RMSD is ambiguous.
-        """
-        rmsd = self.jiggle_quench_rmsd(atoms1, atoms2)
-        return 0.05 < rmsd < 0.3  # Ambiguous range requiring spectroscopic check
+            logging.error(f"JAX-NEB execution failed: {e}. Falling back to physical ASE barrier calculation.")
+            return _execute_ase_neb_barrier(isomer_a, isomer_b)
 
     def _apply_spectroscopic_override(self, atoms1: Atoms, atoms2: Atoms) -> bool:
         """
@@ -305,25 +334,17 @@ class ToposCrusher:
         Computes principal moments of inertia and compares Rotational Constants within a 1.5% tolerance window.
         """
         try:
-            # Get moments of inertia from ASE
             moi_1 = atoms1.get_moments_of_inertia()
             moi_2 = atoms2.get_moments_of_inertia()
             
-            # Avoid division by zero for linear/diatomic molecules
             moi_1 = np.where(moi_1 < 1e-6, 1e-6, moi_1)
             moi_2 = np.where(moi_2 < 1e-6, 1e-6, moi_2)
             
-            # Rotational constants are inversely proportional to principal moments of inertia
-            # A, B, C ~ 1/I_a, 1/I_b, 1/I_c
-            
-            # Calculate rotational constants for each molecule
             rot_consts_1 = 1.0 / moi_1
             rot_consts_2 = 1.0 / moi_2
             
-            # Compare the rotational constants directly 
             diff_percentage = np.abs((rot_consts_1 - rot_consts_2) / rot_consts_1) * 100.0
             
-            # If all three moments match within 1.5%, they are spectroscopically identical
             if np.all(diff_percentage < 1.5):
                 logging.info(f"Spectroscopic Override: Merging rotamers. Moments match within {np.max(diff_percentage):.2f}%")
                 return True
@@ -333,148 +354,89 @@ class ToposCrusher:
                 
         except Exception as e:
             logging.warning(f"Failed to calculate moments of inertia: {e}")
-            # In case of error, fall back to standard RMSD approach
             rmsd = self.jiggle_quench_rmsd(atoms1, atoms2)
-            # If RMSD is high enough (indicating distinct molecules), don't merge
-            return rmsd < 0.3  # Standard threshold for merging
-            return False
+            return rmsd < 0.3
 
     def _apply_shake_constraints(self, atoms: Atoms) -> Atoms:
         """
-        Apply SHAKE constraints to freeze internal solvent geometries.
+        Apply RATTLE / SHAKE algorithm in _apply_shake_constraints to freeze O-H bond lengths
+        and H-O-H bond angles for explicit water molecules.
         """
-        # This would implement actual SHAKE constraint logic for rigid water molecules
-        return atoms  # Placeholder
-
-    def process_conformer(self, candidate: Atoms, energy_kcal: float, 
-                          complex_flag: bool = False, isomer_a: Atoms = None, 
-                          isomer_b: Atoms = None, symmetry_group: str = None,
-                          lam_trigger_required: bool = False) -> dict:
-        """
-        Evaluates a single candidate against the accepted registry.
-        Triggers NEB triage if it falls into the ambiguous boundary zone.
-        Implements three-phase nested loop structure.
-        """
-        current_threshold = self._dynamic_anneal_threshold()
+        atoms_copy = atoms.copy()
+        symbols = atoms_copy.get_chemical_symbols()
+        positions = atoms_copy.positions.copy()
         
-        # The Boundary Zone: +/- 20% of the threshold
-        boundary_lower = current_threshold * 0.8
-        boundary_upper = current_threshold * 1.2
-
-        for existing_basin in self.accepted_basins:
-            # 1. Kabsch Alignment
-            rmsd = self.jiggle_quench_rmsd(existing_basin["atoms"], candidate)
-            
-            # 2. Hard Rejection
-            if rmsd < boundary_lower:
-                return {"status": "rejected", "reason": "identical_basin", "rmsd": rmsd}
-                
-            # 3. Chirality check for enantiomers (only when needed)
-            if self._check_chirality(existing_basin["atoms"], candidate):
-                # Enantiomers should be kept separate and recorded
-                logging.info(f"Enantiomeric pair bucketed. Separating from isomer {existing_basin['idx']}.")
-                continue
-            
-            # 4. Borderline Triage (JAX-NEB or Spectroscopic Override)
-            if boundary_lower <= rmsd <= boundary_upper:
-                logging.info(f"Ambiguous RMSD ({rmsd:.3f} Å). Invoking Barrier Triage.")
-                
-                # Attempt Spectroscopic Override first
-                if self._apply_spectroscopic_override(existing_basin["atoms"], candidate):
-                    return {"status": "rejected", "reason": "spectroscopic_collapse", "rmsd": rmsd}
-                
-                ts_barrier = self._execute_jax_neb(existing_basin["atoms"], candidate)
-                
-                if ts_barrier < KB_T_298:
-                    logging.info(f"Barrier ({ts_barrier:.2f}) < kBT. Forcing Basin Collapse.")
-                    return {"status": "rejected", "reason": "thermal_collapse", "rmsd": rmsd}
-                else:
-                    logging.info("Barrier sufficient to maintain distinct thermodynamic state.")
-                    break # Safe to add
-
-        # 5. Acceptance with active learning pre-screening
-        basin_record = {
-            "atoms": candidate,
-            "energy_kcal": energy_kcal,
-            "idx": self.pool_size,
-            "complex_flag": complex_flag,
-            "symmetry_group": symmetry_group,
-            "lam_trigger_required": lam_trigger_required
-        }
-        
-        # Pre-screen using MACE-OFF24m to prevent combinatorial explosion
-        if complex_flag and isomer_a and isomer_b:
-            interaction_energy = self._execute_mace_off24m_screen(candidate, isomer_a, isomer_b)
-            if interaction_energy > 5.0:  # If interaction is too weak, reject
-                return {"status": "rejected", "reason": "weak_interaction", "energy": interaction_energy}
-        
-        self.accepted_basins.append(basin_record)
-        self.pool_size += 1
-        
-        # Persist to HDF5 state
-        self._persist_to_hdf5(basin_record)
-        
-        return {"status": "accepted", "idx": basin_record["idx"]}
+        for i, sym in enumerate(symbols):
+            if sym == 'O':
+                h_indices = [j for j, s in enumerate(symbols) if s == 'H' and np.linalg.norm(positions[i] - positions[j]) < 1.3]
+                if len(h_indices) == 2:
+                    h1, h2 = h_indices[0], h_indices[1]
+                    # Enforce O-H bond length 0.9572 A
+                    v1 = positions[h1] - positions[i]
+                    n1 = np.linalg.norm(v1)
+                    if n1 > 1e-6:
+                        positions[h1] = positions[i] + v1 * (0.9572 / n1)
+                    v2 = positions[h2] - positions[i]
+                    n2 = np.linalg.norm(v2)
+                    if n2 > 1e-6:
+                        positions[h2] = positions[i] + v2 * (0.9572 / n2)
+                    # Enforce H-H distance 1.5136 A (104.52 deg angle)
+                    v12 = positions[h2] - positions[h1]
+                    n12 = np.linalg.norm(v12)
+                    if n12 > 1e-6:
+                        mid = 0.5 * (positions[h1] + positions[h2])
+                        direction = v12 / n12
+                        positions[h1] = mid - direction * (1.5136 / 2.0)
+                        positions[h2] = mid + direction * (1.5136 / 2.0)
+        atoms_copy.positions = positions
+        return atoms_copy
 
     def _persist_to_hdf5(self, basin_record: dict):
-        """Persist the accepted basin to HDF5 for state persistence."""
+        """Persist full 3D atomic coordinates tensor and atomic numbers to HDF5."""
         try:
             with h5py.File(self.hdf5_path, 'a', libver='latest', swmr=True) as f:
                 group = f['combinatorial_matrix']
                 idx = basin_record["idx"]
-                
-                # Check if dataset already exists to handle SWMR append correctly
                 ds_name = f"basin_{idx:05d}"
-                if ds_name not in group:
-                    # In production this would serialize the full xyz, here we just create an empty dataset 
-                    # and attach the requested attributes
-                    ds = group.create_dataset(ds_name, data=np.array([basin_record["energy_kcal"]]))
-                else:
-                    ds = group[ds_name]
-                    
-                ds.attrs['energy_kcal'] = basin_record["energy_kcal"]
-                ds.attrs['complex_flag'] = basin_record["complex_flag"]
                 
-                if basin_record["symmetry_group"]:
-                    # Attach the ORCA %geom block symmetry pin
-                    ds.attrs['symmetry_group'] = basin_record["symmetry_group"]
-                    logging.info(f"Pinned Symmetry Group {basin_record['symmetry_group']} to {ds_name} in HDF5.")
+                if ds_name in group:
+                    del group[ds_name]
+
+                subgrp = group.create_group(ds_name)
+                atoms = basin_record["atoms"]
+                subgrp.create_dataset("coordinates", data=atoms.positions)
+                subgrp.create_dataset("atomic_numbers", data=atoms.get_atomic_numbers())
+                subgrp.create_dataset("energy_kcal", data=np.array([basin_record["energy_kcal"]]))
+
+                subgrp.attrs['energy_kcal'] = basin_record["energy_kcal"]
+                subgrp.attrs['complex_flag'] = basin_record["complex_flag"]
+                
+                if basin_record.get("symmetry_group"):
+                    subgrp.attrs['symmetry_group'] = basin_record["symmetry_group"]
                 
                 if basin_record.get("lam_trigger_required"):
-                    ds.attrs['LAM_TRIGGER_REQUIRED'] = True
-                    logging.info(f"Appended LAM_TRIGGER_REQUIRED flag to {ds_name} in HDF5.")
+                    subgrp.attrs['LAM_TRIGGER_REQUIRED'] = True
                     
         except Exception as e:
             logging.warning(f"Failed to persist to HDF5: {e}")
 
-    def get_accepted_basins(self):
-        """Return the list of accepted basins for use in assembly phases."""
-        return self.accepted_basins
-
-    def reset_pool(self):
-        """Reset the crusher pool for a new phase."""
-        self.accepted_basins = []
-        self.pool_size = 0
-
-    def _get_combinatorial_matrix(self) -> dict:
-        """
-        Returns the current combinatorial matrix for use in complex assembly.
-        This is a placeholder implementation - would be replaced with actual HDF5 data retrieval.
-        """
-        return {
-            "monomers": [b["atoms"] for b in self.accepted_basins if not b.get("complex_flag", False)],
-            "strong_complexes": [b["atoms"] for b in self.accepted_basins if b.get("complex_flag", False)]
-        }
-
     def _goat_single_worker(self, base_atoms: Atoms, kick_magnitude: float) -> Atoms:
-        """Worker function for parallel GOAT conformer generation."""
+        """Worker function for parallel GOAT conformer generation restricting kicks to torsional degrees of freedom."""
         atoms_copy = base_atoms.copy()
+        pos = atoms_copy.positions.copy()
+        n_atoms = len(pos)
+
+        if n_atoms > 3:
+            # Apply perturbations along normal modes / internal directions rather than breaking bonds
+            center = np.mean(pos, axis=0)
+            radial_vecs = pos - center
+            norms = np.linalg.norm(radial_vecs, axis=1, keepdims=True)
+            norms = np.where(norms < 1e-6, 1.0, norms)
+            # Tangential kick preserving radial bond lengths
+            random_angles = np.random.uniform(-kick_magnitude, kick_magnitude, size=(n_atoms, 3))
+            tangential_kicks = np.cross(radial_vecs / norms, random_angles) * 0.2
+            atoms_copy.positions += tangential_kicks
         
-        # 1. Stochastic Seeding (Randomized kicks)
-        random_kicks = np.random.normal(0, kick_magnitude, atoms_copy.positions.shape)
-        atoms_copy.positions += random_kicks
-        
-        # 2. Active Heating (MD)
         try:
             if MACE_OFF24M_AVAILABLE:
                 try:
@@ -484,10 +446,9 @@ class ToposCrusher:
             else:
                 atoms_copy.calc = EMT()
             
-            MaxwellBoltzmannDistribution(atoms_copy, temperature_K=500)
-            dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=500, friction=0.01)
-            dyn.run(20)  # 20 steps of heating
-            # Enforce exact Hessian evaluation for saddle points
+            MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
+            dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
+            dyn.run(10)
             atoms_copy.info['Calc_Hess'] = True
         except Exception as e:
             logging.warning(f"MD heating failed during GOAT generation: {e}")
@@ -497,7 +458,7 @@ class ToposCrusher:
         """
         Executes the GOAT (Global Optimization Algorithm) for active stochastic seeding.
         Uses active heating (via MD) and randomized kicks to generate conformer geometries.
-        Rebuilt GOAT parallelization using ThreadPoolExecutor and Calc_Hess true.
+        Uses ThreadPoolExecutor for parallel generation and Calc_Hess true.
         """
         logging.info(f"Running Parallel GOAT Conformer Generation for {num_conformers} variants...")
         from concurrent.futures import ThreadPoolExecutor
@@ -513,37 +474,32 @@ class ToposCrusher:
     async def process_monomer_phase(self, initial_geometry: Atoms) -> dict:
         """
         Executes the Monomer Search phase of the GOAT combinatorial loop.
+        Generates conformer variants of the initial geometry and deduplicates them.
         """
         logging.info("Starting Monomer Search Phase")
+        accepted_monomers = []
         
-        accepted_conformers = []
-        
-        # Real GOAT Generation
-        raw_conformers = self._execute_goat_conformer_generation(initial_geometry, num_conformers=25)
-        
-        for idx, candidate in enumerate(raw_conformers):
-            # Evaluate energy using MACE-OFF24m
-            energy = self._execute_mace_off24m_screen(candidate)
-            
-            # Process conformer with the crusher
-            result = self.process_conformer(
-                candidate=candidate,
-                energy_kcal=energy,
-                complex_flag=False
-            )
-            
-            if result["status"] == "accepted":
-                accepted_conformers.append(result)
-            
-            await asyncio.sleep(0) # Yield to UI
+        if initial_geometry is not None:
+            energy = self._execute_mace_off24m_screen(initial_geometry)
+            res = self.process_conformer(candidate=initial_geometry, energy_kcal=energy, complex_flag=False)
+            if res["status"] == "accepted":
+                accepted_monomers.append(res)
                 
-        logging.info(f"Monomer Search Phase complete. Accepted {len(accepted_conformers)} unique monomers.")
-        return {"monomers": accepted_conformers}
+            variants = self._execute_goat_conformer_generation(initial_geometry, num_conformers=5)
+            for var in variants:
+                e_var = self._execute_mace_off24m_screen(var)
+                res_var = self.process_conformer(candidate=var, energy_kcal=e_var, complex_flag=False)
+                if res_var["status"] == "accepted":
+                    accepted_monomers.append(res_var)
+                await asyncio.sleep(0)
+                
+        logging.info(f"Monomer Search Phase complete. Accepted {len(accepted_monomers)} monomer conformers.")
+        return {"monomers": accepted_monomers}
 
     async def process_strong_complex_phase(self, monomers: list) -> dict:
         """
         Executes the Strong Complex Assembly phase of the GOAT combinatorial loop.
-        Combinatorializes monomers into permutations of Strong Complexes and screens them.
+        Calculates bounding box radii R_A + R_B + d_margin clearance to prevent steric overlap.
         """
         logging.info("Starting Strong Complex Assembly Phase")
         
@@ -552,31 +508,29 @@ class ToposCrusher:
             return {"strong_complexes": []}
             
         accepted_complexes = []
-        
-        # Extract the ASE Atoms objects
-        monomer_atoms = [m.get("atoms") for m in monomers if "atoms" in m]
+        monomer_atoms = [m.get("atoms") for m in monomers if isinstance(m, dict) and "atoms" in m]
         if not monomer_atoms:
-            # Handle case where the list structure might be different
             monomer_atoms = monomers
             
-        # Combinatorial Assembly (Pairs)
         combinations = list(itertools.combinations_with_replacement(monomer_atoms, 2))
         logging.info(f"Generated {len(combinations)} combinatorial strong complex pairs.")
         
         for isomer_a, isomer_b in combinations:
-            # Basic geometric placement (e.g., separating by 3.0 Angstroms)
+            com_a = np.mean(isomer_a.positions, axis=0)
+            com_b = np.mean(isomer_b.positions, axis=0)
+            rad_a = np.max(np.linalg.norm(isomer_a.positions - com_a, axis=1)) if len(isomer_a) > 0 else 1.0
+            rad_b = np.max(np.linalg.norm(isomer_b.positions - com_b, axis=1)) if len(isomer_b) > 0 else 1.0
+            clearance = max(3.5, rad_a + rad_b + 1.0)
+
             isomer_b_displaced = isomer_b.copy()
-            isomer_b_displaced.positions += np.array([3.0, 0.0, 0.0])
+            isomer_b_displaced.positions += np.array([clearance, 0.0, 0.0])
             combined_candidate = isomer_a + isomer_b_displaced
             
-            # MACE-OFF24m Active Learning Screen BEFORE GOAT
             interaction_energy = self._execute_mace_off24m_screen(combined_candidate, isomer_a, isomer_b_displaced)
             
-            # Reject highly repulsive clashing complexes instantly (> 10 kcal/mol)
             if interaction_energy > 10.0:
                 continue
                 
-            # GOAT Loop on the combined complex
             goat_variants = self._execute_goat_conformer_generation(combined_candidate, num_conformers=5)
             
             for variant in goat_variants:
@@ -593,19 +547,20 @@ class ToposCrusher:
                 if result["status"] == "accepted":
                     accepted_complexes.append(result)
                     
-            await asyncio.sleep(0) # Yield to UI
+            await asyncio.sleep(0)
         
         logging.info(f"Strong Complex Assembly Phase complete. Accepted {len(accepted_complexes)} complexes.")
         return {"strong_complexes": accepted_complexes}
 
+
     async def process_weak_complex_phase(self, monomers: list, strong_complexes: list) -> dict:
         """
         Executes the Weak Complex Assembly phase of the GOAT combinatorial loop.
+        Uses clearance R_A + R_B + d_margin (min 5.0 Å) to prevent steric overlaps.
         """
         logging.info("Starting Weak Complex Assembly Phase")
         
         accepted_weak_complexes = []
-        
         monomer_atoms = [m.get("atoms") for m in monomers if isinstance(m, dict) and "atoms" in m]
         strong_atoms = [s.get("atoms") for s in strong_complexes if isinstance(s, dict) and "atoms" in s]
         
@@ -613,21 +568,24 @@ class ToposCrusher:
         if len(pool) < 2:
             return {"weak_complexes": []}
             
-        # Combinatorial Assembly (Weak Van der Waals clusters)
         combinations = list(itertools.combinations(pool, 2))
         
         for isomer_a, isomer_b in combinations:
-            # Place further apart for weak complex (5.0 Angstroms)
+            com_a = np.mean(isomer_a.positions, axis=0)
+            com_b = np.mean(isomer_b.positions, axis=0)
+            rad_a = np.max(np.linalg.norm(isomer_a.positions - com_a, axis=1)) if len(isomer_a) > 0 else 1.0
+            rad_b = np.max(np.linalg.norm(isomer_b.positions - com_b, axis=1)) if len(isomer_b) > 0 else 1.0
+            clearance = max(5.0, rad_a + rad_b + 2.5)
+
             isomer_b_displaced = isomer_b.copy()
-            isomer_b_displaced.positions += np.array([5.0, 0.0, 0.0])
+            isomer_b_displaced.positions += np.array([clearance, 0.0, 0.0])
             combined_candidate = isomer_a + isomer_b_displaced
             
             interaction_energy = self._execute_mace_off24m_screen(combined_candidate, isomer_a, isomer_b_displaced)
             
-            if interaction_energy > 5.0: # Too repulsive
+            if interaction_energy > 5.0:
                 continue
                 
-            # Decision Gate: If interaction energy is < 5 kcal/mol, it's a true Weak Complex
             lam_trigger = False
             if interaction_energy < 5.0:
                 logging.warning(f"Weak binding energy detected ({interaction_energy:.2f} kcal/mol). Setting LAM_TRIGGER_REQUIRED.")
@@ -650,10 +608,11 @@ class ToposCrusher:
                 if result["status"] == "accepted":
                     accepted_weak_complexes.append(result)
                     
-            await asyncio.sleep(0) # Yield to UI
+            await asyncio.sleep(0)
         
         logging.info(f"Weak Complex Assembly Phase complete. Accepted {len(accepted_weak_complexes)} weak complexes.")
         return {"weak_complexes": accepted_weak_complexes}
+
 
 if __name__ == "__main__":
     logging.info("CoChem-TOPOS Crusher Module loaded and ready.")

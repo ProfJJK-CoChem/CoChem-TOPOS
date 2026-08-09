@@ -7,19 +7,26 @@ import logging
 import h5py
 from pathlib import Path
 import asyncio
+import numpy as np
 import zmq
 import zmq.asyncio
 
 # Internal CoChem architecture imports
 try:
-    from cochem_topos_cascade_orchestrator import CascadeOrchestrator
-except ImportError as e:
-    raise ImportError(f"CRITICAL: Failed to load CascadeOrchestrator. {e}")
+    from cascade_engine.cochem_topos_cascade_orchestrator import CascadeOrchestrator
+except ImportError:
+    try:
+        from cochem_topos_cascade_orchestrator import CascadeOrchestrator
+    except ImportError as e:
+        raise ImportError(f"CRITICAL: Failed to load CascadeOrchestrator. {e}")
 
 try:
-    from cochem_topos_crusher import ToposCrusher
-except ImportError as e:
-    raise ImportError(f"CRITICAL: Failed to load ToposCrusher. {e}")
+    from core_engine.cochem_topos_crusher import ToposCrusher
+except ImportError:
+    try:
+        from cochem_topos_crusher import ToposCrusher
+    except ImportError as e:
+        raise ImportError(f"CRITICAL: Failed to load ToposCrusher. {e}")
 
 logger = logging.getLogger("CoChem.TOPOS.MasterIntegrator")
 
@@ -57,16 +64,18 @@ class TOPOSMasterIntegrator:
         logger.info("ZMQ UI Listener Daemon started.")
         while True:
             try:
-                # Non-blocking check for messages
-                message = await self.zmq_socket.recv_json(flags=zmq.NOBLOCK)
+                # Native async receive without busy polling
+                message = await self.zmq_socket.recv_json()
                 logger.info(f"Received UI command: {message}")
                 # Handle UI commands (e.g., symmetry override, enantiomer bucketing)
                 response = {"status": "ACK", "message": "Command received"}
                 await self.zmq_socket.send_json(response)
-            except zmq.Again:
-                # No message waiting
-                pass
-            await asyncio.sleep(0.1)  # Yield control to the event loop
+            except asyncio.CancelledError:
+                logger.info("ZMQ UI Listener Daemon cancelled.")
+                break
+            except Exception as e:
+                logger.error(f"Error in ZMQ UI listener: {e}")
+                await asyncio.sleep(0.1)
 
     async def execute_nested_assembly_pipeline(self, initial_geometry):
         """
@@ -200,8 +209,16 @@ class TOPOSMasterIntegrator:
                 for geom_id in isomer_ids:
                     # Scan backwards from highest tier to find best energy
                     best_energy = None
-                    for tier in sorted(f[f"{target_group}/{geom_id}"].keys(), reverse=True):
-                        if tier.startswith("tier_") and "energy" in f[f"{target_group}/{geom_id}/{tier}"]:
+                    keys = list(f[f"{target_group}/{geom_id}"].keys())
+                    tier_keys = [k for k in keys if k.startswith("tier_")]
+                    def get_tier_num(k):
+                        try:
+                            return int(k.split("_")[1])
+                        except Exception:
+                            return 0
+                    sorted_tiers = sorted(tier_keys, key=get_tier_num, reverse=True)
+                    for tier in sorted_tiers:
+                        if "energy" in f[f"{target_group}/{geom_id}/{tier}"]:
                             best_energy = f[f"{target_group}/{geom_id}/{tier}/energy"][()]
                             break
                     if best_energy is not None:
@@ -231,6 +248,7 @@ class TOPOSMasterIntegrator:
         logger.info("=== Macroscopic Boltzmann Synthesis Results ===")
         for g, pop in sorted(populations.items(), key=lambda item: item[1], reverse=True):
             logger.info(f"Isomer {g}: E_rel = {energies[g]-min_energy:.2f} kcal/mol -> Pop = {pop:.2f}%")
+
 
 if __name__ == "__main__":
     # Test execution block for local CLI testing
