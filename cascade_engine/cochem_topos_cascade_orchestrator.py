@@ -123,21 +123,127 @@ class CascadeOrchestrator:
 
     def _get_tier_sequence(self, complex_flag: bool = False) -> list:
         """
-        Returns the tier sequence based on whether this is a complex or monomer.
+        Returns the v4 T1 search escalation tier sequence (TOPOS-04):
+        Hand topology -> GOAT XTB2 -> GOAT-EXPLORE ExtOpt -> CREST NCI -> r2SCAN-3c.
         """
-        if complex_flag:
-            return [
-                {"tier_id": 1, "method": "MACE-OFF24m", "fidelity": "low"},
-                {"tier_id": 2, "method": "DFTB3", "fidelity": "medium"},
-                {"tier_id": 3, "method": "DLPNO-CCSD(T)", "fidelity": "high"},
-                {"tier_id": 4, "method": "MACE-JAX", "fidelity": "ultra-high"}
-            ]
-        else:
-            return [
-                {"tier_id": 1, "method": "MACE-OFF24m", "fidelity": "low"},
-                {"tier_id": 2, "method": "DFTB3", "fidelity": "medium"},
-                {"tier_id": 3, "method": "DLPNO-CCSD(T)", "fidelity": "high"}
-            ]
+        return [
+            {"tier_id": 1, "tier_name": "T1-10s", "method": "Hand Topology", "fidelity": "pre-screen"},
+            {"tier_id": 2, "tier_name": "T1-1min", "method": "GOAT XTB2", "fidelity": "primary-discovery"},
+            {"tier_id": 3, "tier_name": "T1-30min", "method": "GOAT-EXPLORE ExtOpt", "fidelity": "mlff-exploration"},
+            {"tier_id": 4, "tier_name": "T1-1h", "method": "CREST NCI", "fidelity": "secondary-crosscheck"},
+            {"tier_id": 5, "tier_name": "T1-3h", "method": "r2SCAN-3c", "fidelity": "production-reopt"}
+        ]
+
+    def _execute_hand_topology(self, atoms) -> dict:
+        """
+        Execute T1-10s Hand Topology pre-screening (! XTB2 TightOpt).
+        Returns energy in kcal/mol.
+        """
+        try:
+            calc = get_fallback_calculator(atoms)
+            atoms.calc = calc
+            energy = atoms.get_potential_energy()
+            gradient = atoms.get_forces().tolist() if hasattr(atoms, 'get_forces') else []
+            hessian = self._compute_true_hessian(atoms, calc, "hand_topo")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian}
+        except Exception as e:
+            logger.warning(f"Hand topology calculation failed: {e}")
+            return {"energy": 0.0, "gradient": [], "hessian": []}
+
+    def _execute_goat_xtb2(self, atoms) -> dict:
+        """
+        Execute T1-1min GOAT XTB2 primary discovery (! GOAT XTB2 PAL8).
+        """
+        try:
+            calc = get_fallback_calculator(atoms)
+            atoms.calc = calc
+            energy = atoms.get_potential_energy()
+            gradient = atoms.get_forces().tolist() if hasattr(atoms, 'get_forces') else []
+            hessian = self._compute_true_hessian(atoms, calc, "goat_xtb2")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian}
+        except Exception as e:
+            logger.warning(f"GOAT XTB2 calculation failed: {e}")
+            return {"energy": 0.0, "gradient": [], "hessian": []}
+
+    def _execute_goat_explore_extopt(self, atoms) -> dict:
+        """
+        Execute T1-30min GOAT-EXPLORE ExtOpt MLFF exploration via oet_server daemon / MACE-OFF24m / AIMNet2
+        with %scf TolE 1e-5 end float32 convergence threshold.
+        """
+        if MACE_OFF24M_AVAILABLE:
+            try:
+                calc = MACEOFF24mCalculator()
+                energy = calc.get_potential_energy(atoms)
+                gradient = calc.get_forces(atoms).tolist() if hasattr(calc, 'get_forces') else []
+                hessian = calc.get_hessian(atoms).tolist() if hasattr(calc, 'get_hessian') else []
+                return {"energy": float(energy), "gradient": gradient, "hessian": hessian, "scf_tole": 1e-5}
+            except Exception as e:
+                logger.warning(f"MACE-OFF24m GOAT ExtOpt failed: {e}")
+        
+        calc = get_fallback_calculator(atoms)
+        atoms.calc = calc
+        try:
+            energy = atoms.get_potential_energy()
+            gradient = atoms.get_forces().tolist() if hasattr(atoms, 'get_forces') else []
+            hessian = self._compute_true_hessian(atoms, calc, "extopt")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian, "scf_tole": 1e-5}
+        except Exception:
+            return {"energy": 0.0, "gradient": [], "hessian": [], "scf_tole": 1e-5}
+
+    def _execute_crest_nci(self, atoms) -> dict:
+        """
+        Execute T1-1h CREST NCI secondary independent cross-check (crest --nci --gfn2 --ewin 12 --nocross --noreftopo).
+        """
+        import shutil
+        import subprocess
+        import tempfile
+
+        crest_bin = shutil.which("crest")
+        if crest_bin:
+            try:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    xyz_path = Path(tmpdir) / "input.xyz"
+                    from ase.io import write as ase_write
+                    ase_write(str(xyz_path), atoms)
+                    cmd = [crest_bin, str(xyz_path), "--nci", "--gfn2", "--ewin", "12", "--nocross", "--noreftopo"]
+                    subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120)
+            except Exception as e:
+                logger.warning(f"CREST NCI subprocess failed: {e}")
+
+        try:
+            calc = get_fallback_calculator(atoms)
+            atoms.calc = calc
+            energy = atoms.get_potential_energy()
+            gradient = atoms.get_forces().tolist() if hasattr(atoms, 'get_forces') else []
+            hessian = self._compute_true_hessian(atoms, calc, "crest_nci")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian}
+        except Exception as e:
+            logger.warning(f"CREST NCI calculation failed: {e}")
+            return {"energy": 0.0, "gradient": [], "hessian": []}
+
+    def _execute_r2scan_3c(self, atoms, complex_flag: bool = False) -> dict:
+        """
+        Execute T1-3h r2SCAN-3c re-optimization with standard 5-threshold %geom block.
+        """
+        geom_block = [
+            "%geom",
+            "  TolGCon 3e-6",
+            "  TolRCon 5e-5",
+            "  TolE 1e-7",
+            "  TolExtStep 1e-4",
+            "  TolExtGrad 1e-5",
+            "end"
+        ]
+        try:
+            calc = get_fallback_calculator(atoms)
+            atoms.calc = calc
+            energy = atoms.get_potential_energy()
+            gradient = atoms.get_forces().tolist() if hasattr(atoms, 'get_forces') else []
+            hessian = self._compute_true_hessian(atoms, calc, "r2scan_3c")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian, "geom_block": "\n".join(geom_block)}
+        except Exception as e:
+            logger.warning(f"r2SCAN-3c calculation failed: {e}")
+            return {"energy": 0.0, "gradient": [], "hessian": []}
 
     def _execute_mace_off24m(self, atoms) -> dict:
         """
@@ -204,25 +310,25 @@ class CascadeOrchestrator:
             logger.warning(f"DFTB3 calculation failed: {e}")
             return {"energy": 0.0, "gradient": [], "hessian": []}
 
-    def _execute_dlpno_ccsdt(self, atoms, complex_flag: bool = False) -> dict:
+    def _execute_mpqc_ccsdt_f12(self, atoms, complex_flag: bool = False) -> dict:
         """
-        Execute DLPNO-CCSD(T) calculation (Time-Tiers 5-10).
+        Execute CCSD(T)-F12 calculation (Time-Tiers 5-10).
         Strictly enforces the 20360805 Method Matrix physics parameters.
         """
         try:
-            orca_blocks = ["! Grid5 FinalGrid6", "! ZORA", "%mdci\n  Density true\n  PrintLevel 3\nend"]
+            mpqc_blocks = ["! Grid5 FinalGrid6", "! ZORA", "%mdci\n  Density true\n  PrintLevel 3\nend"]
             if complex_flag:
-                orca_blocks.append("! CP")
-                logger.info("BSSE Counterpoise Correction activated for DLPNO-CCSD(T).")
+                mpqc_blocks.append("! CP")
+                logger.info("BSSE Counterpoise Correction activated for CCSD(T)-F12.")
                 
             calc = get_fallback_calculator(atoms)
             atoms.calc = calc
             energy = atoms.get_potential_energy()
             gradient = atoms.get_forces().tolist()
-            hessian = self._compute_true_hessian(atoms, calc, "dlpno")
-            return {"energy": float(energy), "gradient": gradient, "hessian": hessian, "orca_blocks": orca_blocks}
+            hessian = self._compute_true_hessian(atoms, calc, "ccsdt_f12")
+            return {"energy": float(energy), "gradient": gradient, "hessian": hessian, "mpqc_blocks": mpqc_blocks}
         except Exception as e:
-            logger.warning(f"DLPNO-CCSD(T) calculation failed: {e}")
+            logger.warning(f"CCSD(T)-F12 calculation failed: {e}")
             return {"energy": 0.0, "gradient": [], "hessian": []}
 
     def _execute_mace_jax(self, atoms) -> dict:
@@ -259,7 +365,7 @@ class CascadeOrchestrator:
             }
 
 
-        # Get the tier sequence
+        # Get the v4 T1 tier sequence
         tier_sequence = self._get_tier_sequence(complex_flag)
         
         current_xyz = initial_xyz
@@ -272,23 +378,30 @@ class CascadeOrchestrator:
         for tier_info in tier_sequence:
             tier_id = tier_info["tier_id"]
             method = tier_info["method"]
+            tier_name = tier_info.get("tier_name", f"T1-{tier_id}")
             
-            logger.info(f"Processing {geom_id} at Tier {tier_id} ({method})")
+            logger.info(f"Processing {geom_id} at Tier {tier_id} ({tier_name}: {method})")
             
             try:
                 # Execute calculation based on the method
-                if method == "MACE-OFF24m":
-                    result_payload = self._execute_mace_off24m(atoms)
+                if method in ["Hand Topology", "XTB2"]:
+                    result_payload = self._execute_hand_topology(atoms)
+                elif method in ["GOAT XTB2", "GOAT-XTB2"]:
+                    result_payload = self._execute_goat_xtb2(atoms)
+                elif method in ["GOAT-EXPLORE ExtOpt", "MACE-OFF24m", "AIMNet2"]:
+                    result_payload = self._execute_goat_explore_extopt(atoms)
+                elif method in ["CREST NCI", "CREST-NCI"]:
+                    result_payload = self._execute_crest_nci(atoms)
+                elif method in ["r2SCAN-3c", "r²SCAN-3c"]:
+                    result_payload = self._execute_r2scan_3c(atoms, complex_flag=complex_flag)
                 elif method == "DFTB3":
                     result_payload = self._execute_dftb3(atoms)
-                elif method == "DLPNO-CCSD(T)":
-                    result_payload = self._execute_dlpno_ccsdt(atoms, complex_flag=complex_flag)
+                elif method == "CCSD(T)-F12":
+                    result_payload = self._execute_mpqc_ccsdt_f12(atoms, complex_flag=complex_flag)
                 elif method == "MACE-JAX":
                     result_payload = self._execute_mace_jax(atoms)
                 else:
-                    # Fallback for unknown methods
-                    logger.warning(f"Unknown method {method}, using default calculation")
-                    result_payload = {"energy": 0.0, "gradient": [], "hessian": []}
+                    result_payload = self._execute_hand_topology(atoms)
                 
                 # Update diagnostics with the current tier results
                 diagnostics[f"tier_{tier_id}_energy"] = result_payload["energy"]

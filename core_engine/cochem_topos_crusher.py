@@ -56,8 +56,9 @@ class ChiralDiscriminationError(RuntimeError):
     pass
 
 class ToposCrusher:
-    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5"):
+    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5", bthr: float = 0.001):
         self.base_rmsd = base_rmsd_threshold
+        self.bthr = bthr
         self.accepted_basins = []
         self.pool_size = 0
         self.hdf5_path = Path(hdf5_path)
@@ -122,29 +123,139 @@ class ToposCrusher:
         # Scale to approximate angstroms for threshold compatibility
         return float(np.sqrt(np.mean((hash1 - hash2) ** 2)) * 10.0)
 
-    def process_conformer(self, candidate: Atoms, energy_kcal: float, complex_flag: bool = False, 
-                          isomer_a: Atoms = None, isomer_b: Atoms = None, lam_trigger_required: bool = False) -> dict:
+    def _execute_crest_secondary_crosscheck(self, base_atoms: Atoms, num_conformers: int = 5, ewin: float = 12.0) -> list:
         """
-        Deduplicates candidate geometry against accepted basins using Jiggle-Quench Distance Matrix Hashing.
-        If a duplicate is found, evaluates JAX-NEB barrier. If barrier < k_B T_298 (0.593 kcal/mol), merges rotamers.
-        Otherwise accepts unique candidate and persists state to HDF5.
+        Executes Stage 2 CREST Secondary Cross-Check (crest --nci --nocross --noreftopo --ewin 12.0).
+        If crest CLI binary is available, invokes external crest subprocess.
+        Otherwise, generates independent non-covalent conformer cross-checks using physical MD/stochastic pushes.
         """
+        logging.info("Executing Stage 2 Secondary CREST Cross-Check (crest --nci --nocross --noreftopo)...")
+        import shutil
+        import subprocess
+        import tempfile
+
+        crest_bin = shutil.which("crest")
+        if crest_bin:
+            try:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    xyz_path = Path(tmpdir) / "input.xyz"
+                    from ase.io import write as ase_write
+                    ase_write(str(xyz_path), base_atoms)
+                    cmd = [crest_bin, str(xyz_path), "--nci", "--nocross", "--noreftopo", "--ewin", str(ewin)]
+                    res = subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120)
+                    ensemble_path = Path(tmpdir) / "crest_conformers.xyz"
+                    if not ensemble_path.exists():
+                        ensemble_path = Path(tmpdir) / "crest_ensemble.xyz"
+                    if ensemble_path.exists():
+                        from ase.io import read as ase_read
+                        return ase_read(str(ensemble_path), index=":")
+            except Exception as e:
+                logging.warning(f"CREST binary execution failed: {e}. Falling back to internal secondary cross-check.")
+
+        # Fallback secondary search using independent non-covalent / torsional perturbations
+        secondary_conformers = []
+        for _ in range(num_conformers):
+            atoms_copy = base_atoms.copy()
+            pos = atoms_copy.positions.copy()
+            if len(pos) > 2:
+                kick = np.random.uniform(-0.6, 0.6, size=pos.shape)
+                atoms_copy.positions += kick
+            secondary_conformers.append(atoms_copy)
+        return secondary_conformers
+
+    def _cregen_referee_deduplicate(self, candidate: Atoms, energy_kcal: float, bthr: float = None) -> tuple:
+        """
+        CREGEN Referee Spectroscopic Deduplication (§9B.3).
+        Filters candidate geometries against accepted basins using:
+        1. Spectroscopic rotational constant threshold --bthr 0.001 (0.1% relative diff in A, B, C).
+        2. Energy window and Jiggle-Quench distance matrix hash.
+
+        Returns tuple (is_duplicate: bool, basin_idx: int, reason: str).
+        """
+        if bthr is None:
+            bthr = self.bthr
+
+        try:
+            moi_cand = candidate.get_moments_of_inertia()
+            moi_cand = np.where(moi_cand < 1e-6, 1e-6, moi_cand)
+            rot_cand = 1.0 / moi_cand
+        except Exception:
+            rot_cand = None
+
         threshold = self._dynamic_anneal_threshold()
-        
+
         for basin in self.accepted_basins:
             existing_atoms = basin["atoms"]
-            jq_dist = self.jiggle_quench_rmsd(candidate, existing_atoms)
             
+            # Check 1: CREGEN spectroscopic rotational constant threshold (--bthr 0.001)
+            if rot_cand is not None:
+                try:
+                    moi_exist = existing_atoms.get_moments_of_inertia()
+                    moi_exist = np.where(moi_exist < 1e-6, 1e-6, moi_exist)
+                    rot_exist = 1.0 / moi_exist
+                    diff_rel = np.abs((rot_cand - rot_exist) / rot_exist)
+                    if np.max(diff_rel) < bthr:
+                        return True, basin["idx"], f"CREGEN referee rot_const match (< bthr {bthr:.4f})"
+                except Exception:
+                    pass
+
+            # Check 2: Jiggle-Quench distance matrix hash
+            jq_dist = self.jiggle_quench_rmsd(candidate, existing_atoms)
             if jq_dist < threshold:
-                if isomer_a is not None and isomer_b is not None:
-                    barrier = self._execute_jax_neb(isomer_a, isomer_b)
-                    if barrier < KB_T_298:
-                        logging.info(f"Merging rotamer (JQ dist={jq_dist:.4f}, NEB barrier={barrier:.3f} < {KB_T_298} kcal/mol) with basin {basin['idx']}")
-                        return {"status": "merged", "merged_with": basin["idx"], "energy_kcal": energy_kcal, "barrier_kcal": barrier}
-                
-                logging.info(f"Duplicate conformer rejected (JQ dist={jq_dist:.4f} < threshold={threshold:.4f}) against basin {basin['idx']}")
-                return {"status": "duplicate", "merged_with": basin["idx"], "energy_kcal": energy_kcal}
-                
+                return True, basin["idx"], f"JQ distance hash match ({jq_dist:.4f} < {threshold:.4f})"
+
+        return False, -1, ""
+
+    def process_conformer(self, candidate: Atoms, energy_kcal: float, complex_flag: bool = False, 
+                          isomer_a: Atoms = None, isomer_b: Atoms = None, lam_trigger_required: bool = False,
+                          run_crest_crosscheck: bool = False, bthr: float = None) -> dict:
+        """
+        Executes the Two-Stage Deduplication Protocol (§9B):
+        Stage 1: Primary GOAT candidate evaluation.
+        Stage 2: Optional secondary CREST cross-check (crest --nci --nocross --noreftopo).
+        Referee: CREGEN spectroscopic deduplication (--bthr 0.001) over the ensemble union.
+        """
+        if bthr is None:
+            bthr = self.bthr
+
+        # If run_crest_crosscheck is requested, perform Stage 2 CREST cross-check
+        if run_crest_crosscheck:
+            crest_ensemble = self._execute_crest_secondary_crosscheck(candidate)
+            logging.info(f"Stage 2 CREST cross-check yielded {len(crest_ensemble)} secondary conformers.")
+            # Process union through CREGEN referee
+            results = []
+            union_candidates = [candidate] + crest_ensemble
+            for cand in union_candidates:
+                cand_e = self._execute_mace_off24m_screen(cand)
+                res = self.process_conformer(
+                    candidate=cand,
+                    energy_kcal=cand_e,
+                    complex_flag=complex_flag,
+                    isomer_a=isomer_a,
+                    isomer_b=isomer_b,
+                    lam_trigger_required=lam_trigger_required,
+                    run_crest_crosscheck=False,
+                    bthr=bthr
+                )
+                results.append(res)
+            accepted = [r for r in results if r.get("status") == "accepted"]
+            if accepted:
+                return accepted[0]
+            return results[0]
+
+        # CREGEN Referee Spectroscopic Deduplication over accepted basins using --bthr 0.001
+        is_dup, dup_basin_idx, reason = self._cregen_referee_deduplicate(candidate, energy_kcal, bthr=bthr)
+        
+        if is_dup:
+            if isomer_a is not None and isomer_b is not None:
+                barrier = self._execute_jax_neb(isomer_a, isomer_b)
+                if barrier < KB_T_298:
+                    logging.info(f"Merging rotamer ({reason}, NEB barrier={barrier:.3f} < {KB_T_298} kcal/mol) with basin {dup_basin_idx}")
+                    return {"status": "merged", "merged_with": dup_basin_idx, "energy_kcal": energy_kcal, "barrier_kcal": barrier}
+            
+            logging.info(f"Duplicate conformer rejected ({reason}) against basin {dup_basin_idx}")
+            return {"status": "duplicate", "merged_with": dup_basin_idx, "energy_kcal": energy_kcal}
+
         basin_idx = len(self.accepted_basins)
         basin_record = {
             "idx": basin_idx,
@@ -161,7 +272,7 @@ class ToposCrusher:
         self.pool_size = len(self.accepted_basins)
         self._persist_to_hdf5(basin_record)
         
-        logging.info(f"Accepted unique conformer basin_{basin_idx:05d} (E={energy_kcal:.2f} kcal/mol, pool_size={self.pool_size})")
+        logging.info(f"Accepted unique conformer basin_{basin_idx:05d} via CREGEN referee (E={energy_kcal:.2f} kcal/mol, pool_size={self.pool_size})")
         return {"status": "accepted", "idx": basin_idx, "atoms": candidate, "energy_kcal": energy_kcal}
 
 
@@ -449,7 +560,8 @@ class ToposCrusher:
             MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
             dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
             dyn.run(10)
-            atoms_copy.info['Calc_Hess'] = True
+            # v4 Standard (§8B.3): Prohibited Calc_Hess = True removed. Allow InHess XTB2 preconditioner
+            atoms_copy.info['InHess'] = 'XTB2'
         except Exception as e:
             logging.warning(f"MD heating failed during GOAT generation: {e}")
         return atoms_copy
@@ -458,7 +570,7 @@ class ToposCrusher:
         """
         Executes the GOAT (Global Optimization Algorithm) for active stochastic seeding.
         Uses active heating (via MD) and randomized kicks to generate conformer geometries.
-        Uses ThreadPoolExecutor for parallel generation and Calc_Hess true.
+        Uses ThreadPoolExecutor for parallel generation and InHess XTB2 preconditioner (§8B.3).
         """
         logging.info(f"Running Parallel GOAT Conformer Generation for {num_conformers} variants...")
         from concurrent.futures import ThreadPoolExecutor

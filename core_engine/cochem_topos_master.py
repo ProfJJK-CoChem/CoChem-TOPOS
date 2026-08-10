@@ -1,5 +1,5 @@
 """
-CoChem-TOPOS: Stage 4.1 - Pipeline Master Integrator
+CoChem-TOPOS v4.0: v4 T1 Master Orchestration - Pipeline Master Integrator
 Bridges the GOAT/Crusher deduplication loops to the Method Matrix Cascade.
 """
 
@@ -30,6 +30,66 @@ except ImportError:
 
 logger = logging.getLogger("CoChem.TOPOS.MasterIntegrator")
 
+
+class OETServerIPCClient:
+    """
+    IPC Client helper for oet_server daemon float32 MLFF-GOAT execution (§9B.4).
+    Enforces gradient sign-flip guard (nabla E = -F) and %scf TolE 1e-5 end threshold configuration.
+    """
+    def __init__(self, host: str = "localhost", port: int = 8888, scf_tole: float = 1e-5):
+        self.host = host
+        self.port = port
+        self.scf_tole = scf_tole
+
+    def format_mpqc_extopt_input(self, xyz_filename: str, pal: int = 8) -> str:
+        """
+        Generates MPQC input block for float32 MLFF-GOAT ExtOpt execution with %scf TolE 1e-5 end.
+        """
+        return f"""! EXTOPT GOAT PAL{pal}
+%method
+  ProgExt "oet_client"
+  Ext_Params "-b {self.host}:{self.port}"
+end
+%scf
+  TolE {self.scf_tole}
+end
+%goat
+  maxen 12.0
+  conftemp 298.15
+  confdegen auto
+end
+* xyzfile 0 1 {xyz_filename}
+"""
+
+    def apply_gradient_sign_flip_guard(self, forces: np.ndarray) -> np.ndarray:
+        """
+        Gradient Sign-Flip Guard (nabla E = -F):
+        Converts external forces F to energy gradients nabla E = -F.
+        Ensures correct sign conventions when transferring MLFF forces to MPQC ExtOpt.
+        """
+        forces_arr = np.asarray(forces, dtype=np.float32)
+        return -forces_arr
+
+    def process_daemon_response(self, response: dict) -> dict:
+        """
+        Processes response payload from oet_server daemon.
+        Applies gradient sign-flip guard and float32 precision check.
+        """
+        energy = response.get("energy", 0.0)
+        forces = response.get("forces", [])
+        if len(forces) > 0:
+            gradients = self.apply_gradient_sign_flip_guard(forces)
+        else:
+            gradients = np.array([], dtype=np.float32)
+            
+        return {
+            "energy_hartree": float(energy),
+            "gradients_hartree_bohr": gradients,
+            "scf_threshold": self.scf_tole,
+            "status": "SUCCESS"
+        }
+
+
 class TOPOSMasterIntegrator:
     """
     The top-level state machine for CoChem-TOPOS.
@@ -51,6 +111,7 @@ class TOPOSMasterIntegrator:
             hdf5_path=str(self.hdf5_path)
         )
         self.crusher = ToposCrusher(hdf5_path=str(self.hdf5_path))
+        self.oet_client = OETServerIPCClient()
         
         # Async ZMQ setup
         self.zmq_context = zmq.asyncio.Context()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CoChem-TOPOS v4.0: Stage 1.1 - Mathematical Ingestion & Hashing
+CoChem-TOPOS v4.0: v4 T1 Search Pipeline - Stage 1.1 Mathematical Ingestion & Hashing
 Implements Dispersion-Weighted Graph Hashing using approximate D4 C6 coefficients
 to track and deduplicate non-covalent complexes mathematically prior to 3D Kabsch alignment.
 """

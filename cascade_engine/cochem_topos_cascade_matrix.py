@@ -1,9 +1,9 @@
 """
-CoChem-TOPOS: Stage 4.0.1 - Method Matrix Rules Engine
-Integrates the CoChem-Cascade Method Matrix logic into the TOPOS workflow.
+CoChem-TOPOS: Stage 4.0.1 - v4 T1 Method Matrix Rules Engine
+Integrates the v4 CoChem-Cascade Method Matrix logic into the TOPOS workflow.
 
 This module provides the deterministic rules for routing molecular geometries
-through the 12-tier escalation matrix, applying automated BSSE (Counterpoise)
+through the v4 T1 escalation matrix (T1-10s to T1-3d), applying automated BSSE (Counterpoise)
 corrections, and trapping closed-shell multireference breakdowns.
 """
 
@@ -12,10 +12,19 @@ import logging
 # Initialize module-level logger
 logger = logging.getLogger("CoChem.TOPOS.CascadeMatrix")
 
+STANDARD_5_THRESHOLD_GEOM_BLOCK = """%geom
+  TolGCon 3e-6
+  TolRCon 5e-5
+  TolE 1e-7
+  TolExtStep 1e-4
+  TolExtGrad 1e-5
+end"""
+
 def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagnostic: float = 0.0, d1_diagnostic: float = 0.0) -> dict:
     """
     Handles automated flag routing for BSSE injection, multireference traps,
     and coupled-cluster escalation parameters on the local workstation.
+    Injects standard 5-threshold %geom block (TolGCon, TolRCon, TolE, TolExtStep, TolExtGrad).
     
     Args:
         complex_flag (bool): True if the structure is an intermolecular complex (Stage 3.5 output).
@@ -24,12 +33,13 @@ def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagno
         d1_diagnostic (float): D1 diagnostic from coupled-cluster output (default 0.0 for lower tiers).
         
     Returns:
-        dict: A dictionary of operational modifiers to dictate downstream ORCA input generation.
+        dict: A dictionary of operational modifiers to dictate downstream MPQC input generation.
     """
     modifiers = {
         "inject_counterpoise": False,
         "escalate_to_multireference": False,
-        "status": "Safe"
+        "status": "Safe",
+        "geom_block": STANDARD_5_THRESHOLD_GEOM_BLOCK
     }
     
     # 1. Automated BSSE Logic
@@ -49,41 +59,79 @@ def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagno
         
     return modifiers
 
-# Define the Method Matrix Execution Tiers mapped to the CoChem-Cascade Blueprint
+# Define the v4 T1 Method Matrix Execution Tiers (T1-10s to T1-3d)
 METHOD_MATRIX_TIERS = {
-    "TIER_1_SCREEN": {
+    "T1-10s": {
         "time_budget": "10 sec",
-        "method": "MACE-OFF23",
-        "keywords": "mace-torch default",
-        "engine": "GPU",
-        "description": "Structural pre-screening (+/- 0.1 A)",
+        "method": "XTB2",
+        "keywords": "! XTB2 TightOpt",
+        "engine": "CPU",
+        "description": "Hand-enumerated binding topologies pre-screening",
         "fallback": "g-xTB"
     },
-    "TIER_2_VDW": {
+    "T1-1min": {
         "time_budget": "1 min",
-        "method": "r2SCAN-3c",
-        "keywords": "! r2SCAN-3c TightSCF DefGrid3 Opt",
+        "method": "GOAT-XTB2",
+        "keywords": "! GOAT XTB2 PAL8",
         "engine": "CPU",
-        "description": "Initial vdW geometry optimization",
+        "description": "Primary GOAT stochastic conformer discovery",
+        "fallback": "GFN-FF"
+    },
+    "T1-30min": {
+        "time_budget": "30 min",
+        "method": "MACE-OFF24m / AIMNet2",
+        "keywords": "! GOAT-EXPLORE ExtOpt TightOpt PAL8\n%method ProgExt \"oet_client\" Ext_Params \"-b localhost:8888\" end\n%scf\n  TolE 1e-5\nend",
+        "engine": "GPU",
+        "description": "MLFF-driven GOAT exploration via oet_server daemon",
+        "fallback": "MACE-OFF24m"
+    },
+    "T1-1h": {
+        "time_budget": "1 hour",
+        "method": "CREST-NCI",
+        "keywords": "crest --nci --gfn2 --ewin 12 --nocross --noreftopo",
+        "engine": "CPU",
+        "description": "Secondary CREST independent non-covalent cross-check",
+        "fallback": "crest --gfn2 --ewin 12"
+    },
+    "T1-3h": {
+        "time_budget": "3 hours",
+        "method": "r2SCAN-3c",
+        "keywords": f"! r2SCAN-3c TightOpt TightSCF DefGrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "engine": "CPU",
+        "description": "Union merge CREGEN screening and r2SCAN-3c re-optimization",
         "fallback": "! B3LYP D4 def2-TZVP def2/J TightSCF DefGrid3 Opt"
     },
-    "TIER_3_BULK": {
-        "time_budget": "30 min",
-        "method": "wB97X-D4",
-        "keywords": "! wB97X-D4 def2-TZVP def2/J def2/JK TightSCF DefGrid3 Opt CPCM(Water)",
-        "engine": "GPU (gpu4pscf)",
-        "description": "Bulk solvent-relaxed local minima",
-        "fallback": "Add 1-3 explicit micro-solvation shell molecules"
-    },
-    "TIER_4_EQ_TARGET": {
+    "T1-12h": {
         "time_budget": "12 hours",
-        "method": "DLPNO-CCSD(T)",
-        "keywords": "! DLPNO-CCSD(T) def2-TZVPP def2/J def2/C ExtremeSCF DefGrid3 Opt",
+        "method": "GOAT-r2SCAN-3c",
+        "keywords": f"! GOAT r2SCAN-3c DefGrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
-        "description": "Wavefunction-level equilibrium targets",
-        "fallback": "Apply double-hybrid anharmonic corrections"
+        "description": "QM-level GOAT search around assigned minima",
+        "fallback": "! r2SCAN-3c TightOpt TightSCF DefGrid3"
+    },
+    "T1-1d": {
+        "time_budget": "1 day",
+        "method": "GOAT-ENTROPY-XTB2",
+        "keywords": "! GOAT-ENTROPY XTB2",
+        "engine": "CPU",
+        "description": "Conformer entropy convergence diagnostic",
+        "fallback": "crest --entropy"
+    },
+    "T1-3d": {
+        "time_budget": "3 days",
+        "method": "wB97X-V / def2-TZVPP",
+        "keywords": f"! wB97X-V def2-TZVPP DefGrid3 TightOpt TightSCF\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "engine": "CPU",
+        "description": "High-level DFT re-optimization of Stage-B survivors",
+        "fallback": "! CCSD(T)-F12 cc-pVTZ-F12 DefGrid3 Opt"
     }
 }
+
+# Legacy aliases for backwards compatibility
+METHOD_MATRIX_TIERS["TIER_1_SCREEN"] = METHOD_MATRIX_TIERS["T1-10s"]
+METHOD_MATRIX_TIERS["TIER_2_VDW"] = METHOD_MATRIX_TIERS["T1-3h"]
+METHOD_MATRIX_TIERS["TIER_3_BULK"] = METHOD_MATRIX_TIERS["T1-3d"]
+METHOD_MATRIX_TIERS["TIER_4_EQ_TARGET"] = METHOD_MATRIX_TIERS["T1-3d"]
 
 def get_tier_configuration(tier_id: str) -> dict:
     """
