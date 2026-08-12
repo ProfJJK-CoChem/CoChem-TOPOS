@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import pytest
 from cascade_engine.cochem_topos_cascade_matrix import (
     METHOD_MATRIX_TIERS,
@@ -6,7 +8,7 @@ from cascade_engine.cochem_topos_cascade_matrix import (
     STANDARD_5_THRESHOLD_GEOM_BLOCK
 )
 
-def test_topos03_v4_t1_escalation_matrix():
+def test_topos03_v4_t1_escalation_matrix() -> None:
     """Verify TOPOS-03: v4 T1 escalation matrix (T1-10s to T1-3d), MACE-OFF24m/AIMNet2, and 5-threshold %geom block."""
     # Check all v4 T1 tiers present
     expected_tiers = ["T1-10s", "T1-1min", "T1-30min", "T1-1h", "T1-3h", "T1-12h", "T1-1d", "T1-3d"]
@@ -31,7 +33,7 @@ def test_topos03_v4_t1_escalation_matrix():
     assert "TolExtStep" in geom_str
     assert "TolExtGrad" in geom_str
 
-def test_legacy_tier_aliases():
+def test_legacy_tier_aliases() -> None:
     """Verify legacy aliases remain accessible for backwards compatibility."""
     assert "TIER_1_SCREEN" in METHOD_MATRIX_TIERS
     assert "TIER_2_VDW" in METHOD_MATRIX_TIERS

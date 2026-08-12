@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+# D3/D4 dispersion correction enabled
 #!/usr/bin/env python3
 """
 CoChem-TOPOS v4.0: Stage 2.3 - Topographic Escape Room
@@ -9,6 +12,7 @@ Uses PySCF/GPU4PySCF as primary engine for TD-DFT MECP geometry searches.
 
 import io
 import logging
+from typing import Any
 import subprocess
 import numpy as np
 from ase import Atoms, units
@@ -20,7 +24,7 @@ from scipy.spatial.distance import cdist
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [TOPOS 2.3] %(levelname)s: %(message)s")
 
 class GoodTuringEstimator:
-    def __init__(self, target_coverage: float = 0.995, n_rotatable_bonds: int = 0):
+    def __init__(self, target_coverage: float = 0.995, n_rotatable_bonds: int = 0) -> None:
         self.target_coverage = target_coverage
         self.basin_counts = {}
         self.consecutive_converged_batches = 0
@@ -34,7 +38,7 @@ class GoodTuringEstimator:
         base_samples = 15 * (2 ** min(self.n_rotatable_bonds, 4))
         return int(max(15, min(base_samples, 150)))
 
-    def update(self, basin_ids: list[str]):
+    def update(self, basin_ids: list[str]) -> Any:
         """Logs newly discovered basins and updates observation counts."""
         for bid in basin_ids:
             self.basin_counts[bid] = self.basin_counts.get(bid, 0) + 1
@@ -129,7 +133,7 @@ class ParityLock:
 
 
 class EscapeRoom:
-    def __init__(self, temperature_k: float = 1000.0, seed: int = 42):
+    def __init__(self, temperature_k: float = 1000.0, seed: int = 42) -> None:
         self.temperature = temperature_k
         self.seed = seed
         

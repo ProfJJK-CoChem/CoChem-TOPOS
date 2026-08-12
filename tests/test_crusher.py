@@ -1,16 +1,18 @@
+import logging
+logger = logging.getLogger(__name__)
 import pytest
 from ase import Atoms
 import numpy as np
 from core_engine.cochem_topos_crusher import ToposCrusher, ChiralDiscriminationError
 
-def test_topos_crusher_distance_matrix_hash():
+def test_topos_crusher_distance_matrix_hash() -> None:
     atoms = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
     crusher = ToposCrusher()
     hash_val = crusher.distance_matrix_hash(atoms)
     assert isinstance(hash_val, np.ndarray)
     assert len(hash_val) == 50
 
-def test_goat_conformer_generation():
+def test_goat_conformer_generation() -> None:
     atoms = Atoms("H2O", positions=[(0, 0, 0), (0, 0.76, 0.59), (0, -0.76, 0.59)])
     crusher = ToposCrusher()
     conformers = crusher._execute_goat_conformer_generation(atoms, num_conformers=3)
@@ -18,7 +20,7 @@ def test_goat_conformer_generation():
     for conf in conformers:
         assert len(conf) == 3
 
-def test_coulomb_matrix_error_handling():
+def test_coulomb_matrix_error_handling() -> None:
     atoms1 = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
     atoms2 = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.80)])
     crusher = ToposCrusher()
@@ -28,7 +30,7 @@ def test_coulomb_matrix_error_handling():
     except ChiralDiscriminationError:
         pass
 
-def test_topos01_inhess_xtb2_preconditioner():
+def test_topos01_inhess_xtb2_preconditioner() -> None:
     """Verify TOPOS-01: Prohibited Calc_Hess = True removed and replaced with InHess XTB2 preconditioner."""
     atoms = Atoms("H2O", positions=[(0, 0, 0), (0, 0.76, 0.59), (0, -0.76, 0.59)])
     crusher = ToposCrusher()
@@ -36,7 +38,7 @@ def test_topos01_inhess_xtb2_preconditioner():
     assert worker_out.info.get("InHess") == "XTB2"
     assert "Calc_Hess" not in worker_out.info or worker_out.info["Calc_Hess"] is not True
 
-def test_topos02_two_stage_deduplication_protocol():
+def test_topos02_two_stage_deduplication_protocol() -> None:
     """Verify TOPOS-02: Two-Stage Deduplication Protocol with CREST cross-check and CREGEN referee deduplication."""
     crusher = ToposCrusher(bthr=0.001)
     atoms1 = Atoms("H2O", positions=[(0, 0, 0), (0, 0.76, 0.59), (0, -0.76, 0.59)])

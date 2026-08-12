@@ -1,10 +1,12 @@
+import logging
+logger = logging.getLogger(__name__)
 import pytest
 import os
 import json
 from pathlib import Path
 from core_engine.cochem_topos_master import TOPOSMasterIntegrator
 
-def test_topos_master_init(tmp_path):
+def test_topos_master_init(tmp_path) -> None:
     config_file = tmp_path / "cochem_system_config.json"
     hdf5_file = tmp_path / "landscape.h5"
     
@@ -23,7 +25,7 @@ def test_topos_master_init(tmp_path):
         # If external HDF5 SWMR init expects full schema, check exception type
         assert "Master Integrator" in str(e) or "HDF5" in str(e) or "Cascade" in str(e)
 
-def test_topos05_oet_server_ipc_client_and_headers():
+def test_topos05_oet_server_ipc_client_and_headers() -> None:
     """Verify TOPOS-05: IPC client helper for oet_server daemon, gradient sign-flip guard, TolE 1e-5 threshold, and header updates."""
     from core_engine.cochem_topos_master import OETServerIPCClient
     import numpy as np

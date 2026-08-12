@@ -96,18 +96,18 @@ METHOD_MATRIX_TIERS = {
     "T1-3h": {
         "time_budget": "3 hours",
         "method": "r2SCAN-3c",
-        "keywords": f"! r2SCAN-3c TightOpt TightSCF DefGrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! r2SCAN-3c TightOpt TightSCF defgrid1\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "Union merge CREGEN screening and r2SCAN-3c re-optimization",
-        "fallback": "! B3LYP D4 def2-TZVP def2/J TightSCF DefGrid3 Opt"
+        "fallback": "! B3LYP D4 def2-TZVP def2/J TightSCF defgrid1 Opt"
     },
     "T1-12h": {
         "time_budget": "12 hours",
         "method": "GOAT-r2SCAN-3c",
-        "keywords": f"! GOAT r2SCAN-3c DefGrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! GOAT r2SCAN-3c defgrid1\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "QM-level GOAT search around assigned minima",
-        "fallback": "! r2SCAN-3c TightOpt TightSCF DefGrid3"
+        "fallback": "! r2SCAN-3c TightOpt TightSCF defgrid1"
     },
     "T1-1d": {
         "time_budget": "1 day",
@@ -120,10 +120,10 @@ METHOD_MATRIX_TIERS = {
     "T1-3d": {
         "time_budget": "3 days",
         "method": "wB97X-V / def2-TZVPP",
-        "keywords": f"! wB97X-V def2-TZVPP DefGrid3 TightOpt TightSCF\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! wB97X-V def2-TZVPP defgrid1 TightOpt TightSCF\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "High-level DFT re-optimization of Stage-B survivors",
-        "fallback": "! CCSD(T)-F12 cc-pVTZ-F12 DefGrid3 Opt"
+        "fallback": "! CCSD(T)-F12 cc-pVTZ-F12 defgrid1 Opt"
     }
 }
 

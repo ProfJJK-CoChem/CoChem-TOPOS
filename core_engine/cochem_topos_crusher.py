@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 CoChem-TOPOS v4.0: Stage 3.1 - Combinatorial GOAT Framework & Active Learning Pre-Screen
@@ -6,6 +8,7 @@ with MACE-OFF24m pre-screening to prevent combinatorial explosion.
 """
 
 import logging
+from typing import Any
 import numpy as np
 from ase import Atoms
 from scipy.spatial.transform import Rotation
@@ -56,7 +59,7 @@ class ChiralDiscriminationError(RuntimeError):
     pass
 
 class ToposCrusher:
-    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5", bthr: float = 0.001):
+    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5", bthr: float = 0.001) -> None:
         self.base_rmsd = base_rmsd_threshold
         self.bthr = bthr
         self.accepted_basins = []
@@ -66,7 +69,7 @@ class ToposCrusher:
         # Initialize HDF5 state persistence
         self._init_hdf5_state()
 
-    def _init_hdf5_state(self):
+    def _init_hdf5_state(self) -> Any:
         """Initialize the HDF5 file for persistent combinatorial state."""
         try:
             with h5py.File(self.hdf5_path, 'a', libver='latest', swmr=True) as f:
@@ -142,7 +145,7 @@ class ToposCrusher:
                     from ase.io import write as ase_write
                     ase_write(str(xyz_path), base_atoms)
                     cmd = [crest_bin, str(xyz_path), "--nci", "--nocross", "--noreftopo", "--ewin", str(ewin)]
-                    res = subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120)
+                    res = subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120, check=True)
                     ensemble_path = Path(tmpdir) / "crest_conformers.xyz"
                     if not ensemble_path.exists():
                         ensemble_path = Path(tmpdir) / "crest_ensemble.xyz"
@@ -387,7 +390,7 @@ class ToposCrusher:
             k_spring = 0.1 
             
             # 2. Define the true loss function using MACE-JAX / physical potential energy
-            def neb_loss(band_positions):
+            def neb_loss(band_positions) -> Any:
                 full_band = jnp.concatenate([
                     jnp.expand_dims(band_jnp[0], 0), 
                     band_positions, 
@@ -398,7 +401,7 @@ class ToposCrusher:
                 pos_a_jnp = band_jnp[0]
                 pos_b_jnp = band_jnp[-1]
                 
-                def image_energy(coords):
+                def image_energy(coords) -> Any:
                     d_a = jnp.sqrt(jnp.sum((coords - pos_a_jnp)**2) + 1e-8)
                     d_b = jnp.sqrt(jnp.sum((coords - pos_b_jnp)**2) + 1e-8)
                     s = d_a / (d_a + d_b + 1e-6)
@@ -421,7 +424,7 @@ class ToposCrusher:
             opt_state = optimizer.init(intermediate_images)
             
             @jax.jit
-            def step(images, state):
+            def step(images, state) -> Any:
                 loss_val, grads = jax.value_and_grad(neb_loss)(images)
                 updates, new_state = optimizer.update(grads, state)
                 new_images = optax.apply_updates(images, updates)
@@ -502,7 +505,7 @@ class ToposCrusher:
         atoms_copy.positions = positions
         return atoms_copy
 
-    def _persist_to_hdf5(self, basin_record: dict):
+    def _persist_to_hdf5(self, basin_record: dict) -> Any:
         """Persist full 3D atomic coordinates tensor and atomic numbers to HDF5."""
         try:
             with h5py.File(self.hdf5_path, 'a', libver='latest', swmr=True) as f:

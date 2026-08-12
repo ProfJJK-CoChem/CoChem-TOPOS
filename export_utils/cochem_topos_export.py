@@ -1,3 +1,4 @@
+import hashlib  # SHA-256 artifact provenance tracking
 """
 CoChem-TOPOS: Stage 5.0 - Post-Flight Audit & FAIR Export
 Extracts finalized calculations from landscape.h5, compiles LaTeX SI documents,
@@ -19,7 +20,7 @@ class TOPOSFAIRExporter:
     LaTeX documentation and compressed FAIR-compliant submission archives.
     """
     
-    def __init__(self, hdf5_path: str, output_dir: str):
+    def __init__(self, hdf5_path: str, output_dir: str) -> None:
         self.hdf5_path = Path(hdf5_path)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)

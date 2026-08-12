@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 CoChem-TOPOS v4.0: v4 T1 Search Pipeline - Stage 1.1 Mathematical Ingestion & Hashing
@@ -9,6 +11,7 @@ import os
 import json
 import hashlib
 import logging
+from typing import Any
 import numpy as np
 import networkx as nx
 from scipy.spatial.distance import cdist
@@ -93,7 +96,7 @@ def hash_topology(G: nx.Graph, is_complex: bool) -> str:
     """
     # Create a string representation using the Weisfeiler-Lehman algorithm
     # Edge weights are factored in to differentiate non-covalent complexes
-    def edge_attr(e):
+    def edge_attr(e) -> Any:
         return str(e.get('weight', 1.0))
         
     graph_hash_gen = nx.weisfeiler_lehman_graph_hash(G, node_attr='z', edge_attr='weight')

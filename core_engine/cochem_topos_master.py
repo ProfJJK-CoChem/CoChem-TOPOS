@@ -4,6 +4,7 @@ Bridges the GOAT/Crusher deduplication loops to the Method Matrix Cascade.
 """
 
 import logging
+from typing import Any
 import h5py
 from pathlib import Path
 import asyncio
@@ -36,14 +37,14 @@ class OETServerIPCClient:
     IPC Client helper for oet_server daemon float32 MLFF-GOAT execution (§9B.4).
     Enforces gradient sign-flip guard (nabla E = -F) and %scf TolE 1e-5 end threshold configuration.
     """
-    def __init__(self, host: str = "localhost", port: int = 8888, scf_tole: float = 1e-5):
+    def __init__(self, host: str = "localhost", port: int = 8888, scf_tole: float = 1e-5) -> None:
         self.host = host
         self.port = port
         self.scf_tole = scf_tole
 
     def format_mpqc_extopt_input(self, xyz_filename: str, pal: int = 8) -> str:
         """
-        Generates MPQC input block for float32 MLFF-GOAT ExtOpt execution with %scf TolE 1e-5 end.
+        Generates MPQC/ORCA input block for float32 MLFF-GOAT ExtOpt execution with %scf TolE 1e-5 end.
         """
         return f"""! EXTOPT GOAT PAL{pal}
 %method
@@ -60,6 +61,8 @@ end
 end
 * xyzfile 0 1 {xyz_filename}
 """
+
+    format_orca_extopt_input = format_mpqc_extopt_input
 
     def apply_gradient_sign_flip_guard(self, forces: np.ndarray) -> np.ndarray:
         """
@@ -97,7 +100,7 @@ class TOPOSMasterIntegrator:
     them through the Method Matrix Cascade for high-fidelity thermodynamic refinement.
     """
     
-    def __init__(self, config_path: str, hdf5_path: str, zmq_port: int = 5555):
+    def __init__(self, config_path: str, hdf5_path: str, zmq_port: int = 5555) -> None:
         self.config_path = Path(config_path)
         self.hdf5_path = Path(hdf5_path)
         self.zmq_port = zmq_port
@@ -120,7 +123,7 @@ class TOPOSMasterIntegrator:
         
         logger.info(f"TOPOS Master Integrator initialized. ZMQ listening on port {self.zmq_port}")
 
-    async def _zmq_ui_listener(self):
+    async def _zmq_ui_listener(self) -> Any:
         """Background daemon listening for UI polling and human-in-the-loop categorizations."""
         logger.info("ZMQ UI Listener Daemon started.")
         while True:
@@ -138,7 +141,7 @@ class TOPOSMasterIntegrator:
                 logger.error(f"Error in ZMQ UI listener: {e}")
                 await asyncio.sleep(0.1)
 
-    async def execute_nested_assembly_pipeline(self, initial_geometry):
+    async def execute_nested_assembly_pipeline(self, initial_geometry) -> Any:
         """
         Executes the three-phase nested loop: Monomer -> Strong Complex -> Weak Complex.
         Unblocks the UI by running as an asyncio task alongside the ZMQ listener.
@@ -176,7 +179,7 @@ class TOPOSMasterIntegrator:
         finally:
             ui_task.cancel()
 
-    async def _run_escalation_pass(self, complex_flag: bool = False):
+    async def _run_escalation_pass(self, complex_flag: bool = False) -> Any:
         """
         Iterates over all deduplicated geometries in the landscape and escalates them through the cascade.
         """
@@ -249,7 +252,7 @@ class TOPOSMasterIntegrator:
         # 4. Macroscopic Boltzmann Synthesis
         self._macroscopic_boltzmann_synthesis(isomer_payloads.keys())
 
-    def _macroscopic_boltzmann_synthesis(self, isomer_ids, temperature_K: float = 298.15):
+    def _macroscopic_boltzmann_synthesis(self, isomer_ids, temperature_K: float = 298.15) -> Any:
         """
         Executes Macroscopic Boltzmann Synthesis.
         Reads highest tier energies for each isomer, calculates partition function,
@@ -272,7 +275,7 @@ class TOPOSMasterIntegrator:
                     best_energy = None
                     keys = list(f[f"{target_group}/{geom_id}"].keys())
                     tier_keys = [k for k in keys if k.startswith("tier_")]
-                    def get_tier_num(k):
+                    def get_tier_num(k) -> Any:
                         try:
                             return int(k.split("_")[1])
                         except Exception:

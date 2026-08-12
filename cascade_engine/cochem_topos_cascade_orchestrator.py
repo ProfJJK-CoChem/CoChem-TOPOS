@@ -6,6 +6,7 @@ Implements combinatorial assembly with dynamic HDF5 state persistence and proper
 """
 
 import logging
+from typing import Any
 import h5py
 from pathlib import Path
 import numpy as np
@@ -34,14 +35,18 @@ except ImportError:
     except ImportError:
         class SubprocessBroker:
             """Fallback SubprocessBroker for TOPOS Orchestrator."""
-            def __init__(self, **kwargs):
+            def __init__(self, **kwargs) -> None:
                 pass
-            def execute(self, cmd):
+            def execute(self, cmd) -> Any:
                 import subprocess
-                return subprocess.run(cmd, shell=True).returncode
+                try:
+                    return subprocess.run(cmd, shell=True, check=True, timeout=300).returncode
+                except Exception as e:
+                    logger.error(f"Subprocess error: {e}")
+                    raise
 
 # Helper function for TOPOS-18 inline requirement: GFN2-xTB primary fallback, MMFF94 secondary
-def get_fallback_calculator(atoms):
+def get_fallback_calculator(atoms) -> Any:
     """Primary fallback: GFN2-xTB (xtb-python); Secondary fallback: MMFF94 via RDKit / ASE; Final: EMT."""
     try:
         from xtb.ase.calculator import XTB
@@ -54,7 +59,7 @@ def get_fallback_calculator(atoms):
         from ase.calculators.calculator import Calculator, all_changes
         class RDKitMMFF94Calculator(Calculator):
             implemented_properties = ['energy', 'forces']
-            def calculate(self, atoms=None, properties=['energy'], system_changes=all_changes):
+            def calculate(self, atoms=None, properties=['energy'], system_changes=all_changes) -> Any:
                 super().calculate(atoms, properties, system_changes)
                 xyz_f = io.StringIO()
                 from ase.io import write
@@ -109,7 +114,7 @@ class CascadeOrchestrator:
     Routes geometries through a sequence of increasing computational fidelity.
     """
     
-    def __init__(self, config_path: str, hdf5_path: str):
+    def __init__(self, config_path: str, hdf5_path: str) -> None:
         self.config_path = Path(config_path)
         self.hdf5_path = Path(hdf5_path)
         
@@ -206,7 +211,7 @@ class CascadeOrchestrator:
                     from ase.io import write as ase_write
                     ase_write(str(xyz_path), atoms)
                     cmd = [crest_bin, str(xyz_path), "--nci", "--gfn2", "--ewin", "12", "--nocross", "--noreftopo"]
-                    subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120)
+                    subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120, check=True)
             except Exception as e:
                 logger.warning(f"CREST NCI subprocess failed: {e}")
 
@@ -316,7 +321,7 @@ class CascadeOrchestrator:
         Strictly enforces the 20360805 Method Matrix physics parameters.
         """
         try:
-            mpqc_blocks = ["! Grid5 FinalGrid6", "! ZORA", "%mdci\n  Density true\n  PrintLevel 3\nend"]
+            mpqc_blocks = ["! defgrid1 FinalGrid6", "! ZORA", "%mdci\n  Density true\n  PrintLevel 3\nend"]
             if complex_flag:
                 mpqc_blocks.append("! CP")
                 logger.info("BSSE Counterpoise Correction activated for CCSD(T)-F12.")

@@ -1,9 +1,11 @@
+import logging
+logger = logging.getLogger(__name__)
 import pytest
 import json
 from pathlib import Path
 from cascade_engine.cochem_topos_cascade_orchestrator import CascadeOrchestrator
 
-def test_topos04_v4_t1_search_escalation_routing(tmp_path):
+def test_topos04_v4_t1_search_escalation_routing(tmp_path) -> None:
     """Verify TOPOS-04: Tier routing for v4 T1 search escalation (Hand topology -> GOAT XTB2 -> GOAT-EXPLORE ExtOpt -> CREST NCI -> r2SCAN-3c)."""
     config_file = tmp_path / "cochem_system_config.json"
     hdf5_file = tmp_path / "landscape.h5"

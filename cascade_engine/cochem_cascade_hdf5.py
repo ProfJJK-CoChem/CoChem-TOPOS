@@ -7,7 +7,7 @@ import h5py
 import numpy as np
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
 logger = logging.getLogger("CoChem.Cascade.HDF5Serializer")
 
@@ -18,7 +18,7 @@ class CascadeHDF5Serializer:
     the CoChem-DOCK/UNITY UI visualization readers.
     """
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str) -> None:
         self.db_path = Path(db_path)
         
         # 1. Initialize file safely if it does not exist
@@ -77,7 +77,7 @@ class CascadeHDF5Serializer:
             logger.error(f"[{geom_id}][{tier_id}] HDF5 SWMR Write Failure: {e}")
             raise RuntimeError(f"HDF5 serialization failed for {geom_id} at {tier_id}") from e
 
-    def close(self):
+    def close(self) -> Any:
         """Safely release the POSIX file lock on shutdown."""
         if self.h5_file:
             self.h5_file.close()

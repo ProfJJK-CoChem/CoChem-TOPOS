@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 CoChem-TOPOS v3.0: Stage 3.0 - Combinatorial Fragment Assembly
@@ -12,7 +14,7 @@ from scipy.spatial.transform import Rotation
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [TOPOS 3.0] %(levelname)s: %(message)s")
 
 class FragmentAssembler:
-    def __init__(self, radial_steps: int = 4, angular_steps: int = 6):
+    def __init__(self, radial_steps: int = 4, angular_steps: int = 6) -> None:
         self.radial_steps = radial_steps
         self.angular_steps = angular_steps
 
