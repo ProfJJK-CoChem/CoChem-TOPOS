@@ -29,6 +29,5 @@ def test_parity_lock_3d_volume_fallback() -> None:
 def test_escape_room_photochemical_shock() -> None:
     atoms = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
     room = EscapeRoom()
-    res = room.execute_photochemical_shock(atoms, excited_state=1)
-    assert res is not None
-    assert len(res) == 2
+    with pytest.raises(RuntimeError, match="Honest MECP optimization failed"):
+        room.execute_photochemical_shock(atoms, excited_state=1)

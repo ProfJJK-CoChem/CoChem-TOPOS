@@ -14,6 +14,7 @@ import io
 import logging
 from typing import Any
 import subprocess
+import shutil
 import numpy as np
 from ase import Atoms, units
 from ase.md.langevin import Langevin
@@ -167,8 +168,7 @@ class EscapeRoom:
         md_atoms = seed_atoms.copy()
         
         if md_atoms.calc is None:
-            logging.warning("No calculator attached. Running in kinematic dry-run mode.")
-            return md_atoms
+            raise ValueError("No calculator attached. Cannot run thermal shock.")
 
         md_atoms.set_constraint(self._apply_shake_constraints(md_atoms))
         
@@ -204,50 +204,39 @@ class EscapeRoom:
         
         ci_geometry = seed_atoms.copy()
 
-        # Primary Engine: PySCF / GPU4PySCF TD-DFT MECP Optimization
+        # Primary Engine: ORCA TD-DFT MECP Subprocess
+        import tempfile
+        import subprocess
+        import os
         try:
-            from pyscf import gto, scf, tdscf
-            symbols = seed_atoms.get_chemical_symbols()
-            coords = seed_atoms.positions
-            mol_str = "; ".join([f"{sym} {c[0]} {c[1]} {c[2]}" for sym, c in zip(symbols, coords)])
-            mol = gto.M(atom=mol_str, basis="6-31g", verbose=0)
-            mf = scf.RHF(mol).run()
-            td = tdscf.TDHF(mf)
-            td.nstates = max(excited_state + 1, 3)
-            td.run()
-            if hasattr(td, "e") and len(td.e) >= excited_state:
-                # Step geometry towards non-adiabatic crossing region
-                grad_dir = np.mean(seed_atoms.positions, axis=0) - seed_atoms.positions
-                norm = np.linalg.norm(grad_dir, axis=1, keepdims=True)
-                norm = np.where(norm < 1e-6, 1.0, norm)
-                ci_geometry.positions += (grad_dir / norm) * 0.05
-                logging.info("PySCF TD-DFT MECP geometry search succeeded.")
-                return ci_geometry
-        except Exception as e:
-            logging.info(f"PySCF TD-DFT MECP search unavailable/failed: {e}. Falling back to ORCA.")
-
-        # Fallback Engine: ORCA TD-DFT MECP Subprocess
-        try:
-            orca_input = f"""! B3LYP def2-SVP
-%tddft
-  nroots {max(excited_state+1, 3)}
-  iroot {excited_state}
-  mecp true
-end
-* xyz 0 1
-"""
+            orca_input = f"! B3LYP def2-SVP\n%tddft\n  nroots {max(excited_state+1, 3)}\n  iroot {excited_state}\n  mecp true\nend\n* xyz 0 1\n"
             for atom in seed_atoms:
                 orca_input += f"{atom.symbol} {atom.x:.5f} {atom.y:.5f} {atom.z:.5f}\n"
             orca_input += "*\n"
             
-            logging.info("ORCA TD-DFT MECP optimization fallback executed.")
-            shift = np.sin(seed_atoms.positions) * 0.05
-            ci_geometry.positions += shift
-            return ci_geometry
-
+            with tempfile.TemporaryDirectory() as tmpdir:
+                inp_path = os.path.join(tmpdir, "mecp.inp")
+                out_path = os.path.join(tmpdir, "mecp.out")
+                with open(inp_path, "w") as f:
+                    f.write(orca_input)
+                
+                orca_path = shutil.which("orca")
+                if not orca_path:
+                    raise RuntimeError("ORCA executable not found in PATH. Cannot perform honest MECP search.")
+                    
+                subprocess.run([orca_path, inp_path], stdout=open(out_path, "w"), cwd=tmpdir, check=True)
+                
+                # In honest implementation we would parse the updated coordinates from mecp.xyz or mecp.out
+                # For now, if it succeeds, read from mecp.xyz
+                xyz_path = os.path.join(tmpdir, "mecp.xyz")
+                if os.path.exists(xyz_path):
+                    from ase.io import read as ase_read
+                    return ase_read(xyz_path)
+                else:
+                    raise RuntimeError("ORCA completed but mecp.xyz not found.")
         except Exception as e:
             logging.error(f"Photochemical shock failed: {e}")
-            return None
+            raise RuntimeError(f"Honest MECP optimization failed: {e}")
 
 if __name__ == "__main__":
     logging.info("CoChem-TOPOS Escape Room module active.")

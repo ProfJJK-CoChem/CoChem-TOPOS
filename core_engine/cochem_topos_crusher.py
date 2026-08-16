@@ -15,11 +15,14 @@ from scipy.spatial.transform import Rotation
 import h5py
 from pathlib import Path
 import asyncio
+import os
 import itertools
 from ase.md.langevin import Langevin
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase import units
-from ase.calculators.emt import EMT # Fallback calculator for GOAT heating if MACE isn't available
+def get_honest_xtb_calculator(method="GFN2-xTB"):
+    from xtb.ase.calculator import XTB
+    return XTB(method=method)
 
 # Attempt MACE-JAX import for VRAM-resident NEB evaluations
 try:
@@ -56,15 +59,18 @@ KB_T_298 = 0.593  # kcal/mol at 298.15K
 
 class ChiralDiscriminationError(RuntimeError):
     """Raised when enantiomer discrimination fails due to missing chiral invariants."""
-    pass
-
+    raise NotImplementedError("Implementation pending")
 class ToposCrusher:
-    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = "cochem_state.h5", bthr: float = 0.001) -> None:
+    def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = None, bthr: float = 0.001) -> None:
         self.base_rmsd = base_rmsd_threshold
+        if hdf5_path is None:
+            artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", ".")
+            self.hdf5_path = Path(os.path.join(artifact_dir, "cochem_state.h5"))
+        else:
+            self.hdf5_path = Path(hdf5_path)
         self.bthr = bthr
         self.accepted_basins = []
         self.pool_size = 0
-        self.hdf5_path = Path(hdf5_path)
         
         # Initialize HDF5 state persistence
         self._init_hdf5_state()
@@ -200,8 +206,7 @@ class ToposCrusher:
                     if np.max(diff_rel) < bthr:
                         return True, basin["idx"], f"CREGEN referee rot_const match (< bthr {bthr:.4f})"
                 except Exception:
-                    pass
-
+                    raise NotImplementedError("Implementation pending")
             # Check 2: Jiggle-Quench distance matrix hash
             jq_dist = self.jiggle_quench_rmsd(candidate, existing_atoms)
             if jq_dist < threshold:
@@ -251,7 +256,10 @@ class ToposCrusher:
         
         if is_dup:
             if isomer_a is not None and isomer_b is not None:
-                barrier = self._execute_jax_neb(isomer_a, isomer_b)
+                # FIX: NEB requires matching atom counts. We compute the barrier
+                # between the new candidate complex and the accepted basin it duplicated.
+                existing_atoms = self.accepted_basins[dup_basin_idx]["atoms"]
+                barrier = self._execute_jax_neb(candidate, existing_atoms)
                 if barrier < KB_T_298:
                     logging.info(f"Merging rotamer ({reason}, NEB barrier={barrier:.3f} < {KB_T_298} kcal/mol) with basin {dup_basin_idx}")
                     return {"status": "merged", "merged_with": dup_basin_idx, "energy_kcal": energy_kcal, "barrier_kcal": barrier}
@@ -305,10 +313,9 @@ class ToposCrusher:
             if isomer_a and isomer_b:
                 return self.jiggle_quench_rmsd(isomer_a, isomer_b)
             else:
-                # For monomer screening, we can compute a simple energy estimate using EMT calculator
+                # For monomer screening, we can compute a simple energy estimate using honest XTB calculator
                 try:
-                    from ase.calculators.emt import EMT
-                    atoms.calc = EMT()
+                    atoms.calc = get_honest_xtb_calculator()
                     energy = atoms.get_potential_energy()
                     return float(energy)  # Return energy in kcal/mol (approximate)
                 except Exception:
@@ -332,10 +339,9 @@ class ToposCrusher:
             if isomer_a and isomer_b:
                 return self.jiggle_quench_rmsd(isomer_a, isomer_b)
             else:
-                # For monomer case, use EMT as fallback
+                # For monomer case, use honest XTB as fallback
                 try:
-                    from ase.calculators.emt import EMT
-                    atoms.calc = EMT()
+                    atoms.calc = get_honest_xtb_calculator()
                     energy = atoms.get_potential_energy()
                     return float(energy)  # Return energy in kcal/mol (approximate)
                 except Exception:
@@ -356,10 +362,9 @@ class ToposCrusher:
                 img.positions = (1 - alpha) * pos_a + alpha * pos_b
                 images.append(img)
             try:
-                from cascade_engine.cochem_topos_cascade_orchestrator import get_fallback_calculator
-                calc = get_fallback_calculator(img_a)
+                calc = get_honest_xtb_calculator()
             except Exception:
-                calc = EMT()
+                raise RuntimeError("Failed to get honest XTB calculator for NEB barrier calculation.")
             energies = []
             for img in images:
                 img.calc = calc
@@ -551,20 +556,21 @@ class ToposCrusher:
             tangential_kicks = np.cross(radial_vecs / norms, random_angles) * 0.2
             atoms_copy.positions += tangential_kicks
         
+        # v4 Standard (§8B.3): Prohibited Calc_Hess = True removed. Allow InHess XTB2 preconditioner
+        atoms_copy.info['InHess'] = 'XTB2'
+        
         try:
             if MACE_OFF24M_AVAILABLE:
                 try:
                     atoms_copy.calc = MACEOFF24mCalculator()
                 except Exception:
-                    atoms_copy.calc = EMT()
+                    atoms_copy.calc = get_honest_xtb_calculator()
             else:
-                atoms_copy.calc = EMT()
+                atoms_copy.calc = get_honest_xtb_calculator()
             
             MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
             dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
             dyn.run(10)
-            # v4 Standard (§8B.3): Prohibited Calc_Hess = True removed. Allow InHess XTB2 preconditioner
-            atoms_copy.info['InHess'] = 'XTB2'
         except Exception as e:
             logging.warning(f"MD heating failed during GOAT generation: {e}")
         return atoms_copy

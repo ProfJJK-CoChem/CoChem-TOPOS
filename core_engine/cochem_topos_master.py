@@ -318,9 +318,11 @@ if __name__ == "__main__":
     # Test execution block for local CLI testing
     logging.basicConfig(level=logging.INFO)
     try:
+        import os
+        artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", ".")
         master = TOPOSMasterIntegrator(
-            config_path="cochem_system_config.json", 
-            hdf5_path="landscape.h5"
+            config_path=os.path.join(artifact_dir, "cochem_system_config.json"), 
+            hdf5_path=os.path.join(artifact_dir, "landscape.h5")
         )
         # Dummy initial geometry for testing
         from ase import Atoms

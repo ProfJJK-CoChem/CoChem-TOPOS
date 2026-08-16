@@ -28,8 +28,7 @@ def test_coulomb_matrix_error_handling() -> None:
         res = crusher._coulomb_matrix_rmsd(atoms1, atoms2)
         assert res >= 0
     except ChiralDiscriminationError:
-        pass
-
+        raise NotImplementedError("Implementation pending")
 def test_topos01_inhess_xtb2_preconditioner() -> None:
     """Verify TOPOS-01: Prohibited Calc_Hess = True removed and replaced with InHess XTB2 preconditioner."""
     atoms = Atoms("H2O", positions=[(0, 0, 0), (0, 0.76, 0.59), (0, -0.76, 0.59)])

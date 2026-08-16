@@ -13,11 +13,13 @@ import logging
 logger = logging.getLogger("CoChem.TOPOS.CascadeMatrix")
 
 STANDARD_5_THRESHOLD_GEOM_BLOCK = """%geom
+  TolMaxG 1e-5
   TolGCon 3e-6
   TolRCon 5e-5
   TolE 1e-7
   TolExtStep 1e-4
   TolExtGrad 1e-5
+  InHess XTB2
 end"""
 
 def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagnostic: float = 0.0, d1_diagnostic: float = 0.0) -> dict:
@@ -96,18 +98,18 @@ METHOD_MATRIX_TIERS = {
     "T1-3h": {
         "time_budget": "3 hours",
         "method": "r2SCAN-3c",
-        "keywords": f"! r2SCAN-3c TightOpt TightSCF defgrid1\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! r2SCAN-3c TightOpt TightSCF defgrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "Union merge CREGEN screening and r2SCAN-3c re-optimization",
-        "fallback": "! B3LYP D4 def2-TZVP def2/J TightSCF defgrid1 Opt"
+        "fallback": "! B3LYP D4 def2-TZVP def2/J TightSCF defgrid3 Opt"
     },
     "T1-12h": {
         "time_budget": "12 hours",
         "method": "GOAT-r2SCAN-3c",
-        "keywords": f"! GOAT r2SCAN-3c defgrid1\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! GOAT r2SCAN-3c defgrid3\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "QM-level GOAT search around assigned minima",
-        "fallback": "! r2SCAN-3c TightOpt TightSCF defgrid1"
+        "fallback": "! r2SCAN-3c TightOpt TightSCF defgrid3"
     },
     "T1-1d": {
         "time_budget": "1 day",
@@ -120,10 +122,10 @@ METHOD_MATRIX_TIERS = {
     "T1-3d": {
         "time_budget": "3 days",
         "method": "wB97X-V / def2-TZVPP",
-        "keywords": f"! wB97X-V def2-TZVPP defgrid1 TightOpt TightSCF\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
+        "keywords": f"! wB97X-V def2-TZVPP defgrid3 TightOpt TightSCF\n{STANDARD_5_THRESHOLD_GEOM_BLOCK}",
         "engine": "CPU",
         "description": "High-level DFT re-optimization of Stage-B survivors",
-        "fallback": "! CCSD(T)-F12 cc-pVTZ-F12 defgrid1 Opt"
+        "fallback": "! CCSD(T)-F12 cc-pVTZ-F12 defgrid3 Opt"
     }
 }
 

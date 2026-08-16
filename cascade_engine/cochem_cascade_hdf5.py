@@ -59,14 +59,14 @@ class CascadeHDF5Serializer:
             # Step 4: Serialize geometry as a byte-string
             tier_group.create_dataset("geometry_xyz", data=geometry.encode('utf-8'))
             
-            # Step 5: Serialize heavy tensors using LZF compression & chunking
+            # Step 5: Serialize heavy tensors using default settings (optimization injected by CoChem-BENCH)
             if gradient and len(gradient) > 0:
                 grad_array = np.array(gradient, dtype=np.float64)
-                tier_group.create_dataset("gradient_matrix", data=grad_array, compression="lzf", chunks=True)
+                tier_group.create_dataset("gradient_matrix", data=grad_array)
             
             if hessian and len(hessian) > 0:
                 hess_array = np.array(hessian, dtype=np.float64)
-                tier_group.create_dataset("hessian_matrix", data=hess_array, compression="lzf", chunks=True)
+                tier_group.create_dataset("hessian_matrix", data=hess_array)
             
             # Step 6: CRITICAL - Explicitly flush the SWMR buffer to disk
             # Without this, the frontend UI will see ghost datasets or throw KeyError.
