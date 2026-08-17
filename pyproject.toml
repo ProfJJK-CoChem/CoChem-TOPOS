@@ -1,14 +1,141 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cochem-topos"
+version = "0.1.0"
+description = "Topological discovery, conformational search, and deduplication engine for CoChem-Studio"
+authors = [
+    { name = "Dr. Joshua John Klaassen" },
+    { name = "CoChem Team" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.1",
+    "h5py>=3.9.0",
+    "scipy>=1.11.0",
+    "numpy>=1.24.0",
+    "pydantic>=2.4.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cascade_engine*", "core_engine*", "export_utils*"]
+exclude = ["tests*", "test_calc*", "notebooks*", "vib_tmp*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "asyncio: mark test as asyncio coroutine",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    "ignore::RuntimeWarning"
+]
+
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py310"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".conda",
+    "build",
+    "dist",
+    "notebooks",
+    "test_calc",
+    "vib_tmp_hand_topo",
+    "vib_tmp_test",
+    "__pycache__"
+]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "N"]
-ignore = []
+select = ["E", "F", "W", "I", "UP", "N", "B"]
+ignore = [
+    "E501",  # Line too long (scientific formulas, matrix representations, long URLs)
+    "N801",  # Class name should use CapWords convention
+    "N802",  # Function name should be lowercase (scientific method nomenclature)
+    "N803",  # Argument name should be lowercase (mathematical parameters like N, T, K)
+    "N806",  # Variable in function should be lowercase (matrices like R, U, V, H)
+    "N812",  # Lowercase imported as non-lowercase
+    "N816",  # MixedCase variable in global scope
+]
 
 [tool.mypy]
 python_version = "3.10"
-strict = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+explicit_package_bases = true
+mypy_path = "."
+exclude = ["build/", "dist/", "rdkit-stubs", "site-packages", "notebooks/", "test_calc/", "vib_tmp_hand_topo/", "vib_tmp_test/"]
+
+[[tool.mypy.overrides]]
+module = ["rdkit", "rdkit.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "h5py.*",
+    "scipy.*",
+    "scipy.spatial.*",
+    "scipy.spatial.transform.*",
+    "scipy.optimize.*",
+    "networkx.*",
+    "ase.*",
+    "ase.atoms.*",
+    "ase.calculators.*",
+    "ase.calculators.calculator.*",
+    "ase.calculators.lj.*",
+    "ase.optimize.*",
+    "xtb.*",
+    "xtb.ase.*",
+    "xtb.ase.calculator.*",
+    "mace.*",
+    "mace.calculators.*",
+    "mace.calculators.mace_off24m.*",
+    "jax.*",
+    "jax.numpy.*",
+    "optax.*",
+    "psutil.*",
+    "zmq.*",
+    "zmq.asyncio.*",
+    "streamlit.*",
+    "cochem.*",
+    "cochem_base.*",
+    "cochem_base.core.*",
+    "cochem_base.core.dispatcher.*",
+    "cochem_node.*",
+    "core_engine.*",
+    "core_engine.cochem_core_subprocess_broker.*",
+    "cochem_cascade_hdf5.*",
+    "cochem_topos_cascade_orchestrator.*",
+    "cochem_topos_crusher.*",
+    "cochem_topos_escape.*",
+    "cochem_topos_escalator.*",
+    "cochem_topos_schemas.*",
+    "cochem_topos_export.*",
+    "cascade_engine.*",
+    "export_utils.*",
+    "parsl.*"
+]
+ignore_missing_imports = true

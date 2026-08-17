@@ -3,7 +3,7 @@
 **Author/PI:** Dr. Joshua John Klaassen  
 **ORCiD:** [https://orcid.org/0009-0007-1506-4401](https://orcid.org/0009-0007-1506-4401)  
 **GitHub Organization:** [https://github.com/ProfJJK-CoChem](https://github.com/ProfJJK-CoChem)  
-**Master Manual:** [CoChem User Manual v4.1](../CoChem-BASE/CoChem_User_Manual.md)
+**Master Manual:** [CoChem User Manual v4.1](https://github.com/ProfJJK-CoChem/CoChem-BASE/blob/main/CoChem_User_Manual.md)
 
 ---
 
@@ -11,45 +11,84 @@
 
 Conformational search and deduplication engine.
 
-As part of the CoChem v4.1 ecosystem, this module is built to rigorous *ab initio* standards, designed to interface seamlessly with the Valeev stack (MPQC, TiledArray, Libint) and ORCA 6.1.0/CFOUR 2.1.
+As part of the CoChem v4.1 ecosystem, this module is built to rigorous quantum chemical and machine learning force field standards, designed to interface seamlessly with MPQC, ORCA, xTB, CREST, and MLFF engines (MACE-OFF24m / AIMNet2 via `oet_server`).
 
-## 2. Theoretical Framework & Methodology
+## 2. Key Repository Components
 
-Combines Iterative Meta-Dynamics (iMTD-GC) with the Graph Neural Network-driven GOAT engine. Executes rigorous Weisfeiler-Lehman hashing and Kabsch RMSD alignment for duplicate rejection.
+- **`core_engine/`**: Main deduplication loops, topological hashing (`01_INGEST_GC.py`), and master integrators.
+- **`cascade_engine/`**: Method Matrix Cascade orchestration for high-fidelity thermodynamic refinement.
+- **`export_utils/`**: Provenance tracking and LaTeX documentation generation for FAIR Zenodo deposition.
+- **`cochem_topos_web.py`**: Streamlit-based Native Pipeline Web UI.
+- **`make_notebook.py` / `notebooks/`**: Tools for Jupyter notebook generation and interactive visualization.
+- **`test_calc/` / `tests/`**: Test suites for validation and verification.
+
+## 3. Theoretical Framework & Methodology
+
+Combines GFN-FF/GFN2-xTB and MLFF-driven exploration (GOAT / MACE-OFF24m) with dispersion-weighted Weisfeiler-Lehman graph hashing (`core_engine/01_INGEST_GC.py`). For duplicate rejection, it employs Jiggle-Quench Distance Matrix Hashing (`jiggle_quench_rmsd`), secondary independent CREST cross-checks, and CREGEN spectroscopic referee filtering (rotational constants `--bthr 0.001`).
 
 ### Architectural Directives
 
-- **Reproducibility**: All calculations are automatically tagged with `[M]`, `[D]`, and `[E]` provenance arrays.
-- **Constraints**: Follows the strict Phase 1 crossover physics guidelines.
-- **Data Standard**: Emits strictly to the FAIR-compliant `PESStore` HDF5 format via QCSchema v1.
+- **Reproducibility**: All calculations are automatically tagged with `[M]` provenance metadata (e.g., `[M] - Extracted directly from Method Matrix cascade.`).
+- **Constraints**: Follows strict Phase 1 crossover physics and automated BSSE / multireference diagnostic checks.
+- **Data Standard**: Emits to POSIX-safe SWMR HDF5 registries (`landscape.h5` / `cochem_state.h5`) storing geometries in `combinatorial_matrix` and `deduplicated_isomers` groups, alongside hierarchical tier groups (`tier_id`), electronic energies (`electronic_energy_hartree`), geometry byte-strings (`geometry_xyz`), gradient tensors (`gradient_matrix`), and Hessian matrices (`hessian_matrix`).
 
-## 3. Configuration & Usage
+## 4. Configuration & Usage
 
-### 3.1 Command Line Interface (CLI)
+### 4.1 Command Line Interface (CLI)
+
+Execute topology ingestion and dispersion-weighted graph hashing:
 ```bash
-cochem-topos --method GOAT --rmsd-tol 0.125
+python core_engine/01_INGEST_GC.py
 ```
 
-### 3.2 Internal API Usage
-For programmatic execution within the 11-Arrow Canonical Pipeline, the module must be invoked through the Parsl-based DAG executor (`CoChem-NODE`) to prevent thread-thrashing on the HPC hardware.
+Execute the full master orchestration pipeline on an input geometry:
+```bash
+# Ensure COCHEM_ARTIFACT_DIR is set to a directory containing cochem_system_config.json
+export COCHEM_ARTIFACT_DIR=./artifacts
+python -m core_engine.cochem_topos_master input.xyz
+```
+
+### 4.2 Internal API Usage
+
+Execute programmatic workflows using `TOPOSMasterIntegrator` and `CascadeOrchestrator`:
 
 ```python
-import cochem
-from cochem.orchestrator import CanonicalPipeline
+import asyncio
+from ase.io import read
+from core_engine.cochem_topos_master import TOPOSMasterIntegrator
+from cascade_engine.cochem_topos_cascade_orchestrator import CascadeOrchestrator, CascadeConfig
 
-# Standard pipeline execution
-pipeline = CanonicalPipeline(config="cochem_system_config.json")
-pipeline.run(target_module="CoChem-TOPOS")
+# Initialize Master Integrator with system configuration and HDF5 landscape
+master = TOPOSMasterIntegrator(
+    config_path="cochem_system_config.json",
+    hdf5_path="landscape.h5"
+)
+
+# Execute nested assembly pipeline (Monomer -> Strong Complex -> Weak Complex)
+initial_geom = read("input.xyz")
+asyncio.run(master.execute_nested_assembly_pipeline(initial_geom))
+
+# Direct Method Matrix Cascade execution on individual geometries
+cascade_config = CascadeConfig(artifact_dir=".", complex_flag=False)
+orchestrator = CascadeOrchestrator(config=cascade_config)
+state = orchestrator.process_geometry(
+    geom_id="CCO_mono_001",
+    initial_xyz="3\nWater\nO 0.0 0.0 0.0\nH 0.76 -0.59 0.0\nH -0.76 -0.59 0.0",
+    complex_flag=False
+)
+
+# Prevent resource leaks by closing ZMQ sockets and HDF5 handles
+master.close()
 ```
 
-## 4. Citation Policy
+## 5. Citation Policy
 
 If this module is utilized in the generation of published data, you must cite both the primary CoChem ecosystem and the specific module integration:
 - *Klaassen, J. J. et al. "CoChem v4: A Differentiable Tensor Framework for Heterogeneous Ab Initio Workflows." (2026)*
 
-## 5. License
+## 6. License
 
-This module is licensed under the standard CoChem Academic License. 
+This module is licensed under the Apache License, Version 2.0. See the [LICENSE](LICENSE) file for details.
 
 ---
 *Generated by the CoChem Swarm Agent Protocol.*

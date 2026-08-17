@@ -11,7 +11,7 @@ import os
 import json
 import hashlib
 import logging
-from typing import Any
+from typing import Any, Dict, Tuple
 import numpy as np
 import networkx as nx
 from scipy.spatial.distance import cdist
@@ -21,14 +21,14 @@ from ase import Atoms
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [TOPOS 1.1] %(levelname)s: %(message)s")
 
 # Empirical Covalent Radii (Angstroms)
-COVALENT_RADII = {
+COVALENT_RADII: Dict[int, float] = {
     1: 0.31, 6: 0.76, 7: 0.71, 8: 0.66, 9: 0.57, 
     15: 1.07, 16: 1.05, 17: 1.02, 35: 1.02
 }
 
 # Approximate Grimme D4 C6 Coefficients (atomic units) for heuristic edge weighting
 # Used exclusively to mathematically differentiate weak interaction orientations
-C6_HEURISTICS = {
+C6_HEURISTICS: Dict[int, float] = {
     1: 3.14,    # H
     6: 46.6,    # C
     7: 33.6,    # N
@@ -39,10 +39,11 @@ C6_HEURISTICS = {
     17: 106.0   # Cl
 }
 
-def build_dispersion_weighted_graph(atoms: Atoms) -> nx.Graph:
+def build_dispersion_weighted_graph(atoms: Atoms) -> Tuple[nx.Graph, bool]:
     """
     Builds a NetworkX graph of the molecule. Covalent bonds are unweighted (1.0).
     Non-covalent/Intermolecular contacts are weighted using C6 coefficients and 1/r^6.
+    Computes and embeds discrete chiral parities for stereocenters.
     """
     coords = atoms.get_positions()
     atomic_nums = atoms.get_atomic_numbers()
@@ -55,15 +56,12 @@ def build_dispersion_weighted_graph(atoms: Atoms) -> nx.Graph:
     num_atoms = len(atoms)
     
     # Pass 1: Covalent Topology
-    covalent_edges = []
     for i in range(num_atoms):
         for j in range(i + 1, num_atoms):
             z_i, z_j = atomic_nums[i], atomic_nums[j]
             r_cov = COVALENT_RADII.get(z_i, 1.5) + COVALENT_RADII.get(z_j, 1.5)
-            # 1.2x tolerance for covalent bonds
             if dist_matrix[i, j] < (r_cov * 1.2):
                 G.add_edge(i, j, weight=1.0, interaction="covalent")
-                covalent_edges.append((i, j))
                 
     # Detect Fragments
     fragments = list(nx.connected_components(G))
@@ -72,19 +70,37 @@ def build_dispersion_weighted_graph(atoms: Atoms) -> nx.Graph:
     if is_complex:
         logging.info(f"Detected {len(fragments)} fragments. Applying D4 C6 dispersion hashing.")
         # Pass 2: Weak Interaction Topology
-        # Add edges between separate fragments weighted by approximate dispersion
         for frag_idx, frag_a in enumerate(fragments):
             for frag_b in fragments[frag_idx+1:]:
                 for i in frag_a:
                     for j in frag_b:
-                        # Only consider intermolecular contacts under 4.5 Angstroms
                         r = dist_matrix[i, j]
                         if r < 4.5:
                             c6_i = C6_HEURISTICS.get(atomic_nums[i], 20.0)
                             c6_j = C6_HEURISTICS.get(atomic_nums[j], 20.0)
-                            # Approximate dispersion weighting: sqrt(C6_i * C6_j) / r^6
                             disp_weight = np.sqrt(c6_i * c6_j) / (r**6)
                             G.add_edge(i, j, weight=round(disp_weight, 4), interaction="dispersion")
+
+    # Pass 3: Discrete Chiral Parity Assignment
+    wl_hashes = nx.weisfeiler_lehman_subgraph_hashes(G, node_attr='z', edge_attr='interaction', iterations=3)
+    for i in G.nodes():
+        cov_neighbors = [n for n in G.neighbors(i) if G[i][n].get("interaction") == "covalent"]
+        parity = 0
+        if len(cov_neighbors) == 4:
+            # Sort neighbors by intrinsic invariant properties to ensure rotational/permutation invariance
+            def neighbor_key(n: int) -> str:
+                return wl_hashes[n][-1]
+            
+            keys = [neighbor_key(n) for n in cov_neighbors]
+            if len(set(keys)) == 4:  # Only assign parity if 4 distinctly identifiable substituents exist
+                sorted_n = sorted(cov_neighbors, key=neighbor_key)
+                p0, p1, p2, p3 = coords[sorted_n[0]], coords[sorted_n[1]], coords[sorted_n[2]], coords[sorted_n[3]]
+                vol = np.dot(p1 - p0, np.cross(p2 - p0, p3 - p0))
+                if abs(vol) > 0.5:
+                    parity = int(np.sign(vol))
+        
+        # Embed parity into a unified node label for WL hashing
+        G.nodes[i]['z_parity'] = f"{G.nodes[i]['z']}_{parity}"
 
     return G, is_complex
 
@@ -95,11 +111,7 @@ def hash_topology(G: nx.Graph, is_complex: bool) -> str:
     (handles scrambled atomic indices elegantly).
     """
     # Create a string representation using the Weisfeiler-Lehman algorithm
-    # Edge weights are factored in to differentiate non-covalent complexes
-    def edge_attr(e) -> Any:
-        return str(e.get('weight', 1.0))
-        
-    graph_hash_gen = nx.weisfeiler_lehman_graph_hash(G, node_attr='z', edge_attr='weight')
+    graph_hash_gen = nx.weisfeiler_lehman_graph_hash(G, node_attr='z_parity', edge_attr='weight')
     
     # Shorten the hash for filesystem safety and append complex tag
     short_hash = hashlib.sha256(graph_hash_gen.encode()).hexdigest()[:8]
@@ -107,7 +119,7 @@ def hash_topology(G: nx.Graph, is_complex: bool) -> str:
     
     return f"CCO_{prefix}_{short_hash}"
 
-def process_input_geometry(filepath: str) -> dict:
+def process_input_geometry(filepath: str) -> Dict[str, Any]:
     """Ingests an XYZ, builds the graph, and returns the strictly formatted basin seed."""
     try:
         atoms = read(filepath)

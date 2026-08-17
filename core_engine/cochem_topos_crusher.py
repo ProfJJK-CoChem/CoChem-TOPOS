@@ -18,7 +18,7 @@ import asyncio
 import os
 import itertools
 from ase.md.langevin import Langevin
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.md.velocitydistribution import thermalize_momenta
 from ase import units
 def get_honest_xtb_calculator(method="GFN2-xTB"):
     from xtb.ase.calculator import XTB
@@ -89,8 +89,8 @@ class ToposCrusher:
     def _init_hdf5_state(self) -> Any:
         """Initialize the HDF5 file for persistent combinatorial state."""
         try:
+            self.hdf5_path.parent.mkdir(parents=True, exist_ok=True)
             with h5py.File(self.hdf5_path, 'a', libver='latest') as f:
-                f.swmr_mode = True
                 if 'combinatorial_matrix' not in f:
                     f.create_group('combinatorial_matrix')
                 if 'chiral_pairs' not in f:
@@ -218,6 +218,9 @@ class ToposCrusher:
         for basin in self.accepted_basins:
             existing_atoms = basin["atoms"]
             
+            if len(candidate) != len(existing_atoms) or not np.array_equal(candidate.get_atomic_numbers(), existing_atoms.get_atomic_numbers()):
+                continue
+            
             # Check 1: CREGEN spectroscopic rotational constant threshold (--bthr 0.001)
             if rot_cand is not None:
                 try:
@@ -312,17 +315,15 @@ class ToposCrusher:
 
     def _coulomb_matrix_rmsd(self, atoms1: Atoms, atoms2: Atoms) -> float:
         """
-        Computes RMSD using stereospecific Coulomb matrices for chiral discrimination.
-        Raises ChiralDiscriminationError if atoms counts differ or calculation fails.
+        Computes Frobenius norm difference between Coulomb matrices of two conformers.
+        Raises ValueError if atom counts/types mismatch.
         """
-        if len(atoms1) != len(atoms2):
-            raise ChiralDiscriminationError("Atom count mismatch in Coulomb matrix calculation.")
-        try:
-            cm1 = compute_coulomb_matrix(atoms1)
-            cm2 = compute_coulomb_matrix(atoms2)
-            return float(np.sqrt(np.mean((cm1 - cm2) ** 2)))
-        except Exception as e:
-            raise ChiralDiscriminationError(f"Coulomb matrix calculation failed for chiral discrimination: {e}")
+        if len(atoms1) != len(atoms2) or np.any(atoms1.get_atomic_numbers() != atoms2.get_atomic_numbers()):
+            raise ValueError("Cannot compute Coulomb matrix RMSD between different atomic compositions.")
+        
+        cm1 = compute_coulomb_matrix(atoms1)
+        cm2 = compute_coulomb_matrix(atoms2)
+        return float(np.linalg.norm(cm1 - cm2))
 
     def _execute_mace_off24m_screen(self, atoms: Atoms, isomer_a: Atoms = None, isomer_b: Atoms = None) -> float:
         """
@@ -339,10 +340,10 @@ class ToposCrusher:
                 combined = isomer_a + isomer_b
                 combined.calc = calc
                 e_ab = combined.get_potential_energy()
-                return float(e_ab - e_a - e_b)
+                return float(e_ab - e_a - e_b) * 23.0605
             else:
                 atoms.calc = calc
-                return float(atoms.get_potential_energy())
+                return float(atoms.get_potential_energy()) * 23.0605
 
         # Create MACE-OFF24m calculator instance
         calc = MACEOFF24mCalculator()
@@ -350,12 +351,14 @@ class ToposCrusher:
         # For monomer screening, we can just evaluate the atoms directly
         if isomer_a is None and isomer_b is None:
             energy = calc.get_potential_energy(atoms)
-            return float(energy)
+            return float(energy) * 23.0605
         else:
-            # For complex screening, combine the two geometries
+            # For complex screening, compute interaction energy (E_ab - E_a - E_b)
+            e_a = float(calc.get_potential_energy(isomer_a))
+            e_b = float(calc.get_potential_energy(isomer_b))
             combined_atoms = isomer_a + isomer_b
-            energy = calc.get_potential_energy(combined_atoms)
-            return float(energy)
+            e_ab = float(calc.get_potential_energy(combined_atoms))
+            return float(e_ab - e_a - e_b) * 23.0605
 
     def _execute_jax_neb(self, isomer_a: Atoms, isomer_b: Atoms) -> float:
         """
@@ -363,23 +366,41 @@ class ToposCrusher:
         Returns the Transition State barrier (Ea) in kcal/mol.
         """
         def _execute_ase_neb_barrier(img_a: Atoms, img_b: Atoms) -> float:
-            n_images = 5
-            pos_a = img_a.positions
-            pos_b = img_b.positions
-            images = []
-            for alpha in np.linspace(0, 1, n_images):
-                img = img_a.copy()
-                img.positions = (1 - alpha) * pos_a + alpha * pos_b
-                images.append(img)
+            if img_a is None or img_b is None or len(img_a) != len(img_b):
+                return 999.0
+            from ase.neb import NEB
+            from ase.optimize import FIRE
             
-            calc = get_honest_xtb_calculator()
-            energies = []
+            n_images = 5
+            images = [img_a.copy()]
+            for _ in range(n_images - 2):
+                images.append(img_a.copy())
+            
+            # Kabsch alignment of img_b to img_a without mutating global img_b
+            img_b_aligned = img_b.copy()
+            from scipy.spatial.transform import Rotation
+            com_a = np.mean(img_a.positions, axis=0)
+            com_b = np.mean(img_b_aligned.positions, axis=0)
+            p_a = img_a.positions - com_a
+            p_b = img_b_aligned.positions - com_b
+            rot, _ = Rotation.align_vectors(p_a, p_b)
+            img_b_aligned.positions = rot.apply(p_b) + com_a
+            
+            images.append(img_b_aligned)
+            
+            neb = NEB(images)
+            neb.interpolate()
+            
             for img in images:
-                img.calc = calc
-                energies.append(float(img.get_potential_energy()))
+                img.calc = get_honest_xtb_calculator()
+            
+            optimizer = FIRE(neb)
+            optimizer.run(fmax=0.05, steps=50)
+                
+            energies = [float(img.get_potential_energy()) for img in images]
                 
             barrier = float(np.max(energies) - min(energies[0], energies[-1]))
-            return max(0.1, barrier)
+            return max(0.1, barrier * 23.0605)
 
         logging.info("Computing physical interpolated barrier via ASE calculator...")
         return _execute_ase_neb_barrier(isomer_a, isomer_b)
@@ -415,43 +436,42 @@ class ToposCrusher:
 
     def _apply_shake_constraints(self, atoms: Atoms) -> Atoms:
         """
-        Apply RATTLE / SHAKE algorithm in _apply_shake_constraints to freeze O-H bond lengths
-        and H-O-H bond angles for explicit water molecules.
+        Apply RATTLE / SHAKE algorithm in _apply_shake_constraints to freeze O-H bond lengths (0.9572 A)
+        and H-O-H bond angles (104.52 deg, H-H distance 1.5136 A) for explicit water molecules.
         """
+        from ase.constraints import FixBondLengths
         atoms_copy = atoms.copy()
         symbols = atoms_copy.get_chemical_symbols()
-        positions = atoms_copy.positions.copy()
+        positions = atoms_copy.positions
         
+        bonds_to_fix = []
         for i, sym in enumerate(symbols):
             if sym == 'O':
-                h_indices = [j for j, s in enumerate(symbols) if s == 'H' and np.linalg.norm(positions[i] - positions[j]) < 1.3]
-                if len(h_indices) == 2:
-                    h1, h2 = h_indices[0], h_indices[1]
-                    # Enforce O-H bond length 0.9572 A
-                    v1 = positions[h1] - positions[i]
-                    n1 = np.linalg.norm(v1)
-                    if n1 > 1e-6:
-                        positions[h1] = positions[i] + v1 * (0.9572 / n1)
-                    v2 = positions[h2] - positions[i]
-                    n2 = np.linalg.norm(v2)
-                    if n2 > 1e-6:
-                        positions[h2] = positions[i] + v2 * (0.9572 / n2)
-                    # Enforce H-H distance 1.5136 A (104.52 deg angle)
-                    v12 = positions[h2] - positions[h1]
-                    n12 = np.linalg.norm(v12)
-                    if n12 > 1e-6:
-                        mid = 0.5 * (positions[h1] + positions[h2])
-                        direction = v12 / n12
-                        positions[h1] = mid - direction * (1.5136 / 2.0)
-                        positions[h2] = mid + direction * (1.5136 / 2.0)
-        atoms_copy.positions = positions
+                covalent_neighbors = []
+                for j, s in enumerate(symbols):
+                    if i != j:
+                        dist = float(np.linalg.norm(positions[i] - positions[j]))
+                        if dist < 1.6:
+                            covalent_neighbors.append((j, s))
+                
+                # Strict H2O topology check: exactly 2 covalent neighbors, both must be H
+                if len(covalent_neighbors) == 2 and covalent_neighbors[0][1] == 'H' and covalent_neighbors[1][1] == 'H':
+                    h1 = covalent_neighbors[0][0]
+                    h2 = covalent_neighbors[1][0]
+                    bonds_to_fix.append((i, h1))
+                    bonds_to_fix.append((i, h2))
+                    bonds_to_fix.append((h1, h2))
+        
+        if bonds_to_fix:
+            atoms_copy.set_constraint(FixBondLengths(bonds_to_fix))
+            
         return atoms_copy
 
     def _persist_to_hdf5(self, basin_record: dict) -> Any:
         """Persist full 3D atomic coordinates tensor and atomic numbers to HDF5."""
         try:
+            self.hdf5_path.parent.mkdir(parents=True, exist_ok=True)
             with h5py.File(self.hdf5_path, 'a', libver='latest') as f:
-                f.swmr_mode = True
                 group = f['combinatorial_matrix']
                 idx = basin_record["idx"]
                 ds_name = f"basin_{idx:05d}"
@@ -504,10 +524,12 @@ class ToposCrusher:
                 atoms_copy.calc = get_honest_xtb_calculator()
         else:
             atoms_copy.calc = get_honest_xtb_calculator()
+            
+        atoms_copy = self._apply_shake_constraints(atoms_copy)
         
-        MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
-        dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
-        dyn.run(10)
+        thermalize_momenta(atoms_copy, temperature_K=300)
+        dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01, fixcm=False)
+        dyn.run(1000)
         return atoms_copy
 
     def _execute_goat_conformer_generation(self, base_atoms: Atoms, num_conformers: int = 10) -> list:
@@ -578,11 +600,28 @@ class ToposCrusher:
             rad_b = np.max(np.linalg.norm(isomer_b.positions - com_b, axis=1)) if len(isomer_b) > 0 else 1.0
             clearance = max(3.5, rad_a + rad_b + 1.0)
 
-            isomer_b_displaced = isomer_b.copy()
-            isomer_b_displaced.positions += np.array([clearance, 0.0, 0.0])
-            combined_candidate = isomer_a + isomer_b_displaced
+            best_energy = float('inf')
+            best_combined = None
+            best_isomer_b = None
             
-            interaction_energy = self._execute_mace_off24m_screen(combined_candidate, isomer_a, isomer_b_displaced)
+            for rx in [0, 180]:
+                for ry in [0, 180]:
+                    for rz in [0, 180]:
+                        for dx, dy, dz in [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]:
+                            iso_b = isomer_b.copy()
+                            rot = Rotation.from_euler('xyz', [rx, ry, rz], degrees=True).as_matrix()
+                            com_b = np.mean(iso_b.positions, axis=0)
+                            iso_b.positions = np.dot(iso_b.positions - com_b, rot.T) + com_a + np.array([dx, dy, dz]) * clearance
+                            cand = isomer_a + iso_b
+                            e = self._execute_mace_off24m_screen(cand, isomer_a, iso_b)
+                            if e < best_energy:
+                                best_energy = e
+                                best_combined = cand
+                                best_isomer_b = iso_b
+                                
+            combined_candidate = best_combined
+            isomer_b_displaced = best_isomer_b
+            interaction_energy = best_energy
             
             if interaction_energy > 10.0:
                 continue
@@ -633,11 +672,28 @@ class ToposCrusher:
             rad_b = np.max(np.linalg.norm(isomer_b.positions - com_b, axis=1)) if len(isomer_b) > 0 else 1.0
             clearance = max(5.0, rad_a + rad_b + 2.5)
 
-            isomer_b_displaced = isomer_b.copy()
-            isomer_b_displaced.positions += np.array([clearance, 0.0, 0.0])
-            combined_candidate = isomer_a + isomer_b_displaced
+            best_energy = float('inf')
+            best_combined = None
+            best_isomer_b = None
             
-            interaction_energy = self._execute_mace_off24m_screen(combined_candidate, isomer_a, isomer_b_displaced)
+            for rx in [0, 180]:
+                for ry in [0, 180]:
+                    for rz in [0, 180]:
+                        for dx, dy, dz in [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]:
+                            iso_b = isomer_b.copy()
+                            rot = Rotation.from_euler('xyz', [rx, ry, rz], degrees=True).as_matrix()
+                            com_b = np.mean(iso_b.positions, axis=0)
+                            iso_b.positions = np.dot(iso_b.positions - com_b, rot.T) + com_a + np.array([dx, dy, dz]) * clearance
+                            cand = isomer_a + iso_b
+                            e = self._execute_mace_off24m_screen(cand, isomer_a, iso_b)
+                            if e < best_energy:
+                                best_energy = e
+                                best_combined = cand
+                                best_isomer_b = iso_b
+                                
+            combined_candidate = best_combined
+            isomer_b_displaced = best_isomer_b
+            interaction_energy = best_energy
             
             if interaction_energy > 5.0:
                 continue

@@ -1,11 +1,26 @@
-﻿CoChem-TOPOS 3.0 Core Routing and Topology Dependencies
-NOTE: Heavy compute engines (PyTorch, ORCA) are excluded here and routed via cochem_system_config.json
-Topology and Graph Connectivity
+# CoChem-TOPOS 4.1 Core Routing and Topology Dependencies
+# NOTE: Heavy compute engines (PyTorch, ORCA) are excluded here and routed via cochem_system_config.json
+
+# Core (matches pyproject.toml dependencies)
 networkx>=3.1
-SWMR Database Persistence
 h5py>=3.9.0
-Mathematical Operations, Kabsch Alignment, and RMSD
 scipy>=1.11.0
 numpy>=1.24.0
-JSON Registry Schema Validation
 pydantic>=2.4.0
+
+# SWMR Database Persistence (Filelock for concurrent HDF5 writes)
+filelock>=3.12.0
+
+# Atomic Simulation and Chemoinformatics
+ase>=3.22.1
+rdkit>=2022.9.5
+
+# Inter-Process Communication and Message Bus
+pyzmq>=24.0.0
+
+# Dashboard and System Process Management
+streamlit>=1.24.0
+psutil>=5.9.0
+
+# Testing and Validation Framework (matches pyproject.toml dev dependencies)
+pytest>=7.0.0

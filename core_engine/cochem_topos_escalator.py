@@ -1,5 +1,3 @@
-import logging
-logger = logging.getLogger(__name__)
 #!/usr/bin/env python3
 """
 CoChem-TOPOS v3.0: Stage 3.0 - Combinatorial Fragment Assembly
@@ -45,20 +43,23 @@ class FragmentAssembler:
         vectors = self._generate_fibonacci_sphere(self.angular_steps)
         radii = np.linspace(base_distance, base_distance + 2.0, self.radial_steps)
         
+        # 3 Orthogonal Rotations (X, Y, Z axes by 90 degrees) to sample orientations
+        rotations = [Rotation.from_rotvec([0, 0, 0])]
+        for angle in [np.pi/2, np.pi]:
+            for axis in [[1,0,0], [0,1,0], [0,0,1]]:
+                rotations.append(Rotation.from_rotvec(angle * np.array(axis)))
+        
         for r in radii:
             for vec in vectors:
                 # Translation
                 translation = vec * r
-                
-                # 3 Orthogonal Rotations (X, Y, Z axes by 90 degrees) to sample orientations
-                for angle in [0, np.pi/2, np.pi]:
-                    for axis in [[1,0,0], [0,1,0], [0,0,1]]:
-                        rot = Rotation.from_rotvec(angle * np.array(axis))
-                        rotated_pos_b = rot.apply(pos_b) + translation
                         
-                        seed = base_a.copy()
-                        seed += Atoms(numbers=frag_b.get_atomic_numbers(), positions=rotated_pos_b)
-                        complex_seeds.append(seed)
+                for rot in rotations:
+                    rotated_pos_b = rot.apply(pos_b) + translation
+                    
+                    seed = base_a.copy()
+                    seed += Atoms(numbers=frag_b.get_atomic_numbers(), positions=rotated_pos_b)
+                    complex_seeds.append(seed)
                         
         logging.info(f"Generated {len(complex_seeds)} unique complex seeds.")
         return complex_seeds

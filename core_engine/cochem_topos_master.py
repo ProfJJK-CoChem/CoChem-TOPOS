@@ -4,7 +4,7 @@ Bridges the GOAT/Crusher deduplication loops to the Method Matrix Cascade.
 """
 
 import logging
-from typing import Any
+from typing import Any, Iterable
 import h5py
 from pathlib import Path
 import asyncio
@@ -78,18 +78,24 @@ end
         Processes response payload from oet_server daemon.
         Applies gradient sign-flip guard and float32 precision check.
         """
-        energy = response.get("energy", 0.0)
+        if "energy" not in response:
+            raise ValueError("Daemon response missing 'energy' key. Calculation failed.")
+            
+        energy = response["energy"]
         forces = response.get("forces", [])
         if len(forces) > 0:
             gradients = self.apply_gradient_sign_flip_guard(forces)
         else:
             gradients = np.array([], dtype=np.float32)
             
+        status = response.get("status", "SUCCESS")
+        warnings = response.get("warnings", [])
         return {
             "energy_hartree": float(energy),
             "gradients_hartree_bohr": gradients,
             "scf_threshold": self.scf_tole,
-            "status": "SUCCESS"
+            "status": status,
+            "warnings": warnings
         }
 
 
@@ -129,7 +135,7 @@ class TOPOSMasterIntegrator:
         
         logger.info(f"TOPOS Master Integrator initialized. ZMQ listening on port {self.zmq_port}")
 
-    async def _zmq_ui_listener(self) -> Any:
+    async def _zmq_ui_listener(self) -> None:
         """Background daemon listening for UI polling and human-in-the-loop categorizations."""
         logger.info("ZMQ UI Listener Daemon started.")
         while True:
@@ -138,7 +144,15 @@ class TOPOSMasterIntegrator:
                 message = await self.zmq_socket.recv_json()
                 logger.info(f"Received UI command: {message}")
                 # Handle UI commands (e.g., symmetry override, enantiomer bucketing)
-                response = {"status": "ACK", "message": "Command received"}
+                command = message.get("command")
+                if command == "symmetry_override":
+                    self.symmetry_override_active = message.get("value", True)
+                    response = {"status": "SUCCESS", "message": "symmetry_override applied"}
+                elif command == "enantiomer_bucketing":
+                    self.enantiomer_bucketing_active = message.get("value", True)
+                    response = {"status": "SUCCESS", "message": "enantiomer_bucketing applied"}
+                else:
+                    response = {"status": "ERROR", "message": f"Unknown command: {command}"}
                 await self.zmq_socket.send_json(response)
             except asyncio.CancelledError:
                 logger.info("ZMQ UI Listener Daemon cancelled.")
@@ -147,7 +161,7 @@ class TOPOSMasterIntegrator:
                 logger.error(f"Error in ZMQ UI listener: {e}")
                 await asyncio.sleep(0.1)
 
-    async def execute_nested_assembly_pipeline(self, initial_geometry) -> Any:
+    async def execute_nested_assembly_pipeline(self, initial_geometry: Any) -> None:
         """
         Executes the three-phase nested loop: Monomer -> Strong Complex -> Weak Complex.
         Unblocks the UI by running as an asyncio task alongside the ZMQ listener.
@@ -185,7 +199,7 @@ class TOPOSMasterIntegrator:
         finally:
             ui_task.cancel()
 
-    async def _run_escalation_pass(self, complex_flag: bool = False) -> Any:
+    async def _run_escalation_pass(self, complex_flag: bool = False) -> None:
         """
         Iterates over all deduplicated geometries in the landscape and escalates them through the cascade.
         """
@@ -236,6 +250,8 @@ class TOPOSMasterIntegrator:
                 success_count += 1
             elif "REDUCED_FIDELITY" in result.final_status:
                 reduced_count += 1
+            else:
+                fail_count += 1
             
             await asyncio.sleep(0) # Yield control after each geometry
 
@@ -252,7 +268,7 @@ class TOPOSMasterIntegrator:
         # 4. Macroscopic Boltzmann Synthesis
         self._macroscopic_boltzmann_synthesis(isomer_payloads.keys())
 
-    def _macroscopic_boltzmann_synthesis(self, isomer_ids, temperature_K: float = 298.15) -> Any:
+    def _macroscopic_boltzmann_synthesis(self, isomer_ids: Iterable[str], temperature_K: float = 298.15) -> None:
         """
         Executes Macroscopic Boltzmann Synthesis.
         Reads highest tier energies for each isomer, calculates partition function,
@@ -275,7 +291,7 @@ class TOPOSMasterIntegrator:
                     best_energy = None
                     keys = list(f[f"{target_group}/{geom_id}"].keys())
                     tier_keys = [k for k in keys if k.startswith("tier_")]
-                    def get_tier_num(k) -> Any:
+                    def get_tier_num(k: str) -> int:
                         try:
                             return int(k.split("_")[1])
                         except Exception:
@@ -302,8 +318,9 @@ class TOPOSMasterIntegrator:
         boltzmann_factors = {}
         
         for geom_id, e in energies.items():
-            delta_e = e - min_energy
-            factor = np.exp(-delta_e / RT)
+            delta_e_hartree = e - min_energy
+            delta_e_kcal = delta_e_hartree * 627.509
+            factor = np.exp(-delta_e_kcal / RT)
             boltzmann_factors[geom_id] = factor
             partition_q += factor
             
@@ -311,7 +328,32 @@ class TOPOSMasterIntegrator:
         
         logger.info("=== Macroscopic Boltzmann Synthesis Results ===")
         for g, pop in sorted(populations.items(), key=lambda item: item[1], reverse=True):
-            logger.info(f"Isomer {g}: E_rel = {energies[g]-min_energy:.2f} kcal/mol -> Pop = {pop:.2f}%")
+            e_rel_kcal = (energies[g] - min_energy) * 627.509
+            logger.info(f"Isomer {g}: E_rel = {e_rel_kcal:.2f} kcal/mol -> Pop = {pop:.2f}%")
+
+    def close(self) -> None:
+        """Explicit teardown for ZMQ socket, context, and HDF5 handles to prevent resource leaks."""
+        if hasattr(self, "zmq_socket") and self.zmq_socket is not None:
+            try:
+                self.zmq_socket.close(linger=0)
+            except Exception:
+                pass
+        if hasattr(self, "zmq_context") and self.zmq_context is not None:
+            try:
+                self.zmq_context.term()
+            except Exception:
+                pass
+        if hasattr(self, "orchestrator") and hasattr(self.orchestrator, "serializer"):
+            try:
+                self.orchestrator.serializer.close()
+            except Exception:
+                pass
+
+    def __enter__(self) -> "TOPOSMasterIntegrator":
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        self.close()
 
 
 if __name__ == "__main__":

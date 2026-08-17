@@ -1,0 +1,97 @@
+# ==============================================================================
+# CoChem-TOPOS: Strict Air-Gap & Memory Protection .gitignore
+# ==============================================================================
+
+# 1. CoChem Ecosystem Registries & Artifacts (CRITICAL)
+# ------------------------------------------------------------------------------
+cochem_system_config.json
+cochem_deployment_manifest.json
+cochem_mint_registry.json
+CoChem_Artifacts/
+*.h5
+*.hdf5
+*.parquet
+*.sqlite
+*.db
+
+# Transient Swarm / State JSONs & Scratch Directories
+*swarm*.json
+*state*.json
+scratch/
+tmp/
+
+# 2. Computational Engine Scratch (ORCA 6.1.1, xTB, PyTorch)
+# ------------------------------------------------------------------------------
+# Prevents gigabyte-scale wavefunction and density matrices from locking up Git
+*.gbw
+*.tmp
+*.prop
+*.densities
+*.scf
+*.engrad
+*.hess
+*.opt
+*.trj
+*.out
+*.log
+*.err
+# Whitelist mocked output files for unit tests
+!tests/**/*.out
+
+# 3. Raw Geometries
+# ------------------------------------------------------------------------------
+# Proprietary geometries must reside in SWMR DBs or Artifacts, not loose in Git
+*.xyz
+*.mol
+*.sdf
+# Whitelist tiny test fixtures
+!tests/**/*.xyz
+!tests/**/*.mol
+!tests/**/*.sdf
+
+# 4. Standard Python / OS Environments
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+env/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python Packaging & Build Artifacts
+build/
+dist/
+*.egg-info/
+*.whl
+*.egg
+
+# Linter & Static Analysis Caches
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# 5. LaTeX & Export SI Artifacts
+# ------------------------------------------------------------------------------
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.lof
+*.lot
+*.toc
+
+# 6. IDEs and System Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.vscode/
+.idea/
+*.swp

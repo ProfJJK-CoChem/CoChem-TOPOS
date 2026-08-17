@@ -11,6 +11,6 @@ paths_to_add = [
     str(ECOSYSTEM_ROOT),
 ]
 
-for p in paths_to_add:
-    if p not in sys.path:
+for p in reversed(paths_to_add):
+    if Path(p).exists() and p not in sys.path:
         sys.path.insert(0, p)

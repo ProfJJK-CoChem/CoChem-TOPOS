@@ -4,14 +4,22 @@ on:
   push:
     branches: [ "main", "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
     - name: Checkout Repository
@@ -25,27 +33,38 @@ jobs:
 
     - name: Enforce Air-Gap Policy
       run: |
-        echo "Verifying no restricted artifact files are tracked in version control..."
-        if git ls-files | grep -E '\.h5$|\.gbw$|\.tmp$|cochem_system_config\.json$'; then
+        echo "Verifying no restricted artifact files are tracked or present in repository..."
+        RESTRICTED_REGEX='\.(h5|hdf5|gbw|tmp|parquet|sqlite|db|scf|engrad|hess|prop|densities|opt|trj|out|log|err|xyz|mol|sdf)$|cochem_system_config\.json$|cochem_deployment_manifest\.json$|cochem_mint_registry\.json$'
+        OFFENDING_FILES=$(git ls-files -c -o --exclude-standard | grep -iE "$RESTRICTED_REGEX" | grep -vE "^tests/.*fixtures/" || true)
+        if [ -n "$OFFENDING_FILES" ]; then
           echo "CRITICAL: Restricted files found in repository. Air-Gap policy violated."
+          echo "Offending restricted files:"
+          echo "$OFFENDING_FILES"
           exit 1
         fi
-        echo "Air-Gap integrity verified."
+        echo "Air-Gap integrity verified: No restricted files detected."
 
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-mock
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e ".[dev]"
 
-    - name: Lint with flake8
+    - name: Lint and Type Check
       run: |
-        # Stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all other errors as warnings
-        flake8 . --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
+        ruff check .
+        mypy .
 
-    - name: Run Unit Tests
+    - name: Run Unit Tests with Coverage
       run: |
-        # Run pytest. Assumes tests mock the SubprocessBroker and HDF5 locks.
-        pytest tests/ -v
+        pytest tests/ -v --cov=cascade_engine --cov=core_engine --cov=export_utils --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=80
+
+    - name: Upload Test Coverage Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-python-${{ matrix.python-version }}
+        path: |
+          htmlcov/
+          coverage.xml
+          .coverage
+        include-hidden-files: true

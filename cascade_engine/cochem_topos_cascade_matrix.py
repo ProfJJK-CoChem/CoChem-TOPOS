@@ -8,25 +8,25 @@ corrections, and trapping closed-shell multireference breakdowns.
 """
 
 import logging
+import os
 
 # Initialize module-level logger
 logger = logging.getLogger("CoChem.TOPOS.CascadeMatrix")
 
 STANDARD_5_THRESHOLD_GEOM_BLOCK = """%geom
-  TolMaxG 1e-5
-  TolGCon 3e-6
-  TolRCon 5e-5
   TolE 1e-7
-  TolExtStep 1e-4
-  TolExtGrad 1e-5
+  TolMaxG 1e-5
+  TolRMSG 3e-6
+  TolMaxD 1e-4
+  TolRMSD 5e-5
   InHess XTB2
 end"""
 
 def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagnostic: float = 0.0, d1_diagnostic: float = 0.0) -> dict:
     """
-    Handles automated flag routing for BSSE injection, multireference traps,
+    handles automated flag routing for BSSE injection, multireference traps,
     and coupled-cluster escalation parameters on the local workstation.
-    Injects standard 5-threshold %geom block (TolGCon, TolRCon, TolE, TolExtStep, TolExtGrad).
+    Injects standard 5-threshold %geom block (TolMaxG, TolRMSG, TolMaxD, TolRMSD, TolE).
     
     Args:
         complex_flag (bool): True if the structure is an intermolecular complex (Stage 3.5 output).
@@ -61,6 +61,8 @@ def evaluate_calculation_modifiers(complex_flag: bool, basis_set: str, t1_diagno
         
     return modifiers
 
+OET_SERVER_ADDRESS = os.environ.get("OET_SERVER_ADDRESS", "localhost:8888")
+
 # Define the v4 T1 Method Matrix Execution Tiers (T1-10s to T1-3d)
 METHOD_MATRIX_TIERS = {
     "T1-10s": {
@@ -82,7 +84,7 @@ METHOD_MATRIX_TIERS = {
     "T1-30min": {
         "time_budget": "30 min",
         "method": "MACE-OFF24m / AIMNet2",
-        "keywords": "! GOAT-EXPLORE ExtOpt TightOpt PAL8\n%method ProgExt \"oet_client\" Ext_Params \"-b localhost:8888\" end\n%scf\n  TolE 1e-5\nend",
+        "keywords": f"! GOAT-EXPLORE ExtOpt TightOpt PAL8\n%method ProgExt \"oet_client\" Ext_Params \"-b {OET_SERVER_ADDRESS}\" end\n%scf\n  TolE 1e-5\nend",
         "engine": "GPU",
         "description": "MLFF-driven GOAT exploration via oet_server daemon",
         "fallback": "MACE-OFF24m"
