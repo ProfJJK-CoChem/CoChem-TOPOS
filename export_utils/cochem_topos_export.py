@@ -133,11 +133,25 @@ This document contains the verified structural coordinates and single-point elec
             for tex_file in self.output_dir.glob("*.tex"):
                 zf.write(tex_file, arcname=tex_file.name)
                 
-            # 3. Embed a JSON provenance manifest
+            # 3. Hash .out and .gbw files for provenance
+            provenance_hashes = {}
+            for target_ext in ["*.out", "*.gbw"]:
+                for file_path in self.output_dir.glob(target_ext):
+                    hasher = hashlib.sha256()
+                    with open(file_path, "rb") as f:
+                        for chunk in iter(lambda: f.read(4096), b""):
+                            hasher.update(chunk)
+                    provenance_hashes[file_path.name] = hasher.hexdigest()
+                    zf.write(file_path, arcname=file_path.name)
+            
+            # 4. Embed a JSON provenance manifest
             manifest = {
                 "archive_type": "CoChem-TOPOS FAIR Output",
-                "version": "3.0",
-                "source_database": self.hdf5_path.name
+                "version": "4.0",
+                "source_database": self.hdf5_path.name,
+                "thermodynamic_state": {"T_K": 298.15, "P_atm": 1.0, "notes": "exact isotopic masses"},
+                "provenance_hashes": provenance_hashes,
+                "accuracy_claim": "[M] - Extracted directly from Method Matrix cascade."
             }
             manifest_path = self.output_dir / "fair_manifest.json"
             with open(manifest_path, 'w') as mf:

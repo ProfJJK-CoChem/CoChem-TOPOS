@@ -44,13 +44,24 @@ except ImportError:
     MACE_OFF24M_AVAILABLE = False
     logging.warning("MACE-OFF24m not found. Falling back to standard RMSD screening.")
 
-# Attempt Coulomb Matrix imports for chirality tracking
-try:
-    from ase.geometry import get_coulomb_matrix
-    COULOMB_MATRIX_AVAILABLE = True
-except ImportError:
-    COULOMB_MATRIX_AVAILABLE = False
-    logging.warning("Coulomb matrix calculation not available. Falling back to RMSD.")
+def compute_coulomb_matrix(atoms: Atoms) -> np.ndarray:
+    """Computes exact Coulomb matrix for chiral/structural discrimination."""
+    z = atoms.get_atomic_numbers()
+    pos = atoms.get_positions()
+    n = len(atoms)
+    cm = np.zeros((n, n), dtype=float)
+    for i in range(n):
+        cm[i, i] = 0.5 * (float(z[i]) ** 2.4)
+        for j in range(i + 1, n):
+            dist = float(np.linalg.norm(pos[i] - pos[j]))
+            if dist < 1e-8:
+                dist = 1e-8
+            val = float(z[i] * z[j]) / dist
+            cm[i, j] = val
+            cm[j, i] = val
+    return cm
+
+COULOMB_MATRIX_AVAILABLE = True
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [TOPOS 3.1] %(levelname)s: %(message)s")
 
@@ -59,12 +70,12 @@ KB_T_298 = 0.593  # kcal/mol at 298.15K
 
 class ChiralDiscriminationError(RuntimeError):
     """Raised when enantiomer discrimination fails due to missing chiral invariants."""
-    raise NotImplementedError("Implementation pending")
+    pass
 class ToposCrusher:
     def __init__(self, base_rmsd_threshold: float = 0.15, hdf5_path: str = None, bthr: float = 0.001) -> None:
         self.base_rmsd = base_rmsd_threshold
         if hdf5_path is None:
-            artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", ".")
+            artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", str(Path.home() / ".cochem_artifacts"))
             self.hdf5_path = Path(os.path.join(artifact_dir, "cochem_state.h5"))
         else:
             self.hdf5_path = Path(hdf5_path)
@@ -78,7 +89,8 @@ class ToposCrusher:
     def _init_hdf5_state(self) -> Any:
         """Initialize the HDF5 file for persistent combinatorial state."""
         try:
-            with h5py.File(self.hdf5_path, 'a', libver='latest', swmr=True) as f:
+            with h5py.File(self.hdf5_path, 'a', libver='latest') as f:
+                f.swmr_mode = True
                 if 'combinatorial_matrix' not in f:
                     f.create_group('combinatorial_matrix')
                 if 'chiral_pairs' not in f:
@@ -151,7 +163,24 @@ class ToposCrusher:
                     from ase.io import write as ase_write
                     ase_write(str(xyz_path), base_atoms)
                     cmd = [crest_bin, str(xyz_path), "--nci", "--nocross", "--noreftopo", "--ewin", str(ewin)]
-                    res = subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120, check=True)
+                    import psutil
+                    try:
+                        res = subprocess.run(cmd, cwd=tmpdir, capture_output=True, text=True, timeout=120, check=True)
+                    except subprocess.TimeoutExpired as e:
+                        logging.warning(f"CREST binary execution timeout: {e}")
+                    except Exception as e:
+                        logging.warning(f"CREST binary execution failed: {e}")
+                    finally:
+                        try:
+                            for p in psutil.process_iter(['pid', 'status']):
+                                if p.info['status'] == psutil.STATUS_ZOMBIE:
+                                    try:
+                                        p.wait(timeout=1)
+                                    except (psutil.NoSuchProcess, psutil.TimeoutExpired):
+                                        pass
+                        except Exception:
+                            pass
+                    
                     ensemble_path = Path(tmpdir) / "crest_conformers.xyz"
                     if not ensemble_path.exists():
                         ensemble_path = Path(tmpdir) / "crest_ensemble.xyz"
@@ -159,18 +188,11 @@ class ToposCrusher:
                         from ase.io import read as ase_read
                         return ase_read(str(ensemble_path), index=":")
             except Exception as e:
-                logging.warning(f"CREST binary execution failed: {e}. Falling back to internal secondary cross-check.")
+                logging.warning(f"CREST tempdir execution failed: {e}. Falling back to internal secondary cross-check.")
 
         # Fallback secondary search using independent non-covalent / torsional perturbations
-        secondary_conformers = []
-        for _ in range(num_conformers):
-            atoms_copy = base_atoms.copy()
-            pos = atoms_copy.positions.copy()
-            if len(pos) > 2:
-                kick = np.random.uniform(-0.6, 0.6, size=pos.shape)
-                atoms_copy.positions += kick
-            secondary_conformers.append(atoms_copy)
-        return secondary_conformers
+        logging.info("Falling back to GOAT conformer generation for secondary cross-check.")
+        return self._execute_goat_conformer_generation(base_atoms, num_conformers=num_conformers)
 
     def _cregen_referee_deduplicate(self, candidate: Atoms, energy_kcal: float, bthr: float = None) -> tuple:
         """
@@ -205,8 +227,9 @@ class ToposCrusher:
                     diff_rel = np.abs((rot_cand - rot_exist) / rot_exist)
                     if np.max(diff_rel) < bthr:
                         return True, basin["idx"], f"CREGEN referee rot_const match (< bthr {bthr:.4f})"
-                except Exception:
-                    raise NotImplementedError("Implementation pending")
+                except Exception as e:
+                    # E.g. Linear molecule moment of inertia failures; just fall back to JQ distance check
+                    pass
             # Check 2: Jiggle-Quench distance matrix hash
             jq_dist = self.jiggle_quench_rmsd(candidate, existing_atoms)
             if jq_dist < threshold:
@@ -290,14 +313,13 @@ class ToposCrusher:
     def _coulomb_matrix_rmsd(self, atoms1: Atoms, atoms2: Atoms) -> float:
         """
         Computes RMSD using stereospecific Coulomb matrices for chiral discrimination.
-        Raises ChiralDiscriminationError if non-chiral fallbacks are triggered.
+        Raises ChiralDiscriminationError if atoms counts differ or calculation fails.
         """
-        if not COULOMB_MATRIX_AVAILABLE:
-            raise ChiralDiscriminationError("Coulomb matrix package unavailable; stereospecific enantiomer discrimination cannot be performed.")
-        
+        if len(atoms1) != len(atoms2):
+            raise ChiralDiscriminationError("Atom count mismatch in Coulomb matrix calculation.")
         try:
-            cm1 = get_coulomb_matrix(atoms1)
-            cm2 = get_coulomb_matrix(atoms2)
+            cm1 = compute_coulomb_matrix(atoms1)
+            cm2 = compute_coulomb_matrix(atoms2)
             return float(np.sqrt(np.mean((cm1 - cm2) ** 2)))
         except Exception as e:
             raise ChiralDiscriminationError(f"Coulomb matrix calculation failed for chiral discrimination: {e}")
@@ -308,48 +330,36 @@ class ToposCrusher:
         Returns interaction energy in kcal/mol.
         """
         if not MACE_OFF24M_AVAILABLE:
-            # Fallback to standard RMSD for interaction screening
-            # This is an improvement over previous mock implementation - it actually computes the RMSD
+            calc = get_honest_xtb_calculator()
             if isomer_a and isomer_b:
-                return self.jiggle_quench_rmsd(isomer_a, isomer_b)
+                isomer_a.calc = calc
+                e_a = isomer_a.get_potential_energy()
+                isomer_b.calc = calc
+                e_b = isomer_b.get_potential_energy()
+                combined = isomer_a + isomer_b
+                combined.calc = calc
+                e_ab = combined.get_potential_energy()
+                return float(e_ab - e_a - e_b)
             else:
-                # For monomer screening, we can compute a simple energy estimate using honest XTB calculator
-                try:
-                    atoms.calc = get_honest_xtb_calculator()
-                    energy = atoms.get_potential_energy()
-                    return float(energy)  # Return energy in kcal/mol (approximate)
-                except Exception:
-                    return 0.0
+                atoms.calc = calc
+                return float(atoms.get_potential_energy())
 
-        try:
-            # Create MACE-OFF24m calculator instance
-            calc = MACEOFF24mCalculator()
-            
-            # For monomer screening, we can just evaluate the atoms directly
-            if isomer_a is None and isomer_b is None:
-                energy = calc.get_potential_energy(atoms)
-                return float(energy)
-            else:
-                # For complex screening, combine the two geometries
-                combined_atoms = isomer_a + isomer_b
-                energy = calc.get_potential_energy(combined_atoms)
-                return float(energy)
-        except Exception as e:
-            logging.warning(f"MACE-OFF24m screening failed: {e}. Using fallback RMSD.")
-            if isomer_a and isomer_b:
-                return self.jiggle_quench_rmsd(isomer_a, isomer_b)
-            else:
-                # For monomer case, use honest XTB as fallback
-                try:
-                    atoms.calc = get_honest_xtb_calculator()
-                    energy = atoms.get_potential_energy()
-                    return float(energy)  # Return energy in kcal/mol (approximate)
-                except Exception:
-                    return 0.0
+        # Create MACE-OFF24m calculator instance
+        calc = MACEOFF24mCalculator()
+        
+        # For monomer screening, we can just evaluate the atoms directly
+        if isomer_a is None and isomer_b is None:
+            energy = calc.get_potential_energy(atoms)
+            return float(energy)
+        else:
+            # For complex screening, combine the two geometries
+            combined_atoms = isomer_a + isomer_b
+            energy = calc.get_potential_energy(combined_atoms)
+            return float(energy)
 
     def _execute_jax_neb(self, isomer_a: Atoms, isomer_b: Atoms) -> float:
         """
-        Executes a rapid Nudged Elastic Band calculation in JAX VRAM or via ASE physical energy evaluation.
+        Executes a rapid Nudged Elastic Band calculation via ASE physical energy evaluation.
         Returns the Transition State barrier (Ea) in kcal/mol.
         """
         def _execute_ase_neb_barrier(img_a: Atoms, img_b: Atoms) -> float:
@@ -361,91 +371,18 @@ class ToposCrusher:
                 img = img_a.copy()
                 img.positions = (1 - alpha) * pos_a + alpha * pos_b
                 images.append(img)
-            try:
-                calc = get_honest_xtb_calculator()
-            except Exception:
-                raise RuntimeError("Failed to get honest XTB calculator for NEB barrier calculation.")
+            
+            calc = get_honest_xtb_calculator()
             energies = []
             for img in images:
                 img.calc = calc
-                try:
-                    energies.append(float(img.get_potential_energy()))
-                except Exception:
-                    energies.append(0.0)
+                energies.append(float(img.get_potential_energy()))
+                
             barrier = float(np.max(energies) - min(energies[0], energies[-1]))
             return max(0.1, barrier)
 
-        if not JAX_AVAILABLE:
-            logging.info("JAX unavailable. Computing physical interpolated barrier via ASE calculator...")
-            return _execute_ase_neb_barrier(isomer_a, isomer_b)
-
-        logging.info("Triggering JAX-NEB Barrier Evaluation via optax...")
-        
-        try:
-            # 1. Linear interpolation to generate the initial band (e.g., 5 images)
-            n_images = 5
-            pos_a = isomer_a.positions
-            pos_b = isomer_b.positions
-            
-            # Create linear interpolation
-            band = np.linspace(0, 1, n_images)[:, None, None] * pos_b + (1 - np.linspace(0, 1, n_images))[:, None, None] * pos_a
-            band_jnp = jnp.array(band) # Shape: (n_images, n_atoms, 3)
-            
-            # Spring constant for the elastic band
-            k_spring = 0.1 
-            
-            # 2. Define the true loss function using MACE-JAX / physical potential energy
-            def neb_loss(band_positions) -> Any:
-                full_band = jnp.concatenate([
-                    jnp.expand_dims(band_jnp[0], 0), 
-                    band_positions, 
-                    jnp.expand_dims(band_jnp[-1], 0)
-                ], axis=0)
-                
-                # Evaluate potential energy for each image along the reaction coordinate
-                pos_a_jnp = band_jnp[0]
-                pos_b_jnp = band_jnp[-1]
-                
-                def image_energy(coords) -> Any:
-                    d_a = jnp.sqrt(jnp.sum((coords - pos_a_jnp)**2) + 1e-8)
-                    d_b = jnp.sqrt(jnp.sum((coords - pos_b_jnp)**2) + 1e-8)
-                    s = d_a / (d_a + d_b + 1e-6)
-                    # Double-well potential profile with barrier at s=0.5
-                    return 10.0 * (4.0 * s * (1.0 - s))
-                
-                energies = jax.vmap(image_energy)(full_band)
-                potential_loss = jnp.sum(energies)
-                
-                # Spring force penalty between adjacent images to keep them evenly spaced
-                diffs = full_band[1:] - full_band[:-1]
-                distances = jnp.sqrt(jnp.sum(diffs**2, axis=(1, 2)))
-                spring_loss = k_spring * jnp.sum((distances[1:] - distances[:-1])**2)
-                
-                return potential_loss + spring_loss
-                
-            # 3. Minimize the band using optax.adam
-            optimizer = optax.adam(learning_rate=0.01)
-            intermediate_images = band_jnp[1:-1]
-            opt_state = optimizer.init(intermediate_images)
-            
-            @jax.jit
-            def step(images, state) -> Any:
-                loss_val, grads = jax.value_and_grad(neb_loss)(images)
-                updates, new_state = optimizer.update(grads, state)
-                new_images = optax.apply_updates(images, updates)
-                return new_images, new_state, loss_val
-                
-            for _ in range(100):
-                intermediate_images, opt_state, loss = step(intermediate_images, opt_state)
-                
-            barrier_kcal = float(loss / n_images)
-            barrier_kcal = max(0.1, min(barrier_kcal, 20.0))
-            logging.info(f"JAX-NEB Complete. TS Barrier: {barrier_kcal:.2f} kcal/mol")
-            return barrier_kcal
-            
-        except Exception as e:
-            logging.error(f"JAX-NEB execution failed: {e}. Falling back to physical ASE barrier calculation.")
-            return _execute_ase_neb_barrier(isomer_a, isomer_b)
+        logging.info("Computing physical interpolated barrier via ASE calculator...")
+        return _execute_ase_neb_barrier(isomer_a, isomer_b)
 
     def _apply_spectroscopic_override(self, atoms1: Atoms, atoms2: Atoms) -> bool:
         """
@@ -513,7 +450,8 @@ class ToposCrusher:
     def _persist_to_hdf5(self, basin_record: dict) -> Any:
         """Persist full 3D atomic coordinates tensor and atomic numbers to HDF5."""
         try:
-            with h5py.File(self.hdf5_path, 'a', libver='latest', swmr=True) as f:
+            with h5py.File(self.hdf5_path, 'a', libver='latest') as f:
+                f.swmr_mode = True
                 group = f['combinatorial_matrix']
                 idx = basin_record["idx"]
                 ds_name = f"basin_{idx:05d}"
@@ -559,20 +497,17 @@ class ToposCrusher:
         # v4 Standard (§8B.3): Prohibited Calc_Hess = True removed. Allow InHess XTB2 preconditioner
         atoms_copy.info['InHess'] = 'XTB2'
         
-        try:
-            if MACE_OFF24M_AVAILABLE:
-                try:
-                    atoms_copy.calc = MACEOFF24mCalculator()
-                except Exception:
-                    atoms_copy.calc = get_honest_xtb_calculator()
-            else:
+        if MACE_OFF24M_AVAILABLE:
+            try:
+                atoms_copy.calc = MACEOFF24mCalculator()
+            except Exception:
                 atoms_copy.calc = get_honest_xtb_calculator()
-            
-            MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
-            dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
-            dyn.run(10)
-        except Exception as e:
-            logging.warning(f"MD heating failed during GOAT generation: {e}")
+        else:
+            atoms_copy.calc = get_honest_xtb_calculator()
+        
+        MaxwellBoltzmannDistribution(atoms_copy, temperature_K=300)
+        dyn = Langevin(atoms_copy, 1.0 * units.fs, temperature_K=300, friction=0.01)
+        dyn.run(10)
         return atoms_copy
 
     def _execute_goat_conformer_generation(self, base_atoms: Atoms, num_conformers: int = 10) -> list:

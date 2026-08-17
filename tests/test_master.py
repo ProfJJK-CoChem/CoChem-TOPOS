@@ -11,19 +11,17 @@ def test_topos_master_init(tmp_path) -> None:
     hdf5_file = tmp_path / "landscape.h5"
     
     config_file.write_text(json.dumps({"test": "ok"}))
-    hdf5_file.write_bytes(b"")
+    import h5py
+    with h5py.File(hdf5_file, "w") as f:
+        f.attrs["version"] = "1.0"
 
-    try:
-        master = TOPOSMasterIntegrator(
-            config_path=str(config_file),
-            hdf5_path=str(hdf5_file),
-            zmq_port=5559
-        )
-        assert master is not None
-        assert hasattr(master, "oet_client")
-    except Exception as e:
-        # If external HDF5 SWMR init expects full schema, check exception type
-        assert "Master Integrator" in str(e) or "HDF5" in str(e) or "Cascade" in str(e)
+    master = TOPOSMasterIntegrator(
+        config_path=str(config_file),
+        hdf5_path=str(hdf5_file),
+        zmq_port=5559
+    )
+    assert master is not None
+    assert hasattr(master, "oet_client")
 
 def test_topos05_oet_server_ipc_client_and_headers() -> None:
     """Verify TOPOS-05: IPC client helper for oet_server daemon, gradient sign-flip guard, TolE 1e-5 threshold, and header updates."""

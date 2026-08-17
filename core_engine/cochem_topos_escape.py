@@ -223,8 +223,9 @@ class EscapeRoom:
                 orca_path = shutil.which("orca")
                 if not orca_path:
                     raise RuntimeError("ORCA executable not found in PATH. Cannot perform honest MECP search.")
-                    
-                subprocess.run([orca_path, inp_path], stdout=open(out_path, "w"), cwd=tmpdir, check=True)
+                
+                with open(out_path, "w") as out_f:
+                    subprocess.run([orca_path, inp_path], stdout=out_f, cwd=tmpdir, check=True)
                 
                 # In honest implementation we would parse the updated coordinates from mecp.xyz or mecp.out
                 # For now, if it succeeds, read from mecp.xyz

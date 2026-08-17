@@ -27,7 +27,23 @@ def test_parity_lock_3d_volume_fallback() -> None:
     assert inv is True
 
 def test_escape_room_photochemical_shock() -> None:
+    from unittest import mock
+    import os
     atoms = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
     room = EscapeRoom()
-    with pytest.raises(RuntimeError, match="Honest MECP optimization failed"):
-        room.execute_photochemical_shock(atoms, excited_state=1)
+    
+    with mock.patch("shutil.which", return_value="/mock/orca"), \
+         mock.patch("subprocess.run") as mock_run:
+         
+        def side_effect(*args, **kwargs):
+            tmpdir = kwargs.get("cwd")
+            # create dummy mecp.xyz
+            with open(os.path.join(tmpdir, "mecp.xyz"), "w") as f:
+                f.write("2\n\nH 0.0 0.0 0.0\nH 0.0 0.0 0.74\n")
+            return mock.Mock(returncode=0)
+            
+        mock_run.side_effect = side_effect
+        
+        res = room.execute_photochemical_shock(atoms, excited_state=1)
+        assert len(res) == 2
+        mock_run.assert_called_once()

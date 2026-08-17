@@ -109,10 +109,16 @@ class TOPOSMasterIntegrator:
             raise FileNotFoundError("Master Integrator requires valid cochem_system_config.json and landscape.h5 paths.")
             
         # Initialize engines
-        self.orchestrator = CascadeOrchestrator(
-            config_path=str(self.config_path), 
-            hdf5_path=str(self.hdf5_path)
+        try:
+            from cascade_engine.cochem_topos_cascade_orchestrator import CascadeConfig
+        except ImportError:
+            from cochem_topos_cascade_orchestrator import CascadeConfig
+            
+        cascade_config = CascadeConfig(
+            artifact_dir=self.hdf5_path.parent,
+            complex_flag=False
         )
+        self.orchestrator = CascadeOrchestrator(config=cascade_config)
         self.crusher = ToposCrusher(hdf5_path=str(self.hdf5_path))
         self.oet_client = OETServerIPCClient()
         
@@ -217,25 +223,19 @@ class TOPOSMasterIntegrator:
         
         for geom_id, initial_xyz in isomer_payloads.items():
             logger.info(f"--- Processing Isomer: {geom_id} ---")
-            try:
-                # The Orchestrator inherently handles the SWMR HDF5 commits natively
-                # If Orchestrator is synchronous, we run it in a thread pool to avoid blocking
-                result = await asyncio.to_thread(
-                    self.orchestrator.process_geometry,
-                    geom_id=geom_id, 
-                    initial_xyz=initial_xyz, 
-                    complex_flag=complex_flag
-                )
-                
-                if result["final_status"] == "SUCCESS":
-                    success_count += 1
-                elif "REDUCED_FIDELITY" in result["final_status"]:
-                    reduced_count += 1
-                    
-            except Exception as e:
-                logger.error(f"CRITICAL: Unhandled exception processing {geom_id}: {e}")
-                fail_count += 1
-                continue # Graceful failure: protect the master loop, move to next isomer
+            # The Orchestrator inherently handles the SWMR HDF5 commits natively
+            # If Orchestrator is synchronous, we run it in a thread pool to avoid blocking
+            result = await asyncio.to_thread(
+                self.orchestrator.process_geometry,
+                geom_id=geom_id, 
+                initial_xyz=initial_xyz, 
+                complex_flag=complex_flag
+            )
+            
+            if result.final_status == "SUCCESS":
+                success_count += 1
+            elif "REDUCED_FIDELITY" in result.final_status:
+                reduced_count += 1
             
             await asyncio.sleep(0) # Yield control after each geometry
 
@@ -319,14 +319,19 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     try:
         import os
-        artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", ".")
+        from pathlib import Path
+        artifact_dir = os.environ.get("COCHEM_ARTIFACT_DIR", str(Path.home() / ".cochem_artifacts"))
         master = TOPOSMasterIntegrator(
             config_path=os.path.join(artifact_dir, "cochem_system_config.json"), 
             hdf5_path=os.path.join(artifact_dir, "landscape.h5")
         )
-        # Dummy initial geometry for testing
-        from ase import Atoms
-        dummy_geom = Atoms('H2', positions=[(0, 0, 0), (0, 0, 0.74)])
-        asyncio.run(master.execute_nested_assembly_pipeline(dummy_geom))
+        # Remove mock/dummy geometry. Enforce execution on real physical constraints.
+        import sys
+        if len(sys.argv) > 1 and sys.argv[1].endswith(".xyz"):
+            from ase.io import read as ase_read
+            initial_geom = ase_read(sys.argv[1])
+            asyncio.run(master.execute_nested_assembly_pipeline(initial_geom))
+        else:
+            logger.warning("No real .xyz input provided. Dummy execution removed. Halting.")
     except FileNotFoundError:
         logger.warning("Dry run skipped: Missing requisite registries in execution directory.")
