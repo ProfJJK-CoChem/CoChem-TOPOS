@@ -248,11 +248,7 @@ def test_run_escalation_pass(master_integrator: TOPOSMasterIntegrator) -> None:
             iso1 = iso_group.create_group("iso_water")
             iso1.create_dataset("initial_xyz", data=water_xyz.encode("utf-8"))
 
-        with mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.get_honest_xtb_calculator", return_value=LennardJones()), \
-             mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.MACEOFF24mCalculator", return_value=LennardJones(), create=True), \
-             mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.SubprocessBroker.execute", return_value=0, create=True), \
-             mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.CascadeOrchestrator._compute_true_hessian", return_value=[]):
-            await master_integrator._run_escalation_pass()
+        await master_integrator._run_escalation_pass()
 
     asyncio.run(run_test())
 
@@ -269,15 +265,8 @@ def test_execute_nested_assembly_pipeline(tmp_path: Path) -> None:
             zmq_port=port,
         )
         try:
-            with mock.patch("core_engine.cochem_topos_crusher.get_honest_xtb_calculator", side_effect=lambda *args, **kwargs: LennardJones()), \
-                 mock.patch("core_engine.cochem_topos_crusher.MACEOFF24mCalculator", side_effect=lambda *args, **kwargs: LennardJones(), create=True), \
-                 mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.get_honest_xtb_calculator", return_value=LennardJones()), \
-                 mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.MACEOFF24mCalculator", return_value=LennardJones(), create=True), \
-                 mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.SubprocessBroker.execute", return_value=0, create=True), \
-                 mock.patch("cascade_engine.cochem_topos_cascade_orchestrator.CascadeOrchestrator._compute_true_hessian", return_value=[]):
-                
-                h2 = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
-                await master.execute_nested_assembly_pipeline(h2)
+            h2 = Atoms("H2", positions=[(0, 0, 0), (0, 0, 0.74)])
+            await master.execute_nested_assembly_pipeline(h2)
         finally:
             master.close()
 
