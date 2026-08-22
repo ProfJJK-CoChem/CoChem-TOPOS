@@ -380,6 +380,8 @@ def serialize_topos_runtime_state(
         raise ValueError(f"Invalid atom count in state: {state.atom_count}")
     if state.tier_id not in METHOD_MATRIX_V4_TIERS:
         raise ValueError(f"Unrecognized tier ID: {state.tier_id}")
+    if state.product_class not in {"A", "B", "C"}:
+        raise ValueError(f"Invalid product class '{state.product_class}'. Expected 'A', 'B', or 'C'.")
 
     # Write atomically via tempfile to prevent partial writes
     temp_dir = resolved_target.parent
@@ -498,8 +500,10 @@ class CochemToposUI:
             layout=widgets.Layout(width="25%"),
         )
 
-        self.atom_count_widget = widgets.IntText(
+        self.atom_count_widget = widgets.BoundedIntText(
             value=self.atom_count,
+            min=1,
+            max=100000,
             description="Atom Count (N):",
             style={"description_width": "120px"},
             layout=widgets.Layout(width="250px"),
@@ -573,8 +577,10 @@ class CochemToposUI:
                     self.atom_count = count
                     self.atom_count_widget.value = count
                     self._update_cost_display()
-                except Exception:
-                    pass
+                except Exception as err:
+                    with self.status_output:
+                        self.status_output.clear_output()
+                        print(f"⚠️ XYZ path parse warning: {err}")
 
     def _on_xyz_upload(self, change: dict[str, Any]) -> None:
         """Handle direct XYZ file upload."""

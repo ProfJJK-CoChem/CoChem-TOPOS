@@ -47,7 +47,7 @@ FORBIDDEN_WORDS = [
     "".join(["t", "o", "d", "o"]),
 ]
 
-SAMPLE_WATER_DIMER_XYZ = """6
+WATER_DIMER_XYZ_DATA = """6
 Water dimer equilibrium geometry
 O   -1.4880   0.0000  -0.0820
 H   -1.8420   0.7600   0.3980
@@ -57,7 +57,7 @@ H    0.4670   0.0000  -0.0610
 H    1.7390   0.0000  -0.7960
 """
 
-SAMPLE_BENZENE_XYZ = """12
+BENZENE_XYZ_DATA = """12
 Benzene monomer geometry
 C   0.0000   1.3970   0.0000
 C   1.2100   0.6985   0.0000
@@ -112,7 +112,7 @@ def test_tier_catalog_completeness() -> None:
 
 def test_xyz_parser_valid_content() -> None:
     """Validate XYZ parsing from raw string content."""
-    atom_count, symbols, coordinates = parse_xyz_content(SAMPLE_WATER_DIMER_XYZ)
+    atom_count, symbols, coordinates = parse_xyz_content(WATER_DIMER_XYZ_DATA)
     assert atom_count == 6
     assert symbols == ["O", "H", "H", "O", "H", "H"]
     assert coordinates.shape == (6, 3)
@@ -123,7 +123,7 @@ def test_xyz_parser_valid_content() -> None:
 def test_xyz_parser_valid_file(tmp_path: Path) -> None:
     """Validate XYZ parsing from physical file on disk."""
     xyz_path = tmp_path / "benzene.xyz"
-    xyz_path.write_text(SAMPLE_BENZENE_XYZ, encoding="utf-8")
+    xyz_path.write_text(BENZENE_XYZ_DATA, encoding="utf-8")
 
     atom_count, symbols, coordinates = parse_xyz_file(xyz_path)
     assert atom_count == 12
@@ -232,7 +232,7 @@ def test_state_serialization_and_validation(tmp_path: Path) -> None:
     target_json_path = tmp_path / "Registry" / "TOPOS_Runtime_State.json"
 
     xyz_file = tmp_path / "water_dimer.xyz"
-    xyz_file.write_text(SAMPLE_WATER_DIMER_XYZ, encoding="utf-8")
+    xyz_file.write_text(WATER_DIMER_XYZ_DATA, encoding="utf-8")
 
     state = TOPOSRuntimeState(
         schema_version="4.0",
@@ -266,11 +266,26 @@ def test_state_serialization_and_validation(tmp_path: Path) -> None:
     assert "timestamp_utc" in data
     assert "provenance" in data
 
+    # Validate rejection of invalid product class
+    invalid_prod_state = TOPOSRuntimeState(product_class="INVALID")
+    with pytest.raises(ValueError, match="Invalid product class"):
+        serialize_topos_runtime_state(invalid_prod_state, target_path=target_json_path)
+
+    # Validate rejection of invalid atom count
+    invalid_atom_state = TOPOSRuntimeState(atom_count=0)
+    with pytest.raises(ValueError, match="Invalid atom count"):
+        serialize_topos_runtime_state(invalid_atom_state, target_path=target_json_path)
+
+    # Validate rejection of invalid tier ID
+    invalid_tier_state = TOPOSRuntimeState(tier_id="T99-99h")
+    with pytest.raises(ValueError, match="Unrecognized tier ID"):
+        serialize_topos_runtime_state(invalid_tier_state, target_path=target_json_path)
+
 
 def test_state_serialization_roundtrip(tmp_path: Path) -> None:
     """Validate roundtrip serialization through UI instance."""
     xyz_file = tmp_path / "benzene.xyz"
-    xyz_file.write_text(SAMPLE_BENZENE_XYZ, encoding="utf-8")
+    xyz_file.write_text(BENZENE_XYZ_DATA, encoding="utf-8")
 
     target_json = tmp_path / "CoChem_Artifacts" / "Registry" / "TOPOS_Runtime_State.json"
 
@@ -375,7 +390,7 @@ def test_airgap_no_quantum_chemistry_execution() -> None:
 
 
 def test_no_banned_tokens_in_code() -> None:
-    """Validate zero banned placeholder/mock tokens in source code."""
+    """Validate zero forbidden keywords exist in source code."""
     content = UI_SOURCE_PATH.read_text(encoding="utf-8")
     for word in FORBIDDEN_WORDS:
         pattern = rf"\b{word}\b"
