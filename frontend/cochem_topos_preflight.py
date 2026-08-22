@@ -200,9 +200,9 @@ class AtomDiagnostic:
 
 def _make_json_serializable(obj: Any) -> Any:
     """Recursively convert numpy types, Enums, and objects to JSON serializable primitives."""
-    if isinstance(obj, (np.integer, int)):
+    if isinstance(obj, np.integer | int):
         return int(obj)
-    if isinstance(obj, (np.floating, float)):
+    if isinstance(obj, np.floating | float):
         return float(obj)
     if isinstance(obj, np.ndarray):
         return obj.tolist()
@@ -210,7 +210,7 @@ def _make_json_serializable(obj: Any) -> Any:
         return obj.value
     if isinstance(obj, dict):
         return {str(k): _make_json_serializable(v) for k, v in obj.items()}
-    if isinstance(obj, (list, tuple)):
+    if isinstance(obj, list | tuple):
         return [_make_json_serializable(item) for item in obj]
     return obj
 
@@ -256,23 +256,23 @@ class PreflightReport:
 
     def get_coordinates_numpy(self) -> np.ndarray:
         """Return sanitized coordinates as a NumPy array of shape (N, 3)."""
-        return np.array(self.sanitized_coordinates, dtype=np.float64)
+        return cast(np.ndarray, np.array(self.sanitized_coordinates, dtype=np.float64))
 
     def get_mass_weighted_coordinates_numpy(self) -> np.ndarray:
         """Return mass-weighted coordinates as a NumPy array of shape (N, 3)."""
-        return np.array(self.mass_weighted_coordinates, dtype=np.float64)
+        return cast(np.ndarray, np.array(self.mass_weighted_coordinates, dtype=np.float64))
 
     def get_center_of_mass_numpy(self) -> np.ndarray:
         """Return center of mass vector as a 1D NumPy array of shape (3,)."""
-        return np.array(self.center_of_mass, dtype=np.float64)
+        return cast(np.ndarray, np.array(self.center_of_mass, dtype=np.float64))
 
     def get_geometric_center_numpy(self) -> np.ndarray:
         """Return geometric centroid vector as a 1D NumPy array of shape (3,)."""
-        return np.array(self.geometric_center, dtype=np.float64)
+        return cast(np.ndarray, np.array(self.geometric_center, dtype=np.float64))
 
     def get_principal_moments_numpy(self) -> np.ndarray:
         """Return principal moments of inertia as a 1D NumPy array of shape (3,)."""
-        return np.array(self.principal_moments_of_inertia, dtype=np.float64)
+        return cast(np.ndarray, np.array(self.principal_moments_of_inertia, dtype=np.float64))
 
     def summary(self) -> str:
         """Generate human-readable multi-line diagnostic summary."""
@@ -302,7 +302,7 @@ class PreflightReport:
 
 def normalize_element_symbol(symbol_or_z: str | int) -> str:
     """Normalize input identifier into a canonical elemental symbol."""
-    if isinstance(symbol_or_z, (int, np.integer)):
+    if isinstance(symbol_or_z, int | np.integer):
         z = int(symbol_or_z)
         if z < 1 or z > 118:
             raise ValueError(f"Atomic number Z={z} is out of physical range [1, 118].")
@@ -438,7 +438,10 @@ def get_monoisotopic_mass(symbol_or_z: str | int) -> float:
 
 def get_monoisotopic_masses(symbols_or_zs: Sequence[str | int]) -> np.ndarray:
     """Retrieve 1D array of exact monoisotopic masses for a sequence of elements."""
-    return np.array([get_monoisotopic_mass(s) for s in symbols_or_zs], dtype=np.float64)
+    return cast(
+        np.ndarray,
+        np.array([get_monoisotopic_mass(s) for s in symbols_or_zs], dtype=np.float64),
+    )
 
 
 def compute_total_molecular_mass(symbols_or_zs: Sequence[str | int]) -> float:
@@ -526,7 +529,7 @@ def compute_moment_of_inertia_tensor(
     masses = get_monoisotopic_masses(symbols_or_zs)
     shifted = center_coordinates(coords, masses=masses)
 
-    tensor = np.zeros((3, 3), dtype=np.float64)
+    tensor: np.ndarray = np.zeros((3, 3), dtype=np.float64)
     for m, r in zip(masses, shifted, strict=False):
         r_sq = float(np.dot(r, r))
         tensor += m * (r_sq * np.eye(3, dtype=np.float64) - np.outer(r, r))
@@ -593,9 +596,9 @@ def validate_spin_parity(
     Raises:
         ValueError: On any physical impossibility or parity violation.
     """
-    if not isinstance(charge, (int, np.integer)):
+    if not isinstance(charge, int | np.integer):
         raise TypeError(f"Charge must be an integer, got {type(charge).__name__}.")
-    if not isinstance(multiplicity, (int, np.integer)):
+    if not isinstance(multiplicity, int | np.integer):
         raise TypeError(f"Multiplicity must be an integer, got {type(multiplicity).__name__}.")
 
     charge = int(charge)
@@ -676,6 +679,10 @@ def detect_nuclear_clashes(
     cov_radii: list[float] = []
     symbols: list[str] = []
     if symbols_or_zs is not None:
+        if len(symbols_or_zs) != n_atoms:
+            raise ValueError(
+                f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
+            )
         for s in symbols_or_zs:
             info = get_element_info(s)
             cov_radii.append(info.covalent_radius_angstrom)
@@ -722,6 +729,10 @@ def build_connectivity_matrix(
     """
     coords = np.array(cast(Any, coordinates), dtype=np.float64)
     n_atoms = coords.shape[0]
+    if n_atoms != len(symbols_or_zs):
+        raise ValueError(
+            f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
+        )
     cov_radii = [get_element_info(s).covalent_radius_angstrom for s in symbols_or_zs]
 
     adj_matrix = np.zeros((n_atoms, n_atoms), dtype=np.bool_)
@@ -733,7 +744,7 @@ def build_connectivity_matrix(
                 adj_matrix[i, j] = True
                 adj_matrix[j, i] = True
 
-    return adj_matrix
+    return cast(np.ndarray, adj_matrix)
 
 
 def find_connected_fragments(adjacency_matrix: np.ndarray) -> list[list[int]]:
@@ -782,6 +793,10 @@ def assess_valency_and_radicals(
     """
     coords = np.array(cast(Any, coordinates), dtype=np.float64)
     n_atoms = coords.shape[0]
+    if n_atoms != len(symbols_or_zs):
+        raise ValueError(
+            f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
+        )
     adj_matrix = build_connectivity_matrix(
         symbols_or_zs, coords, tolerance_factor=tolerance_factor
     )
@@ -966,59 +981,86 @@ def sanitize_and_validate_seed(
     monoisotopic_masses_list = [info.monoisotopic_mass for info in element_infos]
     total_mass = sum(monoisotopic_masses_list) if monoisotopic_masses_list else 0.0
 
-    # 4. Nuclear Clash Detection
-    clashes = detect_nuclear_clashes(
-        coords_arr,
-        symbols_or_zs=symbols_list,
-        min_distance_angstrom=clash_threshold_angstrom,
-        covalent_ratio_threshold=covalent_ratio_threshold,
+    can_assess_geometry = (
+        len(symbols_list) == coords_arr.shape[0]
+        and coords_arr.ndim == 2
+        and coords_arr.shape[1] == 3
+        and bool(np.all(np.isfinite(coords_arr)))  # type: ignore[attr-defined]
     )
-    if clashes:
-        clash_summary = ", ".join(
-            [
-                f"{c.symbol_1}({c.atom_index_1})-{c.symbol_2}({c.atom_index_2}) d={c.distance_angstrom:.3f}A"
-                for c in clashes
-            ]
+
+    # 4. Nuclear Clash Detection
+    clashes: list[NuclearClash] = []
+    if can_assess_geometry:
+        clashes = detect_nuclear_clashes(
+            coords_arr,
+            symbols_or_zs=symbols_list,
+            min_distance_angstrom=clash_threshold_angstrom,
+            covalent_ratio_threshold=covalent_ratio_threshold,
         )
-        msg = f"Nuclear clashes detected ({len(clashes)} pair(s)): {clash_summary}"
-        if strict:
-            raise ValueError(f"Physical impossibility: {msg}")
-        errors.append(msg)
+        if clashes:
+            clash_summary = ", ".join(
+                [
+                    f"{c.symbol_1}({c.atom_index_1})-{c.symbol_2}({c.atom_index_2}) d={c.distance_angstrom:.3f}A"
+                    for c in clashes
+                ]
+            )
+            msg = f"Nuclear clashes detected ({len(clashes)} pair(s)): {clash_summary}"
+            if strict:
+                raise ValueError(f"Physical impossibility: {msg}")
+            errors.append(msg)
 
     # 5. Connectivity & Fragment Analysis
-    adj_matrix = build_connectivity_matrix(
-        symbols_list, coords_arr, tolerance_factor=tolerance_factor
-    )
-    fragments = find_connected_fragments(adj_matrix)
-    num_fragments = len(fragments)
-    if num_fragments > 1:
-        warnings.append(
-            f"System contains {num_fragments} disconnected fragments (Fragment partitions: {fragments})."
+    fragments: list[list[int]] = []
+    num_fragments = 0
+    if can_assess_geometry:
+        adj_matrix = build_connectivity_matrix(
+            symbols_list, coords_arr, tolerance_factor=tolerance_factor
         )
+        fragments = find_connected_fragments(adj_matrix)
+        num_fragments = len(fragments)
+        if num_fragments > 1:
+            warnings.append(
+                f"System contains {num_fragments} disconnected fragments (Fragment partitions: {fragments})."
+            )
 
     # 6. Valency & Radical Assessment
-    atom_diagnostics = assess_valency_and_radicals(
-        symbols_list,
-        coords_arr,
-        charge=charge,
-        multiplicity=multiplicity,
-        tolerance_factor=tolerance_factor,
-    )
-    for diag in atom_diagnostics:
-        warnings.extend(diag.warnings)
+    atom_diagnostics: list[AtomDiagnostic] = []
+    if can_assess_geometry:
+        atom_diagnostics = assess_valency_and_radicals(
+            symbols_list,
+            coords_arr,
+            charge=charge,
+            multiplicity=multiplicity,
+            tolerance_factor=tolerance_factor,
+        )
+        for diag in atom_diagnostics:
+            warnings.extend(diag.warnings)
 
     # 7. Coordinate Centering & Inertia Alignment
     sanitized_coords = coords_arr.copy()
-    if center_on_com and total_mass > 0 and len(sanitized_coords) == len(monoisotopic_masses_list):
+    if (
+        can_assess_geometry
+        and center_on_com
+        and total_mass > 0
+        and len(sanitized_coords) == len(monoisotopic_masses_list)
+    ):
         sanitized_coords = center_coordinates(
             sanitized_coords, masses=np.array(monoisotopic_masses_list, dtype=np.float64)
         )
 
     principal_moments = [0.0, 0.0, 0.0]
-    if align_principal_axes_flag and len(sanitized_coords) == len(monoisotopic_masses_list):
+    if (
+        can_assess_geometry
+        and align_principal_axes_flag
+        and len(sanitized_coords) == len(monoisotopic_masses_list)
+    ):
         sanitized_coords, moments, _ = align_to_principal_axes(symbols_list, sanitized_coords)
         principal_moments = [float(x) for x in moments]
-    elif len(sanitized_coords) == len(monoisotopic_masses_list) and sanitized_coords.shape[0] > 1:
+    elif (
+        can_assess_geometry
+        and len(sanitized_coords) == len(monoisotopic_masses_list)
+        and sanitized_coords.shape[0] > 1
+    ):
         try:
             inertia_tensor = compute_moment_of_inertia_tensor(symbols_list, sanitized_coords)
             evals, _ = la.eigh(inertia_tensor)  # type: ignore[attr-defined]
@@ -1027,19 +1069,31 @@ def sanitize_and_validate_seed(
             principal_moments = [0.0, 0.0, 0.0]
 
     # Centers
-    if total_mass > 0 and len(coords_arr) == len(monoisotopic_masses_list):
+    if (
+        can_assess_geometry
+        and total_mass > 0
+        and len(coords_arr) == len(monoisotopic_masses_list)
+    ):
         com_vec = compute_center_of_mass(symbols_list, coords_arr)
     else:
         com_vec = np.zeros(3, dtype=np.float64)
 
     geom_center_vec = (
         compute_geometric_center(coords_arr)
-        if coords_arr.ndim == 2 and coords_arr.shape[1] == 3
+        if (
+            can_assess_geometry
+            and coords_arr.ndim == 2
+            and coords_arr.shape[1] == 3
+        )
         else np.zeros(3, dtype=np.float64)
     )
 
     # Mass-weighted coords
-    if total_mass > 0 and len(sanitized_coords) == len(monoisotopic_masses_list):
+    if (
+        can_assess_geometry
+        and total_mass > 0
+        and len(sanitized_coords) == len(monoisotopic_masses_list)
+    ):
         mw_coords = sanitized_coords * np.sqrt(np.array(monoisotopic_masses_list, dtype=np.float64)[:, np.newaxis])
     else:
         mw_coords = sanitized_coords.copy()
