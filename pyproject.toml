@@ -98,6 +98,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
+    "numpy",
+    "numpy.*",
+    "mendeleev",
+    "mendeleev.*",
     "h5py.*",
     "scipy.*",
     "scipy.spatial.*",
@@ -141,4 +145,5 @@ module = [
     "export_utils.*",
     "parsl.*"
 ]
+follow_imports = "skip"
 ignore_missing_imports = true
