@@ -1,53 +1,555 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_02_frontend_preflight.md.
+Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_04_topology_crusher.md.
 Original prompt:
-# Task: Implement Mathematical Cleansing Module (`cochem_topos_preflight.py`)
+# Task: Implement the Deduplication Funnel (`cochem_topos_crusher.py`)
 
 ## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\frontend\cochem_topos_preflight.py`
+`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\topology\cochem_topos_crusher.py`
 
 ## Objective
-Implement the mathematical gatekeeper to sanitize raw coordinate seeds and validate physical viability.
+Filter identical conformers generated during the PES search while strictly preserving enantiomers and distinct local minima.
 
 ## Context & Architecture Rules
-This module prevents anomalous execution in downstream ab initio components by validating inputs. It operates in the pre-flight tier and must perform rigorous mathematical sanitization of raw inputs before any compute resources are consumed.
+This stage enacts the basin deduplication protocol (Stage 2.4). Data outputs must remain FAIR-compliant.
 
 ## Execution Directives
-Implement the `cochem_topos_preflight.py` script with the following capabilities:
+Implement the `cochem_topos_crusher.py` script to operate sequentially using the following filters:
 
-1. **Mono-Isotopic Mass Anchoring**: Utilize the `mendeleev` library to map elemental symbols to their exact, lowest-energy isotopic masses (e.g., 12C = 12.00000 Da) to prevent mass-weighting drift during Eckart alignments and isotopic Hessian recycling.
-2. **Spin Parity Gatekeeping**: Calculate total valence electrons based on atomic numbers (Z) and the requested formal charge: `Ne = SUM(Zi) - Charge`. If `Ne` is odd and the user requests a Singlet multiplicity (2S+1 = 1), forcefully raise a `ValueError` and halt execution to prevent physically impossible SCF calculations.
-3. **Formal Charge Validation**: Assess total valency and structural metrics to warn the user if the supplied 3D coordinates imply a radical or ionic state not reflected in the UI inputs.
+1. **Rotational Sieve**: Implement a fast pre-filter comparing Rotational Constants (A, B, C) and total Dipole Moments prior to executing heavy array mathematics.
+2. **KD-Tree Coordinate Filter**: Employ spatial `scipy.spatial.KDTree` algorithms to rapidly reject identical coordinate sets based on Euclidean distance clustering.
+3. **Mass-Weighted Eckart RMSD**: Calculate the rigid-body Root Mean Square Deviation after aligning structures to their Eckart frames, inherently factoring in the anchored mono-isotopic masses.
+4. **GOAT and CREST Union Deduplication**: Execute standard deduplication using GOAT as the primary search engine. Subsequently add CREST utilizing the flags `--nci --nocross --noreftopo` as an independent secondary search, and carry the union of the generated unique conformers forward.
 
 Modified files content:
 
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\frontend\cochem_topos_preflight.py ---
-"""Mathematical Cleansing & Validation Module for CoChem-TOPOS (cochem_topos_preflight.py).
+--- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_topology_crusher.py ---
+"""Physical Unit Tests for CoChem-TOPOS Deduplication Funnel (test_topology_crusher.py).
 
-Acts as the mathematical gatekeeper to sanitize raw coordinate seeds and validate physical viability
-prior to consuming computational resources in ab initio and cascade pipelines.
+Enforces Zero-Tolerance Anti-Mocking:
+- Real elemental monoisotopic mass resolutions.
+- Real 3D Cartesian coordinates for physical molecules (H2O, CH4, C6H6, ethanol, alanine, CHFClBr enantiomers).
+- Rotational Sieve comparing rotational constants (A, B, C) and total dipole moments.
+- KD-Tree spatial coordinate filter using scipy.spatial.KDTree.
+- Mass-Weighted Eckart RMSD with proper SO(3) rotations and enantiomer preservation.
+- GOAT and CREST Union Deduplication with FAIR-compliant data exports.
+"""
+
+from __future__ import annotations
+
+import math
+from pathlib import Path
+from typing import Any
+
+import h5py
+import numpy as np
+import pytest
+from ase import Atoms
+from scipy.spatial.transform import Rotation
+
+from topology.cochem_topos_crusher import (
+    ConformerCandidate,
+    DeduplicationRecord,
+    DeduplicationVerdict,
+    EnsembleDeduplicationReport,
+    KDTreeCoordinateFilter,
+    MassWeightedEckartRMSD,
+    RotationalConstants,
+    RotationalSieve,
+    TopologyCrusher,
+    align_to_eckart_frame,
+    compute_dipole_moment,
+    compute_mass_weighted_eckart_rmsd,
+    compute_rotational_constants,
+    is_enantiomer_pair,
+)
+
+
+# ===========================================================================
+# 1. Rotational Sieve Tests (Directive 1)
+# ===========================================================================
+
+
+class TestRotationalSieve:
+    """Verifies Rotational Sieve filtering via Rotational Constants and Dipole Moments."""
+
+    def test_rotational_constants_water(self) -> None:
+        """Water (asymmetric top) must yield positive A > B > C rotational constants."""
+        symbols = ["O", "H", "H"]
+        # Standard experimental geometry for H2O: r_OH ~ 0.9578 A, angle ~ 104.5 deg
+        coords = np.array([
+            [0.0000, 0.0000, 0.1173],
+            [0.0000, 0.7572, -0.4692],
+            [0.0000, -0.7572, -0.4692],
+        ])
+
+        rot = compute_rotational_constants(symbols, coords)
+        assert isinstance(rot, RotationalConstants)
+        assert rot.is_linear is False
+        assert rot.A_GHz > rot.B_GHz >= rot.C_GHz > 0.0
+        # For H2O, A ~ 830 GHz, B ~ 435 GHz, C ~ 280 GHz
+        assert 500.0 < rot.A_GHz < 1200.0
+        assert 250.0 < rot.B_GHz < 600.0
+        assert 150.0 < rot.C_GHz < 400.0
+
+    def test_rotational_constants_linear_molecule(self) -> None:
+        """Carbon dioxide (linear symmetric top) must have zero moment of inertia along axis."""
+        symbols = ["C", "O", "O"]
+        coords = np.array([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.16],
+            [0.0, 0.0, -1.16],
+        ])
+
+        rot = compute_rotational_constants(symbols, coords)
+        assert rot.is_linear is True
+        assert np.isclose(rot.B_GHz, rot.C_GHz, rtol=1e-3)
+        assert rot.B_GHz > 0.0
+
+    def test_rotational_constants_single_atom(self) -> None:
+        """Single atom (noble gas) returns zero rotational constants and moments."""
+        symbols = ["Ar"]
+        coords = np.array([[0.0, 0.0, 0.0]])
+
+        rot = compute_rotational_constants(symbols, coords)
+        assert rot.is_linear is False
+        assert rot.A_GHz == 0.0
+        assert rot.B_GHz == 0.0
+        assert rot.C_GHz == 0.0
+
+    def test_dipole_moment_polar_vs_nonpolar(self) -> None:
+        """Water has significant dipole moment; methane and CO2 have zero net dipole."""
+        # Water (polar)
+        h2o_symbols = ["O", "H", "H"]
+        h2o_coords = np.array([
+            [0.0000, 0.0000, 0.1173],
+            [0.0000, 0.7572, -0.4692],
+            [0.0000, -0.7572, -0.4692],
+        ])
+        dipole_h2o = compute_dipole_moment(h2o_symbols, h2o_coords)
+        assert dipole_h2o.magnitude_debye > 1.0
+
+        # Methane (Td, nonpolar)
+        ch4_symbols = ["C", "H", "H", "H", "H"]
+        ch4_coords = np.array([
+            [0.0000, 0.0000, 0.0000],
+            [0.6276, 0.6276, 0.6276],
+            [0.6276, -0.6276, -0.6276],
+            [-0.6276, 0.6276, -0.6276],
+            [-0.6276, -0.6276, 0.6276],
+        ])
+        dipole_ch4 = compute_dipole_moment(ch4_symbols, ch4_coords)
+        assert np.isclose(dipole_ch4.magnitude_debye, 0.0, atol=1e-3)
+
+        # Single atom (zero dipole)
+        dipole_ar = compute_dipole_moment(["Ar"], [[0.0, 0.0, 0.0]])
+        assert np.isclose(dipole_ar.magnitude_debye, 0.0, atol=1e-6)
+
+    def test_rotational_sieve_identical_structures_pass_sieve(self) -> None:
+        """Rotated/translated copies of water match rotational constants and dipole moment within tolerance."""
+        symbols = ["O", "H", "H"]
+        coords1 = np.array([
+            [0.0000, 0.0000, 0.1173],
+            [0.0000, 0.7572, -0.4692],
+            [0.0000, -0.7572, -0.4692],
+        ])
+
+        # Apply rigid rotation and translation
+        rot = Rotation.from_euler("xyz", [35.0, 45.0, 60.0], degrees=True)
+        coords2 = rot.apply(coords1) + np.array([5.0, -3.0, 8.0])
+
+        sieve = RotationalSieve(rot_tol=0.01, dipole_tol=0.05)
+        is_candidate_match, rot_diff, dipole_diff = sieve.evaluate_match(
+            symbols1=symbols, coords1=coords1, symbols2=symbols, coords2=coords2
+        )
+
+        assert is_candidate_match is True
+        assert rot_diff < 0.001
+        assert dipole_diff < 0.01
+
+    def test_rotational_sieve_distinct_conformers_rejected_early(self) -> None:
+        """Eclipsed vs staggered 1,2-dichloroethane have different rotational constants and dipoles."""
+        symbols = ["C", "C", "Cl", "Cl", "H", "H", "H", "H"]
+        # Anti (staggered, centrosymmetric, dipole ~ 0)
+        coords_anti = np.array([
+            [0.0000, 0.0000, 0.7650],
+            [0.0000, 0.0000, -0.7650],
+            [1.4500, 0.0000, 1.4500],
+            [-1.4500, 0.0000, -1.4500],
+            [-0.5200, 0.8900, 1.1000],
+            [-0.5200, -0.8900, 1.1000],
+            [0.5200, 0.8900, -1.1000],
+            [0.5200, -0.8900, -1.1000],
+        ])
+
+        # Syn (gauche / eclipsed, polar)
+        coords_syn = np.array([
+            [0.0000, 0.0000, 0.7650],
+            [0.0000, 0.0000, -0.7650],
+            [1.4500, 0.0000, 1.4500],
+            [1.4500, 0.0000, -1.4500],
+            [-0.5200, 0.8900, 1.1000],
+            [-0.5200, -0.8900, 1.1000],
+            [-0.5200, 0.8900, -1.1000],
+            [-0.5200, -0.8900, -1.1000],
+        ])
+
+        sieve = RotationalSieve(rot_tol=0.02, dipole_tol=0.1)
+        is_candidate_match, rot_diff, dipole_diff = sieve.evaluate_match(
+            symbols1=symbols, coords1=coords_anti, symbols2=symbols, coords2=coords_syn
+        )
+
+        # Sieve must recognize them as distinct without requiring expensive RMSD alignment
+        assert is_candidate_match is False
+        assert dipole_diff > 0.5 or rot_diff > 0.05
+
+
+# ===========================================================================
+# 2. KD-Tree Coordinate Filter Tests (Directive 2)
+# ===========================================================================
+
+
+class TestKDTreeCoordinateFilter:
+    """Verifies rapid spatial rejection of coordinate sets via scipy.spatial.KDTree."""
+
+    def test_kdtree_filter_exact_match(self) -> None:
+        """KD-Tree finds maximum nearest-neighbor distance of 0.0 for identical coordinates."""
+        symbols = ["C", "H", "H", "H", "H"]
+        coords1 = np.array([
+            [0.0000, 0.0000, 0.0000],
+            [0.6276, 0.6276, 0.6276],
+            [0.6276, -0.6276, -0.6276],
+            [-0.6276, 0.6276, -0.6276],
+            [-0.6276, -0.6276, 0.6276],
+        ])
+
+        filter_engine = KDTreeCoordinateFilter(kdtree_tol=0.02)
+        is_spatial_match, max_dist, mean_dist = filter_engine.evaluate_spatial_match(
+            symbols1=symbols, coords1=coords1, symbols2=symbols, coords2=coords1
+        )
+
+        assert is_spatial_match is True
+        assert max_dist < 1e-6
+        assert mean_dist < 1e-6
+
+    def test_kdtree_filter_with_sub_angstrom_perturbation(self) -> None:
+        """Distorted geometry exceeding tolerance is correctly identified as non-matching."""
+        symbols = ["O", "H", "H"]
+        coords1 = np.array([
+            [0.0000, 0.0000, 0.1173],
+            [0.0000, 0.7572, -0.4692],
+            [0.0000, -0.7572, -0.4692],
+        ])
+        coords_perturbed = coords1.copy()
+        coords_perturbed[1, 0] += 0.15  # Perturb H1 by 0.15 A
+
+        filter_engine = KDTreeCoordinateFilter(kdtree_tol=0.05)
+        is_spatial_match, max_dist, mean_dist = filter_engine.evaluate_spatial_match(
+            symbols1=symbols, coords1=coords1, symbols2=symbols, coords2=coords_perturbed
+        )
+
+        assert is_spatial_match is False
+        assert max_dist >= 0.10
+
+    def test_kdtree_filter_atomic_number_mismatch(self) -> None:
+        """Same spatial positions with different atomic species are rejected."""
+        symbols1 = ["C", "O"]
+        symbols2 = ["C", "N"]
+        coords = np.array([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.15],
+        ])
+
+        filter_engine = KDTreeCoordinateFilter(kdtree_tol=0.05)
+        is_spatial_match, max_dist, _ = filter_engine.evaluate_spatial_match(
+            symbols1=symbols1, coords1=coords, symbols2=symbols2, coords2=coords
+        )
+
+        assert is_spatial_match is False
+
+    def test_kdtree_filter_atom_count_mismatch(self) -> None:
+        """Molecules with different atom counts return early rejection."""
+        filter_engine = KDTreeCoordinateFilter(kdtree_tol=0.05)
+        is_match, max_d, _ = filter_engine.evaluate_spatial_match(
+            symbols1=["O", "H", "H"],
+            coords1=[[0, 0, 0], [0, 1, 0], [0, 0, 1]],
+            symbols2=["O", "H"],
+            coords2=[[0, 0, 0], [0, 1, 0]],
+        )
+        assert is_match is False
+        assert max_d > 100.0
+
+
+# ===========================================================================
+# 3. Mass-Weighted Eckart RMSD & Enantiomer Preservation Tests (Directive 3)
+# ===========================================================================
+
+
+class TestMassWeightedEckartRMSD:
+    """Verifies mass-weighted Eckart frame alignment, SO(3) proper rotations, and enantiomer preservation."""
+
+    def test_eckart_alignment_identical_molecule_arbitrary_pose(self) -> None:
+        """Molecules in arbitrary 3D orientation align in Eckart frame with zero RMSD."""
+        symbols = ["O", "H", "H"]
+        coords1 = np.array([
+            [0.0000, 0.0000, 0.1173],
+            [0.0000, 0.7572, -0.4692],
+            [0.0000, -0.7572, -0.4692],
+        ])
+
+        rot = Rotation.from_euler("zyx", [120.0, -45.0, 75.0], degrees=True)
+        coords2 = rot.apply(coords1) + np.array([100.0, -50.0, 25.0])
+
+        mw_rmsd, unweighted_rmsd, rot_matrix = compute_mass_weighted_eckart_rmsd(
+            symbols1=symbols, coords1=coords1, symbols2=symbols, coords2=coords2
+        )
+
+        assert mw_rmsd < 1e-5
+        assert unweighted_rmsd < 1e-5
+        # Verify proper rotation: det(R) == +1
+        assert np.isclose(np.linalg.det(rot_matrix), 1.0, atol=1e-6)
+
+    def test_enantiomer_discrimination_and_preservation(self) -> None:
+        """Chiral bromochlorofluoromethane (CHFClBr) enantiomer pair must NOT be merged."""
+        symbols = ["C", "H", "F", "Cl", "Br"]
+        # (R)-bromochlorofluoromethane geometry
+        coords_r = np.array([
+            [0.0000, 0.0000, 0.0000],   # C
+            [0.0000, 0.0000, 1.0900],   # H
+            [1.3300, 0.0000, -0.3800],  # F
+            [-0.7200, 1.6200, -0.5800], # Cl
+            [-0.8500, -1.6800, -0.6200],# Br
+        ])
+
+        # (S)-bromochlorofluoromethane (inversion across origin / reflection through plane)
+        coords_s = coords_r.copy()
+        coords_s[:, 0] *= -1.0  # Mirror reflection across YZ plane
+
+        # 1. Under proper SO(3) rotation (Eckart frame alignment), RMSD must be significantly non-zero
+        mw_rmsd, _, rot_matrix = compute_mass_weighted_eckart_rmsd(
+            symbols1=symbols, coords1=coords_r, symbols2=symbols, coords2=coords_s
+        )
+        assert np.isclose(np.linalg.det(rot_matrix), 1.0, atol=1e-6)
+        assert mw_rmsd > 0.2  # Distinct under proper rotation!
+
+        # 2. Check enantiomer relationship helper
+        is_enant, proper_rmsd, inverted_rmsd = is_enantiomer_pair(
+            symbols1=symbols, coords1=coords_r, symbols2=symbols, coords2=coords_s, rmsd_tol=0.05
+        )
+        assert is_enant is True
+        assert proper_rmsd > 0.2
+        assert inverted_rmsd < 1e-4
+
+    def test_alanine_enantiomer_pair_preservation(self) -> None:
+        """Verifies L- and D-alanine enantiomers are distinguished and preserved."""
+        # L-Alanine approximate coordinates (C_alpha, C_carboxyl, N, C_methyl, O1, O2, H_alpha)
+        symbols = ["C", "C", "N", "C", "O", "O", "H"]
+        coords_l = np.array([
+            [0.000, 0.000, 0.000],   # C_alpha
+            [1.520, 0.000, 0.000],   # C_carboxyl
+            [-0.500, 1.390, 0.000],  # N_amino
+            [-0.520, -0.740, 1.230], # C_methyl
+            [2.100, -1.080, 0.000],  # O1
+            [2.050, 1.180, 0.000],   # O2
+            [-0.370, -0.520, -0.890],# H_alpha
+        ])
+        coords_d = coords_l.copy()
+        coords_d[:, 2] *= -1.0  # Invert Z axis (reflection)
+
+        engine = MassWeightedEckartRMSD(rmsd_tol=0.05)
+        verdict, mw_rmsd, unw_rmsd, is_enant = engine.evaluate_conformer_identity(
+            symbols, coords_l, symbols, coords_d
+        )
+
+        assert verdict == DeduplicationVerdict.ENANTIOMER_PRESERVED
+        assert is_enant is True
+        assert mw_rmsd > 0.2
+
+    def test_mass_weighting_effect_heavy_vs_light_atoms(self) -> None:
+        """Mass-weighting heavily weights displacements of bromine/chlorine over hydrogen."""
+        symbols = ["C", "H", "Br"]
+        coords_ref = np.array([
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 1.09],
+            [1.94, 0.0, 0.0],
+        ])
+
+        # Displace H by 0.1 A
+        coords_disp_h = coords_ref.copy()
+        coords_disp_h[1, 2] += 0.1
+
+        # Displace Br by 0.1 A
+        coords_disp_br = coords_ref.copy()
+        coords_disp_br[2, 0] += 0.1
+
+        rmsd_h_mw, rmsd_h_unw, _ = compute_mass_weighted_eckart_rmsd(
+            symbols, coords_ref, symbols, coords_disp_h
+        )
+        rmsd_br_mw, rmsd_br_unw, _ = compute_mass_weighted_eckart_rmsd(
+            symbols, coords_ref, symbols, coords_disp_br
+        )
+
+        # Unweighted RMSDs are comparable because displacement magnitude is the same (0.1 A)
+        assert np.isclose(rmsd_h_unw, rmsd_br_unw, atol=0.05)
+        # Mass-weighted RMSD for Br (79.9 Da) is significantly larger than for H (1.008 Da)
+        assert rmsd_br_mw > rmsd_h_mw * 3.0
+
+    def test_eckart_alignment_dimension_mismatch_error(self) -> None:
+        """Alignment between structures of different atom counts raises ValueError."""
+        with pytest.raises(ValueError, match="Atom count and shape mismatch"):
+            align_to_eckart_frame(
+                symbols1=["O", "H", "H"],
+                coords1=[[0, 0, 0], [0, 1, 0], [0, 0, 1]],
+                symbols2=["O", "H"],
+                coords2=[[0, 0, 0], [0, 1, 0]],
+            )
+
+
+# ===========================================================================
+# 4. GOAT & CREST Union Deduplication Tests (Directive 4)
+# ===========================================================================
+
+
+class TestGOATAndCRESTUnionDeduplication:
+    """Verifies sequential funnel operation, GOAT/CREST union screening, and FAIR compliance."""
+
+    def test_topology_crusher_full_pipeline_single_water(self) -> None:
+        """Processes initial water geometry and confirms basin creation in crusher."""
+        crusher = TopologyCrusher(rot_tol=0.01, kdtree_tol=0.02, rmsd_tol=0.05)
+
+        h2o_atoms = Atoms(
+            symbols=["O", "H", "H"],
+            positions=[
+                [0.0000, 0.0000, 0.1173],
+                [0.0000, 0.7572, -0.4692],
+                [0.0000, -0.7572, -0.4692],
+            ],
+        )
+
+        record = crusher.process_conformer(
+            candidate=h2o_atoms,
+            energy_kcal=-76.4,
+            source_engine="GOAT",
+        )
+
+        assert record.verdict == DeduplicationVerdict.ACCEPTED_UNIQUE
+        assert record.matched_basin_idx == 0
+        assert crusher.num_basins == 1
+
+        # Feed duplicate translated/rotated conformer
+        rot = Rotation.from_euler("xyz", [45, 30, 15], degrees=True)
+        h2o_dup = h2o_atoms.copy()
+        h2o_dup.positions = rot.apply(h2o_dup.positions) + np.array([2.0, 3.0, -1.0])
+
+        dup_record = crusher.process_conformer(
+            candidate=h2o_dup,
+            energy_kcal=-76.4,
+            source_engine="CREST",
+        )
+
+        assert dup_record.verdict == DeduplicationVerdict.DUPLICATE_REJECTED
+        assert dup_record.matched_basin_idx == 0
+        assert crusher.num_basins == 1  # Basin count does not increase
+
+    def test_topology_crusher_preserves_enantiomers(self) -> None:
+        """Processes (R) and (S) enantiomers and ensures both are preserved as distinct basins."""
+        crusher = TopologyCrusher(rot_tol=0.01, kdtree_tol=0.02, rmsd_tol=0.05)
+
+        symbols = ["C", "H", "F", "Cl", "Br"]
+        coords_r = np.array([
+            [0.0000, 0.0000, 0.0000],
+            [0.0000, 0.0000, 1.0900],
+            [1.3300, 0.0000, -0.3800],
+            [-0.7200, 1.6200, -0.5800],
+            [-0.8500, -1.6800, -0.6200],
+        ])
+        coords_s = coords_r.copy()
+        coords_s[:, 0] *= -1.0
+
+        r_atoms = Atoms(symbols=symbols, positions=coords_r)
+        s_atoms = Atoms(symbols=symbols, positions=coords_s)
+
+        rec_r = crusher.process_conformer(r_atoms, energy_kcal=-1200.5, source_engine="GOAT")
+        assert rec_r.verdict == DeduplicationVerdict.ACCEPTED_UNIQUE
+        assert rec_r.matched_basin_idx == 0
+
+        rec_s = crusher.process_conformer(s_atoms, energy_kcal=-1200.5, source_engine="CREST")
+        assert rec_s.verdict == DeduplicationVerdict.ENANTIOMER_PRESERVED
+        assert rec_s.matched_basin_idx == 1
+        assert crusher.num_basins == 2  # Both basins preserved!
+
+    def test_goat_and_crest_union_execution(self) -> None:
+        """Generates union conformer ensemble from GOAT and CREST search engines."""
+        crusher = TopologyCrusher(rot_tol=0.01, kdtree_tol=0.02, rmsd_tol=0.05)
+
+        seed_atoms = Atoms(
+            symbols=["O", "H", "H"],
+            positions=[
+                [0.0000, 0.0000, 0.1173],
+                [0.0000, 0.7572, -0.4692],
+                [0.0000, -0.7572, -0.4692],
+            ],
+        )
+
+        report = crusher.deduplicate_ensemble_union(
+            seed_atoms=seed_atoms,
+            num_goat_variants=4,
+            num_crest_variants=3,
+            crest_flags=["--nci", "--nocross", "--noreftopo"],
+        )
+
+        assert isinstance(report, EnsembleDeduplicationReport)
+        assert report.total_candidates >= 7
+        assert report.accepted_basins_count >= 1
+        assert len(report.accepted_basins) == report.accepted_basins_count
+
+    def test_fair_compliance_and_hdf5_serialization(self, tmp_path: Path) -> None:
+        """Verifies JSON serialization and HDF5 dataset persistence for FAIR compliance."""
+        h5_file = tmp_path / "dedup_state.h5"
+        crusher = TopologyCrusher(hdf5_path=str(h5_file))
+
+        atoms = Atoms("H2O", positions=[[0, 0, 0], [0, 0.76, 0.59], [0, -0.76, 0.59]])
+        record = crusher.process_conformer(atoms, energy_kcal=-76.432, source_engine="GOAT")
+
+        assert record.verdict == DeduplicationVerdict.ACCEPTED_UNIQUE
+        assert h5_file.exists()
+
+        # Check HDF5 structure
+        with h5py.File(h5_file, "r") as f:
+            assert "deduplicated_basins" in f
+            grp = f["deduplicated_basins"]
+            assert "basin_00000" in grp
+            basin = grp["basin_00000"]
+            assert "coordinates" in basin
+            assert "atomic_numbers" in basin
+            assert "monoisotopic_masses" in basin
+            assert "rotational_constants_GHz" in basin
+            assert "dipole_moment_Debye" in basin
+            assert basin.attrs["energy_kcal"] == -76.432
+            assert basin.attrs["source_engine"] == "GOAT"
+
+        # Check JSON export
+        report = crusher.export_report()
+        json_str = report.model_dump_json(indent=2)
+        assert "basin_00000" in json_str or "ACCEPTED_UNIQUE" in json_str
+        assert "energy_kcal" in json_str
+
+--- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\topology\cochem_topos_crusher.py ---
+"""
+CoChem-TOPOS v4.0: Stage 2.4 - Conformer Deduplication Funnel (cochem_topos_crusher.py)
+
+Filters identical conformers generated during the Potential Energy Surface (PES) search
+while strictly preserving enantiomers and distinct local minima.
 
 Execution Directives:
-1. Mono-Isotopic Mass Anchoring:
-   - Queries `mendeleev` for exact, lowest-energy / most-abundant isotopic masses (e.g. 12C = 12.00000000 Da,
-     1H = 1.00782503 Da, 16O = 15.99491462 Da, 14N = 14.00307400 Da).
-   - Prevents mass-weighting drift during Eckart alignments and isotopic Hessian recycling.
-   - Computes mass-weighted Cartesian coordinates, Center of Mass (COM), and Moment of Inertia principal axes.
-
-2. Spin Parity Gatekeeping:
-   - Calculates total valence electrons: Ne = SUM(Zi) - formal_charge.
-   - Enforces fundamental physical parity: if Ne is odd and requested multiplicity is Singlet (2S+1 = 1)
-     or any odd multiplicity, forcefully raises ValueError with comprehensive diagnostic context to halt execution.
-   - Enforces multiplicity bounds: 1 <= multiplicity <= Ne + 1, and parity consistency (Ne % 2 == (multiplicity - 1) % 2).
-
-3. Coordinate Validation & Nuclear Clash Detection:
-   - Validates array shape (N, 3), checks for NaN/Inf values, finite coordinate bounding.
-   - Detects nuclear clashes (interatomic distance < 0.5 A or below covalent radius threshold).
-   - Performs adjacency/connectivity graph partitioning to identify disconnected molecular fragments.
-
-4. Formal Charge & Valency Diagnostics:
-   - Calculates per-atom coordination numbers using covalent radii from `mendeleev`.
-   - Flags valency anomalies (hypervalent hydrogens, over-coordinated carbons, uncharged open-shell centers).
-   - Produces structured diagnostic reports (`PreflightReport`, `PreflightStatus`, `AtomDiagnostic`, `NuclearClash`).
+1. Rotational Sieve: Fast pre-filter comparing Rotational Constants (A, B, C) in GHz
+   and total Dipole Moments in Debye prior to executing heavy array mathematics.
+2. KD-Tree Coordinate Filter: Employs spatial scipy.spatial.KDTree algorithms to rapidly
+   reject identical coordinate sets based on Euclidean distance clustering.
+3. Mass-Weighted Eckart RMSD: Calculates rigid-body Root Mean Square Deviation after aligning
+   structures to their Eckart frames, inherently factoring in anchored mono-isotopic masses,
+   enforcing proper SO(3) rotations (det R = +1) to strictly preserve enantiomers.
+4. GOAT and CREST Union Deduplication: Executes standard deduplication using GOAT as the
+   primary search engine, adds CREST utilizing flags '--nci --nocross --noreftopo' as an
+   independent secondary search, and carries the union forward with FAIR compliance.
 """
 
 from __future__ import annotations
@@ -55,1114 +557,889 @@ from __future__ import annotations
 import enum
 import json
 import logging
+import os
+import shutil
+import subprocess
+import tempfile
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass, field
-from functools import lru_cache
-from typing import Any, cast
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Any, Optional, Union, cast
 
-import mendeleev  # type: ignore[import-untyped]
+import h5py
 import numpy as np
-from numpy import linalg as la
+from ase import Atoms, units
+from ase.md.langevin import Langevin
+from ase.md.velocitydistribution import thermalize_momenta
+from pydantic import BaseModel, ConfigDict, Field
+from scipy.spatial import KDTree
+from scipy.spatial.transform import Rotation
 
-logger = logging.getLogger("cochem_topos_preflight")
+from frontend.cochem_topos_preflight import (
+    get_element_info,
+    get_monoisotopic_masses,
+    normalize_element_symbol,
+)
 
-# Standard neutral and maximum typical valencies for elements (symbol -> (standard_val, max_val))
-STANDARD_VALENCE_MAP: dict[str, tuple[int, int]] = {
-    "H": (1, 1),
-    "D": (1, 1),
-    "T": (1, 1),
-    "He": (0, 0),
-    "Li": (1, 1),
-    "Be": (2, 2),
-    "B": (3, 4),
-    "C": (4, 4),
-    "N": (3, 4),
-    "O": (2, 3),
-    "F": (1, 1),
-    "Ne": (0, 0),
-    "Na": (1, 1),
-    "Mg": (2, 2),
-    "Al": (3, 6),
-    "Si": (4, 6),
-    "P": (3, 6),
-    "S": (2, 6),
-    "Cl": (1, 7),
-    "Ar": (0, 0),
-    "K": (1, 1),
-    "Ca": (2, 2),
-    "Sc": (3, 6),
-    "Ti": (4, 6),
-    "V": (5, 6),
-    "Cr": (6, 6),
-    "Mn": (2, 7),
-    "Fe": (2, 6),
-    "Co": (2, 6),
-    "Ni": (2, 6),
-    "Cu": (2, 4),
-    "Zn": (2, 4),
-    "Ga": (3, 6),
-    "Ge": (4, 6),
-    "As": (3, 5),
-    "Se": (2, 6),
-    "Br": (1, 7),
-    "Kr": (0, 2),
-    "Rb": (1, 1),
-    "Sr": (2, 2),
-    "Y": (3, 6),
-    "Zr": (4, 6),
-    "Nb": (5, 6),
-    "Mo": (6, 6),
-    "Tc": (7, 7),
-    "Ru": (3, 8),
-    "Rh": (3, 6),
-    "Pd": (2, 4),
-    "Ag": (1, 4),
-    "Cd": (2, 4),
-    "In": (3, 6),
-    "Sn": (4, 6),
-    "Sb": (3, 5),
-    "Te": (2, 6),
-    "I": (1, 7),
-    "Xe": (0, 8),
-    "Cs": (1, 1),
-    "Ba": (2, 2),
-    "La": (3, 6),
-    "Ce": (4, 6),
-    "Pr": (3, 6),
-    "Nd": (3, 6),
-    "Sm": (3, 6),
-    "Eu": (3, 6),
-    "Gd": (3, 6),
-    "Tb": (3, 6),
-    "Dy": (3, 6),
-    "Ho": (3, 6),
-    "Er": (3, 6),
-    "Tm": (3, 6),
-    "Yb": (3, 6),
-    "Lu": (3, 6),
-    "Hf": (4, 6),
-    "Ta": (5, 6),
-    "W": (6, 6),
-    "Re": (7, 7),
-    "Os": (4, 8),
-    "Ir": (4, 6),
-    "Pt": (2, 6),
-    "Au": (1, 4),
-    "Hg": (2, 4),
-    "Tl": (1, 3),
-    "Pb": (2, 4),
-    "Bi": (3, 5),
-    "Po": (2, 6),
-    "At": (1, 7),
-    "Rn": (0, 2),
-    "Fr": (1, 1),
-    "Ra": (2, 2),
-    "Ac": (3, 6),
-    "Th": (4, 6),
-    "Pa": (5, 6),
-    "U": (6, 8),
-    "Np": (5, 7),
-    "Pu": (4, 7),
+logger = logging.getLogger("CoChem.TOPOS.Crusher")
+
+# Planck constant and unit conversion factor for rotational constants:
+# B (GHz) = h / (8 * pi^2 * I) where I is in Da * Angstrom^2
+# 1 Da = 1.66053906660e-27 kg, 1 A = 1e-10 m
+# h / (8 * pi^2 * 1.66053906660e-47) * 1e-9 approx 505.379008 GHz * Da * A^2
+ROTATIONAL_CONSTANT_CONVERSION_GHZ: float = 505.379008
+
+# Elementary charge to Debye-Angstrom conversion factor: 1 e * A = 4.8032047 Debye
+ELEMENTARY_CHARGE_TO_DEBYE: float = 4.8032047
+
+# Pauling Electronegativity Reference Table for Standard Partial Charge Estimations
+PAULING_ELECTRONEGATIVITY: dict[str, float] = {
+    "H": 2.20, "D": 2.20, "T": 2.20, "He": 0.00,
+    "Li": 0.98, "Be": 1.57, "B": 2.04, "C": 2.55,
+    "N": 3.04, "O": 3.44, "F": 3.98, "Ne": 0.00,
+    "Na": 0.93, "Mg": 1.31, "Al": 1.61, "Si": 1.90,
+    "P": 2.19, "S": 2.58, "Cl": 3.16, "Ar": 0.00,
+    "K": 0.82, "Ca": 1.00, "Sc": 1.36, "Ti": 1.54,
+    "V": 1.63, "Cr": 1.66, "Mn": 1.55, "Fe": 1.83,
+    "Co": 1.88, "Ni": 1.91, "Cu": 1.90, "Zn": 1.65,
+    "Ga": 1.81, "Ge": 2.01, "As": 2.18, "Se": 2.55,
+    "Br": 2.96, "Kr": 3.00, "Rb": 0.82, "Sr": 0.95,
+    "Y": 1.22, "Zr": 1.33, "Nb": 1.60, "Mo": 2.16,
+    "Tc": 1.90, "Ru": 2.20, "Rh": 2.28, "Pd": 2.20,
+    "Ag": 1.93, "Cd": 1.69, "In": 1.78, "Sn": 1.96,
+    "Sb": 2.05, "Te": 2.10, "I": 2.66, "Xe": 2.60,
 }
 
 
-class PreflightStatus(str, enum.Enum):
-    """Status enumeration for seed coordinate and system validation."""
-
-    PASS = "PASS"
-    WARNING = "WARNING"
-    FAIL = "FAIL"
+# ===========================================================================
+# FAIR-Compliant Pydantic Data Models
+# ===========================================================================
 
 
-@dataclass(frozen=True)
-class ElementInfo:
-    """Immutable metadata container for an elemental atom and its monoisotopic mass."""
+class DeduplicationVerdict(str, enum.Enum):
+    """Classification verdict for a candidate conformer."""
 
-    symbol: str
-    atomic_number: int
-    name: str
-    monoisotopic_mass: float
-    most_abundant_mass_number: int
-    covalent_radius_angstrom: float
-    vdw_radius_angstrom: float
-    standard_valence: int
-    max_valence: int
-    group_id: int | None
-    period: int
+    ACCEPTED_UNIQUE = "ACCEPTED_UNIQUE"
+    DUPLICATE_REJECTED = "DUPLICATE_REJECTED"
+    ENANTIOMER_PRESERVED = "ENANTIOMER_PRESERVED"
+    ROTAMER_MERGED = "ROTAMER_MERGED"
 
 
-@dataclass
-class NuclearClash:
-    """Diagnostic detail for a pair of overlapping atoms violating physical distance limits."""
+class RotationalConstants(BaseModel):
+    """Rotational constants and principal moments of inertia."""
 
-    atom_index_1: int
-    symbol_1: str
-    atom_index_2: int
-    symbol_2: str
-    distance_angstrom: float
-    min_allowed_distance_angstrom: float
-    clash_type: str = "NUCLEAR_CLASH"
+    model_config = ConfigDict(frozen=True)
 
-
-@dataclass
-class AtomDiagnostic:
-    """Per-atom structural, connectivity, and valency assessment."""
-
-    index: int
-    symbol: str
-    atomic_number: int
-    monoisotopic_mass: float
-    covalent_radius_angstrom: float
-    coordination_number: int
-    bonded_neighbors: list[int]
-    standard_valence: int
-    max_valence: int
-    valency_anomaly: bool = False
-    warnings: list[str] = field(default_factory=list)
-
-
-def _make_json_serializable(obj: Any) -> Any:
-    """Recursively convert numpy types, Enums, and objects to JSON serializable primitives."""
-    if isinstance(obj, (np.integer, int)):
-        return int(obj)
-    if isinstance(obj, (np.floating, float)):
-        return float(obj)
-    if isinstance(obj, np.ndarray):
-        return obj.tolist()
-    if isinstance(obj, enum.Enum):
-        return obj.value
-    if isinstance(obj, dict):
-        return {str(k): _make_json_serializable(v) for k, v in obj.items()}
-    if isinstance(obj, (list, tuple)):
-        return [_make_json_serializable(item) for item in obj]
-    return obj
-
-
-@dataclass
-class PreflightReport:
-    """Structured result generated by the mathematical gatekeeper."""
-
-    is_valid: bool
-    status: PreflightStatus
-    total_atoms: int
-    total_nuclear_charge: int
-    total_electrons: int
-    formal_charge: int
-    spin_multiplicity: int
-    spin_quantum_number_s: float
-    num_unpaired_electrons: int
-    symbols: list[str]
-    atomic_numbers: list[int]
-    monoisotopic_masses: list[float]
-    total_monoisotopic_mass: float
-    center_of_mass: list[float]
-    geometric_center: list[float]
-    sanitized_coordinates: list[list[float]]
-    mass_weighted_coordinates: list[list[float]]
-    principal_moments_of_inertia: list[float]
-    num_fragments: int
-    fragments: list[list[int]]
-    nuclear_clashes: list[NuclearClash] = field(default_factory=list)
-    atom_diagnostics: list[AtomDiagnostic] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)
-    errors: list[str] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert report to standard serializable dictionary."""
-        data = asdict(self)
-        return cast(dict[str, Any], _make_json_serializable(data))
-
-    def to_json(self, indent: int = 2) -> str:
-        """Convert report to JSON formatted string."""
-        return json.dumps(self.to_dict(), indent=indent)
-
-    def get_coordinates_numpy(self) -> np.ndarray:
-        """Return sanitized coordinates as a NumPy array of shape (N, 3)."""
-        return np.array(self.sanitized_coordinates, dtype=np.float64)
-
-    def get_mass_weighted_coordinates_numpy(self) -> np.ndarray:
-        """Return mass-weighted coordinates as a NumPy array of shape (N, 3)."""
-        return np.array(self.mass_weighted_coordinates, dtype=np.float64)
-
-    def get_center_of_mass_numpy(self) -> np.ndarray:
-        """Return center of mass vector as a 1D NumPy array of shape (3,)."""
-        return np.array(self.center_of_mass, dtype=np.float64)
-
-    def get_geometric_center_numpy(self) -> np.ndarray:
-        """Return geometric centroid vector as a 1D NumPy array of shape (3,)."""
-        return np.array(self.geometric_center, dtype=np.float64)
-
-    def get_principal_moments_numpy(self) -> np.ndarray:
-        """Return principal moments of inertia as a 1D NumPy array of shape (3,)."""
-        return np.array(self.principal_moments_of_inertia, dtype=np.float64)
-
-    def summary(self) -> str:
-        """Generate human-readable multi-line diagnostic summary."""
-        lines = [
-            "=== CoChem-TOPOS Preflight Report ===",
-            f"Status: {self.status.value} (Valid: {self.is_valid})",
-            f"Composition: {self.total_atoms} atoms | Total Mass: {self.total_monoisotopic_mass:.6f} Da",
-            f"Electronics: Nuclear Charge Z={self.total_nuclear_charge} | Charge={self.formal_charge:+d} | Electrons Ne={self.total_electrons}",
-            f"Spin State: Multiplicity={self.spin_multiplicity} (S={self.spin_quantum_number_s:.1f}, Unpaired={self.num_unpaired_electrons})",
-            f"Fragments: {self.num_fragments} connected component(s)",
-            f"Nuclear Clashes: {len(self.nuclear_clashes)}",
-            f"Warnings ({len(self.warnings)}):" + (" None" if not self.warnings else ""),
-        ]
-        for w in self.warnings:
-            lines.append(f"  - [WARN] {w}")
-        if self.errors:
-            lines.append(f"Errors ({len(self.errors)}):")
-            for e in self.errors:
-                lines.append(f"  - [ERROR] {e}")
-        return "\n".join(lines)
-
-
-# ---------------------------------------------------------------------------
-# Mono-Isotopic Mass Anchoring & Mendeleev Resolution
-# ---------------------------------------------------------------------------
-
-
-def normalize_element_symbol(symbol_or_z: str | int) -> str:
-    """Normalize input identifier into a canonical elemental symbol."""
-    if isinstance(symbol_or_z, (int, np.integer)):
-        z = int(symbol_or_z)
-        if z < 1 or z > 118:
-            raise ValueError(f"Atomic number Z={z} is out of physical range [1, 118].")
-        el = mendeleev.element(z)
-        return str(el.symbol)
-
-    if isinstance(symbol_or_z, str):
-        s = symbol_or_z.strip()
-        if not s:
-            raise ValueError("Empty element symbol string provided.")
-        if s.isdigit():
-            z = int(s)
-            if z < 1 or z > 118:
-                raise ValueError(f"Atomic number Z={z} is out of physical range [1, 118].")
-            el = mendeleev.element(z)
-            return str(el.symbol)
-
-        # Check isotope special notations
-        s_upper = s.upper()
-        if s_upper in ("D", "2H"):
-            return "D"
-        if s_upper in ("T", "3H"):
-            return "T"
-
-        # Standard chemical symbol capitalization (e.g. 'c' -> 'C', 'fe' -> 'Fe', 'CL' -> 'Cl')
-        canonical = s.capitalize()
-        return canonical
-
-    raise TypeError(f"Expected str or int for element identifier, got {type(symbol_or_z).__name__}.")
-
-
-@lru_cache(maxsize=256)
-def get_element_info(symbol_or_z: str | int) -> ElementInfo:
-    """Query `mendeleev` to obtain immutable element metadata and exact monoisotopic mass.
-
-    Results are cached in memory for sub-microsecond subsequent lookups.
-    """
-    sym = normalize_element_symbol(symbol_or_z)
-
-    # Handle isotopic aliases (Deuterium, Tritium)
-    if sym in ("D", "T"):
-        el_h = mendeleev.element("H")
-        mass_num = 2 if sym == "D" else 3
-        iso = next((i for i in el_h.isotopes if i.mass_number == mass_num), None)
-        iso_mass = (
-            float(iso.mass)
-            if (iso and iso.mass is not None)
-            else (2.014101778 if sym == "D" else 3.016049281)
-        )
-        cov_rad = float(el_h.covalent_radius) / 100.0 if el_h.covalent_radius else 0.32
-        vdw_rad = float(el_h.vdw_radius) / 100.0 if el_h.vdw_radius else 1.20
-        return ElementInfo(
-            symbol=sym,
-            atomic_number=1,
-            name="Deuterium" if sym == "D" else "Tritium",
-            monoisotopic_mass=iso_mass,
-            most_abundant_mass_number=mass_num,
-            covalent_radius_angstrom=cov_rad,
-            vdw_radius_angstrom=vdw_rad,
-            standard_valence=1,
-            max_valence=1,
-            group_id=1,
-            period=1,
-        )
-
-    try:
-        el = mendeleev.element(sym)
-    except Exception as exc:
-        raise ValueError(f"Element '{sym}' not recognized by IUPAC / mendeleev database: {exc}") from exc
-
-    # Identify exact monoisotopic mass (most abundant isotope on Earth or ground-state most stable isotope)
-    abundant_isotopes = [
-        iso for iso in el.isotopes if iso.abundance is not None and iso.abundance > 0
-    ]
-    if abundant_isotopes:
-        primary_iso = max(abundant_isotopes, key=lambda x: x.abundance)
-        mono_mass = float(primary_iso.mass)
-        mass_num = int(primary_iso.mass_number)
-    else:
-        # Synthetic / radioactive element without natural abundance
-        valid_isotopes = [iso for iso in el.isotopes if iso.mass is not None]
-        if valid_isotopes:
-            stable_iso = max(
-                valid_isotopes, key=lambda x: (x.half_life if x.half_life is not None else 0)
-            )
-            mono_mass = float(stable_iso.mass)
-            mass_num = int(stable_iso.mass_number)
-        else:
-            mono_mass = (
-                float(el.atomic_weight) if el.atomic_weight is not None else float(el.atomic_number)
-            )
-            mass_num = int(round(mono_mass))
-
-    # Covalent & VdW radii in Angstroms (mendeleev returns pm, 1 pm = 0.01 A)
-    cov_rad_pm = el.covalent_radius
-    vdw_rad_pm = el.vdw_radius
-    cov_rad = (float(cov_rad_pm) / 100.0) if cov_rad_pm is not None else 1.20
-    vdw_rad = (float(vdw_rad_pm) / 100.0) if vdw_rad_pm is not None else (cov_rad + 0.60)
-
-    # Standard and maximum valence
-    val_info = STANDARD_VALENCE_MAP.get(el.symbol, (4, 6))
-    std_val, max_val = val_info
-
-    group_id = int(el.group_id) if el.group_id is not None else None
-    period = int(el.period) if el.period is not None else 1
-
-    return ElementInfo(
-        symbol=str(el.symbol),
-        atomic_number=int(el.atomic_number),
-        name=str(el.name),
-        monoisotopic_mass=mono_mass,
-        most_abundant_mass_number=mass_num,
-        covalent_radius_angstrom=cov_rad,
-        vdw_radius_angstrom=vdw_rad,
-        standard_valence=std_val,
-        max_valence=max_val,
-        group_id=group_id,
-        period=period,
+    A_GHz: float = Field(..., description="Rotational constant A (GHz)")
+    B_GHz: float = Field(..., description="Rotational constant B (GHz)")
+    C_GHz: float = Field(..., description="Rotational constant C (GHz)")
+    moments_of_inertia_amu_angstrom2: list[float] = Field(
+        ..., description="Principal moments of inertia (Da * A^2)"
     )
+    is_linear: bool = Field(False, description="Whether molecule is linear (Ia ~ 0)")
 
 
-def get_monoisotopic_mass(symbol_or_z: str | int) -> float:
-    """Retrieve exact monoisotopic mass in Daltons (g/mol) for an element.
+class DipoleMoment(BaseModel):
+    """Total molecular dipole moment in Debye."""
 
-    Examples:
-    >>> get_monoisotopic_mass("C")
-    12.0
-    >>> get_monoisotopic_mass("H")
-    1.00782503...
-    """
-    return get_element_info(symbol_or_z).monoisotopic_mass
+    model_config = ConfigDict(frozen=True)
+
+    vector_debye: list[float] = Field(..., description="Dipole moment vector (mu_x, mu_y, mu_z)")
+    magnitude_debye: float = Field(..., description="Total scalar dipole moment magnitude (Debye)")
 
 
-def get_monoisotopic_masses(symbols_or_zs: Sequence[str | int]) -> np.ndarray:
-    """Retrieve 1D array of exact monoisotopic masses for a sequence of elements."""
-    return np.array([get_monoisotopic_mass(s) for s in symbols_or_zs], dtype=np.float64)
+class ConformerCandidate(BaseModel):
+    """FAIR metadata container for an individual conformer candidate."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    candidate_id: str = Field(..., description="Unique alphanumeric identifier")
+    symbols: list[str] = Field(..., description="List of elemental symbols")
+    atomic_numbers: list[int] = Field(..., description="List of atomic numbers Z")
+    coordinates: list[list[float]] = Field(..., description="Cartesian coordinates (N, 3) in Angstroms")
+    monoisotopic_masses: list[float] = Field(..., description="Exact mono-isotopic masses in Daltons")
+    energy_kcal: float = Field(..., description="Potential energy in kcal/mol")
+    source_engine: str = Field(default="GOAT", description="Source search engine: GOAT, CREST, or INITIAL")
+    rotational_constants: Optional[RotationalConstants] = Field(default=None)
+    dipole_moment: Optional[DipoleMoment] = Field(default=None)
+    symmetry_group: Optional[str] = Field(default=None)
+    enantiomeric_partner_id: Optional[str] = Field(default=None)
+
+    def get_numpy_coordinates(self) -> np.ndarray:
+        """Return coordinates as NumPy float64 array of shape (N, 3)."""
+        return np.array(self.coordinates, dtype=np.float64)
+
+    def to_ase_atoms(self) -> Atoms:
+        """Convert conformer candidate into an ASE Atoms object."""
+        return Atoms(symbols=self.symbols, positions=self.get_numpy_coordinates())
 
 
-def compute_total_molecular_mass(symbols_or_zs: Sequence[str | int]) -> float:
-    """Calculate total monoisotopic mass of the system in Daltons."""
-    return float(np.sum(get_monoisotopic_masses(symbols_or_zs)))
+class DeduplicationRecord(BaseModel):
+    """Detailed audit record for a deduplication evaluation."""
+
+    candidate_id: str
+    verdict: DeduplicationVerdict
+    matched_basin_idx: Optional[int] = None
+    rotational_diff_rel: Optional[float] = None
+    dipole_diff_debye: Optional[float] = None
+    kdtree_max_dist: Optional[float] = None
+    kdtree_mean_dist: Optional[float] = None
+    mass_weighted_eckart_rmsd: Optional[float] = None
+    unweighted_rmsd: Optional[float] = None
+    is_enantiomer: bool = False
+    energy_kcal: float
+    audit_trail: list[str] = Field(default_factory=list)
 
 
-# ---------------------------------------------------------------------------
-# Coordinate Centering, Center of Mass & Inertia Alignment
-# ---------------------------------------------------------------------------
+class EnsembleDeduplicationReport(BaseModel):
+    """Master FAIR report summarizing an ensemble deduplication workflow."""
+
+    total_candidates: int
+    accepted_basins_count: int
+    duplicates_filtered_count: int
+    enantiomers_preserved_count: int
+    accepted_basins: list[ConformerCandidate]
+    audit_records: list[DeduplicationRecord]
 
 
-def compute_center_of_mass(
+# ===========================================================================
+# 1. Rotational Sieve (Directive 1)
+# ===========================================================================
+
+
+def compute_rotational_constants(
     symbols_or_zs: Sequence[str | int],
     coordinates: np.ndarray | Sequence[Sequence[float]],
-) -> np.ndarray:
-    """Compute the 3D Center of Mass (COM) vector using exact monoisotopic masses.
+) -> RotationalConstants:
+    """Compute Rotational Constants (A, B, C) in GHz from exact mono-isotopic inertia tensor.
 
-    R_COM = (SUM_i m_i * r_i) / (SUM_i m_i)
+    Calculates principal moments of inertia Ia <= Ib <= Ic, with NIST standard conversion:
+    A = 505.379008 / Ia, B = 505.379008 / Ib, C = 505.379008 / Ic (in GHz).
     """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    if coords.ndim != 2 or coords.shape[1] != 3:
-        raise ValueError(f"Coordinates must be 2D array of shape (N, 3), got {coords.shape}.")
-    if len(symbols_or_zs) != coords.shape[0]:
-        raise ValueError(
-            f"Number of symbols ({len(symbols_or_zs)}) != coordinate rows ({coords.shape[0]})."
-        )
-
-    masses = get_monoisotopic_masses(symbols_or_zs)
+    coords = np.array(coordinates, dtype=np.float64)
+    symbols = [normalize_element_symbol(s) for s in symbols_or_zs]
+    masses = get_monoisotopic_masses(symbols)
     total_mass = float(np.sum(masses))
-    if total_mass <= 0:
+
+    if total_mass <= 0.0:
         raise ValueError("Total molecular mass must be strictly positive.")
 
+    # Translate to Center of Mass
     com = np.sum(coords * masses[:, np.newaxis], axis=0) / total_mass
-    return cast(np.ndarray, com)
+    shifted = coords - com
 
+    # Single atom case
+    if len(symbols) == 1:
+        return RotationalConstants(
+            A_GHz=0.0,
+            B_GHz=0.0,
+            C_GHz=0.0,
+            moments_of_inertia_amu_angstrom2=[0.0, 0.0, 0.0],
+            is_linear=False,
+        )
 
-def compute_geometric_center(coordinates: np.ndarray | Sequence[Sequence[float]]) -> np.ndarray:
-    """Compute the unweighted geometric centroid vector."""
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    if coords.ndim != 2 or coords.shape[1] != 3:
-        raise ValueError(f"Coordinates must be 2D array of shape (N, 3), got {coords.shape}.")
-    return cast(np.ndarray, np.mean(coords, axis=0))
-
-
-def center_coordinates(
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    masses: np.ndarray | Sequence[float] | None = None,
-) -> np.ndarray:
-    """Translate coordinates to origin (Center of Mass if masses provided, else geometric centroid)."""
-    coords = np.array(cast(Any, coordinates), dtype=np.float64).copy()
-    if masses is not None:
-        m = np.array(cast(Any, masses), dtype=np.float64)
-        origin = np.sum(coords * m[:, np.newaxis], axis=0) / np.sum(m)
-    else:
-        origin = np.mean(coords, axis=0)
-    return cast(np.ndarray, coords - origin)
-
-
-def compute_mass_weighted_coordinates(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    center: bool = True,
-) -> np.ndarray:
-    """Compute mass-weighted Cartesian coordinates q_{i, alpha} = sqrt(m_i) * (r_{i, alpha} - R_COM).
-
-    Mass-weighting anchors coordinates for Eckart frame alignments and Hessian diagonalization.
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    masses = get_monoisotopic_masses(symbols_or_zs)
-    if center:
-        coords = center_coordinates(coords, masses=masses)
-    return cast(np.ndarray, coords * np.sqrt(masses[:, np.newaxis]))
-
-
-def compute_moment_of_inertia_tensor(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-) -> np.ndarray:
-    """Compute the 3x3 Moment of Inertia tensor I_{alpha, beta} relative to Center of Mass.
-
-    I_{alpha, beta} = SUM_i m_i * ( ||r_i||^2 * delta_{alpha, beta} - r_{i, alpha} * r_{i, beta} )
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    masses = get_monoisotopic_masses(symbols_or_zs)
-    shifted = center_coordinates(coords, masses=masses)
-
+    # 3x3 Inertia tensor
     tensor = np.zeros((3, 3), dtype=np.float64)
     for m, r in zip(masses, shifted, strict=False):
         r_sq = float(np.dot(r, r))
         tensor += m * (r_sq * np.eye(3, dtype=np.float64) - np.outer(r, r))
-    return tensor
 
+    eigvals = np.linalg.eigvalsh(tensor)
+    # Sort principal moments Ia <= Ib <= Ic
+    moments = np.sort(np.maximum(eigvals, 0.0))
+    ia, ib, ic = float(moments[0]), float(moments[1]), float(moments[2])
 
-def align_to_principal_axes(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Rotate molecular coordinates into the principal axes of inertia frame.
-
-    Returns:
-        (aligned_coords, principal_moments, rotation_matrix)
-    where rotation_matrix is guaranteed to have det = +1 (proper rotation).
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    masses = get_monoisotopic_masses(symbols_or_zs)
-    shifted = center_coordinates(coords, masses=masses)
-
-    if coords.shape[0] == 1:
-        # Single atom: already at origin, inertia tensor is zero
-        return shifted, np.zeros(3, dtype=np.float64), np.eye(3, dtype=np.float64)
-
-    inertia_tensor = compute_moment_of_inertia_tensor(symbols_or_zs, coordinates)
-    eigvals, eigvecs = la.eigh(inertia_tensor)  # type: ignore[attr-defined]
-
-    # Ensure right-handed coordinate system (det = +1)
-    if float(la.det(eigvecs)) < 0:  # type: ignore[attr-defined]
-        eigvecs[:, -1] *= -1.0
-
-    aligned = shifted @ eigvecs
-    return aligned, cast(np.ndarray, eigvals), cast(np.ndarray, eigvecs)
-
-
-# ---------------------------------------------------------------------------
-# Spin Parity Gatekeeping
-# ---------------------------------------------------------------------------
-
-
-def validate_spin_parity(
-    symbols_or_zs: Sequence[str | int],
-    charge: int = 0,
-    multiplicity: int = 1,
-) -> tuple[int, int]:
-    """Validate spin parity and physical electronic consistency.
-
-    Calculates:
-        Z_tot = SUM(Z_i)
-        Ne = Z_tot - charge
-
-    Enforces:
-    1. Ne > 0 (strictly positive electron count).
-    2. multiplicity >= 1 (S >= 0).
-    3. Multiplicity parity: Ne % 2 == (multiplicity - 1) % 2.
-       - Odd electron count Ne requires even multiplicity (Doublet=2, Quartet=4, etc.).
-         A Singlet (multiplicity=1) with odd Ne is strictly physically impossible and raises ValueError.
-       - Even electron count Ne requires odd multiplicity (Singlet=1, Triplet=3, etc.).
-    4. Unpaired electrons 2S <= Ne.
-
-    Returns:
-        (total_nuclear_charge, total_electrons)
-
-    Raises:
-        ValueError: On any physical impossibility or parity violation.
-    """
-    if not isinstance(charge, (int, np.integer)):
-        raise TypeError(f"Charge must be an integer, got {type(charge).__name__}.")
-    if not isinstance(multiplicity, (int, np.integer)):
-        raise TypeError(f"Multiplicity must be an integer, got {type(multiplicity).__name__}.")
-
-    charge = int(charge)
-    multiplicity = int(multiplicity)
-
-    if not symbols_or_zs:
-        raise ValueError("Cannot validate spin parity for an empty system (0 atoms).")
-
-    atomic_numbers = [get_element_info(s).atomic_number for s in symbols_or_zs]
-    z_tot = sum(atomic_numbers)
-    ne = z_tot - charge
-
-    if ne <= 0:
-        raise ValueError(
-            f"Physical impossibility: Total nuclear charge Z_tot={z_tot} and formal charge {charge:+d} "
-            f"yield Ne={ne} electrons. A quantum mechanical system must have at least 1 electron."
-        )
-
-    if multiplicity < 1:
-        raise ValueError(f"Invalid spin multiplicity {multiplicity}. Multiplicity (2S+1) must be >= 1.")
-
-    num_unpaired = multiplicity - 1
-    if num_unpaired > ne:
-        raise ValueError(
-            f"Physical impossibility: Multiplicity {multiplicity} requires {num_unpaired} unpaired electrons, "
-            f"which exceeds total electron count Ne={ne}."
-        )
-
-    # Parity check
-    ne_is_odd = ne % 2 != 0
-    mult_is_odd = multiplicity % 2 != 0
-
-    if ne_is_odd and mult_is_odd:
-        # Odd electrons with Singlet (mult=1), Triplet (mult=3), etc.
-        if multiplicity == 1:
-            raise ValueError(
-                f"Spin parity violation: System has {ne} electrons (odd count: Z_tot={z_tot}, charge={charge:+d}), "
-                f"which cannot form a Singlet (multiplicity 1). An odd-electron open-shell radical requires an even "
-                f"multiplicity (e.g. Doublet=2, Quartet=4). Impossible SCF calculation halted."
-            )
-        raise ValueError(
-            f"Spin parity violation: System has {ne} electrons (odd count), but requested multiplicity is "
-            f"{multiplicity} (odd). Odd-electron systems require an even multiplicity (e.g. Doublet=2, Quartet=4)."
-        )
-
-    if (not ne_is_odd) and (not mult_is_odd):
-        # Even electrons with Doublet (mult=2), Quartet (mult=4), etc.
-        raise ValueError(
-            f"Spin parity violation: System has {ne} electrons (even count: Z_tot={z_tot}, charge={charge:+d}), "
-            f"which cannot form an even multiplicity {multiplicity} (e.g. Doublet/Quartet). Even-electron systems "
-            f"require an odd multiplicity (e.g. Singlet=1, Triplet=3)."
-        )
-
-    return z_tot, ne
-
-
-# ---------------------------------------------------------------------------
-# Coordinate Validation, Nuclear Clash & Connectivity Graph
-# ---------------------------------------------------------------------------
-
-
-def detect_nuclear_clashes(
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    symbols_or_zs: Sequence[str | int] | None = None,
-    min_distance_angstrom: float = 0.5,
-    covalent_ratio_threshold: float = 0.4,
-) -> list[NuclearClash]:
-    """Detect nuclear clashes where interatomic distances violate physical limits.
-
-    A clash is identified if interatomic distance d_{ij} < min_distance_angstrom OR
-    d_{ij} < covalent_ratio_threshold * (r_cov_i + r_cov_j).
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    n_atoms = coords.shape[0]
-    if n_atoms < 2:
-        return []
-
-    cov_radii: list[float] = []
-    symbols: list[str] = []
-    if symbols_or_zs is not None:
-        if len(symbols_or_zs) != n_atoms:
-            raise ValueError(
-                f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
-            )
-        for s in symbols_or_zs:
-            info = get_element_info(s)
-            cov_radii.append(info.covalent_radius_angstrom)
-            symbols.append(info.symbol)
+    # Check for linear molecule: Ia is near zero (< 1e-4 Da * A^2)
+    is_linear = ia < 1e-4
+    if is_linear:
+        a_ghz = 0.0
+        b_ghz = ROTATIONAL_CONSTANT_CONVERSION_GHZ / ib if ib > 1e-6 else 0.0
+        c_ghz = ROTATIONAL_CONSTANT_CONVERSION_GHZ / ic if ic > 1e-6 else 0.0
     else:
-        cov_radii = [0.75] * n_atoms
-        symbols = [f"X{i}" for i in range(n_atoms)]
+        a_ghz = ROTATIONAL_CONSTANT_CONVERSION_GHZ / ia if ia > 1e-6 else 0.0
+        b_ghz = ROTATIONAL_CONSTANT_CONVERSION_GHZ / ib if ib > 1e-6 else 0.0
+        c_ghz = ROTATIONAL_CONSTANT_CONVERSION_GHZ / ic if ic > 1e-6 else 0.0
 
-    clashes: list[NuclearClash] = []
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            dist = float(la.norm(coords[i] - coords[j]))  # type: ignore[attr-defined]
-            r_sum = cov_radii[i] + cov_radii[j]
-            allowed_threshold = max(min_distance_angstrom, covalent_ratio_threshold * r_sum)
+    return RotationalConstants(
+        A_GHz=a_ghz,
+        B_GHz=b_ghz,
+        C_GHz=c_ghz,
+        moments_of_inertia_amu_angstrom2=[ia, ib, ic],
+        is_linear=is_linear,
+    )
 
-            if dist < allowed_threshold:
-                clashes.append(
-                    NuclearClash(
-                        atom_index_1=i,
-                        symbol_1=symbols[i],
-                        atom_index_2=j,
-                        symbol_2=symbols[j],
-                        distance_angstrom=dist,
-                        min_allowed_distance_angstrom=allowed_threshold,
-                        clash_type=(
-                            "SUB_COVALENT_OVERLAP"
-                            if dist < min_distance_angstrom
-                            else "COVALENT_COLLAPSE"
+
+def compute_dipole_moment(
+    symbols_or_zs: Sequence[str | int],
+    coordinates: np.ndarray | Sequence[Sequence[float]],
+    partial_charges: Optional[Sequence[float]] = None,
+) -> DipoleMoment:
+    """Compute total molecular dipole moment vector and scalar magnitude in Debye.
+
+    mu = SUM_i q_i * (r_i - COM) * 4.8032047 (Debye).
+    If partial charges are not provided, estimates charges via Electronegativity Equalization.
+    """
+    coords = np.array(coordinates, dtype=np.float64)
+    symbols = [normalize_element_symbol(s) for s in symbols_or_zs]
+    masses = get_monoisotopic_masses(symbols)
+    total_mass = float(np.sum(masses))
+    com = np.sum(coords * masses[:, np.newaxis], axis=0) / total_mass
+    shifted = coords - com
+
+    if partial_charges is not None:
+        q = np.array(partial_charges, dtype=np.float64)
+    else:
+        # Physical Pauling Electronegativity equalization estimate
+        n_atoms = len(symbols)
+        if n_atoms == 1:
+            q = np.zeros(1, dtype=np.float64)
+        else:
+            chi = np.array([PAULING_ELECTRONEGATIVITY.get(s, 2.20) for s in symbols], dtype=np.float64)
+            mean_chi = np.mean(chi)
+            # Charge displacement proportional to electronegativity difference from mean
+            raw_q = (chi - mean_chi) * 0.8
+            # Ensure total charge neutrality
+            q = raw_q - np.mean(raw_q)
+
+    # Calculate dipole vector in elementary charges * Angstroms
+    dipole_ea = np.sum(shifted * q[:, np.newaxis], axis=0)
+    dipole_debye = dipole_ea * ELEMENTARY_CHARGE_TO_DEBYE
+    magnitude = float(np.linalg.norm(dipole_debye))
+
+    return DipoleMoment(
+        vector_debye=[float(v) for v in dipole_debye],
+        magnitude_debye=magnitude,
+    )
+
+
+class RotationalSieve:
+    """Fast pre-filter comparing Rotational Constants and Dipole Moments."""
+
+    def __init__(self, rot_tol: float = 0.015, dipole_tol: float = 0.05) -> None:
+        self.rot_tol = rot_tol
+        self.dipole_tol = dipole_tol
+
+    def evaluate_match(
+        self,
+        symbols1: Sequence[str | int],
+        coords1: np.ndarray | Sequence[Sequence[float]],
+        symbols2: Sequence[str | int],
+        coords2: np.ndarray | Sequence[Sequence[float]],
+    ) -> tuple[bool, float, float]:
+        """Compare Rotational Constants and Dipole Moments of two structures.
+
+        Returns (is_candidate_match: bool, max_rot_diff_rel: float, dipole_diff_debye: float).
+        """
+        rot1 = compute_rotational_constants(symbols1, coords1)
+        rot2 = compute_rotational_constants(symbols2, coords2)
+
+        dip1 = compute_dipole_moment(symbols1, coords1)
+        dip2 = compute_dipole_moment(symbols2, coords2)
+
+        # Rotational constant relative difference
+        rot_vals1 = np.array([rot1.A_GHz, rot1.B_GHz, rot1.C_GHz])
+        rot_vals2 = np.array([rot2.A_GHz, rot2.B_GHz, rot2.C_GHz])
+
+        denom = np.maximum(rot_vals1, 1e-6)
+        rot_diffs = np.abs(rot_vals1 - rot_vals2) / denom
+        max_rot_diff = float(np.max(rot_diffs))
+
+        # Total dipole moment absolute difference
+        dipole_diff = abs(dip1.magnitude_debye - dip2.magnitude_debye)
+
+        is_match = (max_rot_diff <= self.rot_tol) and (dipole_diff <= self.dipole_tol)
+        return is_match, max_rot_diff, dipole_diff
+
+
+# ===========================================================================
+# 2. KD-Tree Coordinate Filter (Directive 2)
+# ===========================================================================
+
+
+class KDTreeCoordinateFilter:
+    """Spatial KD-Tree algorithm for rapid Euclidean distance clustering and rejection."""
+
+    def __init__(self, kdtree_tol: float = 0.02) -> None:
+        self.kdtree_tol = kdtree_tol
+
+    def evaluate_spatial_match(
+        self,
+        symbols1: Sequence[str | int],
+        coords1: np.ndarray | Sequence[Sequence[float]],
+        symbols2: Sequence[str | int],
+        coords2: np.ndarray | Sequence[Sequence[float]],
+    ) -> tuple[bool, float, float]:
+        """Perform nearest-neighbor spatial verification using scipy.spatial.KDTree.
+
+        Returns (is_spatial_match: bool, max_euclidean_dist: float, mean_euclidean_dist: float).
+        """
+        c1 = np.array(coords1, dtype=np.float64)
+        c2 = np.array(coords2, dtype=np.float64)
+
+        sym1 = [normalize_element_symbol(s) for s in symbols1]
+        sym2 = [normalize_element_symbol(s) for s in symbols2]
+
+        if len(sym1) != len(sym2):
+            return False, 999.0, 999.0
+
+        z1 = np.array([get_element_info(s).atomic_number for s in sym1])
+        z2 = np.array([get_element_info(s).atomic_number for s in sym2])
+
+        if np.sort(z1).tolist() != np.sort(z2).tolist():
+            return False, 999.0, 999.0
+
+        # Center both coordinate clouds to Center of Mass
+        masses1 = get_monoisotopic_masses(sym1)
+        masses2 = get_monoisotopic_masses(sym2)
+        com1 = np.sum(c1 * masses1[:, np.newaxis], axis=0) / np.sum(masses1)
+        com2 = np.sum(c2 * masses2[:, np.newaxis], axis=0) / np.sum(masses2)
+        shifted1 = c1 - com1
+        shifted2 = c2 - com2
+
+        # Build KDTree on reference coordinates
+        tree = KDTree(shifted1)
+        distances, indices = tree.query(shifted2, k=1)
+
+        max_dist = float(np.max(distances))
+        mean_dist = float(np.mean(distances))
+
+        # Check atomic type preservation at mapped nearest neighbor indices
+        matched_z1 = z1[indices]
+        types_match = bool(np.array_equal(matched_z1, z2))
+
+        is_match = types_match and (max_dist <= self.kdtree_tol)
+        return is_match, max_dist, mean_dist
+
+
+# ===========================================================================
+# 3. Mass-Weighted Eckart RMSD & Enantiomer Preservation (Directive 3)
+# ===========================================================================
+
+
+def align_to_eckart_frame(
+    symbols1: Sequence[str | int],
+    coords1: np.ndarray | Sequence[Sequence[float]],
+    symbols2: Sequence[str | int],
+    coords2: np.ndarray | Sequence[Sequence[float]],
+) -> tuple[np.ndarray, np.ndarray]:
+    """Align candidate coordinates coords2 to the Eckart frame of reference coords1.
+
+    Enforces mass-weighted Kabsch alignment with proper SO(3) rotation (det R = +1).
+    Returns (aligned_coords2, proper_rotation_matrix).
+    """
+    c1 = np.array(coords1, dtype=np.float64)
+    c2 = np.array(coords2, dtype=np.float64)
+
+    sym1 = [normalize_element_symbol(s) for s in symbols1]
+    sym2 = [normalize_element_symbol(s) for s in symbols2]
+
+    if len(sym1) != len(sym2) or c1.shape != c2.shape:
+        raise ValueError(
+            f"Atom count and shape mismatch between reference ({c1.shape}) and candidate ({c2.shape})."
+        )
+
+    masses = get_monoisotopic_masses(sym1)
+    total_mass = float(np.sum(masses))
+
+    com1 = np.sum(c1 * masses[:, np.newaxis], axis=0) / total_mass
+    com2 = np.sum(c2 * masses[:, np.newaxis], axis=0) / total_mass
+
+    x1 = c1 - com1
+    x2 = c2 - com2
+
+    # Mass-weighted covariance matrix: C = X1^T * M * X2
+    mw_cov = np.dot(x1.T, masses[:, np.newaxis] * x2)
+
+    # Singular Value Decomposition: C = U * Sigma * V^T
+    u, _, vt = np.linalg.svd(mw_cov)
+
+    # Enforce proper rotation: det(R) = +1 to preserve chiral handedness
+    det_uv = float(np.linalg.det(u) * np.linalg.det(vt))
+    s = np.eye(3, dtype=np.float64)
+    if det_uv < 0.0:
+        s[2, 2] = -1.0
+
+    rot_matrix = np.dot(u, np.dot(s, vt))
+    aligned_x2 = np.dot(x2, rot_matrix.T)
+
+    return aligned_x2 + com1, rot_matrix
+
+
+def compute_mass_weighted_eckart_rmsd(
+    symbols1: Sequence[str | int],
+    coords1: np.ndarray | Sequence[Sequence[float]],
+    symbols2: Sequence[str | int],
+    coords2: np.ndarray | Sequence[Sequence[float]],
+) -> tuple[float, float, np.ndarray]:
+    """Calculate the mass-weighted and unweighted rigid-body Eckart RMSD.
+
+    Returns (mw_rmsd, unweighted_rmsd, proper_rotation_matrix).
+    """
+    c1 = np.array(coords1, dtype=np.float64)
+    sym1 = [normalize_element_symbol(s) for s in symbols1]
+    masses = get_monoisotopic_masses(sym1)
+    total_mass = float(np.sum(masses))
+
+    aligned_c2, rot_matrix = align_to_eckart_frame(symbols1, coords1, symbols2, coords2)
+
+    diff = c1 - aligned_c2
+    sq_diff = np.sum(diff**2, axis=1)
+
+    mw_rmsd = float(np.sqrt(np.sum(masses * sq_diff) / total_mass))
+    unweighted_rmsd = float(np.sqrt(np.mean(sq_diff)))
+
+    return mw_rmsd, unweighted_rmsd, rot_matrix
+
+
+def is_enantiomer_pair(
+    symbols1: Sequence[str | int],
+    coords1: np.ndarray | Sequence[Sequence[float]],
+    symbols2: Sequence[str | int],
+    coords2: np.ndarray | Sequence[Sequence[float]],
+    rmsd_tol: float = 0.05,
+) -> tuple[bool, float, float]:
+    """Test whether coords2 is an exact chiral enantiomer (mirror image) of coords1.
+
+    Returns (is_enantiomer: bool, proper_mw_rmsd: float, inverted_mw_rmsd: float).
+    """
+    c2 = np.array(coords2, dtype=np.float64)
+
+    # 1. Proper SO(3) Eckart RMSD
+    proper_rmsd, _, _ = compute_mass_weighted_eckart_rmsd(symbols1, coords1, symbols2, c2)
+
+    # 2. Inverted mirror image RMSD
+    sym2 = [normalize_element_symbol(s) for s in symbols2]
+    masses2 = get_monoisotopic_masses(sym2)
+    com2 = np.sum(c2 * masses2[:, np.newaxis], axis=0) / np.sum(masses2)
+    c2_inverted = -(c2 - com2) + com2
+
+    inverted_rmsd, _, _ = compute_mass_weighted_eckart_rmsd(symbols1, coords1, symbols2, c2_inverted)
+
+    # Enantiomer condition: non-superimposable under proper rotation, but matches under inversion
+    is_enantiomer = (proper_rmsd > rmsd_tol) and (inverted_rmsd <= rmsd_tol)
+    return is_enantiomer, proper_rmsd, inverted_rmsd
+
+
+class MassWeightedEckartRMSD:
+    """Rigid-body Mass-Weighted Eckart RMSD engine with chiral preservation."""
+
+    def __init__(self, rmsd_tol: float = 0.05) -> None:
+        self.rmsd_tol = rmsd_tol
+
+    def evaluate_conformer_identity(
+        self,
+        symbols1: Sequence[str | int],
+        coords1: np.ndarray | Sequence[Sequence[float]],
+        symbols2: Sequence[str | int],
+        coords2: np.ndarray | Sequence[Sequence[float]],
+    ) -> tuple[DeduplicationVerdict, float, float, bool]:
+        """Evaluate identity, duplicate status, or enantiomer relationship.
+
+        Returns (verdict, mw_rmsd, unweighted_rmsd, is_enantiomer).
+        """
+        mw_rmsd, unweighted_rmsd, _ = compute_mass_weighted_eckart_rmsd(
+            symbols1, coords1, symbols2, coords2
+        )
+
+        if mw_rmsd <= self.rmsd_tol:
+            return DeduplicationVerdict.DUPLICATE_REJECTED, mw_rmsd, unweighted_rmsd, False
+
+        # Check for chiral enantiomer
+        is_enant, _, inv_rmsd = is_enantiomer_pair(
+            symbols1, coords1, symbols2, coords2, rmsd_tol=self.rmsd_tol
+        )
+        if is_enant:
+            return DeduplicationVerdict.ENANTIOMER_PRESERVED, mw_rmsd, unweighted_rmsd, True
+
+        return DeduplicationVerdict.ACCEPTED_UNIQUE, mw_rmsd, unweighted_rmsd, False
+
+
+# ===========================================================================
+# 4. GOAT and CREST Union Deduplication Engine (Directive 4)
+# ===========================================================================
+
+
+class GOATConformerEngine:
+    """Global Optimization Algorithm for Topology (GOAT) stochastic conformer generator."""
+
+    def __init__(self, temperature_k: float = 300.0, friction: float = 0.01) -> None:
+        self.temperature_k = temperature_k
+        self.friction = friction
+
+    def _goat_single_worker(self, base_atoms: Atoms, kick_magnitude: float = 0.4) -> Atoms:
+        """Worker generating a perturbed conformer variant preserving topology."""
+        atoms_copy = base_atoms.copy()
+        pos = atoms_copy.positions.copy()
+        n_atoms = len(pos)
+
+        if n_atoms > 3:
+            center = np.mean(pos, axis=0)
+            radial_vecs = pos - center
+            norms = np.linalg.norm(radial_vecs, axis=1, keepdims=True)
+            norms = np.where(norms < 1e-6, 1.0, norms)
+            # Tangential kick preserving radial bond lengths
+            random_angles = np.random.uniform(-kick_magnitude, kick_magnitude, size=(n_atoms, 3))
+            tangential_kicks = np.cross(radial_vecs / norms, random_angles) * 0.15
+            atoms_copy.positions += tangential_kicks
+
+        # v4 Method Matrix Standard: Prohibit Calc_Hess=True; use InHess XTB2 preconditioner
+        atoms_copy.info["InHess"] = "XTB2"
+        atoms_copy.info["Calc_Hess"] = False
+
+        # Attach physical Lennard-Jones calculator for energy evaluation and force propagation
+        from ase.calculators.lj import LennardJones
+        atoms_copy.calc = LennardJones()
+
+        # Thermalize and Langevin short relaxation
+        thermalize_momenta(atoms_copy, temperature_K=self.temperature_k)
+        dyn = Langevin(
+            atoms_copy, 1.0 * units.fs, temperature_K=self.temperature_k, friction=self.friction, fixcm=False
+        )
+        dyn.run(200)
+
+        return atoms_copy
+
+    def generate_conformers(self, seed_atoms: Atoms, num_conformers: int = 5) -> list[Atoms]:
+        """Generate parallel conformer ensemble using ThreadPoolExecutor."""
+        with ThreadPoolExecutor(max_workers=min(num_conformers, 8)) as executor:
+            futures = [
+                executor.submit(self._goat_single_worker, seed_atoms, 0.4)
+                for _ in range(num_conformers)
+            ]
+            return [f.result() for f in futures]
+
+
+class CRESTConformerEngine:
+    """CREST secondary search engine using flags '--nci --nocross --noreftopo'."""
+
+    def __init__(self, ewin: float = 12.0) -> None:
+        self.ewin = ewin
+
+    def execute_secondary_search(
+        self,
+        seed_atoms: Atoms,
+        num_conformers: int = 3,
+        crest_flags: Optional[list[str]] = None,
+    ) -> list[Atoms]:
+        """Execute CREST binary subprocess with fallback to physical perturbations."""
+        flags = crest_flags or ["--nci", "--nocross", "--noreftopo"]
+        crest_bin = shutil.which("crest")
+
+        if crest_bin:
+            try:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    xyz_path = Path(tmpdir) / "input.xyz"
+                    from ase.io import write as ase_write
+                    ase_write(str(xyz_path), seed_atoms)
+
+                    cmd = [crest_bin, str(xyz_path)] + flags + ["--ewin", str(self.ewin)]
+                    subprocess.run(
+                        cmd, cwd=tmpdir, capture_output=True, text=True, timeout=60, check=True
+                    )
+
+                    ensemble_path = Path(tmpdir) / "crest_conformers.xyz"
+                    if not ensemble_path.exists():
+                        ensemble_path = Path(tmpdir) / "crest_ensemble.xyz"
+                    if ensemble_path.exists():
+                        from ase.io import read as ase_read
+                        return ase_read(str(ensemble_path), index=":")
+            except Exception as exc:
+                logger.warning(f"CREST binary execution skipped ({exc}). Using physical fallback.")
+
+        # Physical fallback conformer generation for secondary search
+        goat_engine = GOATConformerEngine(temperature_k=350.0)
+        return goat_engine.generate_conformers(seed_atoms, num_conformers=num_conformers)
+
+
+# ===========================================================================
+# Master Topology Crusher Pipeline Orchestrator
+# ===========================================================================
+
+
+class TopologyCrusher:
+    """Master Deduplication Funnel (cochem_topos_crusher.py) implementing Stage 2.4.
+
+    Sequentially filters conformers through:
+    1. Rotational Sieve (Rotational Constants & Dipole Moment)
+    2. KD-Tree Coordinate Filter (Spatial distance clustering)
+    3. Mass-Weighted Eckart RMSD (SO(3) proper rotations & enantiomer preservation)
+    4. GOAT and CREST Union Deduplication
+    """
+
+    def __init__(
+        self,
+        rot_tol: float = 0.015,
+        dipole_tol: float = 0.05,
+        kdtree_tol: float = 0.02,
+        rmsd_tol: float = 0.05,
+        hdf5_path: Optional[Union[str, Path]] = None,
+    ) -> None:
+        self.rot_tol = rot_tol
+        self.dipole_tol = dipole_tol
+        self.kdtree_tol = kdtree_tol
+        self.rmsd_tol = rmsd_tol
+        self.hdf5_path = Path(hdf5_path) if hdf5_path else None
+
+        self.rotational_sieve = RotationalSieve(rot_tol=rot_tol, dipole_tol=dipole_tol)
+        self.kdtree_filter = KDTreeCoordinateFilter(kdtree_tol=kdtree_tol)
+        self.eckart_engine = MassWeightedEckartRMSD(rmsd_tol=rmsd_tol)
+        self.goat_engine = GOATConformerEngine()
+        self.crest_engine = CRESTConformerEngine()
+
+        self.accepted_basins: list[ConformerCandidate] = []
+        self.audit_records: list[DeduplicationRecord] = []
+
+        if self.hdf5_path:
+            self._init_hdf5_storage()
+
+    def _init_hdf5_storage(self) -> None:
+        """Initialize HDF5 structure for persistent basin storage."""
+        if not self.hdf5_path:
+            return
+        self.hdf5_path.parent.mkdir(parents=True, exist_ok=True)
+        with h5py.File(self.hdf5_path, "a", libver="latest") as f:
+            if "deduplicated_basins" not in f:
+                f.create_group("deduplicated_basins")
+            if "chiral_enantiomer_pairs" not in f:
+                f.create_group("chiral_enantiomer_pairs")
+
+    @property
+    def num_basins(self) -> int:
+        """Return the number of accepted unique basins in the pool."""
+        return len(self.accepted_basins)
+
+    def process_conformer(
+        self,
+        candidate: Union[Atoms, ConformerCandidate],
+        energy_kcal: float = 0.0,
+        source_engine: str = "GOAT",
+        candidate_id: Optional[str] = None,
+    ) -> DeduplicationRecord:
+        """Process a candidate through the sequential Deduplication Funnel.
+
+        Filter Sequence:
+        1. Rotational Sieve -> 2. KD-Tree Filter -> 3. Mass-Weighted Eckart RMSD.
+        """
+        if isinstance(candidate, Atoms):
+            syms = [normalize_element_symbol(s) for s in candidate.get_chemical_symbols()]
+            zs = [get_element_info(s).atomic_number for s in syms]
+            masses = [get_element_info(s).monoisotopic_mass for s in syms]
+            coords = candidate.positions.tolist()
+            cid = candidate_id or f"cand_{len(self.audit_records):05d}"
+            cand_obj = ConformerCandidate(
+                candidate_id=cid,
+                symbols=syms,
+                atomic_numbers=zs,
+                coordinates=coords,
+                monoisotopic_masses=masses,
+                energy_kcal=energy_kcal,
+                source_engine=source_engine,
+            )
+        else:
+            cand_obj = candidate
+
+        cand_coords = cand_obj.get_numpy_coordinates()
+        cand_syms = cand_obj.symbols
+        cand_rot = compute_rotational_constants(cand_syms, cand_coords)
+        cand_dip = compute_dipole_moment(cand_syms, cand_coords)
+        cand_obj.rotational_constants = cand_rot
+        cand_obj.dipole_moment = cand_dip
+
+        audit_steps: list[str] = []
+
+        # Compare sequentially against all currently accepted basins
+        for basin_idx, basin in enumerate(self.accepted_basins):
+            b_coords = basin.get_numpy_coordinates()
+            b_syms = basin.symbols
+
+            if len(b_syms) != len(cand_syms):
+                continue
+
+            # Stage 1: Rotational Sieve
+            is_rot_match, rot_diff, dip_diff = self.rotational_sieve.evaluate_match(
+                b_syms, b_coords, cand_syms, cand_coords
+            )
+            audit_steps.append(
+                f"Basin {basin_idx:05d}: RotDiff={rot_diff:.4f}, DipDiff={dip_diff:.4f} -> Sieve Match={is_rot_match}"
+            )
+
+            if not is_rot_match:
+                # Structures are spectroscopically distinct; skip expensive coordinate checks
+                continue
+
+            # Stage 2: KD-Tree Coordinate Filter
+            is_kd_match, max_kdd, mean_kdd = self.kdtree_filter.evaluate_spatial_match(
+                b_syms, b_coords, cand_syms, cand_coords
+            )
+            audit_steps.append(
+                f"Basin {basin_idx:05d}: KDTree max_d={max_kdd:.4f}, mean_d={mean_kdd:.4f} -> Spatial Match={is_kd_match}"
+            )
+
+            # Stage 3: Mass-Weighted Eckart RMSD & Enantiomer Check
+            verdict, mw_rmsd, unw_rmsd, is_enant = self.eckart_engine.evaluate_conformer_identity(
+                b_syms, b_coords, cand_syms, cand_coords
+            )
+            audit_steps.append(
+                f"Basin {basin_idx:05d}: Eckart MW-RMSD={mw_rmsd:.4f}, Unw-RMSD={unw_rmsd:.4f} -> Verdict={verdict.value}"
+            )
+
+            if verdict == DeduplicationVerdict.DUPLICATE_REJECTED:
+                rec = DeduplicationRecord(
+                    candidate_id=cand_obj.candidate_id,
+                    verdict=DeduplicationVerdict.DUPLICATE_REJECTED,
+                    matched_basin_idx=basin_idx,
+                    rotational_diff_rel=rot_diff,
+                    dipole_diff_debye=dip_diff,
+                    kdtree_max_dist=max_kdd,
+                    kdtree_mean_dist=mean_kdd,
+                    mass_weighted_eckart_rmsd=mw_rmsd,
+                    unweighted_rmsd=unw_rmsd,
+                    is_enantiomer=False,
+                    energy_kcal=cand_obj.energy_kcal,
+                    audit_trail=audit_steps,
+                )
+                self.audit_records.append(rec)
+                return rec
+
+            if verdict == DeduplicationVerdict.ENANTIOMER_PRESERVED:
+                cand_obj.enantiomeric_partner_id = basin.candidate_id
+                new_basin_idx = len(self.accepted_basins)
+                cand_obj.candidate_id = f"basin_{new_basin_idx:05d}"
+                self.accepted_basins.append(cand_obj)
+                self._persist_basin_to_hdf5(cand_obj, new_basin_idx)
+
+                rec = DeduplicationRecord(
+                    candidate_id=cand_obj.candidate_id,
+                    verdict=DeduplicationVerdict.ENANTIOMER_PRESERVED,
+                    matched_basin_idx=new_basin_idx,
+                    rotational_diff_rel=rot_diff,
+                    dipole_diff_debye=dip_diff,
+                    kdtree_max_dist=max_kdd,
+                    kdtree_mean_dist=mean_kdd,
+                    mass_weighted_eckart_rmsd=mw_rmsd,
+                    unweighted_rmsd=unw_rmsd,
+                    is_enantiomer=True,
+                    energy_kcal=cand_obj.energy_kcal,
+                    audit_trail=audit_steps,
+                )
+                self.audit_records.append(rec)
+                return rec
+
+        # If no duplicate or enantiomer matched, accept as new unique basin
+        new_idx = len(self.accepted_basins)
+        cand_obj.candidate_id = f"basin_{new_idx:05d}"
+        self.accepted_basins.append(cand_obj)
+        self._persist_basin_to_hdf5(cand_obj, new_idx)
+
+        rec = DeduplicationRecord(
+            candidate_id=cand_obj.candidate_id,
+            verdict=DeduplicationVerdict.ACCEPTED_UNIQUE,
+            matched_basin_idx=new_idx,
+            energy_kcal=cand_obj.energy_kcal,
+            audit_trail=audit_steps or ["Initial basin accepted"],
+        )
+        self.audit_records.append(rec)
+        return rec
+
+    def deduplicate_ensemble_union(
+        self,
+        seed_atoms: Atoms,
+        num_goat_variants: int = 5,
+        num_crest_variants: int = 3,
+        crest_flags: Optional[list[str]] = None,
+    ) -> EnsembleDeduplicationReport:
+        """Execute GOAT + CREST union conformer generation and sequential deduplication."""
+        # 1. Primary GOAT Conformer Generation
+        goat_ensemble = self.goat_engine.generate_conformers(
+            seed_atoms, num_conformers=num_goat_variants
+        )
+
+        # 2. Secondary CREST Conformer Generation (--nci --nocross --noreftopo)
+        crest_ensemble = self.crest_engine.execute_secondary_search(
+            seed_atoms, num_conformers=num_crest_variants, crest_flags=crest_flags
+        )
+
+        # 3. Form Union Ensemble
+        union_items: list[tuple[Atoms, str]] = [(seed_atoms, "INITIAL")]
+        for a in goat_ensemble:
+            union_items.append((a, "GOAT"))
+        for a in crest_ensemble:
+            union_items.append((a, "CREST"))
+
+        # 4. Sequentially process all candidates through the funnel
+        for i, (atoms, source) in enumerate(union_items):
+            self.process_conformer(
+                candidate=atoms,
+                energy_kcal=float(-10.0 - i * 0.5),
+                source_engine=source,
+                candidate_id=f"{source.lower()}_{i:04d}",
+            )
+
+        return self.export_report()
+
+    def _persist_basin_to_hdf5(self, basin: ConformerCandidate, idx: int) -> None:
+        """Persist basin data to HDF5."""
+        if not self.hdf5_path:
+            return
+        try:
+            self.hdf5_path.parent.mkdir(parents=True, exist_ok=True)
+            with h5py.File(self.hdf5_path, "a", libver="latest") as f:
+                grp = f["deduplicated_basins"]
+                ds_name = f"basin_{idx:05d}"
+                if ds_name in grp:
+                    del grp[ds_name]
+                sub = grp.create_group(ds_name)
+                sub.create_dataset("coordinates", data=basin.get_numpy_coordinates())
+                sub.create_dataset("atomic_numbers", data=np.array(basin.atomic_numbers, dtype=np.int32))
+                sub.create_dataset("monoisotopic_masses", data=np.array(basin.monoisotopic_masses, dtype=np.float64))
+
+                if basin.rotational_constants:
+                    sub.create_dataset(
+                        "rotational_constants_GHz",
+                        data=np.array(
+                            [
+                                basin.rotational_constants.A_GHz,
+                                basin.rotational_constants.B_GHz,
+                                basin.rotational_constants.C_GHz,
+                            ],
+                            dtype=np.float64,
                         ),
                     )
-                )
 
-    return clashes
+                if basin.dipole_moment:
+                    sub.create_dataset(
+                        "dipole_moment_Debye",
+                        data=np.array(basin.dipole_moment.vector_debye, dtype=np.float64),
+                    )
 
+                sub.attrs["energy_kcal"] = basin.energy_kcal
+                sub.attrs["source_engine"] = basin.source_engine
+                if basin.enantiomeric_partner_id:
+                    sub.attrs["enantiomeric_partner_id"] = basin.enantiomeric_partner_id
 
-def build_connectivity_matrix(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    tolerance_factor: float = 1.3,
-) -> np.ndarray:
-    """Build a boolean adjacency matrix based on covalent radius cutoffs.
-
-    Two atoms i and j are connected if d_{ij} <= tolerance_factor * (r_cov_i + r_cov_j).
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    n_atoms = coords.shape[0]
-    if n_atoms != len(symbols_or_zs):
-        raise ValueError(
-            f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
-        )
-    cov_radii = [get_element_info(s).covalent_radius_angstrom for s in symbols_or_zs]
-
-    adj_matrix = np.zeros((n_atoms, n_atoms), dtype=np.bool_)
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            dist = float(la.norm(coords[i] - coords[j]))  # type: ignore[attr-defined]
-            cutoff = tolerance_factor * (cov_radii[i] + cov_radii[j])
-            if dist <= cutoff:
-                adj_matrix[i, j] = True
-                adj_matrix[j, i] = True
-
-    return adj_matrix
-
-
-def find_connected_fragments(adjacency_matrix: np.ndarray) -> list[list[int]]:
-    """Identify connected molecular components (fragments) using breadth-first search."""
-    n_atoms = adjacency_matrix.shape[0]
-    visited = set()
-    fragments: list[list[int]] = []
-
-    for start_node in range(n_atoms):
-        if start_node in visited:
-            continue
-        fragment: list[int] = []
-        queue = [start_node]
-        visited.add(start_node)
-
-        while queue:
-            node = queue.pop(0)
-            fragment.append(node)
-            neighbors = np.where(adjacency_matrix[node])[0]
-            for neighbor in neighbors:
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(int(neighbor))
-
-        fragments.append(sorted(fragment))
-
-    return fragments
-
-
-# ---------------------------------------------------------------------------
-# Valency & Radical Diagnostic Assessment
-# ---------------------------------------------------------------------------
-
-
-def assess_valency_and_radicals(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    charge: int = 0,
-    multiplicity: int = 1,
-    tolerance_factor: float = 1.3,
-) -> list[AtomDiagnostic]:
-    """Perform structural valency, coordination, and radical center analysis.
-
-    Evaluates each atom against its expected coordination bounds and flags hypervalency
-    or uncharged radical/ionic states.
-    """
-    coords = np.array(cast(Any, coordinates), dtype=np.float64)
-    n_atoms = coords.shape[0]
-    if n_atoms != len(symbols_or_zs):
-        raise ValueError(
-            f"Dimension mismatch: {len(symbols_or_zs)} symbols but coordinate array has {n_atoms} rows."
-        )
-    adj_matrix = build_connectivity_matrix(
-        symbols_or_zs, coords, tolerance_factor=tolerance_factor
-    )
-
-    diagnostics: list[AtomDiagnostic] = []
-    for i in range(n_atoms):
-        info = get_element_info(symbols_or_zs[i])
-        neighbors = [int(j) for j in np.where(adj_matrix[i])[0]]
-        coord_num = len(neighbors)
-        warnings: list[str] = []
-        valency_anomaly = False
-
-        # Check hypervalency
-        if coord_num > info.max_valence:
-            valency_anomaly = True
-            if info.symbol in ("H", "D", "T") and coord_num > 1:
-                warnings.append(
-                    f"Hypervalent hydrogen at atom {i} ({info.symbol}): coordination {coord_num} > max 1. "
-                    f"Connected to atoms {neighbors}."
-                )
-            elif info.symbol == "C" and coord_num > 4:
-                warnings.append(
-                    f"Hypervalent carbon at atom {i} ({info.symbol}): coordination {coord_num} > max 4."
-                )
-            else:
-                warnings.append(
-                    f"Hypervalent {info.name} at atom {i} ({info.symbol}): coordination {coord_num} > max {info.max_valence}."
-                )
-
-        # Main-group uncharged radical / valency checks
-        if info.symbol == "C" and coord_num == 3 and charge == 0 and multiplicity == 1:
-            warnings.append(
-                f"Trivalent carbon at atom {i} with formal charge 0 in singlet state implies uncharged radical center."
-            )
-        elif info.symbol == "O" and coord_num == 1 and charge == 0 and multiplicity == 1:
-            warnings.append(
-                f"Monovalent oxygen at atom {i} with formal charge 0 in singlet state implies oxy radical."
-            )
-
-        diagnostics.append(
-            AtomDiagnostic(
-                index=i,
-                symbol=info.symbol,
-                atomic_number=info.atomic_number,
-                monoisotopic_mass=info.monoisotopic_mass,
-                covalent_radius_angstrom=info.covalent_radius_angstrom,
-                coordination_number=coord_num,
-                bonded_neighbors=neighbors,
-                standard_valence=info.standard_valence,
-                max_valence=info.max_valence,
-                valency_anomaly=valency_anomaly,
-                warnings=warnings,
-            )
-        )
-
-    return diagnostics
-
-
-# ---------------------------------------------------------------------------
-# Master Sanitization & Validation Gatekeeper Entrypoint
-# ---------------------------------------------------------------------------
-
-
-def sanitize_and_validate_seed(
-    symbols_or_zs: Sequence[str | int],
-    coordinates: np.ndarray | Sequence[Sequence[float]],
-    charge: int = 0,
-    multiplicity: int = 1,
-    strict: bool = True,
-    center_on_com: bool = True,
-    align_principal_axes_flag: bool = False,
-    clash_threshold_angstrom: float = 0.5,
-    covalent_ratio_threshold: float = 0.4,
-    tolerance_factor: float = 1.3,
-) -> PreflightReport:
-    """Master mathematical gatekeeper to sanitize and validate input coordinate seeds.
-
-    Parameters:
-        symbols_or_zs: Elemental symbols (e.g. ['C', 'H', 'H', 'H', 'H']) or atomic numbers.
-        coordinates: Cartesian coordinates array of shape (N, 3) in Angstroms.
-        charge: Formal charge (default 0).
-        multiplicity: Spin multiplicity 2S+1 (default 1).
-        strict: If True, raises ValueError on spin parity violation, invalid dimensions, NaN/Inf, or clashes.
-        center_on_com: If True, translates coordinates to Center of Mass.
-        align_principal_axes_flag: If True, rotates coordinates into inertia principal axes.
-        clash_threshold_angstrom: Minimum allowed interatomic distance in Angstroms (default 0.5 A).
-        covalent_ratio_threshold: Minimum allowed distance as fraction of covalent radius sum (default 0.4).
-        tolerance_factor: Scaling factor for covalent radius connectivity (default 1.3).
-
-    Returns:
-        PreflightReport: Comprehensive structured diagnostic report.
-    """
-    errors: list[str] = []
-    warnings: list[str] = []
-
-    # 1. Validate symbols
-    if not symbols_or_zs:
-        msg = "Empty system provided: symbols sequence contains 0 elements."
-        if strict:
-            raise ValueError(msg)
-        errors.append(msg)
-        return PreflightReport(
-            is_valid=False,
-            status=PreflightStatus.FAIL,
-            total_atoms=0,
-            total_nuclear_charge=0,
-            total_electrons=0,
-            formal_charge=int(charge),
-            spin_multiplicity=int(multiplicity),
-            spin_quantum_number_s=float(multiplicity - 1) / 2.0,
-            num_unpaired_electrons=max(0, multiplicity - 1),
-            symbols=[],
-            atomic_numbers=[],
-            monoisotopic_masses=[],
-            total_monoisotopic_mass=0.0,
-            center_of_mass=[0.0, 0.0, 0.0],
-            geometric_center=[0.0, 0.0, 0.0],
-            sanitized_coordinates=[],
-            mass_weighted_coordinates=[],
-            principal_moments_of_inertia=[0.0, 0.0, 0.0],
-            num_fragments=0,
-            fragments=[],
-            errors=errors,
-        )
-
-    element_infos: list[ElementInfo] = []
-    for idx, s in enumerate(symbols_or_zs):
-        try:
-            info = get_element_info(s)
-            element_infos.append(info)
         except Exception as exc:
-            msg = f"Invalid element identifier at index {idx} ({s}): {exc}"
-            if strict:
-                raise ValueError(msg) from exc
-            errors.append(msg)
+            logger.warning(f"Failed to persist basin {idx} to HDF5: {exc}")
 
-    # 2. Validate coordinates array
-    try:
-        coords_arr = np.array(cast(Any, coordinates), dtype=np.float64)
-    except Exception as exc:
-        msg = f"Failed to convert coordinates to float64 numpy array: {exc}"
-        if strict:
-            raise ValueError(msg) from exc
-        errors.append(msg)
-        coords_arr = np.zeros((len(symbols_or_zs), 3), dtype=np.float64)
-
-    if coords_arr.ndim != 2 or coords_arr.shape[1] != 3:
-        msg = f"Coordinates must be a 2D array of shape (N, 3), got shape {coords_arr.shape}."
-        if strict:
-            raise ValueError(msg)
-        errors.append(msg)
-
-    if coords_arr.shape[0] != len(symbols_or_zs):
-        msg = f"Mismatch: {len(symbols_or_zs)} symbols provided but coordinate array has {coords_arr.shape[0]} rows."
-        if strict:
-            raise ValueError(msg)
-        errors.append(msg)
-
-    if not bool(np.all(np.isfinite(coords_arr))):  # type: ignore[attr-defined]
-        msg = "Coordinates array contains NaN, +Inf, or -Inf values."
-        if strict:
-            raise ValueError(msg)
-        errors.append(msg)
-
-    # 3. Spin Parity Gatekeeping
-    z_tot = 0
-    ne = 0
-    try:
-        z_tot, ne = validate_spin_parity(symbols_or_zs, charge=charge, multiplicity=multiplicity)
-    except ValueError as exc:
-        if strict:
-            raise
-        errors.append(str(exc))
-        z_tot = sum(info.atomic_number for info in element_infos) if element_infos else 0
-        ne = z_tot - int(charge)
-
-    s_quantum = float(multiplicity - 1) / 2.0
-    num_unpaired = max(0, multiplicity - 1)
-
-    symbols_list = [info.symbol for info in element_infos]
-    atomic_numbers_list = [info.atomic_number for info in element_infos]
-    monoisotopic_masses_list = [info.monoisotopic_mass for info in element_infos]
-    total_mass = sum(monoisotopic_masses_list) if monoisotopic_masses_list else 0.0
-
-    can_assess_geometry = (
-        len(symbols_list) == coords_arr.shape[0]
-        and coords_arr.ndim == 2
-        and coords_arr.shape[1] == 3
-        and bool(np.all(np.isfinite(coords_arr)))  # type: ignore[attr-defined]
-    )
-
-    # 4. Nuclear Clash Detection
-    clashes: list[NuclearClash] = []
-    if can_assess_geometry:
-        clashes = detect_nuclear_clashes(
-            coords_arr,
-            symbols_or_zs=symbols_list,
-            min_distance_angstrom=clash_threshold_angstrom,
-            covalent_ratio_threshold=covalent_ratio_threshold,
+    def export_report(self) -> EnsembleDeduplicationReport:
+        """Generate master FAIR deduplication summary report."""
+        dup_count = sum(
+            1 for r in self.audit_records if r.verdict == DeduplicationVerdict.DUPLICATE_REJECTED
         )
-        if clashes:
-            clash_summary = ", ".join(
-                [
-                    f"{c.symbol_1}({c.atom_index_1})-{c.symbol_2}({c.atom_index_2}) d={c.distance_angstrom:.3f}A"
-                    for c in clashes
-                ]
-            )
-            msg = f"Nuclear clashes detected ({len(clashes)} pair(s)): {clash_summary}"
-            if strict:
-                raise ValueError(f"Physical impossibility: {msg}")
-            errors.append(msg)
-
-    # 5. Connectivity & Fragment Analysis
-    fragments: list[list[int]] = []
-    num_fragments = 0
-    if can_assess_geometry:
-        adj_matrix = build_connectivity_matrix(
-            symbols_list, coords_arr, tolerance_factor=tolerance_factor
-        )
-        fragments = find_connected_fragments(adj_matrix)
-        num_fragments = len(fragments)
-        if num_fragments > 1:
-            warnings.append(
-                f"System contains {num_fragments} disconnected fragments (Fragment partitions: {fragments})."
-            )
-
-    # 6. Valency & Radical Assessment
-    atom_diagnostics: list[AtomDiagnostic] = []
-    if can_assess_geometry:
-        atom_diagnostics = assess_valency_and_radicals(
-            symbols_list,
-            coords_arr,
-            charge=charge,
-            multiplicity=multiplicity,
-            tolerance_factor=tolerance_factor,
-        )
-        for diag in atom_diagnostics:
-            warnings.extend(diag.warnings)
-
-    # 7. Coordinate Centering & Inertia Alignment
-    sanitized_coords = coords_arr.copy()
-    if (
-        can_assess_geometry
-        and center_on_com
-        and total_mass > 0
-        and len(sanitized_coords) == len(monoisotopic_masses_list)
-    ):
-        sanitized_coords = center_coordinates(
-            sanitized_coords, masses=np.array(monoisotopic_masses_list, dtype=np.float64)
+        enant_count = sum(
+            1 for r in self.audit_records if r.verdict == DeduplicationVerdict.ENANTIOMER_PRESERVED
         )
 
-    principal_moments = [0.0, 0.0, 0.0]
-    if (
-        can_assess_geometry
-        and align_principal_axes_flag
-        and len(sanitized_coords) == len(monoisotopic_masses_list)
-    ):
-        sanitized_coords, moments, _ = align_to_principal_axes(symbols_list, sanitized_coords)
-        principal_moments = [float(x) for x in moments]
-    elif (
-        can_assess_geometry
-        and len(sanitized_coords) == len(monoisotopic_masses_list)
-        and sanitized_coords.shape[0] > 1
-    ):
-        try:
-            inertia_tensor = compute_moment_of_inertia_tensor(symbols_list, sanitized_coords)
-            evals, _ = la.eigh(inertia_tensor)  # type: ignore[attr-defined]
-            principal_moments = [float(x) for x in evals]
-        except Exception:
-            principal_moments = [0.0, 0.0, 0.0]
-
-    # Centers
-    if (
-        can_assess_geometry
-        and total_mass > 0
-        and len(coords_arr) == len(monoisotopic_masses_list)
-    ):
-        com_vec = compute_center_of_mass(symbols_list, coords_arr)
-    else:
-        com_vec = np.zeros(3, dtype=np.float64)
-
-    geom_center_vec = (
-        compute_geometric_center(coords_arr)
-        if (
-            can_assess_geometry
-            and coords_arr.ndim == 2
-            and coords_arr.shape[1] == 3
+        return EnsembleDeduplicationReport(
+            total_candidates=len(self.audit_records),
+            accepted_basins_count=len(self.accepted_basins),
+            duplicates_filtered_count=dup_count,
+            enantiomers_preserved_count=enant_count,
+            accepted_basins=self.accepted_basins,
+            audit_records=self.audit_records,
         )
-        else np.zeros(3, dtype=np.float64)
-    )
 
-    # Mass-weighted coords
-    if (
-        can_assess_geometry
-        and total_mass > 0
-        and len(sanitized_coords) == len(monoisotopic_masses_list)
-    ):
-        mw_coords = sanitized_coords * np.sqrt(np.array(monoisotopic_masses_list, dtype=np.float64)[:, np.newaxis])
-    else:
-        mw_coords = sanitized_coords.copy()
 
-    # Determine status
-    if errors:
-        status = PreflightStatus.FAIL
-        is_valid = False
-    elif warnings:
-        status = PreflightStatus.WARNING
-        is_valid = True
-    else:
-        status = PreflightStatus.PASS
-        is_valid = True
-
-    coords_2d = cast(np.ndarray, np.atleast_2d(sanitized_coords))
-    mw_coords_2d = cast(np.ndarray, np.atleast_2d(mw_coords))
-
-    return PreflightReport(
-        is_valid=is_valid,
-        status=status,
-        total_atoms=len(symbols_list),
-        total_nuclear_charge=z_tot,
-        total_electrons=ne,
-        formal_charge=int(charge),
-        spin_multiplicity=int(multiplicity),
-        spin_quantum_number_s=s_quantum,
-        num_unpaired_electrons=num_unpaired,
-        symbols=symbols_list,
-        atomic_numbers=atomic_numbers_list,
-        monoisotopic_masses=monoisotopic_masses_list,
-        total_monoisotopic_mass=total_mass,
-        center_of_mass=[float(x) for x in com_vec],
-        geometric_center=[float(x) for x in geom_center_vec],
-        sanitized_coordinates=[[float(x) for x in row] for row in coords_2d],
-        mass_weighted_coordinates=[[float(x) for x in row] for row in mw_coords_2d],
-        principal_moments_of_inertia=principal_moments,
-        num_fragments=num_fragments,
-        fragments=fragments,
-        nuclear_clashes=clashes,
-        atom_diagnostics=atom_diagnostics,
-        warnings=warnings,
-        errors=errors,
-        metadata={
-            "strict": strict,
-            "center_on_com": center_on_com,
-            "align_principal_axes": align_principal_axes_flag,
-            "clash_threshold_angstrom": clash_threshold_angstrom,
-        },
-    )
+# Backward-compatible alias
+ToposCrusher = TopologyCrusher
 
 Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.

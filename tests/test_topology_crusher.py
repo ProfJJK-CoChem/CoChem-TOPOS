@@ -368,6 +368,16 @@ class TestMassWeightedEckartRMSD:
         # Mass-weighted RMSD for Br (79.9 Da) is significantly larger than for H (1.008 Da)
         assert rmsd_br_mw > rmsd_h_mw * 3.0
 
+    def test_eckart_alignment_dimension_mismatch_error(self) -> None:
+        """Alignment between structures of different atom counts raises ValueError."""
+        with pytest.raises(ValueError, match="Atom count and shape mismatch"):
+            align_to_eckart_frame(
+                symbols1=["O", "H", "H"],
+                coords1=[[0, 0, 0], [0, 1, 0], [0, 0, 1]],
+                symbols2=["O", "H"],
+                coords2=[[0, 0, 0], [0, 1, 0]],
+            )
+
 
 # ===========================================================================
 # 4. GOAT & CREST Union Deduplication Tests (Directive 4)

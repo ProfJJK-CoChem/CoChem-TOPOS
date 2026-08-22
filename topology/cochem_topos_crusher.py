@@ -398,6 +398,11 @@ def align_to_eckart_frame(
     sym1 = [normalize_element_symbol(s) for s in symbols1]
     sym2 = [normalize_element_symbol(s) for s in symbols2]
 
+    if len(sym1) != len(sym2) or c1.shape != c2.shape:
+        raise ValueError(
+            f"Atom count and shape mismatch between reference ({c1.shape}) and candidate ({c2.shape})."
+        )
+
     masses = get_monoisotopic_masses(sym1)
     total_mass = float(np.sum(masses))
 
