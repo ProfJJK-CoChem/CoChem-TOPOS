@@ -5,7 +5,6 @@ import json
 import socket
 from pathlib import Path
 from typing import Generator
-from unittest import mock
 
 import h5py
 import numpy as np

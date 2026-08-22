@@ -6,7 +6,6 @@ and strict anti-spoofing gradient validation according to CoChem directives.
 
 import logging
 from pathlib import Path
-from unittest import mock
 import h5py
 import numpy as np
 import pydantic

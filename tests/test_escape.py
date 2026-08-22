@@ -14,7 +14,6 @@ import logging
 import os
 from pathlib import Path
 from typing import Any, Dict
-from unittest import mock
 
 import numpy as np
 import pytest

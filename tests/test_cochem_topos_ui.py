@@ -1,27 +1,3 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_01_frontend_ui.md.
-Original prompt:
-# Task: Implement Interactive Dashboard UI (`cochem_topos_ui.py`)
-
-## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\frontend\cochem_topos_ui.py`
-
-## Objective
-Implement the zero-code Interactive Dashboard frontend for the CoChem-TOPOS pipeline.
-
-## Context & Architecture Rules
-This module acts as the sole human-in-the-loop interaction point. It must translate human intent into a serialized machine state (`TOPOS_Runtime_State.json`) without exposing the underlying quantum mechanics Python code. It must never execute quantum chemistry calculations directly.
-
-## Execution Directives
-Implement the `cochem_topos_ui.py` script with the following capabilities:
-
-1. **Time-Aware Capability Selector**: Create an `ipywidgets` graphical interface allowing users to select target computational accuracy using capability and time-based row IDs as defined in Method Matrix v4 (e.g., `T1-1min`, `T3-3h`, `T4-1d`).
-2. **Cost Heuristic Tooltips**: Dynamically calculate and display estimated Node-Hour costs based on the atom count of the input `.xyz` file and the selected tier to prevent queueing resource-intensive calculations on massive complexes.
-3. **Expert Skip Toggle**: Provide a boolean override element allowing advanced users to bypass the early MLFF/PES exploratory stages when providing an already-optimized conformer library.
-4. **Air-Gapped State Serialization**: Validate all UI selections and serialize the output securely to `TOPOS_Runtime_State.json` within the Dynamic Artifact Tier (e.g., `${COCHEM_WORKSPACE}/CoChem_Artifacts/Registry/TOPOS_Runtime_State.json`). Use `pathlib` for OS-specific pathing logic compatible with the 6-Tier Environment Matrix. Do not use hardcoded drive paths.
-
-Modified files content:
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_cochem_topos_ui.py ---
 """Unit tests for CoChem-TOPOS Interactive Dashboard UI (frontend/cochem_topos_ui.py).
 
 Physically validates:
@@ -407,5 +383,3 @@ def test_no_banned_tokens_in_code() -> None:
         assert match is None, (
             f"Forbidden keyword pattern '{pattern}' matched in {UI_SOURCE_PATH.name}: {match}"
         )
-
-Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.
