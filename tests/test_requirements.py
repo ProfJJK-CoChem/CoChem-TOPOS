@@ -1,38 +1,3 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\01_02_create_requirements.md.
-Original prompt:
-# Task: Create `requirements.txt` for CoChem-TOPOS
-
-## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\requirements.txt`
-
-## Objective
-Define the lightweight routing dependencies for the CoChem-TOPOS module.
-
-## Context & Architecture Rules
-CoChem-TOPOS functions as a lightweight orchestration and topological routing module that offloads heavy physics calculations to external micro-silos. Therefore, heavy computational engines (such as `torch`, `orca`, `pyscf`) MUST NOT be included in this requirements file. 
-
-## Execution Directives
-Create the `requirements.txt` file strictly limited to the dependencies listed below. Do not add mock dependencies, placeholders, or additional unrequested packages. 
-
-### Mandatory Dependencies Snippet
-```text
-networkx
-scipy
-numpy
-h5py
-ipywidgets
-plotly
-pydantic
-mendeleev
-ase
-jinja2
-psutil
-pynvml
-```
-
-Modified files content:
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_requirements.py ---
 """Unit tests for CoChem-TOPOS requirements.txt validation.
 
 Physically validates that the requirements specification defines exactly the
@@ -188,5 +153,3 @@ def test_requirements_line_count() -> None:
     """Validate that the active requirement lines count is exactly 12."""
     req_lines = _load_cleaned_requirements()
     assert len(req_lines) == 12, f"Expected exactly 12 active dependency lines, got {len(req_lines)}"
-
-Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.
