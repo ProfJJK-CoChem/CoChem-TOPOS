@@ -1,26 +1,3 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_09_escalation_assembly.md.
-Original prompt:
-# Task: Implement Combinatorial Assembly (`cochem_topos_assembly.py`)
-
-## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\escalation\cochem_topos_assembly.py`
-
-## Objective
-Reconstruct Weak Complexes that were deliberately severed during Stage 1.1 for individual conformational searching.
-
-## Context & Architecture Rules
-This module (Stage 3.0) safely reassembles fragmented complexes to prepare them for ab initio quantum mechanics.
-
-## Execution Directives
-Implement the `cochem_topos_assembly.py` script with the following capabilities:
-
-1. **Geometric Docking & Micro-Displacement**: Retrieve the independently optimized monomer basins from `landscape.h5` and translate them back to their original relative Center of Mass (COM) collision vectors. If the optimized geometries result in unphysical steric overlap (< 0.8 Å between atomic radii), apply a micro-translation along the collision axis to resolve the clash.
-2. **Counterpoise (CP) BSSE Constraint Injection**: Automatically identify fragments within a recombined complex and explicitly write the Ghost-Atom (Bq) blocks required for Basis Set Superposition Error (BSSE) calculations in downstream ORCA execution.
-3. **Internal Coordinate Freezing**: For exceedingly weak complexes, dynamically generate strict Cartesian constraints to freeze the internal monomer topologies, allowing only the intermolecular distances and angles to relax during the initial ab initio steps.
-
-Modified files content:
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_cochem_topos_assembly.py ---
 """
 Unit tests for CoChem-TOPOS Combinatorial Fragment Assembly (Stage 3.0: cochem_topos_assembly.py).
 Validates geometric docking, steric clash detection with micro-displacement along collision vectors,
@@ -29,16 +6,14 @@ Counterpoise (CP) BSSE ghost-atom block generation, and Cartesian constraint fre
 
 from __future__ import annotations
 
-import json
-import tempfile
 from pathlib import Path
 
 import numpy as np
+import numpy.linalg as la
 import pytest
 from ase import Atoms
 
 from escalation.cochem_topos_assembly import (
-    AssembledComplexCandidate,
     AssemblyConfig,
     AssemblySessionReport,
     BSSEFragmentConfig,
@@ -46,16 +21,12 @@ from escalation.cochem_topos_assembly import (
     DockingCollisionVector,
     FragmentSource,
     GeometricDockingEngine,
-    InternalCoordinateConstraint,
     InternalCoordinateFreezer,
-    StericClashReport,
     StericClashResolver,
     ToposCombinatorialAssembler,
     assemble_weak_complex,
 )
 from mechanics.cochem_topos_memory import GeometryRecord, ToposHDF5MemoryManager
-from topology.cochem_topos_graph import TopologyGraphEngine
-
 
 # ============================================================================
 # 1. Tests for Data Models & Collision Vector Calculations
@@ -123,7 +94,7 @@ class TestFragmentSourceAndCollisionVector:
         assert col_vec.distance > 0.0
         assert len(col_vec.vector) == 3
         assert len(col_vec.unit_vector) == 3
-        assert pytest.approx(np.linalg.norm(col_vec.unit_vector), rel=1e-5) == 1.0
+        assert pytest.approx(la.norm(col_vec.unit_vector), rel=1e-5) == 1.0
         # X-component should be primary direction
         assert col_vec.unit_vector[0] > 0.9
 
@@ -192,7 +163,7 @@ class TestStericClashResolver:
         assert report.micro_steps >= 5
         assert report.clash_resolved is True
         # Verify new distance is >= 0.8 A
-        new_dist = float(np.linalg.norm(coords_a[0] - new_coords_b[0]))
+        new_dist = float(la.norm(coords_a[0] - new_coords_b[0]))
         assert new_dist >= 0.8
 
     def test_max_displacement_limit_respected(self) -> None:
@@ -608,5 +579,3 @@ class TestToposCombinatorialAssembler:
         assert "O(1)" in orca_inp
         assert "O(2)" in orca_inp
 
-
-Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.
