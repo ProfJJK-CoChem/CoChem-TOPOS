@@ -58,6 +58,22 @@ from .cochem_topos_quench import (
     TorchMLFFCalculator,
 )
 
+from .cochem_topos_goat import (
+    CascadeCycleRecord,
+    CascadeStoppingCriterion,
+    GOATCascadeConfig,
+    GOATCascadeReport,
+    GOATCascadeResult,
+    GradientNoiseOptimizer,
+    GradientNoiseQuenchResult,
+    OptimizerToggleEvent,
+    OptimizerToggleReason,
+    OrphanedProcessReaper,
+    ToposGOATCascade,
+    get_global_reaper,
+    reap_all_child_processes,
+)
+
 __all__ = [
     # Memory and state management
     "ToposHDF5MemoryManager",
@@ -108,4 +124,18 @@ __all__ = [
     "calculate_rmsd",
     "canonical_geometry_hash",
     "create_fair_provenance_record",
+    # GOAT Cascade Orchestrator and Process Reaper
+    "CascadeCycleRecord",
+    "CascadeStoppingCriterion",
+    "GOATCascadeConfig",
+    "GOATCascadeReport",
+    "GOATCascadeResult",
+    "GradientNoiseOptimizer",
+    "GradientNoiseQuenchResult",
+    "OptimizerToggleEvent",
+    "OptimizerToggleReason",
+    "OrphanedProcessReaper",
+    "ToposGOATCascade",
+    "get_global_reaper",
+    "reap_all_child_processes",
 ]
