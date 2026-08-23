@@ -1,124 +1,3 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_10_escalation_escalator_exec.md.
-Original prompt:
-# Task: Implement Time-Aware Capability Selector (`cochem_topos_escalator_exec.py`)
-
-## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\escalation\cochem_topos_escalator_exec.py`
-
-## Objective
-Act as the primary quantum mechanical execution broker, preventing brute-force calculations by systematically escalating the level of theory.
-
-## Context & Architecture Rules
-This module (Stage 4.0) systematically escalates methods (e.g., MACE-OFF24(M) -> wB97M-V/QZ -> PNO-space extrapolation).
-
-## Execution Directives
-Implement the `cochem_topos_escalator_exec.py` script with the following capabilities:
-
-1. **Redundant Internal Coordinates Verification**: Provide standard Cartesian geometries directly to ORCA, explicitly allowing the engine to naturally construct delocalized redundant internal coordinates for SCF geometry convergence. Strictly avoid manual Z-Matrix generation.
-2. **Automated SCF Rescue**: Actively parse the `orca.out` buffer during execution. If an SCF divergence or "ping-pong" oscillation is detected, intercept the failure, inject `! SlowConv VShift` keywords into the `.inp` file, and restart the node from the last converged `.gbw` binary orbital seed.
-3. **The AutoCAS Rescue Protocol**: Specifically monitor the T1 and D1 multireference diagnostics during post-Hartree-Fock steps. If T1 > 0.02 or D1 > 0.05, mathematically recognize the single-reference assumption violation. Immediately halt the calculation, downgrade the pipeline state to `! AutoCAS`, and alert the GUI via cross-platform IPC that a multi-reference active space selection is required.
-
-Modified files content:
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\escalation\__init__.py ---
-"""
-CoChem-TOPOS: Escalation & Quantum Assembly Subsystem
-Stage 3.0 & 4.0 Modules for Combinatorial Assembly and Ab Initio Escalation.
-"""
-
-from escalation.cochem_topos_assembly import (
-    AssembledComplexCandidate,
-    AssemblyConfig,
-    AssemblySessionReport,
-    BSSEFragmentConfig,
-    CounterpoiseBSSEGenerator,
-    DockingCollisionVector,
-    FragmentSource,
-    GeometricDockingEngine,
-    InternalCoordinateConstraint,
-    InternalCoordinateFreezer,
-    StericClashReport,
-    StericClashResolver,
-    ToposCombinatorialAssembler,
-    assemble_weak_complex,
-)
-from escalation.cochem_topos_escalator_exec import (
-    AlertSeverity,
-    AutoCASAlert,
-    AutoCASRescueProtocol,
-    AutomatedSCFRescueEngine,
-    CalculationStatus,
-    CoordinateType,
-    CrossPlatformIPCAlert,
-    CrossPlatformIPCClient,
-    CrossPlatformIPCServer,
-    EscalationResult,
-    EscalationStepRecord,
-    EscalationTier,
-    EscalatorExecConfig,
-    ExecutionPlan,
-    FileSocketIPCQueue,
-    GeometryCoordinateVerifier,
-    MultireferenceDiagnostics,
-    ORCAOutputParser,
-    SCFConvergenceMetrics,
-    SCFConvergenceStatus,
-    SCFIterationRecord,
-    TimeAwareCapabilitySelector,
-    ToposEscalatorExec,
-    execute_time_aware_escalation,
-    parse_orca_output,
-    send_ipc_alert,
-    verify_redundant_cartesian_geometry,
-)
-
-__all__ = [
-    # Stage 3.0 Assembly exports
-    "FragmentSource",
-    "DockingCollisionVector",
-    "StericClashReport",
-    "InternalCoordinateConstraint",
-    "BSSEFragmentConfig",
-    "AssembledComplexCandidate",
-    "AssemblyConfig",
-    "AssemblySessionReport",
-    "StericClashResolver",
-    "CounterpoiseBSSEGenerator",
-    "InternalCoordinateFreezer",
-    "GeometricDockingEngine",
-    "ToposCombinatorialAssembler",
-    "assemble_weak_complex",
-    # Stage 4.0 Escalator Execution exports
-    "EscalationTier",
-    "SCFConvergenceStatus",
-    "CalculationStatus",
-    "AlertSeverity",
-    "CoordinateType",
-    "MultireferenceDiagnostics",
-    "SCFIterationRecord",
-    "SCFConvergenceMetrics",
-    "AutoCASAlert",
-    "CrossPlatformIPCAlert",
-    "ExecutionPlan",
-    "EscalationStepRecord",
-    "EscalatorExecConfig",
-    "EscalationResult",
-    "GeometryCoordinateVerifier",
-    "ORCAOutputParser",
-    "AutomatedSCFRescueEngine",
-    "AutoCASRescueProtocol",
-    "FileSocketIPCQueue",
-    "CrossPlatformIPCServer",
-    "CrossPlatformIPCClient",
-    "TimeAwareCapabilitySelector",
-    "ToposEscalatorExec",
-    "execute_time_aware_escalation",
-    "verify_redundant_cartesian_geometry",
-    "parse_orca_output",
-    "send_ipc_alert",
-]
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\escalation\cochem_topos_escalator_exec.py ---
 """
 CoChem-TOPOS: Stage 4.0 - Time-Aware Capability Selector & Ab Initio Execution Broker
 (cochem_topos_escalator_exec.py)
@@ -151,6 +30,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import re
 import socket
 import subprocess
@@ -479,9 +359,30 @@ class GeometryCoordinateVerifier:
         if isinstance(geometry_input, Atoms):
             return True
 
-        if isinstance(geometry_input, list | np.ndarray):
-            arr = np.asarray(geometry_input)
-            return bool(arr.ndim == 2 and arr.shape[1] == 3)
+        if isinstance(geometry_input, np.ndarray):
+            return bool(geometry_input.ndim == 2 and geometry_input.shape[1] == 3)
+
+        if isinstance(geometry_input, list):
+            if not geometry_input:
+                return False
+            try:
+                first = geometry_input[0]
+                if isinstance(first, tuple | list):
+                    if len(first) == 2 and isinstance(first[0], str) and len(first[1]) == 3:
+                        for item in geometry_input:
+                            _ = float(item[1][0]), float(item[1][1]), float(item[1][2])
+                        return True
+                    elif len(first) == 4 and isinstance(first[0], str):
+                        for item in geometry_input:
+                            _ = float(item[1]), float(item[2]), float(item[3])
+                        return True
+                    elif len(first) == 3 and not isinstance(first[0], str):
+                        for item in geometry_input:
+                            _ = float(item[0]), float(item[1]), float(item[2])
+                        return True
+            except (ValueError, TypeError, IndexError):
+                return False
+            return False
 
         if isinstance(geometry_input, str):
             for pattern in cls.FORBIDDEN_ZMAT_PATTERNS:
@@ -600,19 +501,19 @@ class ORCAOutputParser:
         re.MULTILINE,
     )
     T1_REGEX = re.compile(
-        r"(?:T1\s+diagnostic|T1\s+Diagnostic|T1\s*=|T_1\s+diagnostic)\s*[:=]?\s*([0-9]+\.[0-9]+)",
+        r"(?:T1\s+diagnostic|T1\s+Diagnostic|T1\s*=|T_1\s+diagnostic)\s*[:=.]*\s*([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?\d+)?)",
         re.IGNORECASE,
     )
     D1_REGEX = re.compile(
-        r"(?:D1\s+diagnostic|D1\s+Diagnostic|D1\s*=|D_1\s+diagnostic)\s*[:=]?\s*([0-9]+\.[0-9]+)",
+        r"(?:D1\s+diagnostic|D1\s+Diagnostic|D1\s*=|D_1\s+diagnostic)\s*[:=.]*\s*([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?\d+)?)",
         re.IGNORECASE,
     )
     D2_REGEX = re.compile(
-        r"(?:D2\s+diagnostic|D2\s+Diagnostic|D2\s*=|D_2\s+diagnostic)\s*[:=]?\s*([0-9]+\.[0-9]+)",
+        r"(?:D2\s+diagnostic|D2\s+Diagnostic|D2\s*=|D_2\s+diagnostic)\s*[:=.]*\s*([0-9]+(?:\.[0-9]+)?(?:[eE][+-]?\d+)?)",
         re.IGNORECASE,
     )
     FINAL_ENERGY_REGEX = re.compile(
-        r"(?:FINAL SINGLE POINT ENERGY|Total Energy|FINAL ENERGY|Electronic energy)\s*[:=]?\s*([-\d\.]+)",
+        r"(?:FINAL SINGLE POINT ENERGY|Total Energy|FINAL ENERGY|Electronic energy)\s*[:=.]*\s*([-\d\.]+(?:[eE][+-]?\d+)?)",
         re.IGNORECASE,
     )
     SCF_DIVERGENCE_TOKENS = [
@@ -634,9 +535,35 @@ class ORCAOutputParser:
         records: list[SCFIterationRecord] = []
         lines = output_text.splitlines()
 
+        in_scf_block = False
         for line in lines:
-            parts = line.strip().split()
-            if len(parts) >= 3 and parts[0].isdigit():
+            stripped = line.strip()
+            upper_line = stripped.upper()
+
+            # Section entrance markers for SCF table
+            if (
+                "SCF ITERATIONS" in upper_line
+                or "ORCA SCF" in upper_line
+                or (upper_line.startswith("ITER") and "ENERGY" in upper_line)
+            ):
+                in_scf_block = True
+                continue
+
+            # Section exit markers
+            if in_scf_block and (
+                "CONVERGED" in upper_line
+                or "ORBITAL ENERGIES" in upper_line
+                or "CARTESIAN COORDINATES" in upper_line
+                or "TOTAL SCF ENERGY" in upper_line
+                or "FINAL SINGLE POINT ENERGY" in upper_line
+                or upper_line.startswith("---")
+                or upper_line.startswith("***")
+            ):
+                if not (upper_line.startswith("ITER") or upper_line.startswith("---")):
+                    in_scf_block = False
+
+            parts = stripped.split()
+            if in_scf_block and len(parts) >= 3 and parts[0].isdigit():
                 try:
                     iter_idx = int(parts[0])
                     energy = float(parts[1])
@@ -652,6 +579,25 @@ class ORCAOutputParser:
                             rms_dp=rms_dp,
                         )
                     )
+                except (ValueError, IndexError):
+                    continue
+            elif not in_scf_block and len(parts) >= 5 and parts[0].isdigit():
+                try:
+                    iter_idx = int(parts[0])
+                    energy = float(parts[1])
+                    delta_e = float(parts[2])
+                    max_dp = float(parts[3])
+                    rms_dp = float(parts[4])
+                    if energy < 0.0:
+                        records.append(
+                            SCFIterationRecord(
+                                iteration=iter_idx,
+                                energy_hartree=energy,
+                                delta_energy=delta_e,
+                                max_dp=max_dp,
+                                rms_dp=rms_dp,
+                            )
+                        )
                 except (ValueError, IndexError):
                     continue
 
@@ -712,11 +658,13 @@ class ORCAOutputParser:
         Returns:
             (is_oscillating, cycle_length)
         """
-        if len(history) < window:
+        if len(history) < min(window, 4):
             return False, 0
 
-        energies = [rec.energy_hartree for rec in history[-window:]]
-        deltas = [rec.delta_energy for rec in history[-window:]]
+        eval_window = max(window, 6)
+        recent_records = history[-eval_window:] if len(history) >= eval_window else history
+        energies = [rec.energy_hartree for rec in recent_records]
+        deltas = [rec.delta_energy for rec in recent_records]
 
         # 1. Check for 2-cycle ping-pong oscillation: E(i) == E(i-2), E(i) != E(i-1)
         if len(energies) >= 4:
@@ -731,14 +679,18 @@ class ORCAOutputParser:
 
         # 2. Check for alternating delta-E sign flip with persistent non-zero magnitude
         if len(deltas) >= 4:
-            signs = [np.sign(d) for d in deltas[-4:] if abs(d) > tolerance]
+            signs = [(1 if d > 0 else -1) for d in deltas[-4:] if abs(d) > tolerance]
             if len(signs) == 4 and signs[0] == -signs[1] and signs[1] == -signs[2] and signs[2] == -signs[3]:
                 logger.warning("Alternating delta-E sign oscillations detected across 4 consecutive cycles.")
                 return True, 2
 
-        # 3. Check for 3-cycle oscillation
+        # 3. Check for 3-cycle oscillation: E(t) ~= E(t-3), E(t-1) ~= E(t-4), E(t-2) ~= E(t-5)
         if len(energies) >= 6:
-            if abs(energies[-1] - energies[-4]) < tolerance and abs(energies[-2] - energies[-5]) < tolerance:
+            if (
+                abs(energies[-1] - energies[-4]) < tolerance
+                and abs(energies[-2] - energies[-5]) < tolerance
+                and abs(energies[-3] - energies[-6]) < tolerance
+            ):
                 if abs(energies[-1] - energies[-2]) > 5.0 * tolerance:
                     return True, 3
 
@@ -764,7 +716,7 @@ class ORCAOutputParser:
             return False, 0
 
         for rec in history:
-            if np.isnan(rec.energy_hartree) or np.isinf(rec.energy_hartree):
+            if math.isnan(rec.energy_hartree) or math.isinf(rec.energy_hartree):
                 logger.error(f"SCF Divergence: Non-finite energy at cycle {rec.iteration}")
                 return True, rec.iteration
 
@@ -960,7 +912,10 @@ end"""
             kw_tokens.append("MOREAD")
 
         rescued_keywords = " ".join(kw_tokens)
-        custom_blocks = list(failed_plan.custom_blocks)
+        custom_blocks = [
+            b for b in failed_plan.custom_blocks
+            if not b.strip().startswith("%moinp") and not b.strip().startswith("%scf")
+        ]
 
         if gbw_seed_path:
             seed_p = Path(gbw_seed_path).resolve()
@@ -1169,7 +1124,17 @@ class CrossPlatformIPCServer:
                 try:
                     conn, _ = self._server_socket.accept()
                     with conn:
-                        data = conn.recv(65536)
+                        conn.settimeout(0.5)
+                        chunks: list[bytes] = []
+                        while True:
+                            try:
+                                chunk = conn.recv(65536)
+                                if not chunk:
+                                    break
+                                chunks.append(chunk)
+                            except TimeoutError:
+                                break
+                        data = b"".join(chunks)
                         if data:
                             alert_dict = json.loads(data.decode("utf-8"))
                             alert = CrossPlatformIPCAlert.model_validate(alert_dict)
@@ -1615,7 +1580,7 @@ class ToposEscalatorExec:
                 orbital_seed_path=current_seed,
             )
 
-            step_record = self.execute_step(plan, molecule_id=molecule_id)
+            step_record = self.execute_step(plan, molecule_id=molecule_id, step_index=step_idx)
             steps.append(step_record)
             total_rescues += step_record.rescue_attempts
 
@@ -1676,6 +1641,7 @@ class ToposEscalatorExec:
         self,
         plan: ExecutionPlan,
         molecule_id: str = "mol_candidate",
+        step_index: int = 0,
     ) -> EscalationStepRecord:
         """
         Executes an individual calculation plan.
@@ -1768,7 +1734,7 @@ class ToposEscalatorExec:
         elapsed = time.time() - start_step
 
         return EscalationStepRecord(
-            step_index=0,
+            step_index=step_index,
             tier=plan.tier,
             plan=current_plan,
             execution_time_seconds=elapsed,
@@ -1982,609 +1948,3 @@ def parse_orca_output(output_text: str) -> dict[str, Any]:
     Convenience function parsing ORCA output for energy, SCF metrics, and diagnostics.
     """
     return ORCAOutputParser.parse_orca_full_output(output_text)
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_cochem_topos_escalator_exec.py ---
-"""
-Unit tests for CoChem-TOPOS Stage 4.0 Time-Aware Capability Selector & Execution Broker
-(cochem_topos_escalator_exec.py).
-
-Validates:
-1. Redundant Internal Coordinates Verification: Rejection of manual Z-matrices and enforcement of Cartesian format for ORCA delocalized redundant internal coordinates.
-2. Automated SCF Rescue: Stream parsing, mathematical ping-pong oscillation detection, energy divergence detection, and automated injection of `! SlowConv VShift` with `.gbw` binary orbital seeds.
-3. The AutoCAS Rescue Protocol: Extraction of T1 and D1 multireference diagnostics, mathematical single-reference breakdown detection (T1 > 0.02, D1 > 0.05), workflow halting, state downgrade to `! AutoCAS`, and cross-platform IPC alert dispatching.
-4. Cross-Platform IPC Subsystem: Server-client communication, atomic file queue fallback, callback notifications.
-5. Time-Aware Capability Selector: Method Matrix ladder generation, time-budget scaling, tier specifications.
-6. ToposEscalatorExec Master Broker: Single step execution, multi-stage ladder progression, and automated rescue cascades.
-
-Strictly complies with the Tripartite Air-Gap Policy and Zero-Mock Mandate.
-"""
-
-from __future__ import annotations
-
-import time
-from pathlib import Path
-
-import numpy as np
-import pytest
-from ase import Atoms
-
-from escalation.cochem_topos_escalator_exec import (
-    AlertSeverity,
-    AutoCASAlert,
-    AutoCASRescueProtocol,
-    AutomatedSCFRescueEngine,
-    CalculationStatus,
-    CrossPlatformIPCAlert,
-    CrossPlatformIPCClient,
-    CrossPlatformIPCServer,
-    EscalationResult,
-    EscalationTier,
-    EscalatorExecConfig,
-    ExecutionPlan,
-    FileSocketIPCQueue,
-    GeometryCoordinateVerifier,
-    ORCAOutputParser,
-    SCFConvergenceStatus,
-    SCFIterationRecord,
-    TimeAwareCapabilitySelector,
-    ToposEscalatorExec,
-    execute_time_aware_escalation,
-    parse_orca_output,
-    send_ipc_alert,
-    verify_redundant_cartesian_geometry,
-)
-
-# ============================================================================
-# 1. Tests for Directive 1: Redundant Internal Coordinates & Cartesian Builder
-# ============================================================================
-
-
-class TestDirective1RedundantCartesianVerification:
-    """Verifies Cartesian coordinate validation and manual Z-Matrix rejection."""
-
-    def test_verify_ase_atoms_compliance(self) -> None:
-        """Confirms ASE Atoms object passes Cartesian verification."""
-        atoms = Atoms("H2O", positions=[[0.0, 0.0, 0.0], [0.0, 0.75, -0.47], [0.0, -0.75, -0.47]])
-        assert GeometryCoordinateVerifier.verify_redundant_internal_coordinates_compliance(atoms) is True
-        assert verify_redundant_cartesian_geometry(atoms) is True
-
-    def test_verify_numpy_and_list_coordinates(self) -> None:
-        """Confirms (N, 3) arrays and list of coordinates pass verification."""
-        coords_arr = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])
-        assert GeometryCoordinateVerifier.verify_redundant_internal_coordinates_compliance(coords_arr) is True
-
-        coords_list = [[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-        assert GeometryCoordinateVerifier.verify_redundant_internal_coordinates_compliance(coords_list) is True
-
-    def test_verify_valid_cartesian_string(self) -> None:
-        """Confirms standard Cartesian XYZ text passes verification."""
-        cartesian_text = """
-        * xyz 0 1
-        O   0.000000   0.000000   0.117300
-        H   0.000000   0.757200  -0.469200
-        H   0.000000  -0.757200  -0.469200
-        *
-        """
-        assert GeometryCoordinateVerifier.verify_redundant_internal_coordinates_compliance(cartesian_text) is True
-        valid, msg = GeometryCoordinateVerifier.validate_cartesian_format(cartesian_text)
-        assert valid is True
-        assert "redundant internal coordinates enabled" in msg.lower()
-
-    def test_reject_forbidden_zmatrix_keywords(self) -> None:
-        """Confirms manual Z-Matrix constructs like * gzcoord, * zmat, and internal definitions are rejected."""
-        zmat_samples = [
-            "* gzcoord 0 1\nO\nH 1 0.96\nH 1 0.96 2 104.5\n*",
-            "* zmat 0 1\nC\nO 1 r1\nH 1 r2 2 a1\n*",
-            "* internal 0 1\nN 0 0 0\n*",
-            "O\nH 1 0.96\nH 1 0.96 2 104.5\nVariables:\nr1=0.96\na1=104.5",
-        ]
-        for sample in zmat_samples:
-            assert (
-                GeometryCoordinateVerifier.verify_redundant_internal_coordinates_compliance(sample) is False
-            ), f"Failed to reject: {sample}"
-            valid, msg = GeometryCoordinateVerifier.validate_cartesian_format(sample)
-            assert valid is False
-            assert "manual z-matrix" in msg.lower()
-
-    def test_build_orca_cartesian_block_from_atoms(self) -> None:
-        """Confirms Cartesian block construction from ASE Atoms."""
-        atoms = Atoms("CO2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 1.16], [0.0, 0.0, -1.16]])
-        block = GeometryCoordinateVerifier.build_orca_cartesian_block(atoms, charge=0, multiplicity=1)
-        assert block.startswith("* xyz 0 1")
-        assert block.endswith("*")
-        assert "C   " in block
-        assert "O   " in block
-
-    def test_build_orca_cartesian_block_with_constraints(self) -> None:
-        """Confirms optional %geom constraint block is placed correctly."""
-        atoms = Atoms("H2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 0.74]])
-        constraints = "%geom Constraints { B 0 1 C } end end"
-        block = GeometryCoordinateVerifier.build_orca_cartesian_block(
-            atoms, charge=0, multiplicity=1, constraints_block=constraints
-        )
-        assert block.startswith("%geom Constraints")
-        assert "* xyz 0 1" in block
-
-
-# ============================================================================
-# 2. Tests for Directive 2: Output Buffer Parsing & Automated SCF Rescue
-# ============================================================================
-
-
-class TestDirective2AutomatedSCFRescue:
-    """Verifies output buffer parsing, ping-pong oscillation detection, divergence detection, and rescue injection."""
-
-    def test_parse_scf_iterations_table(self) -> None:
-        """Parses standard multi-iteration SCF cycle records."""
-        sample_output = """
-------------------
-ORCA SCF ITERATIONS
-------------------
-Iter         Energy       Delta-E        Max-DP      RMS-DP
-  0     -76.4000000000   0.0000000000  0.08000000  0.01000000
-  1     -76.4350000000  -0.0350000000  0.00500000  0.00080000
-  2     -76.4358000000  -0.0008000000  0.00030000  0.00005000
-  3     -76.4358500000  -0.0000500000  0.00002000  0.00000300
-SUCCESSFULLY CONVERGED
-FINAL SINGLE POINT ENERGY: -76.4358500000
-ORCA TERMINATED NORMALLY
-"""
-        metrics = ORCAOutputParser.parse_scf_iterations(sample_output)
-        assert metrics.iterations_count == 4
-        assert metrics.status == SCFConvergenceStatus.CONVERGED
-        assert pytest.approx(metrics.final_energy, rel=1e-6) == -76.4358500000
-        assert metrics.is_oscillating is False
-        assert metrics.is_diverging is False
-
-    def test_detect_ping_pong_2_cycle_oscillation(self) -> None:
-        """Confirms 2-cycle ping-pong energy oscillation is mathematically detected."""
-        history = [
-            SCFIterationRecord(iteration=0, energy_hartree=-76.4000, delta_energy=0.0),
-            SCFIterationRecord(iteration=1, energy_hartree=-76.4500, delta_energy=-0.0500),
-            SCFIterationRecord(iteration=2, energy_hartree=-76.4000, delta_energy=0.0500),
-            SCFIterationRecord(iteration=3, energy_hartree=-76.4500, delta_energy=-0.0500),
-            SCFIterationRecord(iteration=4, energy_hartree=-76.4000, delta_energy=0.0500),
-            SCFIterationRecord(iteration=5, energy_hartree=-76.4500, delta_energy=-0.0500),
-        ]
-        is_oscillating, cycle_len = ORCAOutputParser.detect_scf_oscillation(history)
-        assert is_oscillating is True
-        assert cycle_len == 2
-
-    def test_detect_scf_energy_divergence(self) -> None:
-        """Confirms positive energy explosion / divergence is flagged."""
-        history = [
-            SCFIterationRecord(iteration=0, energy_hartree=-76.4000, delta_energy=0.0),
-            SCFIterationRecord(iteration=1, energy_hartree=-75.0000, delta_energy=1.4000),  # Massive positive delta
-        ]
-        is_diverging, div_step = ORCAOutputParser.detect_scf_divergence(history, threshold_hartree=1.0)
-        assert is_diverging is True
-        assert div_step == 1
-
-    def test_detect_nan_inf_divergence(self) -> None:
-        """Confirms NaN or Inf electronic energy triggers divergence."""
-        history = [
-            SCFIterationRecord(iteration=0, energy_hartree=-76.4000, delta_energy=0.0),
-            SCFIterationRecord(iteration=1, energy_hartree=float("nan"), delta_energy=0.0),
-        ]
-        is_diverging, div_step = ORCAOutputParser.detect_scf_divergence(history)
-        assert is_diverging is True
-        assert div_step == 1
-
-    def test_inject_scf_rescue_keywords_slowconv_vshift(self, tmp_path: Path) -> None:
-        """Confirms injection of ! SlowConv VShift, ! MOREAD, and %moinp into .inp file."""
-        original_inp = """! r2SCAN-3c TightOpt TightSCF
-* xyz 0 1
-O 0.0 0.0 0.0
-H 0.0 0.7 0.0
-H 0.0 -0.7 0.0
-*
-"""
-        gbw_seed = tmp_path / "converged_seed.gbw"
-        gbw_seed.write_bytes(b"SEED_DATA")
-
-        rescued_inp = AutomatedSCFRescueEngine.inject_scf_rescue_keywords(
-            input_content=original_inp,
-            gbw_seed_path=gbw_seed,
-            rescue_level=1,
-        )
-
-        assert "SlowConv" in rescued_inp
-        assert "VShift" in rescued_inp
-        assert "MOREAD" in rescued_inp
-        assert "%moinp" in rescued_inp
-        assert "converged_seed.gbw" in rescued_inp
-
-    def test_build_rescue_plan(self, tmp_path: Path) -> None:
-        """Confirms build_rescue_plan creates updated ExecutionPlan with rescue flags."""
-        failed_plan = ExecutionPlan(
-            plan_id="plan_test_01",
-            tier="T1-3h",
-            method_name="r2SCAN-3c",
-            keywords="! r2SCAN-3c TightOpt TightSCF",
-            geometry_block="* xyz 0 1\nO 0.0 0.0 0.0\n*",
-        )
-        gbw_seed = tmp_path / "seed.gbw"
-        gbw_seed.touch()
-
-        rescue_plan = AutomatedSCFRescueEngine.build_rescue_plan(
-            failed_plan=failed_plan,
-            gbw_seed_path=gbw_seed,
-            attempt=1,
-        )
-
-        assert rescue_plan.is_rescue_attempt is True
-        assert rescue_plan.rescue_count == 1
-        assert rescue_plan.slow_conv_enabled is True
-        assert rescue_plan.vshift_enabled is True
-        assert rescue_plan.moread_enabled is True
-        assert "SlowConv" in rescue_plan.keywords
-        assert "VShift" in rescue_plan.keywords
-        assert "MOREAD" in rescue_plan.keywords
-
-
-# ============================================================================
-# 3. Tests for Directive 3: The AutoCAS Rescue Protocol & Multireference Diagnostics
-# ============================================================================
-
-
-class TestDirective3AutoCASRescueProtocol:
-    """Verifies T1 and D1 multireference diagnostics parsing, breakdown threshold evaluation, and AutoCAS downgrade."""
-
-    def test_parse_safe_single_reference_diagnostics(self) -> None:
-        """Confirms T1 <= 0.02 and D1 <= 0.05 are recognized as safe single-reference."""
-        out_text = """
-COUPLED CLUSTER ITERATIONS COMPLETE
-T1 diagnostic :  0.0142
-D1 diagnostic :  0.0321
-D2 diagnostic :  0.0540
-FINAL SINGLE POINT ENERGY: -76.84321000
-"""
-        diag = ORCAOutputParser.parse_multireference_diagnostics(out_text)
-        assert pytest.approx(diag.t1_diagnostic, rel=1e-4) == 0.0142
-        assert pytest.approx(diag.d1_diagnostic, rel=1e-4) == 0.0321
-        assert pytest.approx(diag.d2_diagnostic, rel=1e-4) == 0.0540
-        assert diag.is_multireference is False
-        assert diag.violation_reason is None
-
-    def test_parse_t1_violation_triggers_autocas(self) -> None:
-        """Confirms T1 > 0.02 flags multireference breakdown."""
-        out_text = """
-COUPLED CLUSTER DIAGNOSTICS:
-  T1 diagnostic: 0.0245
-  D1 diagnostic: 0.0310
-"""
-        diag = ORCAOutputParser.parse_multireference_diagnostics(out_text)
-        assert diag.t1_diagnostic == 0.0245
-        assert diag.is_multireference is True
-        assert diag.violation_reason is not None
-        assert "T1=0.0245 > 0.02" in diag.violation_reason
-
-    def test_parse_d1_violation_triggers_autocas(self) -> None:
-        """Confirms D1 > 0.05 flags multireference breakdown."""
-        out_text = """
-COUPLED CLUSTER DIAGNOSTICS:
-  T1 diagnostic: 0.0150
-  D1 diagnostic: 0.0620
-"""
-        diag = ORCAOutputParser.parse_multireference_diagnostics(out_text)
-        assert diag.d1_diagnostic == 0.0620
-        assert diag.is_multireference is True
-        assert diag.violation_reason is not None
-        assert "D1=0.0620 > 0.05" in diag.violation_reason
-
-    def test_check_multireference_violation_function(self) -> None:
-        """Confirms mathematical boundary tests for T1 and D1."""
-        assert AutoCASRescueProtocol.check_multireference_violation(t1=0.019, d1=0.049) is False
-        assert AutoCASRescueProtocol.check_multireference_violation(t1=0.021, d1=0.010) is True
-        assert AutoCASRescueProtocol.check_multireference_violation(t1=0.010, d1=0.051) is True
-        assert AutoCASRescueProtocol.check_multireference_violation(t1=0.030, d1=0.080) is True
-
-    def test_create_autocas_alert_generation(self) -> None:
-        """Confirms AutoCASAlert model construction with active space recommendation."""
-        alert = AutoCASRescueProtocol.create_autocas_alert(
-            molecule_id="biradical_intermediate",
-            t1=0.032,
-            d1=0.075,
-            symbols=["C", "C", "H", "H", "H", "H"],
-            charge=0,
-            multiplicity=1,
-        )
-        assert isinstance(alert, AutoCASAlert)
-        assert alert.molecule_id == "biradical_intermediate"
-        assert alert.downgraded_state == "! AutoCAS"
-        assert alert.t1_diagnostic == 0.032
-        assert alert.d1_diagnostic == 0.075
-        assert "active_electrons" in alert.active_space_recommendation
-        assert "active_orbitals" in alert.active_space_recommendation
-        assert "! AutoCAS" in alert.suggested_keywords
-
-    def test_generate_autocas_input_block(self) -> None:
-        """Confirms CASSCF / NEVPT2 input file generation for downgraded state."""
-        geom_block = "* xyz 0 1\nC 0.0 0.0 0.0\n*"
-        input_text = AutoCASRescueProtocol.generate_autocas_input_block(
-            geometry_block=geom_block,
-            active_electrons=6,
-            active_orbitals=6,
-            basis_set="def2-TZVP",
-        )
-        assert "CASSCF(6,6)" in input_text
-        assert "NEVPT2" in input_text
-        assert "%casscf" in input_text
-        assert "nel 6" in input_text
-        assert "norb 6" in input_text
-
-
-# ============================================================================
-# 4. Tests for Cross-Platform IPC Alert Subsystem
-# ============================================================================
-
-
-class TestCrossPlatformIPCSubsystem:
-    """Verifies TCP loopback server, client, file queue, and alert callbacks."""
-
-    def test_file_socket_ipc_queue_push_and_pop(self, tmp_path: Path) -> None:
-        """Confirms file socket queue can atomically push and pop JSON alerts."""
-        queue_dir = tmp_path / "ipc_queue"
-        queue = FileSocketIPCQueue(queue_dir)
-
-        alert = CrossPlatformIPCAlert(
-            title="Test Alert",
-            message="Testing file queue IPC",
-            severity=AlertSeverity.WARNING,
-            payload={"key": "value"},
-        )
-
-        msg_path = queue.push(alert)
-        assert msg_path.exists()
-
-        popped = queue.pop_all()
-        assert len(popped) == 1
-        assert popped[0].alert_id == alert.alert_id
-        assert popped[0].title == "Test Alert"
-        assert popped[0].payload["key"] == "value"
-
-        # Queue should now be empty
-        assert len(queue.pop_all()) == 0
-
-    def test_cross_platform_ipc_server_and_client(self, tmp_path: Path) -> None:
-        """Confirms IPC server starts, client connects via TCP or file queue, and dispatches callbacks."""
-        queue_dir = tmp_path / "ipc_queue_server"
-        port = 18899  # Ephemeral port to avoid conflicts
-
-        server = CrossPlatformIPCServer(port=port, queue_dir=queue_dir)
-        received_alerts: list[CrossPlatformIPCAlert] = []
-
-        def alert_callback(al: CrossPlatformIPCAlert) -> None:
-            received_alerts.append(al)
-
-        server.register_callback(alert_callback)
-        server.start()
-
-        try:
-            client = CrossPlatformIPCClient(port=port, queue_dir=queue_dir)
-            test_alert = CrossPlatformIPCAlert(
-                title="Multireference Warning",
-                message="T1 threshold exceeded",
-                severity=AlertSeverity.CRITICAL,
-                payload={"t1": 0.028},
-            )
-
-            client.send_alert(test_alert)
-            time.sleep(0.2)  # Allow event loop dispatch
-
-            assert len(received_alerts) >= 1
-            assert received_alerts[-1].title == "Multireference Warning"
-            assert received_alerts[-1].severity == AlertSeverity.CRITICAL
-            assert received_alerts[-1].payload["t1"] == 0.028
-        finally:
-            server.stop()
-
-    def test_send_ipc_alert_convenience_function(self, tmp_path: Path) -> None:
-        """Confirms send_ipc_alert dispatches and creates valid alert record."""
-        queue_dir = tmp_path / "ipc_conv_queue"
-        alert = send_ipc_alert(
-            title="SCF Rescued",
-            message="Applied VShift",
-            severity=AlertSeverity.INFO,
-            payload={"rescues": 1},
-            port=18898,
-            queue_dir=queue_dir,
-        )
-        assert alert.title == "SCF Rescued"
-        assert alert.severity == AlertSeverity.INFO
-
-
-# ============================================================================
-# 5. Tests for Time-Aware Capability Selector & Method Matrix Ladder
-# ============================================================================
-
-
-class TestTimeAwareCapabilitySelector:
-    """Verifies capability selection, Method Matrix ladder ordering, and time budget allocation."""
-
-    def test_select_optimal_tier_fast_budget(self) -> None:
-        """Small budget maps to T1-10s or T1-1min."""
-        tier_10s = TimeAwareCapabilitySelector.select_optimal_tier(
-            time_budget_seconds=10.0,
-            num_atoms=5,
-        )
-        assert tier_10s == EscalationTier.T1_10S
-
-        tier_1min = TimeAwareCapabilitySelector.select_optimal_tier(
-            time_budget_seconds=60.0,
-            num_atoms=5,
-        )
-        assert tier_1min == EscalationTier.T1_1MIN
-
-    def test_select_optimal_tier_high_budget(self) -> None:
-        """Long multi-day budget maps to T1-3d high-level DFT / post-HF."""
-        tier_3d = TimeAwareCapabilitySelector.select_optimal_tier(
-            time_budget_seconds=300000.0,
-            num_atoms=10,
-        )
-        assert tier_3d == EscalationTier.T1_3D
-
-    def test_build_escalation_ladder(self) -> None:
-        """Confirms ladder produces ordered progression of tiers."""
-        ladder = TimeAwareCapabilitySelector.build_escalation_ladder(
-            target_tier=EscalationTier.T1_3H,
-            start_tier=EscalationTier.T1_10S,
-        )
-        expected = [
-            EscalationTier.T1_10S,
-            EscalationTier.T1_1MIN,
-            EscalationTier.T1_30MIN,
-            EscalationTier.T1_1H,
-            EscalationTier.T1_3H,
-        ]
-        assert ladder == expected
-
-    def test_get_tier_specifications(self) -> None:
-        """Confirms valid specifications returned for each tier."""
-        spec_3h = TimeAwareCapabilitySelector.get_tier_spec(EscalationTier.T1_3H)
-        assert spec_3h["method"] == "r2SCAN-3c"
-        assert "TightSCF" in spec_3h["keywords"]
-        assert spec_3h["is_post_hf"] is False
-
-        spec_3d = TimeAwareCapabilitySelector.get_tier_spec(EscalationTier.T1_3D)
-        assert "wB97M-V" in spec_3d["method"] or "DLPNO" in spec_3d["method"]
-        assert spec_3d["is_post_hf"] is True
-
-
-# ============================================================================
-# 6. Tests for ToposEscalatorExec Master Broker
-# ============================================================================
-
-
-class TestToposEscalatorExecBroker:
-    """Verifies end-to-end escalation execution, dry-run simulation, automated rescue, and AutoCAS halts."""
-
-    def test_broker_geometry_verification(self, tmp_path: Path) -> None:
-        """Confirms ToposEscalatorExec enforces Cartesian geometries and rejects Z-matrices."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        atoms = Atoms("H2O", positions=[[0.0, 0.0, 0.0], [0.0, 0.7, 0.0], [0.0, -0.7, 0.0]])
-        assert broker.verify_geometry(atoms) is True
-
-        zmat_bad = "* gzcoord 0 1\nO\nH 1 0.96\nH 1 0.96 2 104.5\n*"
-        assert broker.verify_geometry(zmat_bad) is False
-
-    def test_broker_build_plan(self, tmp_path: Path) -> None:
-        """Confirms build_plan constructs valid ExecutionPlan."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        atoms = Atoms("CO", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 1.13]])
-        plan = broker.build_plan(tier=EscalationTier.T1_10S, geometry_input=atoms)
-
-        assert plan.tier == EscalationTier.T1_10S.value
-        assert "* xyz 0 1" in plan.geometry_block
-        assert "C   " in plan.geometry_block
-        assert "O   " in plan.geometry_block
-
-    def test_execute_step_normal_success(self, tmp_path: Path) -> None:
-        """Executes a single step under dry-run achieving normal convergence."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        atoms = Atoms("H2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 0.74]])
-        plan = broker.build_plan(tier=EscalationTier.T1_10S, geometry_input=atoms)
-
-        step_record = broker.execute_step(plan, molecule_id="test_h2")
-        assert step_record.status == CalculationStatus.SUCCESS
-        assert step_record.scf_metrics is not None
-        assert step_record.scf_metrics.status == SCFConvergenceStatus.CONVERGED
-        assert step_record.final_energy_hartree is not None
-        assert step_record.orbital_seed_path is not None
-
-    def test_execute_step_scf_oscillation_rescue(self, tmp_path: Path) -> None:
-        """Simulates SCF ping-pong oscillation triggering automated SlowConv VShift rescue."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        # Injects TRIGGER_OSCILLATION keyword to simulate initial oscillation failure in dry-run
-        plan = ExecutionPlan(
-            tier="T1-3h",
-            method_name="r2SCAN-3c",
-            keywords="! r2SCAN-3c TightOpt TRIGGER_OSCILLATION",
-            geometry_block="* xyz 0 1\nO 0.0 0.0 0.0\n*",
-        )
-
-        step_record = broker.execute_step(plan, molecule_id="test_rescue_mol")
-        # Step should detect oscillation, inject SlowConv VShift and .gbw seed, and successfully rescue
-        assert step_record.status == CalculationStatus.SCF_RESCUED
-        assert step_record.scf_rescued is True
-        assert step_record.rescue_attempts == 1
-        assert "SlowConv" in step_record.plan.keywords
-        assert "VShift" in step_record.plan.keywords
-        assert step_record.plan.slow_conv_enabled is True
-
-    def test_execute_step_autocas_multireference_halt(self, tmp_path: Path) -> None:
-        """Simulates post-HF T1 > 0.02 triggering immediate calculation halt and AutoCAS alert."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        # Injects TRIGGER_MULTIREF to simulate T1=0.035, D1=0.075 in dry-run
-        plan = ExecutionPlan(
-            tier="T1-3d",
-            method_name="DLPNO-CCSD(T)",
-            keywords="! DLPNO-CCSD(T) def2-QZVP TRIGGER_MULTIREF",
-            geometry_block="* xyz 0 1\nC 0.0 0.0 0.0\nC 1.4 0.0 0.0\n*",
-        )
-
-        step_record = broker.execute_step(plan, molecule_id="biradical_test")
-        assert step_record.status == CalculationStatus.AUTOCAS_TRIGGERED
-        assert step_record.multiref_diagnostics is not None
-        assert step_record.multiref_diagnostics.is_multireference is True
-        assert step_record.multiref_diagnostics.t1_diagnostic == 0.035
-
-    def test_run_escalation_full_pipeline(self, tmp_path: Path) -> None:
-        """Executes a full systematic escalation ladder run from T1-10s to T1-30min."""
-        config = EscalatorExecConfig(working_dir=tmp_path / "scratch", dry_run=True)
-        broker = ToposEscalatorExec(config=config)
-
-        atoms = Atoms("H2O", positions=[[0.0, 0.0, 0.0], [0.0, 0.75, -0.47], [0.0, -0.75, -0.47]])
-        result = broker.run_escalation(
-            geometry=atoms,
-            molecule_id="water_dimer_candidate",
-            target_tier=EscalationTier.T1_30MIN,
-        )
-
-        assert isinstance(result, EscalationResult)
-        assert result.success is True
-        assert result.final_status == CalculationStatus.SUCCESS
-        assert result.highest_tier_achieved == EscalationTier.T1_30MIN.value
-        assert len(result.steps) == 3  # T1-10s -> T1-1min -> T1-30min
-        assert result.final_energy_hartree is not None
-
-    def test_execute_time_aware_escalation_convenience_function(self, tmp_path: Path) -> None:
-        """Confirms top-level convenience function runs cleanly."""
-        atoms = Atoms("CH4", positions=[[0.0, 0.0, 0.0], [0.6, 0.6, 0.6], [0.6, -0.6, -0.6], [-0.6, 0.6, -0.6], [-0.6, -0.6, 0.6]])
-        result = execute_time_aware_escalation(
-            geometry=atoms,
-            molecule_id="methane_test",
-            target_tier=EscalationTier.T1_1MIN,
-            working_dir=tmp_path / "scratch",
-            dry_run=True,
-        )
-        assert result.success is True
-        assert result.highest_tier_achieved == EscalationTier.T1_1MIN.value
-
-    def test_parse_orca_output_convenience_function(self) -> None:
-        """Confirms parse_orca_output parses full output dict."""
-        sample_out = """
-ORCA SCF ITERATIONS
-Iter   Energy       Delta-E
-  0   -40.500000   0.000000
-  1   -40.512000  -0.012000
-SUCCESSFULLY CONVERGED
-FINAL SINGLE POINT ENERGY: -40.512000
-ORCA TERMINATED NORMALLY
-"""
-        parsed = parse_orca_output(sample_out)
-        assert parsed["normal_termination"] is True
-        assert pytest.approx(parsed["final_energy_hartree"], rel=1e-5) == -40.512000
-        assert parsed["scf_metrics"].status == SCFConvergenceStatus.CONVERGED
-
-Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.
