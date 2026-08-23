@@ -1,159 +1,3 @@
-Perform adversarial static analysis and logical review on implemented code for D:\__CoChem\__agentic\.prompts\.SRS\CoChem-TOPOS\.in-progress\02_11_escalation_iso_recycle.md.
-Original prompt:
-# Task: Implement Isotopologue Hessian Recycling (`cochem_topos_iso_recycle.py`)
-
-## Target Output File
-`${COCHEM_WORKSPACE}\GitHub-Repo\CoChem-TOPOS\escalation\cochem_topos_iso_recycle.py`
-
-## Objective
-Mathematically bypass the need to run multi-day frequency calculations for heavy isotopes (e.g., Deuterium, 13C, and 18O).
-
-## Context & Architecture Rules
-This module (Stage 4.1) leverages exact mono-isotopic masses and pre-calculated Hessians to perform First-Order Isotopic Mass Perturbation.
-
-## Execution Directives
-Implement the `cochem_topos_iso_recycle.py` script with the following capabilities:
-
-1. **First-Order Isotopic Mass Perturbation**: Extract the finalized baseline Hessian tensor from `landscape.h5`. Substitute the exact mono-isotopic masses anchored in Stage 1.0 into the mass-weighted Hessian matrix (Fij = Hij / sqrt(mi * mj)). Instantly diagonalize the matrix to yield exact isotopologue vibrational frequencies and Zero-Point Energies (ZPE) without running a new quantum calculation.
-
-Modified files content:
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\escalation\__init__.py ---
-"""
-CoChem-TOPOS: Escalation & Quantum Assembly Subsystem
-Stage 3.0 & 4.0 Modules for Combinatorial Assembly and Ab Initio Escalation.
-"""
-
-from escalation.cochem_topos_assembly import (
-    AssembledComplexCandidate,
-    AssemblyConfig,
-    AssemblySessionReport,
-    BSSEFragmentConfig,
-    CounterpoiseBSSEGenerator,
-    DockingCollisionVector,
-    FragmentSource,
-    GeometricDockingEngine,
-    InternalCoordinateConstraint,
-    InternalCoordinateFreezer,
-    StericClashReport,
-    StericClashResolver,
-    ToposCombinatorialAssembler,
-    assemble_weak_complex,
-)
-from escalation.cochem_topos_escalator_exec import (
-    AlertSeverity,
-    AutoCASAlert,
-    AutoCASRescueProtocol,
-    AutomatedSCFRescueEngine,
-    CalculationStatus,
-    CoordinateType,
-    CrossPlatformIPCAlert,
-    CrossPlatformIPCClient,
-    CrossPlatformIPCServer,
-    EscalationResult,
-    EscalationStepRecord,
-    EscalationTier,
-    EscalatorExecConfig,
-    ExecutionPlan,
-    FileSocketIPCQueue,
-    GeometryCoordinateVerifier,
-    MultireferenceDiagnostics,
-    ORCAOutputParser,
-    SCFConvergenceMetrics,
-    SCFConvergenceStatus,
-    SCFIterationRecord,
-    TimeAwareCapabilitySelector,
-    ToposEscalatorExec,
-    execute_time_aware_escalation,
-    parse_orca_output,
-    send_ipc_alert,
-    verify_redundant_cartesian_geometry,
-)
-
-from escalation.cochem_topos_iso_recycle import (
-    HESSIAN_UNIT_FACTORS,
-    HarmonicKIE,
-    HessianUnit,
-    IsotopeSubstitution,
-    IsotopologueDefinition,
-    IsotopologueRecycleResult,
-    NormalMode,
-    ThermochemicalCorrections,
-    ToposIsotopologueRecycler,
-    VibrationalAnalysis,
-    calculate_harmonic_kie,
-    get_exact_isotopic_mass,
-    get_isotopic_masses,
-    mass_weight_hessian,
-    project_translations_rotations,
-    recycle_hessian_frequencies,
-)
-
-__all__ = [
-    # Stage 3.0 Assembly exports
-    "FragmentSource",
-    "DockingCollisionVector",
-    "StericClashReport",
-    "InternalCoordinateConstraint",
-    "BSSEFragmentConfig",
-    "AssembledComplexCandidate",
-    "AssemblyConfig",
-    "AssemblySessionReport",
-    "StericClashResolver",
-    "CounterpoiseBSSEGenerator",
-    "InternalCoordinateFreezer",
-    "GeometricDockingEngine",
-    "ToposCombinatorialAssembler",
-    "assemble_weak_complex",
-    # Stage 4.0 Escalator Execution exports
-    "EscalationTier",
-    "SCFConvergenceStatus",
-    "CalculationStatus",
-    "AlertSeverity",
-    "CoordinateType",
-    "MultireferenceDiagnostics",
-    "SCFIterationRecord",
-    "SCFConvergenceMetrics",
-    "AutoCASAlert",
-    "CrossPlatformIPCAlert",
-    "ExecutionPlan",
-    "EscalationStepRecord",
-    "EscalatorExecConfig",
-    "EscalationResult",
-    "GeometryCoordinateVerifier",
-    "ORCAOutputParser",
-    "AutomatedSCFRescueEngine",
-    "AutoCASRescueProtocol",
-    "FileSocketIPCQueue",
-    "CrossPlatformIPCServer",
-    "CrossPlatformIPCClient",
-    "TimeAwareCapabilitySelector",
-    "ToposEscalatorExec",
-    "execute_time_aware_escalation",
-    "verify_redundant_cartesian_geometry",
-    "parse_orca_output",
-    "send_ipc_alert",
-    # Stage 4.1 Isotopologue Hessian Recycling exports
-    "HessianUnit",
-    "HESSIAN_UNIT_FACTORS",
-    "IsotopeSubstitution",
-    "IsotopologueDefinition",
-    "NormalMode",
-    "ThermochemicalCorrections",
-    "VibrationalAnalysis",
-    "IsotopologueRecycleResult",
-    "HarmonicKIE",
-    "ToposIsotopologueRecycler",
-    "get_exact_isotopic_mass",
-    "get_isotopic_masses",
-    "mass_weight_hessian",
-    "project_translations_rotations",
-    "recycle_hessian_frequencies",
-    "calculate_harmonic_kie",
-]
-
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\escalation\cochem_topos_iso_recycle.py ---
 """
 CoChem-TOPOS: Stage 4.1 - Isotopologue Hessian Recycling & Isotopic Perturbation Engine
 (cochem_topos_iso_recycle.py)
@@ -251,10 +95,20 @@ BOHR_TO_ANGSTROM: float = 0.529177210903
 ANGSTROM_TO_METER: float = 1.0e-10
 
 # Frequency Conversion Factors for various input Hessian units to cm^-1:
-HESSIAN_EV_ANGSTROM2_TO_CM1: float = 521.4709004010551
-HESSIAN_HARTREE_BOHR2_TO_CM1: float = 5140.48714376045
-HESSIAN_HARTREE_ANGSTROM2_TO_CM1: float = 2720.2458428807
-HESSIAN_SI_TO_CM1: float = 1.0 / (2.0 * math.pi * SPEED_OF_LIGHT_CM_S)
+# Derived from exact CODATA constants: nu = sqrt(k_SI / m_SI) / (2 * pi * c)
+# where k_SI = k_unit * UNIT_TO_JOULE / UNIT_TO_METER^2, m_SI = m_amu * AMU_TO_KG
+HESSIAN_EV_ANGSTROM2_TO_CM1: float = math.sqrt(
+    EV_TO_JOULE / (ANGSTROM_TO_METER**2 * AMU_TO_KG)
+) / (2.0 * math.pi * SPEED_OF_LIGHT_CM_S)
+HESSIAN_HARTREE_BOHR2_TO_CM1: float = math.sqrt(
+    HARTREE_TO_JOULE / ((BOHR_TO_ANGSTROM * ANGSTROM_TO_METER) ** 2 * AMU_TO_KG)
+) / (2.0 * math.pi * SPEED_OF_LIGHT_CM_S)
+HESSIAN_HARTREE_ANGSTROM2_TO_CM1: float = math.sqrt(
+    HARTREE_TO_JOULE / (ANGSTROM_TO_METER**2 * AMU_TO_KG)
+) / (2.0 * math.pi * SPEED_OF_LIGHT_CM_S)
+HESSIAN_SI_TO_CM1: float = math.sqrt(1.0 / AMU_TO_KG) / (
+    2.0 * math.pi * SPEED_OF_LIGHT_CM_S
+)
 
 
 class HessianUnit(str, Enum):
@@ -378,7 +232,7 @@ def get_isotopic_masses(
             sub_val = subs[idx]
             if isinstance(sub_val, float | int | np.floating | np.integer) and not isinstance(sub_val, bool):
                 val = float(sub_val)
-                if isinstance(sub_val, int) and val <= 300:
+                if isinstance(sub_val, int | np.integer) and val <= 300:
                     masses.append(get_exact_isotopic_mass(sym_or_z, mass_number=int(val)))
                 else:
                     masses.append(val)
@@ -705,7 +559,9 @@ def project_translations_rotations(
         D[3 * i + 0, 5] = -ry * s_m
         D[3 * i + 1, 5] = rx * s_m
 
-    q, _ = np.linalg.qr(D)
+    # Use SVD to isolate non-zero singular vectors (handles non-linear rank 6 and linear/diatomic rank 5)
+    u, s, _ = np.linalg.svd(D, full_matrices=False)
+    q = u[:, s > 1e-7]
     I = np.eye(3 * n_atoms, dtype=np.float64)
     P = I - q @ q.T
     return P
@@ -782,10 +638,19 @@ def recycle_hessian_frequencies(
         mw_disp = mw_vec.reshape((n_atoms, 3)).tolist()
         cart_disp = cart_vec.reshape((n_atoms, 3)).tolist()
 
+        # Standard Gaussian normal mode reduced mass mu = 1 / sum(l_cart_norm^2 / m_i)
         sum_disp_sq = sum(np.sum(np.array(cart_disp[i])**2) / masses[i] for i in range(n_atoms))
         red_mass = (1.0 / sum_disp_sq) if sum_disp_sq > 1e-15 else 0.0
 
         is_vib = abs(freq_magnitude) > 10.0
+
+        # Harmonic force constant in mdyn/Angstrom: k = 4*pi^2*c^2*AMU_TO_KG/100 * nu^2 * mu
+        # Constant factor = 5.89183044236737e-7 mdyn/(Angstrom * cm^-2 * amu)
+        k_force_constant = (
+            5.89183044236737e-7 * (freq_magnitude**2) * red_mass
+            if red_mass > 0.0
+            else 0.0
+        )
 
         mode = NormalMode(
             mode_index=idx,
@@ -794,7 +659,7 @@ def recycle_hessian_frequencies(
             is_imaginary=is_imag,
             is_vibrational=is_vib,
             reduced_mass_amu=float(red_mass),
-            force_constant_mdyn_angstrom=float(abs_eig * conversion_factor**2 * 1e-5),
+            force_constant_mdyn_angstrom=float(k_force_constant),
             mass_weighted_displacement=mw_disp,
             cartesian_displacement=cart_disp,
         )
@@ -1155,6 +1020,10 @@ class ToposIsotopologueRecycler:
                             data=np.array(result.isotopologue_frequencies_cm1, dtype=np.float64),
                         )
                         iso_grp.create_dataset(
+                            "baseline_frequencies_cm1",
+                            data=np.array(result.baseline_frequencies_cm1, dtype=np.float64),
+                        )
+                        iso_grp.create_dataset(
                             "substituted_masses",
                             data=np.array(result.substituted_masses, dtype=np.float64),
                         )
@@ -1200,6 +1069,10 @@ class ToposIsotopologueRecycler:
 
                     iso_grp = f["isotopologues"][geom_id][isotopologue_id]
                     freqs = iso_grp["frequencies_cm1"][:].astype(float).tolist()
+                    if "baseline_frequencies_cm1" in iso_grp:
+                        base_freqs = iso_grp["baseline_frequencies_cm1"][:].astype(float).tolist()
+                    else:
+                        base_freqs = []
                     sub_masses = iso_grp["substituted_masses"][:].astype(float).tolist()
                     eigenvals = iso_grp["eigenvalues"][:].astype(float).tolist()
 
@@ -1211,8 +1084,15 @@ class ToposIsotopologueRecycler:
             vib = VibrationalAnalysis.from_frequencies(frequencies_cm1=freqs, eigenvalues=eigenvals)
             thermo = vib.compute_thermochemistry()
 
-            symbols, _, _, _, _ = self.get_baseline_geometry(geom_id)
+            symbols, coords, hessian, _, _ = self.get_baseline_geometry(geom_id)
             base_masses = get_isotopic_masses(symbols).tolist()
+            if not base_freqs:
+                base_analysis = recycle_hessian_frequencies(
+                    hessian=hessian,
+                    symbols=symbols,
+                    coordinates=coords,
+                )
+                base_freqs = base_analysis.frequencies_cm1
 
             return IsotopologueRecycleResult(
                 geom_id=geom_id,
@@ -1223,7 +1103,7 @@ class ToposIsotopologueRecycler:
                 baseline_zpe_kcal_mol=base_zpe_kcal,
                 isotopologue_zpe_kcal_mol=zpe_kcal,
                 delta_zpe_kcal_mol=delta_zpe,
-                baseline_frequencies_cm1=freqs,
+                baseline_frequencies_cm1=base_freqs,
                 isotopologue_frequencies_cm1=freqs,
                 vibrational_analysis=vib,
                 thermochemistry_298k=thermo,
@@ -1245,417 +1125,3 @@ class ToposIsotopologueRecycler:
             logger.error(f"Error listing isotopologues for {geom_id}: {exc}")
             return []
 
-
---- D:\__CoChem\GitHub-Repo\CoChem-TOPOS\tests\test_cochem_topos_iso_recycle.py ---
-"""
-Unit tests for CoChem-TOPOS Isotopologue Hessian Recycling (Stage 4.1: cochem_topos_iso_recycle.py).
-
-Validates First-Order Isotopic Mass Perturbation, Born-Oppenheimer PES invariance,
-exact mono-isotopic mass injection via Mendeleev, mass-weighted Hessian diagonalization,
-ZPE / vibrational thermochemistry calculations, KIE predictions, and HDF5 SWMR persistence.
-
-Strictly complies with the Tripartite Air-Gap Policy and Zero-Mock Mandate.
-"""
-
-from __future__ import annotations
-
-import math
-import tempfile
-from pathlib import Path
-
-import h5py
-import numpy as np
-import pytest
-
-from escalation.cochem_topos_iso_recycle import (
-    HESSIAN_UNIT_FACTORS,
-    HessianUnit,
-    IsotopeSubstitution,
-    IsotopologueDefinition,
-    IsotopologueRecycleResult,
-    NormalMode,
-    ThermochemicalCorrections,
-    ToposIsotopologueRecycler,
-    VibrationalAnalysis,
-    calculate_harmonic_kie,
-    get_exact_isotopic_mass,
-    get_isotopic_masses,
-    mass_weight_hessian,
-    project_translations_rotations,
-    recycle_hessian_frequencies,
-)
-from mechanics.cochem_topos_memory import GeometryRecord, ToposHDF5MemoryManager
-
-
-# ============================================================================
-# 1. Tests for Mass Retrieval & Mendeleev Resolution
-# ============================================================================
-
-
-class TestIsotopicMassResolution:
-    """Verifies exact mono-isotopic mass querying and error handling."""
-
-    def test_standard_element_monoisotopic_masses(self) -> None:
-        """Confirms ground state monoisotopic masses for common organic elements."""
-        assert pytest.approx(get_exact_isotopic_mass("H"), rel=1e-6) == 1.007825032
-        assert pytest.approx(get_exact_isotopic_mass("C"), rel=1e-6) == 12.000000000
-        assert pytest.approx(get_exact_isotopic_mass("N"), rel=1e-6) == 14.003074004
-        assert pytest.approx(get_exact_isotopic_mass("O"), rel=1e-6) == 15.994914620
-        assert pytest.approx(get_exact_isotopic_mass("S"), rel=1e-6) == 31.972071000
-
-    def test_heavy_isotope_masses(self) -> None:
-        """Confirms exact masses for heavy isotopic variants."""
-        assert pytest.approx(get_exact_isotopic_mass("D"), rel=1e-6) == 2.014101778
-        assert pytest.approx(get_exact_isotopic_mass("H", mass_number=2), rel=1e-6) == 2.014101778
-        assert pytest.approx(get_exact_isotopic_mass("T"), rel=1e-6) == 3.016049281
-        assert pytest.approx(get_exact_isotopic_mass("C", mass_number=13), rel=1e-6) == 13.003354835
-        assert pytest.approx(get_exact_isotopic_mass("13C"), rel=1e-6) == 13.003354835
-        assert pytest.approx(get_exact_isotopic_mass("O", mass_number=18), rel=1e-6) == 17.999159613
-        assert pytest.approx(get_exact_isotopic_mass("18O"), rel=1e-6) == 17.999159613
-        assert pytest.approx(get_exact_isotopic_mass("N", mass_number=15), rel=1e-6) == 15.000108899
-        assert pytest.approx(get_exact_isotopic_mass("Cl", mass_number=37), rel=1e-6) == 36.96590260
-
-    def test_get_isotopic_masses_sequence(self) -> None:
-        """Tests mass array generation for molecular symbol lists."""
-        symbols = ["O", "H", "H"]
-        masses = get_isotopic_masses(symbols)
-        assert len(masses) == 3
-        assert pytest.approx(masses[0], rel=1e-5) == 15.994915
-        assert pytest.approx(masses[1], rel=1e-5) == 1.007825
-        assert pytest.approx(masses[2], rel=1e-5) == 1.007825
-
-    def test_get_isotopic_masses_with_substitutions(self) -> None:
-        """Tests mass array generation with explicit index substitutions."""
-        symbols = ["O", "H", "H"]
-        substitutions = {1: "D", 2: 2}
-        masses = get_isotopic_masses(symbols, substitutions=substitutions)
-        assert pytest.approx(masses[0], rel=1e-5) == 15.994915
-        assert pytest.approx(masses[1], rel=1e-5) == 2.014102
-        assert pytest.approx(masses[2], rel=1e-5) == 2.014102
-
-    def test_invalid_symbol_or_isotope_raises(self) -> None:
-        """Confirms invalid chemical symbols or unphysical mass numbers raise ValueError."""
-        with pytest.raises(ValueError, match="not recognized"):
-            get_exact_isotopic_mass("Unobtanium")
-
-        with pytest.raises(ValueError, match="No isotope with mass number"):
-            get_exact_isotopic_mass("H", mass_number=999)
-
-
-# ============================================================================
-# 2. Tests for Mass-Weighted Hessian & Eigendecomposition
-# ============================================================================
-
-
-class TestMassWeightedHessianAndFrequencies:
-    """Verifies mass weighting, diagonalization, and frequency extraction."""
-
-    @pytest.fixture
-    def harmonic_diatomic_co(self) -> tuple[np.ndarray, np.ndarray, list[str]]:
-        """Fixture providing an analytical 1D-like harmonic oscillator for CO."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],       # C (index 0)
-            [0.0, 0.0, 1.1283],    # O (index 1)
-        ], dtype=np.float64)
-        symbols = ["C", "O"]
-
-        k = 11.58
-        H = np.zeros((6, 6), dtype=np.float64)
-        H[2, 2] = k
-        H[5, 5] = k
-        H[2, 5] = -k
-        H[5, 2] = -k
-        return H, coords, symbols
-
-    def test_mass_weighted_hessian_scaling(self, harmonic_diatomic_co) -> None:
-        """Confirms mass-weighting scaling formula."""
-        H, coords, symbols = harmonic_diatomic_co
-        m_C = get_exact_isotopic_mass("C")
-        m_O = get_exact_isotopic_mass("O")
-        masses = np.array([m_C, m_O])
-
-        F = mass_weight_hessian(H, masses)
-        assert F.shape == (6, 6)
-        assert pytest.approx(F[2, 2]) == H[2, 2] / m_C
-        assert pytest.approx(F[5, 5]) == H[5, 5] / m_O
-        assert pytest.approx(F[2, 5]) == H[2, 5] / np.sqrt(m_C * m_O)
-        assert pytest.approx(F[5, 2]) == H[5, 2] / np.sqrt(m_C * m_O)
-        np.testing.assert_allclose(F, F.T, atol=1e-12)
-
-    def test_diatomic_frequency_and_isotopic_shift(self, harmonic_diatomic_co) -> None:
-        """Confirms exact isotopic frequency ratio follows reduced mass ratio."""
-        H, coords, symbols = harmonic_diatomic_co
-        res_12c16o = recycle_hessian_frequencies(
-            hessian=H,
-            symbols=symbols,
-            coordinates=coords,
-            unit=HessianUnit.EV_PER_ANGSTROM2,
-        )
-        res_13c16o = recycle_hessian_frequencies(
-            hessian=H,
-            symbols=symbols,
-            coordinates=coords,
-            substitutions={0: 13},
-            unit=HessianUnit.EV_PER_ANGSTROM2,
-        )
-
-        m_C12 = get_exact_isotopic_mass("12C")
-        m_C13 = get_exact_isotopic_mass("13C")
-        m_O16 = get_exact_isotopic_mass("16O")
-
-        mu_12 = (m_C12 * m_O16) / (m_C12 + m_O16)
-        mu_13 = (m_C13 * m_O16) / (m_C13 + m_O16)
-        theoretical_ratio = np.sqrt(mu_12 / mu_13)
-
-        vib_12 = max(res_12c16o.frequencies_cm1)
-        vib_13 = max(res_13c16o.frequencies_cm1)
-        actual_ratio = vib_13 / vib_12
-
-        assert pytest.approx(actual_ratio, rel=1e-4) == theoretical_ratio
-        assert vib_12 > vib_13
-
-    def test_water_triatomic_isotopologue_series(self) -> None:
-        """Tests water vibrational recycling across H2O, HDO, D2O, and H2_18O."""
-        symbols = ["O", "H", "H"]
-        coords = np.array([
-            [0.0000, 0.0000, 0.1173],
-            [0.0000, 0.7572, -0.4692],
-            [0.0000, -0.7572, -0.4692],
-        ], dtype=np.float64)
-
-        N = 3
-        H = np.zeros((3 * N, 3 * N), dtype=np.float64)
-        k_str = 35.0
-        k_bend = 5.0
-
-        d1 = coords[1] - coords[0]
-        u1 = d1 / np.linalg.norm(d1)
-        H_str1 = k_str * np.outer(u1, u1)
-
-        d2 = coords[2] - coords[0]
-        u2 = d2 / np.linalg.norm(d2)
-        H_str2 = k_str * np.outer(u2, u2)
-
-        H[0:3, 0:3] += H_str1 + H_str2
-        H[3:6, 3:6] += H_str1
-        H[0:3, 3:6] -= H_str1
-        H[3:6, 0:3] -= H_str1
-
-        H[6:9, 6:9] += H_str2
-        H[0:3, 6:9] -= H_str2
-        H[6:9, 0:3] -= H_str2
-
-        H[3:6, 6:9] += k_bend * np.eye(3)
-        H[6:9, 3:6] += k_bend * np.eye(3)
-        H[3:6, 3:6] += k_bend * np.eye(3)
-        H[6:9, 6:9] += k_bend * np.eye(3)
-
-        res_h2o = recycle_hessian_frequencies(H, symbols, coords, unit=HessianUnit.EV_PER_ANGSTROM2)
-        res_hdo = recycle_hessian_frequencies(H, symbols, coords, substitutions={1: "D"}, unit=HessianUnit.EV_PER_ANGSTROM2)
-        res_d2o = recycle_hessian_frequencies(H, symbols, coords, substitutions={1: "D", 2: "D"}, unit=HessianUnit.EV_PER_ANGSTROM2)
-        res_h2_18o = recycle_hessian_frequencies(H, symbols, coords, substitutions={0: 18}, unit=HessianUnit.EV_PER_ANGSTROM2)
-
-        assert res_h2o.zpe_kcal_mol > res_h2_18o.zpe_kcal_mol
-        assert res_h2_18o.zpe_kcal_mol > res_hdo.zpe_kcal_mol
-        assert res_hdo.zpe_kcal_mol > res_d2o.zpe_kcal_mol
-
-        h2o_vib_max = max(res_h2o.frequencies_cm1)
-        d2o_vib_max = max(res_d2o.frequencies_cm1)
-        assert pytest.approx(d2o_vib_max / h2o_vib_max, rel=0.1) == 1.0 / np.sqrt(2.0)
-
-
-# ============================================================================
-# 3. Tests for Thermochemistry, ZPE, and KIE
-# ============================================================================
-
-
-class TestThermochemistryAndKIE:
-    """Verifies harmonic partition functions, thermodynamic corrections, and KIE."""
-
-    def test_zpe_unit_conversions(self) -> None:
-        """Confirms mathematical consistency of ZPE across Ha, kcal/mol, kJ/mol, and eV."""
-        freqs = [3657.05, 1594.75, 3755.93]
-        eigenvals = [1.0, 2.0, 3.0]
-        vib = VibrationalAnalysis.from_frequencies(frequencies_cm1=freqs, eigenvalues=eigenvals)
-
-        assert pytest.approx(vib.zpe_hartree, rel=1e-4) == 0.0205211
-        assert pytest.approx(vib.zpe_kcal_mol, rel=1e-4) == vib.zpe_hartree * 627.509474
-        assert pytest.approx(vib.zpe_kj_mol, rel=1e-4) == vib.zpe_hartree * 2625.49964
-        assert pytest.approx(vib.zpe_ev, rel=1e-4) == vib.zpe_hartree * 27.211386
-
-    def test_thermochemical_corrections_temperature(self) -> None:
-        """Confirms thermal energy and entropy increase monotonically with temperature."""
-        freqs = [500.0, 1000.0, 1500.0, 3000.0]
-        vib = VibrationalAnalysis.from_frequencies(frequencies_cm1=freqs, eigenvalues=[1, 2, 3, 4])
-
-        thermo_298 = vib.compute_thermochemistry(temperature_k=298.15)
-        thermo_500 = vib.compute_thermochemistry(temperature_k=500.0)
-
-        assert thermo_500.thermal_energy_hartree > thermo_298.thermal_energy_hartree
-        assert thermo_500.entropy_cal_mol_k > thermo_298.entropy_cal_mol_k
-        assert thermo_500.heat_capacity_cal_mol_k > thermo_298.heat_capacity_cal_mol_k
-
-    def test_harmonic_kie_calculation(self) -> None:
-        """Confirms semi-classical primary KIE (k_H / k_D > 1.0) due to ZPE difference."""
-        freqs_react_H = [3000.0, 1000.0, 500.0]
-        freqs_ts_H = [1500.0, 1000.0, 500.0]
-
-        freqs_react_D = [3000.0 / np.sqrt(2.0), 1000.0, 500.0]
-        freqs_ts_D = [1500.0 / np.sqrt(2.0), 1000.0, 500.0]
-
-        vib_react_H = VibrationalAnalysis.from_frequencies(freqs_react_H, [1, 1, 1])
-        vib_ts_H = VibrationalAnalysis.from_frequencies(freqs_ts_H, [1, 1, 1])
-        vib_react_D = VibrationalAnalysis.from_frequencies(freqs_react_D, [1, 1, 1])
-        vib_ts_D = VibrationalAnalysis.from_frequencies(freqs_ts_D, [1, 1, 1])
-
-        kie_298 = calculate_harmonic_kie(
-            reactant_light=vib_react_H,
-            ts_light=vib_ts_H,
-            reactant_heavy=vib_react_D,
-            ts_heavy=vib_ts_D,
-            temperature_k=298.15,
-        )
-
-        assert kie_298.kie_ratio > 1.0
-        assert kie_298.delta_zpe_diff_kcal_mol > 0.0
-
-
-# ============================================================================
-# 4. Tests for ToposIsotopologueRecycler & HDF5 SWMR Persistence
-# ============================================================================
-
-
-class TestToposIsotopologueRecyclerHDF5:
-    """Verifies database extraction, batch calculation, and SWMR persistence."""
-
-    @pytest.fixture
-    def sample_h5_database(self, tmp_path: Path) -> tuple[Path, str]:
-        """Creates an authentic HDF5 database with a converged water geometry & Hessian."""
-        db_path = tmp_path / "landscape.h5"
-        geom_id = "geom_water_cochem_opt"
-
-        symbols = ["O", "H", "H"]
-        atomic_numbers = [8, 1, 1]
-        coords = [
-            [0.0000, 0.0000, 0.1173],
-            [0.0000, 0.7572, -0.4692],
-            [0.0000, -0.7572, -0.4692],
-        ]
-        hessian = (np.eye(9) * 15.0).tolist()
-        energy = -76.4321
-
-        mem = ToposHDF5MemoryManager(db_path=db_path)
-        record = GeometryRecord(
-            geom_id=geom_id,
-            atomic_numbers=atomic_numbers,
-            coords=coords,
-            energy=energy,
-            hessian=hessian,
-            metadata={"level_of_theory": "wB97M-V/def2-TZVPP"},
-        )
-        mem.write_geometry(record)
-        return db_path, geom_id
-
-    def test_recycler_extract_and_recycle_from_hdf5(self, sample_h5_database) -> None:
-        """Confirms extraction of baseline Hessian from HDF5 and calculation of isotopologues."""
-        db_path, geom_id = sample_h5_database
-        recycler = ToposIsotopologueRecycler(db_path=db_path)
-
-        definitions = [
-            IsotopologueDefinition(isotopologue_id="D2O", substitutions={1: "D", 2: "D"}),
-            IsotopologueDefinition(isotopologue_id="H2_18O", substitutions={0: 18}),
-            IsotopologueDefinition(isotopologue_id="HDO", substitutions={1: "D"}),
-        ]
-
-        report = recycler.recycle_batch(geom_id=geom_id, definitions=definitions, save_to_hdf5=True)
-
-        assert report.total_calculated == 3
-        assert len(report.results) == 3
-
-        d2o_res = next(r for r in report.results if r.isotopologue_id == "D2O")
-        assert d2o_res.isotopologue_zpe_kcal_mol < d2o_res.baseline_zpe_kcal_mol
-        assert d2o_res.delta_zpe_kcal_mol < 0.0
-
-        with h5py.File(db_path, "r") as f:
-            assert "isotopologues" in f
-            assert geom_id in f["isotopologues"]
-            iso_grp = f["isotopologues"][geom_id]
-            assert "D2O" in iso_grp
-            assert "H2_18O" in iso_grp
-            assert "HDO" in iso_grp
-
-            d2o_grp = iso_grp["D2O"]
-            assert "frequencies_cm1" in d2o_grp
-            assert "substituted_masses" in d2o_grp
-            assert d2o_grp.attrs["zpe_kcal_mol"] == d2o_res.isotopologue_zpe_kcal_mol
-
-    def test_recycler_read_persisted_isotopologue(self, sample_h5_database) -> None:
-        """Confirms reading saved isotopologue data from HDF5."""
-        db_path, geom_id = sample_h5_database
-        recycler = ToposIsotopologueRecycler(db_path=db_path)
-
-        iso_def = IsotopologueDefinition(isotopologue_id="PerDeuterated", substitutions={"H": "D"})
-        res_write = recycler.recycle_single(geom_id=geom_id, definition=iso_def, save_to_hdf5=True)
-
-        res_read = recycler.read_isotopologue_from_hdf5(geom_id=geom_id, isotopologue_id="PerDeuterated")
-        assert res_read is not None
-        assert res_read.isotopologue_id == "PerDeuterated"
-        assert pytest.approx(res_read.isotopologue_zpe_kcal_mol, rel=1e-5) == res_write.isotopologue_zpe_kcal_mol
-        assert len(res_read.isotopologue_frequencies_cm1) == len(res_write.isotopologue_frequencies_cm1)
-
-    def test_generate_standard_isotopologue_ensemble(self, sample_h5_database) -> None:
-        """Verifies automatic generation of standard isotopologue suites."""
-        db_path, geom_id = sample_h5_database
-        recycler = ToposIsotopologueRecycler(db_path=db_path)
-
-        defs = recycler.generate_standard_isotopologues(geom_id=geom_id)
-        assert len(defs) >= 4
-        iso_ids = [d.isotopologue_id for d in defs]
-        assert any("D2O" in i or "PerD" in i for i in iso_ids)
-        assert any("18O" in i for i in iso_ids)
-
-
-# ============================================================================
-# 5. Tests for Edge Cases & Mathematical Robustness
-# ============================================================================
-
-
-class TestRecyclerEdgeCases:
-    """Validates edge cases: dimension mismatch, non-symmetric Hessians, imaginary modes."""
-
-    def test_dimension_mismatch_raises(self) -> None:
-        """Confirms 3N x 3N dimension mismatch with N atoms raises ValueError."""
-        H = np.eye(6)
-        symbols = ["O", "H", "H"]
-        coords = np.zeros((3, 3))
-
-        with pytest.raises(ValueError, match="Dimension mismatch"):
-            recycle_hessian_frequencies(H, symbols, coords)
-
-    def test_imaginary_frequencies_handling(self) -> None:
-        """Confirms negative eigenvalues (transition state) are flagged as imaginary."""
-        H = np.diag([-5.0, 10.0, 10.0, 10.0, 10.0, 10.0])
-        symbols = ["C", "H"]
-        coords = np.zeros((2, 3))
-
-        res = recycle_hessian_frequencies(H, symbols, coords, unit=HessianUnit.EV_PER_ANGSTROM2)
-        assert res.num_imaginary == 1
-        assert res.has_imaginary_modes is True
-        assert any(f < 0 for f in res.frequencies_cm1)
-
-    def test_translation_rotation_projection(self) -> None:
-        """Confirms TR projector zeros out 6 external degrees of freedom."""
-        coords = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-        ], dtype=np.float64)
-        masses = np.array([12.0, 1.0, 1.0])
-        A = np.random.RandomState(42).randn(9, 9)
-        H = A.T @ A
-
-        P = project_translations_rotations(coords, masses)
-        assert P.shape == (9, 9)
-        np.testing.assert_allclose(P @ P, P, atol=1e-10)
-
-Validate Zero-Mock adherence. Target repo is D:\__CoChem\GitHub-Repo\CoChem-TOPOS.

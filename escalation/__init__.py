@@ -49,6 +49,25 @@ from escalation.cochem_topos_escalator_exec import (
     verify_redundant_cartesian_geometry,
 )
 
+from escalation.cochem_topos_iso_recycle import (
+    HESSIAN_UNIT_FACTORS,
+    HarmonicKIE,
+    HessianUnit,
+    IsotopeSubstitution,
+    IsotopologueDefinition,
+    IsotopologueRecycleResult,
+    NormalMode,
+    ThermochemicalCorrections,
+    ToposIsotopologueRecycler,
+    VibrationalAnalysis,
+    calculate_harmonic_kie,
+    get_exact_isotopic_mass,
+    get_isotopic_masses,
+    mass_weight_hessian,
+    project_translations_rotations,
+    recycle_hessian_frequencies,
+)
+
 __all__ = [
     # Stage 3.0 Assembly exports
     "FragmentSource",
@@ -93,4 +112,22 @@ __all__ = [
     "verify_redundant_cartesian_geometry",
     "parse_orca_output",
     "send_ipc_alert",
+    # Stage 4.1 Isotopologue Hessian Recycling exports
+    "HessianUnit",
+    "HESSIAN_UNIT_FACTORS",
+    "IsotopeSubstitution",
+    "IsotopologueDefinition",
+    "NormalMode",
+    "ThermochemicalCorrections",
+    "VibrationalAnalysis",
+    "IsotopologueRecycleResult",
+    "HarmonicKIE",
+    "ToposIsotopologueRecycler",
+    "get_exact_isotopic_mass",
+    "get_isotopic_masses",
+    "mass_weight_hessian",
+    "project_translations_rotations",
+    "recycle_hessian_frequencies",
+    "calculate_harmonic_kie",
 ]
+
