@@ -221,6 +221,7 @@ class TorchMLFFCalculator(Calculator):
         self.static_coords: Optional[Any] = None
         self.static_energy: Optional[Any] = None
         self.static_forces: Optional[Any] = None
+        self._graph_num_atoms: Optional[int] = None
         self._graph_captured = False
 
     def calculate(
@@ -240,18 +241,32 @@ class TorchMLFFCalculator(Calculator):
             # Fallback to NumPy analytical computation if PyTorch is unavailable
             forces = np.zeros((num_atoms, 3), dtype=np.float64)
             energy = 0.0
+            # 1-2 bonded harmonic interactions
+            for i in range(num_atoms - 1):
+                j = i + 1
+                diff = positions[i] - positions[j]
+                dist = float(np.linalg.norm(diff))
+                if dist < 1e-6:
+                    dist = 1e-6
+                dr = dist - self.r0
+                energy += 0.5 * self.k_harmonic * (dr ** 2)
+                f_mag = -self.k_harmonic * dr
+                f_vec = f_mag * (diff / dist)
+                forces[i] += f_vec
+                forces[j] -= f_vec
+            # Non-bonded LJ interactions for |i - j| > 1
             for i in range(num_atoms):
-                for j in range(i + 1, num_atoms):
+                for j in range(i + 2, num_atoms):
                     diff = positions[i] - positions[j]
                     dist = float(np.linalg.norm(diff))
                     if dist < 1e-6:
                         dist = 1e-6
-                    # Harmonic + LJ potential
-                    dr = dist - self.r0
-                    e_pair = 0.5 * self.k_harmonic * (dr ** 2)
-                    energy += e_pair
-                    f_mag = -self.k_harmonic * dr
-                    f_vec = f_mag * (diff / dist)
+                    s_over_r = self.lj_sigma / max(dist, 0.5)
+                    s_over_r6 = s_over_r ** 6
+                    e_lj = 4.0 * self.lj_epsilon * (s_over_r6 ** 2 - s_over_r6)
+                    energy += e_lj
+                    dv_dr = 4.0 * self.lj_epsilon * (-12.0 * (s_over_r6 ** 2) / dist + 6.0 * s_over_r6 / dist)
+                    f_vec = -dv_dr * (diff / dist)
                     forces[i] += f_vec
                     forces[j] -= f_vec
             self.results["energy"] = float(energy)
@@ -259,7 +274,12 @@ class TorchMLFFCalculator(Calculator):
             return
 
         # PyTorch Autograd Energy & Force Pipeline
-        if self._graph_captured and self.cuda_graph is not None and self.static_coords is not None:
+        if (
+            self._graph_captured
+            and self.cuda_graph is not None
+            and self.static_coords is not None
+            and self._graph_num_atoms == num_atoms
+        ):
             # Replay captured CUDA graph
             coords_tensor = torch.as_tensor(positions, dtype=self.torch_dtype, device=self.device)
             self.static_coords.copy_(coords_tensor)
@@ -277,6 +297,11 @@ class TorchMLFFCalculator(Calculator):
         )
 
         energy = self._compute_potential_torch(coords)
+        if num_atoms < 2 or energy.grad_fn is None:
+            self.results["energy"] = float(energy.detach().cpu().item())
+            self.results["forces"] = np.zeros((num_atoms, 3), dtype=np.float64)
+            return
+
         grad = torch.autograd.grad(
             outputs=energy,
             inputs=coords,
@@ -294,28 +319,35 @@ class TorchMLFFCalculator(Calculator):
         if num_atoms < 2:
             return torch.tensor(0.0, dtype=self.torch_dtype, device=self.device)
 
-        # Pairwise distance matrix computation
-        diffs = coords.unsqueeze(1) - coords.unsqueeze(0)  # (N, N, 3)
-        dists = torch.norm(diffs + 1e-12, dim=-1)           # (N, N)
+        total_energy = torch.tensor(0.0, dtype=self.torch_dtype, device=self.device)
 
-        # Harmonic bond terms for adjacent atoms & Lennard-Jones for non-bonded
-        mask = torch.triu(torch.ones((num_atoms, num_atoms), dtype=torch.bool, device=self.device), diagonal=1)
-        r = dists[mask]
+        # 1. 1-2 Bonded harmonic terms for adjacent atoms (i, i+1)
+        if num_atoms >= 2:
+            bonded_diffs = coords[1:] - coords[:-1]
+            bonded_dists = torch.norm(bonded_diffs, dim=-1)
+            dr = bonded_dists - self.r0
+            total_energy = total_energy + torch.sum(0.5 * self.k_harmonic * (dr ** 2))
 
-        # Shifted harmonic + soft Lennard-Jones repulsion
-        dr = r - self.r0
-        e_harm = 0.5 * self.k_harmonic * (dr ** 2)
+        # 2. Non-bonded Lennard-Jones terms for non-adjacent pairs (|i - j| > 1)
+        if num_atoms > 2:
+            diffs = coords.unsqueeze(1) - coords.unsqueeze(0)  # (N, N, 3)
+            dists = torch.norm(diffs + 1e-12, dim=-1)           # (N, N)
+            mask = torch.triu(torch.ones((num_atoms, num_atoms), dtype=torch.bool, device=self.device), diagonal=2)
+            r_nb = dists[mask]
+            if r_nb.numel() > 0:
+                s_over_r = self.lj_sigma / torch.clamp(r_nb, min=0.5)
+                s_over_r6 = s_over_r ** 6
+                e_lj = 4.0 * self.lj_epsilon * (s_over_r6 ** 2 - s_over_r6)
+                total_energy = total_energy + torch.sum(e_lj)
 
-        # Soft LJ repulsion: 4 * eps * ((sig/r)^12 - (sig/r)^6)
-        s_over_r = self.lj_sigma / torch.clamp(r, min=0.5)
-        s_over_r6 = s_over_r ** 6
-        e_lj = 4.0 * self.lj_epsilon * (s_over_r6 ** 2 - s_over_r6)
-
-        return torch.sum(e_harm + e_lj)
+        return total_energy
 
     def capture_cuda_graph(self, sample_atoms: Atoms) -> bool:
         """Capture static execution graph on CUDA device."""
         if torch is None or not torch.cuda.is_available() or self.device.type != "cuda":
+            return False
+
+        if len(sample_atoms) < 2:
             return False
 
         try:
@@ -343,12 +375,14 @@ class TorchMLFFCalculator(Calculator):
                 self.static_energy = self._compute_potential_torch(self.static_coords)
                 self.static_forces = -torch.autograd.grad(self.static_energy, self.static_coords, retain_graph=False)[0]
 
+            self._graph_num_atoms = num_atoms
             self._graph_captured = True
             logger.info("Successfully captured CUDA Graph for TorchMLFFCalculator.")
             return True
         except Exception as e:
             logger.debug(f"CUDA Graph capture bypassed or unsupported: {e}")
             self._graph_captured = False
+            self._graph_num_atoms = None
             self.cuda_graph = None
             return False
 
@@ -396,6 +430,27 @@ class SoftQuenchGovernor:
         if atoms.calc is None:
             raise ValueError("Cannot execute soft-quench on Atoms without an attached calculator.")
 
+        # Pre-check for overlapping atom coordinates (r < 0.05 A) to prevent numerical singularities
+        positions = atoms.get_positions()
+        num_atoms = len(atoms)
+        if num_atoms > 1:
+            modified = False
+            for i in range(num_atoms):
+                for j in range(i + 1, num_atoms):
+                    diff = positions[j] - positions[i]
+                    dist = float(np.linalg.norm(diff))
+                    if dist < 0.05:
+                        logger.warning(
+                            f"Direct coordinate collision detected between atom {i} and {j} (r = {dist:.4f} Å). "
+                            "Applying initial separation displacement."
+                        )
+                        # Apply small displacement along z or random direction
+                        jitter = np.array([0.0, 0.0, 0.15], dtype=np.float64) if dist < 1e-6 else (diff / dist) * 0.15
+                        positions[j] += jitter
+                        modified = True
+            if modified:
+                atoms.set_positions(positions)
+
         try:
             init_forces = atoms.get_forces()
             init_energy = float(atoms.get_potential_energy())
@@ -428,18 +483,30 @@ class SoftQuenchGovernor:
 
         curr_forces = init_forces.copy()
         curr_energy = init_energy
+        prev_energy = init_energy
         curr_fmax = initial_fmax
+        curr_step_size = self.soft_quench_step_size
         step = 0
 
         while curr_fmax > self.force_safe_threshold and step < self.max_soft_steps:
+            if not np.isfinite(curr_fmax) or not np.isfinite(curr_energy):
+                logger.error(f"Soft-Quench encountered non-finite force/energy at step {step}: fmax={curr_fmax}, energy={curr_energy}")
+                break
+
             if trajectory_callback is not None:
                 trajectory_callback(step, atoms, curr_energy, curr_forces)
 
+            # Adaptive step size: decay step size if energy increases to prevent 2-cycle oscillations
+            if step > 0 and curr_energy > prev_energy:
+                curr_step_size = max(curr_step_size * 0.7, 0.001)
+
+            prev_energy = curr_energy
+
             # Gradient clipping: displace atoms along force direction
-            # Scale so the atom under highest force moves by exactly soft_quench_step_size,
+            # Scale so the atom under highest force moves by exactly curr_step_size,
             # and all other atoms move proportionally
             norm_denominator = max(curr_fmax, 1e-12)
-            displacements = (curr_forces / norm_denominator) * self.soft_quench_step_size
+            displacements = (curr_forces / norm_denominator) * curr_step_size
 
             # Update coordinates
             new_positions = atoms.get_positions() + displacements
@@ -609,6 +676,11 @@ class CalculatorFactory:
         else:
             resolved_dev = DeviceType(dev_str)
 
+        # Fallback to CPU if CUDA requested but unavailable in PyTorch runtime
+        if resolved_dev == DeviceType.CUDA and (torch is None or not torch.cuda.is_available()):
+            logger.debug("CUDA device requested but torch.cuda is not available. Cascading to CPU.")
+            resolved_dev = DeviceType.CPU
+
         # 1. MACE Tier
         if "MACE" in engine_str:
             try:
@@ -631,7 +703,7 @@ class CalculatorFactory:
                 logger.debug(f"AIMNet2 calculator not available: {e}. Cascading to xTB / built-in.")
 
         # 3. Semi-empirical xTB / TBLite Tier
-        if any(k in engine_str for k in ("xTB", "g-xTB", "XTB")):
+        if any(k in engine_str for k in ("xTB", "g-xTB", "XTB")) or ("MACE" in engine_str) or ("AIMNet" in engine_str):
             try:
                 from tblite.ase import TBLite
                 calc = TBLite(method="GFN2-xTB")
@@ -645,15 +717,16 @@ class CalculatorFactory:
                     logger.debug(f"xTB/TBLite binary not installed: {e}. Cascading to built-in calculators.")
 
         # 4. Built-in Real Calculators (EMT, LJ, TorchMLFF)
-        z_set = set(atomic_numbers)
+        if atomic_numbers:
+            z_set = set(atomic_numbers)
 
-        # If system contains only EMT elements (e.g. Cu2, Pt, Au)
-        if z_set.issubset(cls.EMT_ELEMENTS):
-            return EMT(), EngineTier.G_XTB, DeviceType.CPU
+            # If system contains only EMT elements (e.g. Cu2, Pt, Au)
+            if z_set.issubset(cls.EMT_ELEMENTS):
+                return EMT(), EngineTier.G_XTB, DeviceType.CPU
 
-        # If system contains noble gases
-        if z_set.issubset(cls.NOBLE_GAS_ELEMENTS):
-            return LennardJones(sigma=3.4, epsilon=0.01), EngineTier.XTB2, DeviceType.CPU
+            # If system contains noble gases
+            if z_set.issubset(cls.NOBLE_GAS_ELEMENTS):
+                return LennardJones(sigma=3.4, epsilon=0.01), EngineTier.XTB2, DeviceType.CPU
 
         # Default universal analytical PyTorch MLFF calculator
         torch_calc = TorchMLFFCalculator(
@@ -743,7 +816,7 @@ class ParallelASEQuenchRunner:
 
         # Ensure database manager is ready if persistence is requested
         db_mgr = self.memory_manager
-        if db_mgr is None and cfg.save_to_hdf5:
+        if (db_mgr is None and cfg.save_to_hdf5) or (cfg.db_path is not None and (db_mgr is None or db_mgr.db_path != cfg.db_path)):
             db_mgr = ToposHDF5MemoryManager(db_path=cfg.db_path)
 
         results: List[QuenchResult] = []
@@ -762,15 +835,15 @@ class ParallelASEQuenchRunner:
                 results.append(worker_fn(item))
         else:
             with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-                futures = [executor.submit(worker_fn, item) for item in normalized_inputs]
-                for f in futures:
+                futures = [(executor.submit(worker_fn, item), item[0]) for item in normalized_inputs]
+                for f, gid in futures:
                     try:
                         results.append(f.result())
                     except Exception as e:
-                        logger.error(f"Batch quench worker raised exception: {e}")
+                        logger.error(f"Batch quench worker [{gid}] raised exception: {e}")
                         results.append(
                             QuenchResult(
-                                geom_id="unknown_error",
+                                geom_id=gid,
                                 status=QuenchStatus.FAILED,
                                 converged=False,
                                 initial_energy=0.0,

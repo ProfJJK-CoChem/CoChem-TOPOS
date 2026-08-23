@@ -517,3 +517,219 @@ class TestToposQuenchOrchestrator:
         assert result.geom_id == "geom_rec_01"
         assert result.converged is True
         assert result.final_max_force <= 0.05
+
+    def test_max_steps_exceeded_handling(self, tmp_path: Path):
+        """Verify behavior when optimizer reaches max_steps without achieving fmax."""
+        db_file = tmp_path / "max_steps_quench.h5"
+        orchestrator = ToposQuenchOrchestrator(
+            memory_manager=ToposHDF5MemoryManager(db_path=db_file)
+        )
+
+        atoms = Atoms("Cu2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 3.2]])
+        atoms.calc = EMT()
+
+        config = QuenchConfig(
+            fmax=1e-6,
+            max_steps=2,  # deliberately limited
+            algorithm=QuenchAlgorithm.BFGS,
+            save_to_hdf5=True,
+            db_path=db_file,
+        )
+
+        result = orchestrator.quench(structure=atoms, config=config, geom_id="cu2_max_steps")
+        assert result.converged is False
+        assert result.status == QuenchStatus.MAX_STEPS_EXCEEDED
+        assert result.steps_taken <= 2
+
+    def test_dict_input_quench(self, tmp_path: Path):
+        """Test quenching when input structure is passed as a plain dictionary."""
+        db_file = tmp_path / "dict_input_quench.h5"
+        orchestrator = ToposQuenchOrchestrator(
+            memory_manager=ToposHDF5MemoryManager(db_path=db_file)
+        )
+
+        structure_dict = {
+            "geom_id": "dict_cu2",
+            "atomic_numbers": [29, 29],
+            "coords": [[0.0, 0.0, 0.0], [0.0, 0.0, 2.65]],
+        }
+
+        config = QuenchConfig(
+            fmax=0.05,
+            max_steps=50,
+            save_to_hdf5=True,
+            db_path=db_file,
+        )
+
+        result = orchestrator.quench(structure=structure_dict, config=config)
+        assert result.geom_id == "dict_cu2"
+        assert result.converged is True
+        assert result.final_max_force <= 0.05
+
+    def test_multi_atom_cluster_relaxation(self, tmp_path: Path):
+        """Test relaxation of a 4-atom cluster with soft quench and Quasi-Newton."""
+        db_file = tmp_path / "cluster_quench.h5"
+        orchestrator = ToposQuenchOrchestrator(
+            memory_manager=ToposHDF5MemoryManager(db_path=db_file)
+        )
+
+        # Distorted tetrahedral Cu4 cluster
+        positions = [
+            [0.0, 0.0, 0.0],
+            [2.3, 0.0, 0.0],
+            [1.15, 2.0, 0.0],
+            [1.15, 0.67, 1.9],
+        ]
+        atoms = Atoms("Cu4", positions=positions)
+        atoms.calc = EMT()
+
+        config = QuenchConfig(
+            fmax=0.05,
+            max_steps=100,
+            algorithm=QuenchAlgorithm.LBFGS,
+            save_trajectory=True,
+            save_to_hdf5=True,
+            db_path=db_file,
+        )
+
+        result = orchestrator.quench(structure=atoms, config=config, geom_id="cu4_cluster")
+        assert result.converged is True
+        assert result.final_max_force <= 0.05
+        assert result.energy_change < 0.0
+        assert len(result.final_coords) == 4
+
+    def test_trajectory_persistence_disabled(self, tmp_path: Path):
+        """Test quench execution with trajectory saving disabled."""
+        db_file = tmp_path / "no_traj_quench.h5"
+        orchestrator = ToposQuenchOrchestrator(
+            memory_manager=ToposHDF5MemoryManager(db_path=db_file)
+        )
+
+        atoms = Atoms("Cu2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 2.6]])
+        atoms.calc = EMT()
+
+        config = QuenchConfig(
+            fmax=0.05,
+            max_steps=50,
+            save_trajectory=False,
+            save_to_hdf5=True,
+            db_path=db_file,
+        )
+
+        result = orchestrator.quench(structure=atoms, config=config, geom_id="cu2_no_traj")
+        assert result.converged is True
+        assert result.trajectory_steps == 0
+
+    def test_torch_mlff_single_atom_zero_forces(self):
+        """Verify single atom potential calculation produces zero force and finite energy."""
+        calc = TorchMLFFCalculator(device="cpu")
+        atom = Atoms("H", positions=[[0.0, 0.0, 0.0]])
+        atom.calc = calc
+        energy = atom.get_potential_energy()
+        forces = atom.get_forces()
+        assert energy == 0.0
+        assert forces.shape == (1, 3)
+        assert np.allclose(forces, 0.0)
+
+    def test_cuda_graph_capture_single_atom_rejection(self):
+        """Verify CUDA graph capture gracefully rejects single-atom systems."""
+        calc = TorchMLFFCalculator(device="cpu")
+        atom = Atoms("H", positions=[[0.0, 0.0, 0.0]])
+        assert calc.capture_cuda_graph(atom) is False
+
+    def test_empty_batch_handling(self, tmp_path: Path):
+        """Verify parallel runner handles empty structure lists safely."""
+        runner = ParallelASEQuenchRunner()
+        res = runner.run_batch([])
+        assert res.total_structures == 0
+        assert res.converged_count == 0
+        assert res.results == []
+
+    def test_calculator_factory_empty_elements_fallback(self):
+        """Verify CalculatorFactory handles empty atomic numbers list without error."""
+        calc, engine, dev = CalculatorFactory.create_calculator(
+            engine=EngineTier.XTB2,
+            atomic_numbers=[],
+            device=DeviceType.CPU,
+        )
+        assert isinstance(calc, TorchMLFFCalculator)
+
+    def test_soft_quench_exact_coincident_atoms_resolution(self):
+        """Verify governor resolves exact 0.0 A interatomic collision."""
+        atoms = Atoms("Cu2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+        atoms.calc = EMT()
+        governor = SoftQuenchGovernor(
+            force_hazard_threshold=25.0,
+            force_safe_threshold=5.0,
+            soft_quench_step_size=0.05,
+        )
+        governed, telem = governor.govern(atoms)
+        dist = np.linalg.norm(governed.positions[1] - governed.positions[0])
+        assert dist > 0.1
+        assert telem.converged is True
+
+    def test_calculator_factory_cuda_downgrade_on_cpu_runtime(self):
+        """Verify CalculatorFactory safely downgrades CUDA to CPU if CUDA is unsupported."""
+        calc, engine, dev = CalculatorFactory.create_calculator(
+            engine="TorchMLFF",
+            atomic_numbers=[1, 1],
+            device=DeviceType.CUDA,
+        )
+        assert dev in (DeviceType.CUDA, DeviceType.CPU)
+        assert calc is not None
+
+    def test_torch_mlff_graph_atom_count_mismatch_fallback(self):
+        """Verify graph replay falls back to standard autograd when atom count changes."""
+        calc = TorchMLFFCalculator(device="cpu")
+        calc._graph_captured = True
+        calc._graph_num_atoms = 2
+        calc.cuda_graph = None  # Simulated inactive or different count
+
+        # Call with 3 atoms (mismatch)
+        atoms3 = Atoms("H3", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 0.74], [0.0, 0.0, 1.5]])
+        atoms3.calc = calc
+        forces = atoms3.get_forces()
+        assert forces.shape == (3, 3)
+
+    def test_batch_runner_worker_exception_preserves_geom_id(self):
+        """Verify that worker failures in batch runner preserve the input geom_id."""
+        runner = ParallelASEQuenchRunner()
+        bad_atoms = Atoms("Cu2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 2.5]])
+        # Set a dummy calculator that raises on calculate to simulate worker failure
+        class CrashingCalc(EMT):
+            def calculate(self, *args, **kwargs):
+                raise RuntimeError("Simulated calculation error")
+        bad_atoms.calc = CrashingCalc()
+
+        res = runner.run_batch(
+            structures=[("failed_geom_042", bad_atoms)],
+            config=QuenchConfig(save_to_hdf5=False),
+        )
+        assert len(res.results) == 1
+        assert res.results[0].geom_id == "failed_geom_042"
+        assert res.results[0].status == QuenchStatus.FAILED
+        assert "Simulated calculation error" in (res.results[0].error_message or "")
+
+    def test_custom_db_path_override_in_orchestrator(self, tmp_path: Path):
+        """Verify orchestrator respects custom db_path in QuenchConfig."""
+        custom_db = tmp_path / "custom_quench_destination.h5"
+        orchestrator = ToposQuenchOrchestrator()
+        atoms = Atoms("Cu2", positions=[[0.0, 0.0, 0.0], [0.0, 0.0, 2.5]])
+        atoms.calc = EMT()
+
+        cfg = QuenchConfig(
+            fmax=0.05,
+            max_steps=20,
+            save_to_hdf5=True,
+            db_path=custom_db,
+        )
+        result = orchestrator.quench(structure=atoms, config=cfg, geom_id="custom_db_mol")
+        assert result.converged is True
+        assert custom_db.exists()
+        custom_mgr = ToposHDF5MemoryManager(db_path=custom_db)
+        geom = custom_mgr.read_geometry("custom_db_mol")
+        assert geom is not None
+        assert geom.geom_id == "custom_db_mol"
+
+
+

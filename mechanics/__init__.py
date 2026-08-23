@@ -1,9 +1,31 @@
 """
 CoChem-TOPOS: Mechanics Subsystem
 Provides hardware brokering, HDF5 SWMR state management, universal fallback cascade,
-precision downgrade protocol, and lightning PES quench relaxation.
+precision downgrade protocol, lightning PES quench relaxation, and topographic escape room
+with Wigner-guided normal mode kicks and progressive Langevin thermal auto-tuning.
 """
 
+from .cochem_topos_escape import (
+    EscapeConfig,
+    EscapeMechanism,
+    EscapeResult,
+    EscapeRoom,
+    EscapeStatus,
+    EscapeTelemetryPacket,
+    FAIRProvenanceRecord,
+    GoodTuringEstimator,
+    IPCTelemetryBroadcaster,
+    NormalModeAnalysisResult,
+    ParityLock,
+    PhotochemicalShockEngine,
+    ProgressiveLangevinEscape,
+    ToposEscapeOrchestrator,
+    WignerGuidedEscape,
+    WignerModeInfo,
+    calculate_rmsd,
+    canonical_geometry_hash,
+    create_fair_provenance_record,
+)
 from .cochem_topos_memory import (
     CascadeState,
     DeviceType,
@@ -21,10 +43,9 @@ from .cochem_topos_memory import (
     TrajectoryStep,
     UniversalFallbackCascade,
 )
-
 from .cochem_topos_quench import (
-    CUDAGraphOptimizerWrapper,
     CalculatorFactory,
+    CUDAGraphOptimizerWrapper,
     ParallelASEQuenchRunner,
     QuenchAlgorithm,
     QuenchBatchResult,
@@ -67,4 +88,24 @@ __all__ = [
     "SoftQuenchTelemetry",
     "ToposQuenchOrchestrator",
     "TorchMLFFCalculator",
+    # Escape room and basin exploration
+    "EscapeConfig",
+    "EscapeMechanism",
+    "EscapeResult",
+    "EscapeRoom",
+    "EscapeStatus",
+    "EscapeTelemetryPacket",
+    "FAIRProvenanceRecord",
+    "GoodTuringEstimator",
+    "IPCTelemetryBroadcaster",
+    "NormalModeAnalysisResult",
+    "ParityLock",
+    "PhotochemicalShockEngine",
+    "ProgressiveLangevinEscape",
+    "ToposEscapeOrchestrator",
+    "WignerGuidedEscape",
+    "WignerModeInfo",
+    "calculate_rmsd",
+    "canonical_geometry_hash",
+    "create_fair_provenance_record",
 ]

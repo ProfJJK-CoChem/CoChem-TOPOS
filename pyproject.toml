@@ -142,6 +142,8 @@ module = [
     "cochem_topos_schemas.*",
     "cochem_topos_export.*",
     "cascade_engine.*",
+    "mechanics.*",
+    "pyscf.*",
     "export_utils.*",
     "parsl.*"
 ]
