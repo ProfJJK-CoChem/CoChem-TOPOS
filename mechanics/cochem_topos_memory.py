@@ -13,16 +13,20 @@ import logging
 import os
 import sys
 import time
+
 from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Sequence, Set, Tuple, Union
 
+# Disable HDF5 internal file locking to prevent Windows handle collision during SWMR / concurrent access
+os.environ.setdefault("HDF5_USE_FILE_LOCKING", "FALSE")
+
 import h5py
 import numpy as np
 import psutil
 from filelock import FileLock, Timeout
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 # Optional acceleration libraries with robust fallback
 try:
@@ -154,6 +158,39 @@ class GeometryRecord(BaseModel):
                 raise ValueError(f"Invalid atomic number: {z}")
         return v
 
+    @field_validator("coords")
+    @classmethod
+    def validate_coords(cls, v: List[List[float]]) -> List[List[float]]:
+        if not v:
+            raise ValueError("coords list must not be empty.")
+        for idx, coord in enumerate(v):
+            if len(coord) != 3:
+                raise ValueError(f"Coordinate at index {idx} has invalid dimension {len(coord)}, expected 3.")
+        return v
+
+    @model_validator(mode="after")
+    def validate_geometry_dimensions(self) -> GeometryRecord:
+        n_atoms = len(self.atomic_numbers)
+        if len(self.coords) != n_atoms:
+            raise ValueError(
+                f"Dimension mismatch: len(coords)={len(self.coords)} != len(atomic_numbers)={n_atoms}"
+            )
+        if self.gradient is not None and len(self.gradient) > 0:
+            if len(self.gradient) != n_atoms:
+                raise ValueError(
+                    f"Dimension mismatch: len(gradient)={len(self.gradient)} != len(atomic_numbers)={n_atoms}"
+                )
+            for idx, grad in enumerate(self.gradient):
+                if len(grad) != 3:
+                    raise ValueError(f"Gradient at index {idx} has invalid dimension {len(grad)}, expected 3.")
+        if self.hessian is not None and len(self.hessian) > 0:
+            expected_dim = 3 * n_atoms
+            if len(self.hessian) != expected_dim:
+                raise ValueError(
+                    f"Dimension mismatch: len(hessian)={len(self.hessian)} != 3*N={expected_dim}"
+                )
+        return self
+
 
 class TrajectoryStep(BaseModel):
     """Single step in a molecular dynamics or optimization trajectory."""
@@ -254,15 +291,27 @@ class ToposHDF5MemoryManager:
     def open_reader(self) -> Generator[h5py.File, None, None]:
         """Open HDF5 file in read mode with latest libver (SWMR safe)."""
         f = None
-        try:
+        max_retries = 10
+        for attempt in range(max_retries):
             try:
-                f = h5py.File(self.db_path, "r", libver="latest", swmr=True)
-            except (RuntimeError, ValueError):
-                f = h5py.File(self.db_path, "r", libver="latest")
+                try:
+                    f = h5py.File(self.db_path, "r", libver="latest", swmr=True)
+                except (RuntimeError, ValueError, OSError):
+                    f = h5py.File(self.db_path, "r", libver="latest")
+                break
+            except (OSError, RuntimeError) as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.01 * (attempt + 1))
+                else:
+                    raise e
+        try:
             yield f
         finally:
             if f is not None:
-                f.close()
+                try:
+                    f.close()
+                except Exception:
+                    pass
 
     def write_geometry(self, record: Union[GeometryRecord, Dict[str, Any]]) -> None:
         """
@@ -271,31 +320,46 @@ class ToposHDF5MemoryManager:
         if isinstance(record, dict):
             record = GeometryRecord(**record)
 
-        try:
-            with self.lock:
-                with h5py.File(self.db_path, "a", libver="latest") as f:
-                    geoms_grp = f["geometries"]
-                    if record.geom_id in geoms_grp:
-                        del geoms_grp[record.geom_id]
+        max_retries = 10
+        for attempt in range(max_retries):
+            try:
+                with self.lock:
+                    with h5py.File(self.db_path, "a", libver="latest") as f:
+                        geoms_grp = f["geometries"]
+                        if record.geom_id in geoms_grp:
+                            g = geoms_grp[record.geom_id]
+                            if "atomic_numbers" in g:
+                                del g["atomic_numbers"]
+                            if "coordinates" in g:
+                                del g["coordinates"]
+                            if "gradient_matrix" in g:
+                                del g["gradient_matrix"]
+                            if "hessian_matrix" in g:
+                                del g["hessian_matrix"]
+                        else:
+                            g = geoms_grp.create_group(record.geom_id)
 
-                    g = geoms_grp.create_group(record.geom_id)
-                    g.create_dataset("atomic_numbers", data=np.array(record.atomic_numbers, dtype=np.int32))
-                    g.create_dataset("coordinates", data=np.array(record.coords, dtype=np.float64))
-                    g.attrs["electronic_energy_hartree"] = float(record.energy)
+                        g.create_dataset("atomic_numbers", data=np.array(record.atomic_numbers, dtype=np.int32))
+                        g.create_dataset("coordinates", data=np.array(record.coords, dtype=np.float64))
+                        g.attrs["electronic_energy_hartree"] = float(record.energy)
 
-                    if record.gradient is not None and len(record.gradient) > 0:
-                        g.create_dataset("gradient_matrix", data=np.array(record.gradient, dtype=np.float64))
+                        if record.gradient is not None and len(record.gradient) > 0:
+                            g.create_dataset("gradient_matrix", data=np.array(record.gradient, dtype=np.float64))
 
-                    if record.hessian is not None and len(record.hessian) > 0:
-                        g.create_dataset("hessian_matrix", data=np.array(record.hessian, dtype=np.float64))
+                        if record.hessian is not None and len(record.hessian) > 0:
+                            g.create_dataset("hessian_matrix", data=np.array(record.hessian, dtype=np.float64))
 
-                    g.attrs["metadata_json"] = json.dumps(record.metadata)
-                    g.attrs["updated_at"] = time.time()
-                    f.flush()
-            logger.debug(f"Successfully serialized geometry [{record.geom_id}] to {self.db_path}")
-        except Exception as e:
-            logger.error(f"Failed to write geometry [{record.geom_id}]: {e}")
-            raise RuntimeError(f"HDF5 geometry write failure: {e}") from e
+                        g.attrs["metadata_json"] = json.dumps(record.metadata)
+                        g.attrs["updated_at"] = time.time()
+                        f.flush()
+                logger.debug(f"Successfully serialized geometry [{record.geom_id}] to {self.db_path}")
+                return
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.01 * (attempt + 1))
+                else:
+                    logger.error(f"Failed to write geometry [{record.geom_id}]: {e}")
+                    raise RuntimeError(f"HDF5 geometry write failure: {e}") from e
 
     def read_geometry(self, geom_id: str) -> Optional[GeometryRecord]:
         """
@@ -345,32 +409,43 @@ class ToposHDF5MemoryManager:
         if isinstance(step, dict):
             step = TrajectoryStep(**step)
 
-        try:
-            with self.lock:
-                with h5py.File(self.db_path, "a", libver="latest") as f:
-                    trajs_grp = f["trajectories"]
-                    if step.geom_id not in trajs_grp:
-                        traj_geom = trajs_grp.create_group(step.geom_id)
-                    else:
-                        traj_geom = trajs_grp[step.geom_id]
+        max_retries = 10
+        for attempt in range(max_retries):
+            try:
+                with self.lock:
+                    with h5py.File(self.db_path, "a", libver="latest") as f:
+                        trajs_grp = f["trajectories"]
+                        if step.geom_id not in trajs_grp:
+                            traj_geom = trajs_grp.create_group(step.geom_id)
+                        else:
+                            traj_geom = trajs_grp[step.geom_id]
 
-                    step_key = f"{step.step_index:06d}"
-                    if step_key in traj_geom:
-                        del traj_geom[step_key]
+                        step_key = f"{step.step_index:06d}"
+                        if step_key in traj_geom:
+                            sg = traj_geom[step_key]
+                            if "coordinates" in sg:
+                                del sg["coordinates"]
+                            if "forces" in sg:
+                                del sg["forces"]
+                        else:
+                            sg = traj_geom.create_group(step_key)
 
-                    sg = traj_geom.create_group(step_key)
-                    sg.create_dataset("coordinates", data=np.array(step.coords, dtype=np.float64))
-                    sg.attrs["energy"] = float(step.energy)
-                    sg.attrs["timestamp"] = float(step.timestamp)
-                    sg.attrs["step_index"] = int(step.step_index)
+                        sg.create_dataset("coordinates", data=np.array(step.coords, dtype=np.float64))
+                        sg.attrs["energy"] = float(step.energy)
+                        sg.attrs["timestamp"] = float(step.timestamp)
+                        sg.attrs["step_index"] = int(step.step_index)
 
-                    if step.forces is not None and len(step.forces) > 0:
-                        sg.create_dataset("forces", data=np.array(step.forces, dtype=np.float64))
+                        if step.forces is not None and len(step.forces) > 0:
+                            sg.create_dataset("forces", data=np.array(step.forces, dtype=np.float64))
 
-                    f.flush()
-        except Exception as e:
-            logger.error(f"Failed to append trajectory step for [{step.geom_id}]: {e}")
-            raise RuntimeError(f"HDF5 trajectory append failure: {e}") from e
+                        f.flush()
+                return
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.01 * (attempt + 1))
+                else:
+                    logger.error(f"Failed to append trajectory step for [{step.geom_id}]: {e}")
+                    raise RuntimeError(f"HDF5 trajectory append failure: {e}") from e
 
     def read_trajectory(self, geom_id: str) -> List[TrajectoryStep]:
         """
@@ -418,27 +493,36 @@ class ToposHDF5MemoryManager:
         if isinstance(telemetry, dict):
             telemetry = TelemetryRecord(**telemetry)
 
-        try:
-            with self.lock:
-                with h5py.File(self.db_path, "a", libver="latest") as f:
-                    telem_grp = f["telemetry"]
-                    if telemetry.record_id in telem_grp:
-                        del telem_grp[telemetry.record_id]
+        max_retries = 10
+        for attempt in range(max_retries):
+            try:
+                with self.lock:
+                    with h5py.File(self.db_path, "a", libver="latest") as f:
+                        telem_grp = f["telemetry"]
+                        if telemetry.record_id in telem_grp:
+                            tg = telem_grp[telemetry.record_id]
+                        else:
+                            tg = telem_grp.create_group(telemetry.record_id)
 
-                    tg = telem_grp.create_group(telemetry.record_id)
-                    tg.attrs["timestamp"] = float(telemetry.timestamp)
-                    tg.attrs["engine"] = str(telemetry.engine)
-                    tg.attrs["device"] = str(telemetry.device)
-                    tg.attrs["batch_size"] = int(telemetry.batch_size)
-                    tg.attrs["ram_used_bytes"] = int(telemetry.ram_used_bytes)
-                    tg.attrs["vram_used_bytes"] = int(telemetry.vram_used_bytes)
-                    if telemetry.duration_seconds is not None:
-                        tg.attrs["duration_seconds"] = float(telemetry.duration_seconds)
-                    tg.attrs["extra_json"] = json.dumps(telemetry.extra)
-                    f.flush()
-        except Exception as e:
-            logger.error(f"Failed to record telemetry [{telemetry.record_id}]: {e}")
-            raise RuntimeError(f"HDF5 telemetry write failure: {e}") from e
+                        tg.attrs["timestamp"] = float(telemetry.timestamp)
+                        tg.attrs["engine"] = str(telemetry.engine)
+                        tg.attrs["device"] = str(telemetry.device)
+                        tg.attrs["batch_size"] = int(telemetry.batch_size)
+                        tg.attrs["ram_used_bytes"] = int(telemetry.ram_used_bytes)
+                        tg.attrs["vram_used_bytes"] = int(telemetry.vram_used_bytes)
+                        if telemetry.duration_seconds is not None:
+                            tg.attrs["duration_seconds"] = float(telemetry.duration_seconds)
+                        elif "duration_seconds" in tg.attrs:
+                            del tg.attrs["duration_seconds"]
+                        tg.attrs["extra_json"] = json.dumps(telemetry.extra)
+                        f.flush()
+                return
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    time.sleep(0.01 * (attempt + 1))
+                else:
+                    logger.error(f"Failed to record telemetry [{telemetry.record_id}]: {e}")
+                    raise RuntimeError(f"HDF5 telemetry write failure: {e}") from e
 
     def read_telemetry(self, record_id: Optional[str] = None) -> Union[List[TelemetryRecord], Optional[TelemetryRecord]]:
         """
@@ -606,6 +690,10 @@ class HardwareResourceBroker:
         Returns:
             int: Safe batch size (>= 1).
         """
+        if num_atoms < 1:
+            raise ValueError(f"num_atoms must be at least 1, got {num_atoms}")
+        memory_safety_factor = max(0.01, min(1.0, float(memory_safety_factor)))
+
         snapshot = self.poll_hardware()
         engine_str = engine.value if isinstance(engine, EngineTier) else str(engine)
         dev_str = target_device.value if isinstance(target_device, DeviceType) else str(target_device).lower()
@@ -660,6 +748,9 @@ class HardwareResourceBroker:
         target_device: Union[DeviceType, str] = DeviceType.AUTO,
     ) -> bool:
         """Verify if host machine has sufficient headroom for a required allocation."""
+        if required_bytes <= 0:
+            return True
+
         snapshot = self.poll_hardware()
         dev_str = target_device.value if isinstance(target_device, DeviceType) else str(target_device).lower()
 
@@ -782,6 +873,9 @@ class FallbackCascadeStateMachine:
         Returns:
             CascadeState: Final resolved state with audit trail of transitions.
         """
+        if not atomic_numbers:
+            raise ValueError("atomic_numbers sequence must not be empty.")
+
         active_broker = broker or self.broker
         initial_tier = (
             EngineTier(requested_engine)

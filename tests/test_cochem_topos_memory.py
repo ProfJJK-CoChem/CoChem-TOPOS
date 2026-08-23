@@ -203,22 +203,24 @@ class TestToposHDF5MemoryManager:
             manager.write_geometry(record)
             return idx
 
-        def worker_read(idx: int):
-            # Attempt to read existing or just-written geometry
-            return manager.read_geometry(f"geom_worker_{idx}")
+        def worker_interleaved(idx: int):
+            record = GeometryRecord(
+                geom_id=f"geom_worker_{idx}",
+                atomic_numbers=[1, 1],
+                coords=[[0.0, 0.0, 0.0], [0.0, 0.0, float(idx) * 0.1]],
+                energy=-1.0 - float(idx),
+                metadata={"worker_idx": idx},
+            )
+            manager.write_geometry(record)
+            read_back = manager.read_geometry(f"geom_worker_{idx}")
+            assert read_back is not None
+            assert read_back.geom_id == f"geom_worker_{idx}"
+            return idx
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
-            # Write 20 records concurrently
-            write_futures = [executor.submit(worker_write, i) for i in range(20)]
-            for f in concurrent.futures.as_completed(write_futures):
+            futures = [executor.submit(worker_interleaved, i) for i in range(20)]
+            for f in concurrent.futures.as_completed(futures):
                 assert f.result() >= 0
-
-            # Read them concurrently
-            read_futures = [executor.submit(worker_read, i) for i in range(20)]
-            for f in concurrent.futures.as_completed(read_futures):
-                res = f.result()
-                assert res is not None
-                assert res.geom_id.startswith("geom_worker_")
 
         geoms = manager.list_geometries()
         assert len(geoms) == 20
@@ -505,7 +507,7 @@ class TestIntegratedMechanicsMemory:
         safe_batch = broker.calculate_safe_batch_size(num_atoms=len(rh_complex), engine=state.current_engine)
         assert safe_batch >= 1
 
-        # 5. Compute FP64 tensor mock data (real numpy computation) and downgrade
+        # 5. Generate FP64 tensor test data (real numpy computation) and downgrade
         raw_coords = np.random.RandomState(42).randn(len(rh_complex), 3).astype(np.float64)
         raw_grad = np.random.RandomState(42).randn(len(rh_complex), 3).astype(np.float64)
 
@@ -573,6 +575,44 @@ class TestIntegratedMechanicsMemory:
                 energy=0.0,
             )
 
+        # Coordinate dimension mismatch (not length 3)
+        with pytest.raises(ValueError):
+            GeometryRecord(
+                geom_id="invalid_coord_dim",
+                atomic_numbers=[1],
+                coords=[[0.0, 0.0]],  # 2D instead of 3D
+                energy=0.0,
+            )
+
+        # Coordinate count mismatch vs atomic numbers
+        with pytest.raises(ValueError):
+            GeometryRecord(
+                geom_id="invalid_coord_count",
+                atomic_numbers=[1, 1],
+                coords=[[0.0, 0.0, 0.0]],  # 1 coord for 2 atoms
+                energy=0.0,
+            )
+
+        # Gradient dimension mismatch
+        with pytest.raises(ValueError):
+            GeometryRecord(
+                geom_id="invalid_grad_dim",
+                atomic_numbers=[1],
+                coords=[[0.0, 0.0, 0.0]],
+                energy=0.0,
+                gradient=[[0.0, 0.0]],  # 2D gradient
+            )
+
+        # Hessian dimension mismatch (expected 3N = 3 for 1 atom)
+        with pytest.raises(ValueError):
+            GeometryRecord(
+                geom_id="invalid_hessian_dim",
+                atomic_numbers=[1],
+                coords=[[0.0, 0.0, 0.0]],
+                energy=0.0,
+                hessian=[[1.0]],  # 1x1 instead of 3x3
+            )
+
     def test_geometry_overwrite_behavior(self, tmp_path: Path):
         """Test overwriting existing geometry record updates fields cleanly."""
         db_file = tmp_path / "overwrite_test.h5"
@@ -624,4 +664,24 @@ class TestIntegratedMechanicsMemory:
         state = cascade.resolve_engine(atomic_numbers=superheavy, requested_engine=EngineTier.MACE_OFF24M)
         assert state.current_engine == EngineTier.XTB2
         assert state.is_downgraded
+
+    def test_boundary_conditions_and_edge_cases(self):
+        """Test edge cases: zero atoms, negative headroom check, empty atomic_numbers."""
+        broker = HardwareResourceBroker()
+        cascade = FallbackCascadeStateMachine()
+
+        # Zero or negative atoms raises ValueError
+        with pytest.raises(ValueError):
+            broker.calculate_safe_batch_size(num_atoms=0, engine=EngineTier.MACE_OFF24M)
+
+        with pytest.raises(ValueError):
+            broker.calculate_safe_batch_size(num_atoms=-5, engine=EngineTier.MACE_OFF24M)
+
+        # Zero or negative headroom check returns True
+        assert broker.check_memory_headroom(required_bytes=0) is True
+        assert broker.check_memory_headroom(required_bytes=-100) is True
+
+        # Empty atomic numbers in cascade raises ValueError
+        with pytest.raises(ValueError):
+            cascade.resolve_engine(atomic_numbers=[], requested_engine=EngineTier.MACE_OFF24M)
 
