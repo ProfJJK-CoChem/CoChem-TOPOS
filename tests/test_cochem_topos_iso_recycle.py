@@ -18,24 +18,50 @@ import h5py
 import numpy as np
 import pytest
 
-from escalation.cochem_topos_iso_recycle import (
-    HESSIAN_UNIT_FACTORS,
-    HessianUnit,
-    IsotopeSubstitution,
-    IsotopologueDefinition,
-    IsotopologueRecycleResult,
-    NormalMode,
-    ThermochemicalCorrections,
-    ToposIsotopologueRecycler,
-    VibrationalAnalysis,
-    calculate_harmonic_kie,
-    get_exact_isotopic_mass,
-    get_isotopic_masses,
-    mass_weight_hessian,
-    project_translations_rotations,
-    recycle_hessian_frequencies,
-)
-from mechanics.cochem_topos_memory import GeometryRecord, ToposHDF5MemoryManager
+try:
+    from escalation.cochem_topos_iso_recycle import (
+        HESSIAN_UNIT_FACTORS,
+        HessianUnit,
+        IsotopeSubstitution,
+        IsotopologueDefinition,
+        IsotopologueRecycleResult,
+        NormalMode,
+        ThermochemicalCorrections,
+        ToposIsotopologueRecycler,
+        VibrationalAnalysis,
+        calculate_harmonic_kie,
+        get_exact_isotopic_mass,
+        get_isotopic_masses,
+        mass_weight_hessian,
+        project_translations_rotations,
+        recycle_hessian_frequencies,
+    )
+except ImportError:
+    from cochem_topos.cochem_topos_iso_recycle import (  # type: ignore[no-redef]
+        HESSIAN_UNIT_FACTORS,
+        HessianUnit,
+        IsotopeSubstitution,
+        IsotopologueDefinition,
+        IsotopologueRecycleResult,
+        NormalMode,
+        ThermochemicalCorrections,
+        ToposIsotopologueRecycler,
+        VibrationalAnalysis,
+        calculate_harmonic_kie,
+        get_exact_isotopic_mass,
+        get_isotopic_masses,
+        mass_weight_hessian,
+        project_translations_rotations,
+        recycle_hessian_frequencies,
+    )
+
+try:
+    from mechanics.cochem_topos_memory import GeometryRecord, ToposHDF5MemoryManager
+except ImportError:
+    from cochem_topos.cochem_topos_memory import (  # type: ignore[no-redef]
+        GeometryRecord,
+        ToposHDF5MemoryManager,
+    )
 
 
 # ============================================================================
@@ -350,36 +376,64 @@ class TestToposIsotopologueRecyclerHDF5:
     """Verifies database extraction, batch calculation, and SWMR persistence."""
 
     @pytest.fixture
-    def sample_h5_database(self, tmp_path: Path) -> tuple[Path, str]:
+    def persisted_h5_database(self, tmp_path: Path) -> tuple[Path, str]:
         """Creates an authentic HDF5 database with a converged water geometry & Hessian."""
         db_path = tmp_path / "landscape.h5"
         geom_id = "geom_water_cochem_opt"
 
         symbols = ["O", "H", "H"]
         atomic_numbers = [8, 1, 1]
-        coords = [
+        coords = np.array([
             [0.0000, 0.0000, 0.1173],
             [0.0000, 0.7572, -0.4692],
             [0.0000, -0.7572, -0.4692],
-        ]
-        hessian = (np.eye(9) * 15.0).tolist()
+        ], dtype=np.float64)
+
+        # Authentic C2v water valence force field Hessian (k_str=35.0 eV/A^2, k_bend=5.0 eV/A^2)
+        N = 3
+        H = np.zeros((3 * N, 3 * N), dtype=np.float64)
+        k_str = 35.0
+        k_bend = 5.0
+
+        d1 = coords[1] - coords[0]
+        u1 = d1 / np.linalg.norm(d1)
+        H_str1 = k_str * np.outer(u1, u1)
+
+        d2 = coords[2] - coords[0]
+        u2 = d2 / np.linalg.norm(d2)
+        H_str2 = k_str * np.outer(u2, u2)
+
+        H[0:3, 0:3] += H_str1 + H_str2
+        H[3:6, 3:6] += H_str1
+        H[0:3, 3:6] -= H_str1
+        H[3:6, 0:3] -= H_str1
+
+        H[6:9, 6:9] += H_str2
+        H[0:3, 6:9] -= H_str2
+        H[6:9, 0:3] -= H_str2
+
+        H[3:6, 6:9] += k_bend * np.eye(3)
+        H[6:9, 3:6] += k_bend * np.eye(3)
+        H[3:6, 3:6] += k_bend * np.eye(3)
+        H[6:9, 6:9] += k_bend * np.eye(3)
+
         energy = -76.4321
 
         mem = ToposHDF5MemoryManager(db_path=db_path)
         record = GeometryRecord(
             geom_id=geom_id,
             atomic_numbers=atomic_numbers,
-            coords=coords,
+            coords=coords.tolist(),
             energy=energy,
-            hessian=hessian,
+            hessian=H.tolist(),
             metadata={"level_of_theory": "wB97M-V/def2-TZVPP"},
         )
         mem.write_geometry(record)
         return db_path, geom_id
 
-    def test_recycler_extract_and_recycle_from_hdf5(self, sample_h5_database) -> None:
+    def test_recycler_extract_and_recycle_from_hdf5(self, persisted_h5_database) -> None:
         """Confirms extraction of baseline Hessian from HDF5 and calculation of isotopologues."""
-        db_path, geom_id = sample_h5_database
+        db_path, geom_id = persisted_h5_database
         recycler = ToposIsotopologueRecycler(db_path=db_path)
 
         definitions = [
@@ -411,9 +465,9 @@ class TestToposIsotopologueRecyclerHDF5:
             assert "substituted_masses" in d2o_grp
             assert d2o_grp.attrs["zpe_kcal_mol"] == d2o_res.isotopologue_zpe_kcal_mol
 
-    def test_recycler_read_persisted_isotopologue(self, sample_h5_database) -> None:
+    def test_recycler_read_persisted_isotopologue(self, persisted_h5_database) -> None:
         """Confirms reading saved isotopologue data from HDF5 preserving distinct baseline and isotopologue freqs."""
-        db_path, geom_id = sample_h5_database
+        db_path, geom_id = persisted_h5_database
         recycler = ToposIsotopologueRecycler(db_path=db_path)
 
         iso_def = IsotopologueDefinition(isotopologue_id="PerDeuterated", substitutions={"H": "D"})
@@ -428,9 +482,9 @@ class TestToposIsotopologueRecyclerHDF5:
         # For deuterated water, baseline (H2O) frequencies and isotopologue (D2O) frequencies must differ
         assert res_read.baseline_frequencies_cm1 != res_read.isotopologue_frequencies_cm1
 
-    def test_generate_standard_isotopologue_ensemble(self, sample_h5_database) -> None:
+    def test_generate_standard_isotopologue_ensemble(self, persisted_h5_database) -> None:
         """Verifies automatic generation of standard isotopologue suites."""
-        db_path, geom_id = sample_h5_database
+        db_path, geom_id = persisted_h5_database
         recycler = ToposIsotopologueRecycler(db_path=db_path)
 
         defs = recycler.generate_standard_isotopologues(geom_id=geom_id)
@@ -475,8 +529,8 @@ class TestRecyclerEdgeCases:
             [1.0, 0.0, 0.0],
             [0.0, 1.0, 0.0],
         ], dtype=np.float64)
-        masses = np.array([12.0, 1.0, 1.0])
-        A = np.random.RandomState(42).randn(9, 9)
+        masses = get_isotopic_masses(["C", "H", "H"])
+        A = np.sin(np.arange(81)).reshape(9, 9)
         H = A.T @ A
 
         P = project_translations_rotations(coords, masses)
@@ -490,8 +544,8 @@ class TestRecyclerEdgeCases:
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 1.1283],
         ], dtype=np.float64)
-        masses = np.array([12.0, 16.0])
         symbols = ["C", "O"]
+        masses = get_isotopic_masses(symbols)
 
         P = project_translations_rotations(coords, masses)
         assert P.shape == (6, 6)
