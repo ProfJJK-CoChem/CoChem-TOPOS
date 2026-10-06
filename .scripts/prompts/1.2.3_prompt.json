@@ -1,0 +1,14 @@
+{
+  "agent_name": "@cochem-coder",
+  "task_id": "TASK-1.2.3-ZERO-STATIC-DICTIONARY-AST-LINTER-AND-SENTINEL-GUARD",
+  "status": "APPROVED_FOR_EXECUTION",
+  "preconditions": [
+    "TASK-1.2.1-REGEX-TOKENIZATION-AND-NUCLIDE-MASS-DISAMBIGUATION (src/cochem_base/physics/nuclide_resolver.py)",
+    "TASK-1.2.2-DYNAMIC-MENDELEEV-DATABASE-QUERY-BINDING"
+  ],
+  "target_files": [
+    "ci_tools/mendeleev_ast_linter.py",
+    "tests/ci_tools/test_mendeleev_ast_linter.py"
+  ],
+  "prompt": "Implement WBS 1.2.3 Zero-Static-Dictionary AST Linter in ci_tools/mendeleev_ast_linter.py strictly adhering to L3_Decomposition_Task_1_VR01.md:L236-L245. The script must define an ast.NodeVisitor traversing dictionary definitions and assignment nodes across cochem_base/, raising errors if keys match chemical element symbols mapped to floating-point constants. The linter must mandate that all atomic mass constants are dynamically fetched via cochem_base.physics.nuclide_resolver or the mendeleev library. Governed by PCA-01 cryptographic receipts and PCA-05 role segregation."
+}

@@ -1,0 +1,76 @@
+{
+  "task_id": "TASK-1.2.4-UNIT-VERIFICATION-ACROSS-IUPAC-PERIODIC-TABLE-Z-1-118",
+  "document_id": "COCHEM-ADVERSARY-AUDIT-TASK1-2-4-20260911",
+  "council_session_id": "COUNCIL-SESSION-066-RATIFICATION",
+  "resolution_id": "COCHEM-COUNCIL-RES-066-ZERO-TRUST-DISPATCH",
+  "status": "TASK_1_2_4_SUCCESS",
+  "audit_phase": "DUAL_ASYMMETRIC_ZERO_TRUST_AUDIT",
+  "audit_verdict": "PASS [M]",
+  "quad_mirror_parity_verified": true,
+  "timestamp": "2026-09-11T08:08:00-05:00",
+  "subagent_telemetry": {
+    "auditor_persona": "adversary",
+    "caller_id": "0rchestrator",
+    "caller_conversation_id": "7811b865-4154-45d0-9707-2cb384c2dd8a",
+    "subagent_conversation_id": "20018ad6-c158-460c-8f55-61af08f3eefd",
+    "author_audited": "cochem-sdp-manager",
+    "test_agent_audited": "cochem-tester",
+    "empirical_benchmark": {
+      "test_suite": "tests/base/test_nuclide_resolver_periodic_table.py",
+      "total_tests": 6,
+      "passed_tests": 6,
+      "failed_tests": 0,
+      "execution_time_s": 57.07,
+      "python_version": "3.14.7",
+      "pytest_version": "9.1.1",
+      "status": "PASS [M]"
+    },
+    "subtests": {
+      "test_iupac_periodic_table_traversal_z_1_to_118": "PASS [M]",
+      "test_standard_terrestrial_atomic_weights_stable_elements": "PASS [M]",
+      "test_synthetic_and_transuranic_fallbacks": "PASS [M]",
+      "test_superheavy_oganesson_boundary": "PASS [M]",
+      "test_negative_boundary_and_typo_exceptions": "PASS [M]",
+      "test_concurrency_periodic_table_queries": "PASS [M]"
+    },
+    "static_mass_dictionary_violations": 0,
+    "banned_token_violations": 0,
+    "git_staging_verified": true
+  },
+  "governing_authorities": [
+    "PMBOK Guide 7th Edition",
+    "SWEBOK v3/v4",
+    "ISO/IEC/IEEE 29148:2018",
+    "Method Matrix v4.1 (§10.1–10.8, §9A.1–9A.5)",
+    "Anti-Spoofing Protocols v2 & v4",
+    "Disciplinary Ruling D1-01",
+    "Permanent Corrective Actions PCA-01 - PCA-06, PCA-13, PCA-14, PCA-24, PCA-27"
+  ],
+  "remediation_forensics": {
+    "remediated_defects": [
+      "DEF-MIRROR-01",
+      "DEF-AUDIT-FRAUD-01",
+      "DEF-GOV-01"
+    ],
+    "def_mirror_01_adjudication": "TOPOS mirror dispatch prompt was desynchronized at obsolete 10,850 B version. Remediated to 16,294 B authoritative deliverable with 100.000% bitwise parity across all tiers.",
+    "def_audit_fraud_01_adjudication": "Auditor cochem-audit and orchestrator reported stale 10,850 B / 509BC3... hash without disk verification. Adversary rectified cryptographic manifest with live SHA-256 digests.",
+    "def_gov_01_adjudication": "Task 1.2.4 deliverables were unstaged/untracked in Git. Staged atomically in CoChem-BASE and CoChem-TOPOS indices."
+  },
+  "cryptographic_manifest": {
+    "task_1_2_4_assignment_spec.md": {
+      "size_bytes": 40336,
+      "line_count": 448,
+      "sha256": "A690960057AA3C12E781D7E964CD9B99013EDBA7CF416BAAE178A0BDE64EA859"
+    },
+    "task1_2_4_dispatch_prompt.md": {
+      "size_bytes": 16294,
+      "line_count": 216,
+      "sha256": "6AADF0D7AFC42A5D0436D063897D3EA8C898CFAEFC700EDB914C899AB77CCD3D"
+    },
+    "test_nuclide_resolver_periodic_table.py": {
+      "size_bytes": 6946,
+      "line_count": 170,
+      "sha256": "5D04B224E42E6E41DACE2478DEBE587D69C0F28E1135880CE69FE59A6970AC7C"
+    }
+  }
+}

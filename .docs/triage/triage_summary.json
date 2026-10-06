@@ -1,0 +1,20 @@
+{
+  "scan_timestamp": "2026-08-29T21:40:48.310336+00:00",
+  "target_dir": "D:\\__CoChem\\GitHub-Repo\\CoChem-TOPOS",
+  "total_files_walked": 156,
+  "global_counts": {
+    "KEEP": 95,
+    "PURGE": 1,
+    "TRIAGE": 60
+  },
+  "per_module_counts": {
+    "__ROOT__": {
+      "KEEP": 95,
+      "PURGE": 1,
+      "TRIAGE": 60
+    }
+  },
+  "manifests": [
+    "D:\\__CoChem\\GitHub-Repo\\CoChem-TOPOS\\.docs\\triage\\_ROOT__triage_manifest.json"
+  ]
+}
