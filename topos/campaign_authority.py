@@ -58,7 +58,8 @@ def retained_registries(bundle_root: Path, paths: list[Path]) -> tuple[dict[str,
                 phase = phases[entry["phase_number"]]
                 report = entry["report"]
                 report_digest = hashlib.sha256(json.dumps(report, sort_keys=True).encode()).hexdigest()
-                if (entry["status"] != phase.status or report.get("status") != phase.status
+                if (phase.status not in {"PASSED", "DEGRADED"} or entry.get("success") is not True
+                        or entry["status"] != phase.status or report.get("status") != phase.status
                         or report.get("errors") or report_digest != phase.sha256):
                     raise ValueError("Actual phase status, unresolved errors or report bytes contradict the Golden Registry audit")
                 phase_proofs.append({"phase_number": phase.phase_number, "status": phase.status,

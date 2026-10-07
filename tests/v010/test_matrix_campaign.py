@@ -249,6 +249,36 @@ def test_registry_checksum_cannot_replace_actual_eleven_phase_reports(authority_
         retained_registries(root, [path])
 
 
+@pytest.mark.parametrize("status,success", [("FAILED", False), ("FAILED", True), ("SKIPPED", False),
+                                           ("SKIPPED", True), ("PASSED", False), ("DEGRADED", True)])
+def test_consistent_rechecksummed_phase_outcomes_require_successful_execution(authority_guard_contract, status, success):
+    """All recorded digests/statuses agree; unsuccessful audit still rejects."""
+    root, path, _, _, _ = authority_guard_contract
+    schema = pytest.importorskip("cochem_base.cochem_core_registry_schema")
+    registry = schema.CoChemSystemConfig.model_validate(json.loads(path.read_text()))
+    summary_path = root / "setup_summary.json"
+    summary = json.loads(summary_path.read_text())
+    entry = summary["phases_executed"][0]
+    entry.update(status=status, success=success)
+    entry["report"]["status"] = status
+    assert entry["report"]["errors"] == []
+    phase = registry.stage0.phases[0]
+    phase.status = status
+    phase.sha256 = hashlib.sha256(json.dumps(entry["report"], sort_keys=True).encode()).hexdigest()
+    registry.update_checksum()
+    assert registry.verify_checksum()
+    assert entry["status"] == phase.status == entry["report"]["status"]
+    assert phase.sha256 == hashlib.sha256(json.dumps(entry["report"], sort_keys=True).encode()).hexdigest()
+    atomic_json(path, registry.model_dump(mode="json"))
+    atomic_json(summary_path, summary)
+    if status == "DEGRADED" and success:
+        _, receipts = retained_registries(root, [path])
+        assert receipts[0]["verified_phase_reports"][0]["status"] == "DEGRADED"
+    else:
+        with pytest.raises(IntegrityError):
+            retained_registries(root, [path])
+
+
 @pytest.mark.parametrize("change", [None, "scan-gradient-child", "development-child", "changed-copy", "missing-child"])
 def test_copied_child_requires_its_exact_independent_base_authority(authority_guard_contract, change):
     _, _, registries, record, store = authority_guard_contract
