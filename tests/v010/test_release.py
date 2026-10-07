@@ -87,6 +87,141 @@ def test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt(tmp
     assert "recursive-include tests *.py *.txt *.json *.stdout *.out" in (ROOT / "MANIFEST.in").read_text()
 
 
+@pytest.mark.parametrize("form", ["files-list", "retained-path", "receipts", "all-retained", "files-dict"])
+def test_scoped_evidence_text_formats_keep_origin_archives_outside_sources(tmp_path, form):
+    """Storage/packaging contract text; no native calculation is represented."""
+    module = script("build_release")
+    evidence = tmp_path / ".docs/evidence"
+    evidence.mkdir(parents=True)
+    folder = evidence / "retained" if form == "files-dict" else evidence
+    folder.mkdir(exist_ok=True)
+    rows = []
+    for name in ("original.txt", "deck.inp", "phase.log"):
+        path = folder / name
+        path.write_bytes(b"Unexecuted archive membership contract text.\n")
+        rows.append({"path": name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                     "size_bytes": path.stat().st_size, "original_path": "/external/not-retained/artifact.zip"})
+    if form == "files-dict":
+        payload = {"directory": "retained", "files": {row["path"]: row for row in rows}}
+    elif form == "retained-path":
+        payload = {"files": [{**row, "retained_path": row["path"]} for row in rows]}
+    else:
+        key = {"files-list": "files", "receipts": "receipts", "all-retained": "all_retained_members"}[form]
+        payload = {key: rows}
+    payload["original_archives"] = [{"path": "/external/not-retained/artifact.zip", "sha256": "0" * 64}]
+    index = evidence / "MEMBERS_INDEX.json"
+    index.write_text(json.dumps(payload))
+    for name in ("original.zip", "native-orca", "model.pt", "record.h5", "venv/ignored.py", "venv/ignored.log"):
+        path = evidence / name
+        path.parent.mkdir(exist_ok=True)
+        path.write_bytes(b"Excluded unexecuted packaging fixture")
+    selected = set(module.release_files(tmp_path))
+    assert selected == {index, *(folder / row["path"] for row in rows)}
+    assert module.verify_evidence_indices(tmp_path, selected)[index.relative_to(tmp_path).as_posix()] == {
+        (folder / row["path"]).relative_to(tmp_path).as_posix(): row["sha256"] for row in rows}
+
+
+@pytest.mark.parametrize("damage", ["bytes", "size", "missing", "unsupported", "escape", "absolute", "alias", "docs-symlink", "parent-symlink", "leaf-symlink", "binary", "self"])
+def test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted(tmp_path, damage):
+    module = script("build_release")
+    evidence = tmp_path / ".docs/evidence"
+    evidence.mkdir(parents=True)
+    path = evidence / "original.txt"
+    path.write_bytes(b"Unexecuted storage contract text.\n")
+    row = {"path": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "bytes": path.stat().st_size}
+    if damage == "bytes":
+        path.write_bytes(b"Changed contract bytes.\n")
+    elif damage == "size":
+        row["bytes"] += 1
+    elif damage == "missing":
+        path.unlink()
+    elif damage == "unsupported":
+        row["path"] = "original.zip"
+        path.rename(evidence / row["path"])
+    elif damage in {"escape", "absolute", "alias"}:
+        row["path"] = {"escape": "../original.txt", "absolute": str(path), "alias": "./original.txt"}[damage]
+    elif damage in {"parent-symlink", "leaf-symlink"}:
+        outside = tmp_path / "elsewhere"
+        outside.mkdir()
+        outside_file = outside / "original.txt"
+        outside_file.write_bytes(path.read_bytes())
+        if damage == "leaf-symlink":
+            path.unlink()
+            path.symlink_to(outside_file)
+        else:
+            (evidence / "alias").symlink_to(outside, target_is_directory=True)
+            row["path"] = "alias/original.txt"
+    elif damage == "binary":
+        path.write_bytes(b"\x7fELF\0Unexecuted binary exclusion contract")
+        row.update(sha256=hashlib.sha256(path.read_bytes()).hexdigest(), bytes=path.stat().st_size)
+    elif damage == "self":
+        row["path"] = "MEMBERS_INDEX.json"
+    (evidence / "MEMBERS_INDEX.json").write_text(json.dumps({"files": [row]}))
+    if damage == "docs-symlink":
+        (tmp_path / ".docs").rename(tmp_path / "external-docs")
+        (tmp_path / ".docs").symlink_to(tmp_path / "external-docs", target_is_directory=True)
+    with pytest.raises(ValueError, match="retained evidence|Retained evidence|Retained source evidence|Indexed retained|symlinks"):
+        module.release_files(tmp_path)
+
+
+@pytest.mark.parametrize("damage", ["missing", "changed", "duplicate"])
+def test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged(tmp_path, damage):
+    """An inert archive mutation exercises the independent post-build verifier."""
+    module = script("build_release")
+    index_name = ".docs/evidence/MEMBERS_INDEX.json"
+    name = ".docs/evidence/retained.txt"
+    original = b"Unexecuted immutable archive contract.\n"
+    digest = hashlib.sha256(original).hexdigest()
+    index_data = json.dumps({"files": [{"path": "retained.txt", "sha256": digest}]}).encode()
+    hashes = {index_name: hashlib.sha256(index_data).hexdigest(), name: digest}
+    path = tmp_path / "inert.tar.gz"
+    payloads = [(index_name, index_data)]
+    if damage != "missing":
+        payloads.append((name, b"Changed archive bytes" if damage == "changed" else original))
+    if damage == "duplicate":
+        payloads.append((name, original))
+    with tarfile.open(path, "w:gz") as archive:
+        for archived_name, data in payloads:
+            member = tarfile.TarInfo("inert/" + archived_name)
+            member.size = len(data)
+            archive.addfile(member, io.BytesIO(data))
+    with pytest.raises(ValueError, match="retained evidence"):
+        module.verify_archived_evidence(path, {index_name: {name: digest}}, hashes)
+
+
+def test_all_retained_indices_survive_actual_source_staging_and_manifest_rules(tmp_path):
+    """Original historical bytes remain unchanged; no candidate or chemistry runs."""
+    module = script("build_release")
+    selected = module.release_files(ROOT)
+    indices = module.verify_evidence_indices(ROOT, set(selected))
+    assert indices
+    stage = tmp_path / "source"
+    stage.mkdir()
+    for path in selected:
+        name = path.relative_to(ROOT)
+        if not (name.as_posix().startswith(".docs/") or name.as_posix() == "MANIFEST.in"):
+            continue
+        target = stage / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())
+    (stage / "setup.py").write_text(
+        "from setuptools import setup\n"
+        "setup(name='topos-retained-evidence-distribution-test', version='0.0.0', packages=[])\n")
+    built = subprocess.run([sys.executable, "setup.py", "sdist", "--dist-dir", str(tmp_path / "dist")],
+                           cwd=stage, capture_output=True, text=True, check=False)
+    assert built.returncode == 0, built.stdout + built.stderr
+    archive = next((tmp_path / "dist").glob("*.tar.gz"))
+    hashes = {path.relative_to(ROOT).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in selected}
+    module.verify_archived_evidence(archive, indices, hashes)
+    with tarfile.open(archive) as source:
+        names = source.getnames()
+        assert not any(name.endswith((".zip", ".h5", ".pt", ".whl")) for name in names)
+        for guide in ("TOPOS_SCIENTIFIC_REFERENCE_CAMPAIGN.md", "TOPOS_REVIEWED_MATRIX_CAMPAIGN.md",
+                      "TOPOS_VPT2_NATIVE_POSE_REFERENCE.md"):
+            member = next(name for name in names if name.endswith("/.docs/" + guide))
+            assert source.extractfile(member).read() == (ROOT / ".docs" / guide).read_bytes()
+
+
 def test_tracked_native_fixtures_survive_candidate_staging_and_source_archive(tmp_path):
     """Native parser regressions remain runnable after extracting the source archive."""
     module = script("build_release")
