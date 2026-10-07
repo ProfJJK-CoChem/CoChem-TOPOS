@@ -372,6 +372,15 @@ def monomer_first_association(
                           budget_seconds=remaining / (len(fragments) - index + 2), seed=request.seed + index)
         if child_data["sampler_profile"] == "crest-nci-v1":
             child_data["sampler_profile"] = "crest-imtdgc-v1"
+        if request.search_algorithm == "abcluster":
+            # ABCluster rigidmol packs separate rigid fragments; it has no
+            # intramolecular conformer search. The association protocol keeps
+            # the required isolated QM monomer searches explicit.
+            child_data.update(search_algorithm="jiggle-quench", abcluster_options=None)
+            result["association_sampling_policy"] = {
+                "isolated_monomers": "independent common-QM jiggle-quench",
+                "complex": "native ABCluster rigid packing followed by independent common-QM refinement",
+                "force_field_scope": "intermolecular seed generation only"}
         child = run_stage(f"monomer-{index}", RunRequest.model_validate(child_data))
         result["monomer_runs"].append(child.model_dump(mode="json"))
         if child.status != "completed":

@@ -15,6 +15,7 @@ from pydantic import ValidationError
 from topos.engines import EngineParseError
 from topos.external_engines import (
     ExternalProtocol,
+    _dipole_in_requested_frame,
     _native_genbas,
     _proper_rotation,
     cfour_input,
@@ -125,6 +126,14 @@ def test_geometry_or_reflection_cannot_be_laundered_as_same_result():
         parse_cfour_output(text, molecule.model_copy(update={"coordinates": changed.tolist()}), protocol())
 
 
+def test_charged_total_dipole_has_origin_translation_in_atomic_units():
+    # Pure electrostatics coordinate-transform test, not native engine output.
+    native = np.array([[0., 0., 0.], [0., 0., 1.]])
+    molecule = Molecule(symbols=["H", "He"], coordinates=(native + [1., 2., 3.]).tolist(), charge=1)
+    transformed = _dipole_in_requested_frame([0., 0., .5], native, molecule)
+    assert transformed == pytest.approx(np.array([1., 2., 3.]) / BOHR_ANGSTROM + [0., 0., .5])
+
+
 def test_cartesian_input_does_not_distort_water_or_claim_native_optimization():
     _, molecule, _ = native_fixture()
     resources = ResourceLimits(memory_mb=512, threads=2)
@@ -212,7 +221,8 @@ def test_missing_cfour_is_unavailable_not_a_fake_success(tmp_path):
     assert result.status == "unavailable" and result.energy_hartree is None and not result.converged
 
 
-def test_native_timeout_preserves_status_without_scientific_values(tmp_path):
+@pytest.mark.parametrize("corrupt_staged_basis", [False, True])
+def test_native_timeout_preserves_status_without_scientific_values(tmp_path, monkeypatch, corrupt_staged_basis):
     binary = tmp_path / "install" / "bin" / "xcfour"
     binary.parent.mkdir(parents=True)
     binary.write_text("#!/bin/sh\nexit 1\n")
@@ -222,7 +232,19 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path):
     p = protocol(genbas_path=str(genbas), genbas_sha256=hashlib.sha256(genbas.read_bytes()).hexdigest())
     _, molecule, _ = native_fixture()
 
+    if corrupt_staged_basis:
+        import topos.external_engines as adapter
+
+        original_copy = adapter.shutil.copyfile
+
+        def changed_basis(source, destination):
+            original_copy(source, destination)
+            destination.write_text("Changed native basis library during staging\n")
+
+        monkeypatch.setattr(adapter.shutil, "copyfile", changed_basis)
+
     def infrastructure_timeout(command, folder, resources, **kwargs):
+        assert not corrupt_staged_basis, "An altered native basis must be rejected before launch"
         assert resources.budget_seconds < 20
         out, err = folder / "engine.stdout", folder / "engine.stderr"
         out.write_text("deliberately empty infrastructure timeout fixture\n")
@@ -231,7 +253,10 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path):
 
     result = run_external(molecule, p, ResourceLimits(budget_seconds=20), tmp_path / "attempt",
                           executable=binary, process_runner=infrastructure_timeout)
-    assert result.status == "timed-out" and result.energy_hartree is None and result.artifacts
+    assert result.status == ("unsupported" if corrupt_staged_basis else "timed-out")
+    assert result.energy_hartree is None and result.artifacts
+    if corrupt_staged_basis:
+        assert "GENBAS changed" in result.diagnostics["reason"]
 
 
 @pytest.mark.parametrize("termination", ["converged", "deadline", "cancelled"])

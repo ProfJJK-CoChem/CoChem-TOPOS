@@ -385,3 +385,33 @@ def test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_
     assert missing['ensemble'] is None
     assert missing['missing_population_upper_bound'] is None
     assert 'valid gibbs_hartree' in missing['reason']
+
+
+def test_model_credit_requires_execution_and_preserves_checkpoint_identity():
+    manifest = {'backend': 'aimnet2', 'family': 'AIMNet2', 'training_method': 'declared-training-level',
+                'license_name': 'model-specific', 'license_url': 'https://example.org/model-license',
+                'domain_reference': 'https://example.org/domain',
+                'members': [{'sha256': 'a' * 64, 'training_run_id': 'training-1', 'source': 'https://example.org/checkpoint'}]}
+    attempt = {'attempt_id': 'model-execution', 'engine': 'aimnet2', 'method': 'AIMNet2',
+               'engine_version': 'test-contract', 'status': 'completed', 'command': ['model-worker'],
+               'metadata': {'execution_kind': 'real', 'manifest': manifest, 'manifest_sha256': 'b' * 64}}
+    references, _ = executed_references({'attempts': [attempt], 'request': {}})
+    assert any(reference.get('doi') == '10.1039/D4SC08572H' for reference in references)
+    checkpoint = next(reference for reference in references if reference['kind'] == 'model-artifact')
+    assert checkpoint['members'][0]['sha256'] == 'a' * 64
+    assert checkpoint['training_hamiltonian'] == 'declared-training-level'
+    attempt['metadata']['execution_kind'] = 'not-executed'
+    references, _ = executed_references({'attempts': [attempt], 'request': {'metadata': {'manifest': manifest}}})
+    assert not any(reference.get('doi') == '10.1039/D4SC08572H' for reference in references)
+    assert not any(reference['kind'] == 'model-artifact' for reference in references)
+
+
+def test_correlated_credit_uses_actual_native_protocol_basis_not_request_default():
+    attempt = {'attempt_id': 'correlated', 'engine': 'orca', 'method': 'DLPNO-CCSD(T1)',
+               'engine_version': '6.1.1', 'status': 'completed', 'command': ['orca', 'job.inp'],
+               'metadata': {'execution_kind': 'real', 'requested_protocol': {'orbital_basis': 'def2-QZVPP'}}}
+    references, _ = executed_references({'attempts': [attempt], 'request': {'basis': 'jun-cc-pVTZ'}})
+    assert any(reference.get('doi') == '10.1063/1.5011798' for reference in references)
+    basis = next(reference for reference in references if reference.get('doi') == '10.1039/b508541a')
+    assert basis['bases'] == ['def2-QZVPP']
+    assert not any(reference.get('doi') == '10.1021/ct1005533' for reference in references)

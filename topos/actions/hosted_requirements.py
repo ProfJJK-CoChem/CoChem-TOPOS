@@ -16,19 +16,27 @@ from typing import Any
 def required_native_engines(request: dict[str, Any]) -> set[str]:
     """Reject unknown routes; never make a free-only matrix row require ORCA."""
     if request.get("purpose") == "matrix":
-        from ..data.runtime_recipes import EXECUTABLE_ROWS
-        from ..method_matrix import _recipe, resolve_row
+        from ..data.runtime_recipes import EXECUTABLE_ROWS, IMPLEMENTED_BRANCH_ROWS
+        from ..method_matrix import resolve_row, resolved_recipe
 
         row = resolve_row(request.get("matrix_row_id"), product=request.get("matrix_product", "A"))
-        if row.row_id not in EXECUTABLE_ROWS or row.owner != "TOPOS" or row.track_gap:
+        if row.row_id not in EXECUTABLE_ROWS | IMPLEMENTED_BRANCH_ROWS or row.owner != "TOPOS" or row.track_gap:
             raise ValueError("Hosted execution requires a registered, complete TOPOS matrix recipe")
-        steps, _ = _recipe(row)
+        matrix_inputs = request.get("matrix_inputs") or request.get("metadata", {}).get("matrix_inputs", {})
+        if not isinstance(matrix_inputs, dict):
+            raise ValueError("Matrix execution requires structured typed inputs")
+        source_resolution = matrix_inputs.get("source_resolution")
+        if row.row_id in IMPLEMENTED_BRANCH_ROWS and source_resolution is None:
+            raise ValueError("Hosted partial matrix branch requires an explicit compiled source resolution")
+        steps, _ = resolved_recipe(row, source_resolution)
         engines = {step.engine for step in steps} - {"topos"}
         if not engines or not engines <= {"xtb", "crest", "orca"}:
             raise ValueError("Matrix recipe requires an unsupported hosted engine installation")
         if "crest" in engines or any(step.engine == "orca" and step.method == "GFN2-xTB" for step in steps):
             engines.add("xtb")
         return engines
+    if request.get("search_algorithm") == "abcluster":
+        raise ValueError("ABCluster requires an unsupported hosted engine installation")
     engine = request.get("engine")
     if engine not in {"xtb", "orca"}:
         raise ValueError("Hosted execution requires an explicit supported native engine")

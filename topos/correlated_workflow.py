@@ -1,6 +1,7 @@
 """Complete correlated energy and parameter-wise geometry recipe orchestration."""
 from __future__ import annotations
 
+import time
 from threading import Event
 from typing import Any
 
@@ -56,6 +57,7 @@ def _publish(record: RunRecord, store: RunStore, row_id: str, output: dict[str, 
                                       "basis_and_method_identity": output.get("protocols"),
                                       "output_kind": output["output_kind"]})
         for key, units in (("interaction_energy_hartree", "hartree"), ("equilibrium_rotational_constants_mhz", "MHz"),
+                           ("stationary_geometry_rotational_constants_mhz", "MHz"),
                            ("electronic_energy_hartree", "hartree")):
             if output.get(key) is not None:
                 aggregate.quantities.append(Quantity(name=key, value=output[key], units=units,
@@ -113,13 +115,16 @@ def execute_correlated_recipe(workflow: Any, record: RunRecord, store: RunStore,
         values = {}
         details = {}
         for role, molecule in zip(roles, molecules, strict=True):
+            geometry_deadline = deadline
+            if record.request.per_geometry_budget_seconds is not None:
+                geometry_deadline = min(deadline, time.monotonic()+record.request.per_geometry_budget_seconds)
             current = protocol.model_copy(update={"local_energy_decomposition": protocol.local_energy_decomposition and role == "complex"})
             if row_id == "T5-1d":
                 native = []
                 for exponent in (6, 7):
                     component = current.model_copy(update={"tcutpno": 10.0 ** -exponent})
                     result = run_component(workflow, record, store, f"{role}-pno-{exponent}", molecule,
-                                           component, run_correlated, deadline, cancel_event)
+                                           component, run_correlated, geometry_deadline, cancel_event)
                     if result is None:
                         return False
                     native.append(result)
@@ -134,7 +139,7 @@ def execute_correlated_recipe(workflow: Any, record: RunRecord, store: RunStore,
                                      observations[1]["total_correlation_energy_hartree"])
                 details[role] = {"common_hf_hartree": refs[0], "energies_6_7_hartree": [r.energy_hartree for r in native]}
             else:
-                result = run_component(workflow, record, store, role, molecule, current, run_correlated, deadline, cancel_event)
+                result = run_component(workflow, record, store, role, molecule, current, run_correlated, geometry_deadline, cancel_event)
                 if result is None:
                     return False
                 identities.add((result.engine_version, result.metadata.get("executable_sha256")))

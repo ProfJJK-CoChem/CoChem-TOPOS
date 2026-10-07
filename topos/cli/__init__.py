@@ -44,6 +44,11 @@ def _parser() -> argparse.ArgumentParser:
     matrix_plan.add_argument("--symbols", help="Comma-separated chemical element symbols")
     matrix_plan.add_argument("--charge", type=int, default=0)
     matrix_plan.add_argument("--multiplicity", type=int, default=1)
+    from ..data.reviewed_matrix_v010 import RECIPES
+
+    matrix_plan.add_argument("--source-resolution", choices=["native-composite-rawinteraction-v1",
+                                                              "orca-f12-reference-singlepoint-v1", *RECIPES],
+                             help="Explicit resolution of a documented matrix source conflict")
     run = sub.add_parser("run", help="Execute an explicit request; Ctrl-C cancels owned calculations")
     run.add_argument("--request", required=True, type=Path, help="UTF-8 request JSON file")
     run.add_argument("--output-root", required=True, type=Path, help="Directory for isolated per-run records")
@@ -163,7 +168,8 @@ def main(argv: list[str] | None = None) -> int:
                                     capabilities=[BackendCapability.model_validate(value) for value in values],
                                     product=args.product, available_inputs=args.available_inputs,
                                     symbols=args.symbols.split(",") if args.symbols else None,
-                                    charge=args.charge, multiplicity=args.multiplicity)
+                                    charge=args.charge, multiplicity=args.multiplicity,
+                                    source_resolution=args.source_resolution)
         elif args.command == "request-schema":
             from topos.models import RunRequest
             result = RunRequest.model_json_schema()

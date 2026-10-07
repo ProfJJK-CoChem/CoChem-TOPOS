@@ -64,8 +64,17 @@ def capability_report() -> dict[str, Any]:
         },
         "supported_operations": ["energy", "gradient", "optimize", "search", "frequency", "thermochemistry", "association", "matrix"],
         "search_algorithm": "seeded Cartesian or rigid-fragment jiggle–quench",
-        "search_algorithms": ["jiggle-quench", "crest", "union"],
+        "search_algorithms": ["jiggle-quench", "crest", "union", "abcluster"],
         "samplers": {
+            "abcluster": {
+                "version": "3.4",
+                "program": "rigidmol",
+                "potential": "explicit atom-mapped charge/Lennard-Jones rigid intermolecular force field",
+                "requirements": "cited per-atom charge/epsilon/sigma, explicit closed-shell fragments and states, BASE-audited native binary",
+                "seed": "engine-controlled random packing; no numeric seed support",
+                "refinement": "classical scores are seed observations only; every candidate requires independent requested quantum refinement",
+                "exhaustiveness": "finishing requested generations is not proof of exhaustive sampling",
+            },
             "crest": {
                 "version": "3.0.2",
                 "potential": "external xTB 6.7.1 GFN2-xTB",
@@ -190,6 +199,12 @@ def validate_route(request: RunRequest, config: SystemConfig) -> tuple[str, str]
             "unsupported",
             "CREST routes require explicit unconstrained GFN2-xTB; no potential/constraint substitution is permitted.",
         )
+    if request.search_algorithm == "abcluster" and (
+        request.constraints or len(request.molecule.fragments) < 2 or not request.molecule.fragment_states
+        or request.molecule.multiplicity != 1 or any(state.multiplicity != 1 for state in request.molecule.fragment_states)
+        or request.device != "cpu"
+    ):
+        return "unsupported", "ABCluster requires gas-phase CPU sampling of explicitly state-resolved closed-shell rigid fragments without additional constraints."
     if request.engine not in {"xtb", "orca"}:
         return "unsupported", "Requested engine has no validated adapter."
     if request.threads > min(config.max_threads, os.cpu_count() or 1):

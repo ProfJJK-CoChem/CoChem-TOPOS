@@ -1,0 +1,64 @@
+{
+  "schema_version": "topos-research-receipt/1",
+  "date": "2026-10-07",
+  "scope": "official documentation provenance, not engine acceptance",
+  "sources": [
+    {
+      "url": "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+      "sha256": "3a3433b67e7e63d6b6a997d4ffe48eadedd989d465e07041f3e315c00025028e",
+      "bytes": 325943
+    },
+    {
+      "url": "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+      "sha256": "f49ed59d47ba2e9368820407c78fa9aaa46a2d29ea192236205be30490e51eb2",
+      "bytes": 78372
+    },
+    {
+      "url": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html",
+      "sha256": "b1a51dd19fc0d5a2077f35c83639527aab9dad8103d75733c2861b7b1f6de610",
+      "bytes": 81570
+    },
+    {
+      "url": "https://zhjun-sci.com/abcluster.html",
+      "sha256": "a811ebf077e31d231a096d11c1c804c761ef69c16ad677dcc0a7adc0182f4dc5",
+      "bytes": 43017
+    },
+    {
+      "url": "https://zhjun-sci.com/abcluster/doc/introduction.html",
+      "sha256": "06697448267b2c6b4ea7962014f425603319fecb45a6ae63960c0f8b45bd062b",
+      "bytes": 30613
+    },
+    {
+      "url": "https://zhjun-sci.com/abcluster/doc/theory.html",
+      "sha256": "6ecc8f488ea8bf0867a6953c44808116d984280fb6fe3f15916b309bba7e5ce9",
+      "bytes": 41825
+    },
+    {
+      "url": "https://zhjun-sci.com/abcluster/doc/charmmff.html",
+      "sha256": "dfa5fd504ca4f61341296153ed4ddc81bf5f7ab7eec6ad7825116ee6f67ce1c4",
+      "bytes": 11064
+    },
+    {
+      "url": "https://zhjun-sci.com/abcluster/doc/eg-h2o6.html",
+      "sha256": "4b16e3cc2dea91ed218b976581662fad1c37db07ad2e31a3edb1860af091df9d",
+      "bytes": 36820
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ValeevGroup/mpqc/98fa03e8db0481c63554dd2720164ee463e1402b/src/mpqc/chemistry/qc/lcao/f12/ccsd_t_f12.h",
+      "sha256": "fd01dd1a7e4bd56b1892b71f2cc0d91c440c684fa11d60906ec1963587bd4108",
+      "bytes": 1992
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ValeevGroup/mpqc/98fa03e8db0481c63554dd2720164ee463e1402b/tests/validation/reference/inputs/h2o-ccsdf12-631g-pvdz-apvdz.json",
+      "sha256": "f3dabac05cf6e40e7db0e93466fc6bec46e23cb2822e46afc38e02efbd4a07ee",
+      "bytes": 853
+    }
+  ],
+  "network_failures": [
+    {
+      "url": "https://valeevgroup.github.io/mpqc-docs/master/index.html",
+      "observed_error": "Tunnel connection failed: 403 Forbidden",
+      "retry_bypass": false
+    }
+  ]
+}

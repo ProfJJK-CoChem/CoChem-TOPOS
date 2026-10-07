@@ -37,6 +37,8 @@ def native_stage(workflow: Any, record: RunRecord, store: RunStore, frames: list
     """Checkpoint one genuine native operation; reuse only identical retained inputs."""
     if operation not in {"screen", "cregen"}:
         raise ValueError("Only compiled native screen/CREGEN operations are supported")
+    if _stop(record, deadline, cancel_event):
+        return None
     identity = digest_json({"operation": operation, "frames": [f.model_dump(mode="json") for f in frames],
                             "comparison_protocol": comparison_protocol, "ewin": energy_window_kcal_mol,
                             "ethr": energy_threshold_kcal_mol, "rthr": .125,
@@ -48,6 +50,8 @@ def native_stage(workflow: Any, record: RunRecord, store: RunStore, frames: list
             path = store.run_dir / artifact.path
             if path.is_symlink() or file_digest(path) != artifact.sha256 or path.stat().st_size != artifact.size_bytes:
                 raise IntegrityError("Completed native union-stage artifact changed")
+        if _stop(record, deadline, cancel_event):
+            return None
         return [SampledConformer.model_validate(f) for f in cached[-1].metadata["raw_ensemble"]]
     if _stop(record, deadline, cancel_event):
         return None
@@ -66,7 +70,9 @@ def native_stage(workflow: Any, record: RunRecord, store: RunStore, frames: list
                       metadata={"role": "matrix-native-" + operation, "matrix_native_identity": identity})
     record.attempts.append(attempt)
     store.commit(record)
-    resources = record.request.resources.model_copy(update={"budget_seconds": max(1e-9, deadline - time.monotonic())})
+    # Native screen/CREGEN remain CPU stages even after a GPU model campaign.
+    resources = record.request.resources.model_copy(update={"device": "cpu",
+        "budget_seconds": max(1e-9, deadline - time.monotonic())})
     directory = store.run_dir / "attempts" / attempt.attempt_id
     if operation == "screen":
         result = run_crest_screen(frames, resources, directory, executable=crest, xtb_executable=xtb,

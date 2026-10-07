@@ -159,3 +159,12 @@ def test_expired_queue_budget_commits_no_attempt_without_constructing_workflow(t
     assert record["metadata"]["execution_kind"] == "no-execution"
     assert record["metadata"]["budget_accounting"] == receipt["budget_accounting"]
     verify_evidence(temporary / "evidence")
+
+
+def test_explicit_reference_energy_branch_requires_orca_without_claiming_geometry():
+    request, _, _ = encoded_request(purpose="matrix", matrix_row_id="T3O-1mo",
+                                    matrix_inputs={"source_resolution": "orca-f12-reference-singlepoint-v1"})
+    assert required_native_engines(request) == {"orca"}
+    request["matrix_inputs"] = {}
+    with pytest.raises(ValueError, match="explicit compiled source resolution"):
+        required_native_engines(request)

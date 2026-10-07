@@ -11,7 +11,7 @@ from pathlib import Path
 
 from .ml import ML_SCHEMA, ModelManifest, reduce_committee
 from .models import Molecule, ResourceLimits
-from .storage import atomic_json, digest_json, file_digest, read_json
+from .storage import atomic_json, digest_json, file_digest, json_bytes, read_json
 
 
 class ModelSession:
@@ -67,7 +67,7 @@ class ModelSession:
             else:
                 from aimnet.calculators import AIMNet2Calculator
 
-                calculator = AIMNet2Calculator(member.path, device=self.device, compile_model=False, deterministic=True)
+                calculator = AIMNet2Calculator(member.path, device=self.device, compile_model=False)
                 if any(m.multiplicity != 1 for m in molecules) and not calculator.is_nse:
                     raise ValueError("AIMNet checkpoint ignores spin multiplicity; refusing open-shell inference")
                 allowed = set((calculator.metadata or {}).get("implemented_species", []))
@@ -128,17 +128,23 @@ def serve(request: dict, request_path: Path) -> dict:
     import struct
     import time
 
-    from .ml_extopt import SOCKET_SCHEMA, receive_json, send_json
+    from .ml_extopt import MAX_MESSAGE_BYTES, SOCKET_SCHEMA, receive_json, send_json
 
     if set(request) != {"schema_version", "manifest", "molecules", "resources", "gpu_memory_mb", "mode", "server"} or request["mode"] != "server":
         raise ValueError("Unknown persistent ML server request contract")
     spec = request["server"]
-    if set(spec) != {"socket_name", "max_requests", "client_module_sha256", "request_timeout_seconds"}:
+    required = {"socket_name", "max_requests", "client_module_sha256", "request_timeout_seconds"}
+    if not required <= set(spec) or set(spec) - required - {"max_receipt_mb"}:
         raise ValueError("Unknown persistent ML socket configuration")
-    if spec["socket_name"] != "s" or type(spec["max_requests"]) is not int or not 1 <= spec["max_requests"] <= 10000:
+    if spec["socket_name"] != "s" or type(spec["max_requests"]) is not int or not 1 <= spec["max_requests"] <= 1_000_000:
         raise ValueError("Invalid socket name or request bound")
     if not isinstance(spec["request_timeout_seconds"], (int, float)) or not 0 < spec["request_timeout_seconds"] <= 600:
         raise ValueError("Invalid callback timeout")
+    max_receipt_mb = spec.get("max_receipt_mb", 1024)
+    if type(max_receipt_mb) is not int or not 4 <= max_receipt_mb <= 65536:
+        raise ValueError("Persistent receipt allocation must be 4..65536 MiB")
+    receipt_limit = max_receipt_mb * 1024**2
+    receipt_bytes = 0
     folder = request_path.parent.resolve()
     if folder != Path.cwd().resolve() or stat.S_IMODE(folder.stat().st_mode) != 0o700:
         raise ValueError("Persistent server requires its private 0700 attempt directory as cwd")
@@ -164,7 +170,7 @@ def serve(request: dict, request_path: Path) -> dict:
         atomic_json(folder / "ready.json", {"schema_version": SOCKET_SCHEMA, "manifest_sha256": session.manifest_sha256,
                                             "versions": session.versions, "device": session.device,
                                             "model_load_count": len(session.calculators), "socket_name": "s"})
-        while time.monotonic() < deadline:
+        while time.monotonic() < deadline and receipt_bytes + 2 * MAX_MESSAGE_BYTES + 4096 <= receipt_limit:
             try:
                 connection, _ = listener.accept()
             except TimeoutError:
@@ -195,10 +201,15 @@ def serve(request: dict, request_path: Path) -> dict:
                     frame = session.evaluate([molecule])[0]
                     response = {"status": "completed", "sequence": count, "manifest_sha256": session.manifest_sha256, "frame": frame}
                     successful += 1
-                except (ValueError, TypeError, KeyError) as exc:
+                except Exception as exc:
                     response = {"status": "failed", "sequence": count, "reason": str(exc)}
                 receipt["response"] = response
-                atomic_json(folder / "calls" / f"{count:05d}.json", receipt)
+                encoded_size = len(json_bytes(receipt)) + 1
+                allocated = ((encoded_size + 4095) // 4096) * 4096
+                if receipt_bytes + allocated > receipt_limit:
+                    raise ValueError("Persistent receipt allocation exhausted")
+                atomic_json(folder / "calls" / f"{count:07d}.json", receipt)
+                receipt_bytes += allocated
                 send_json(connection, response)
                 if count >= spec["max_requests"]:
                     break
@@ -207,7 +218,9 @@ def serve(request: dict, request_path: Path) -> dict:
             raise ValueError("Client module changed during persistent inference")
         return {"schema_version": ML_SCHEMA, "mode": "server", "manifest_sha256": session.manifest_sha256,
                 "versions": session.versions, "device": session.device, "requests": count, "successful_requests": successful,
-                "model_load_count": len(session.calculators), "termination": "requested-stop" if stopped else "request-or-time-bound"}
+                "model_load_count": len(session.calculators), "receipt_allocated_bytes": receipt_bytes,
+                "max_receipt_mb": max_receipt_mb,
+                "termination": "requested-stop" if stopped else "request-time-or-receipt-bound"}
     finally:
         listener.close()
         socket_path.unlink(missing_ok=True)

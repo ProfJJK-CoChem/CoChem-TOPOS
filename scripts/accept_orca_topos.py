@@ -36,6 +36,7 @@ from topos.storage import RunStore, atomic_json, file_digest
 from topos.workflow import Workflow, software_provenance
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
+GOAT_ACCEPTANCE_BUDGET_SECONDS = 4800
 
 
 class AcceptanceFailure(RuntimeError):
@@ -119,7 +120,7 @@ def _archive_native(folder: Path, molecule: Molecule, method: MethodSpec,
 
 
 def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb: int = 2048,
-                   budget_seconds: float = 3600, include_goat: bool = False,
+                   budget_seconds: float = 7200, include_goat: bool = False,
                    include_counterpoise: bool = False) -> tuple[dict[str, Any], int]:
     output = output.expanduser().resolve()
     require(not output.exists(), "Acceptance output must be a fresh directory")
@@ -292,8 +293,17 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
             # Native sampling currently uses natural isotope conventions.
             molecule = Molecule.model_validate({**water().model_dump(), "isotopes": [None, None, None]})
             method = MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+            seed_run = calculate("goat-seed-r2scan3c-optimization", molecule, "r2SCAN-3c", "optimize", maximum=300)
+            require(len(seed_run.candidates) == 1 and seed_run.candidates[0].status == "eligible",
+                    "GOAT seed lacks a completed native same-method geometry optimization")
+            molecule = seed_run.candidates[0].molecule
             folder = output / "goat-native"
-            result = run_goat(molecule, method, resources.model_copy(update={"budget_seconds": remaining(1200)}), folder,
+            # The hosted two-core trial completed 60 local optimizations and
+            # 1,005 DFT gradients in only its first global cycle before timing
+            # out in cycle two at 1,200 s. Three global cycles are not three
+            # local optimizations; retain the native algorithm and finite gate.
+            native_budget = remaining(GOAT_ACCEPTANCE_BUDGET_SECONDS)
+            result = run_goat(molecule, method, resources.model_copy(update={"budget_seconds": native_budget}), folder,
                               executable=binary, process_runner=runtime.run_process, deterministic=True, max_global_iterations=3)
             payload = result.model_dump(mode="json")
             sealed = _archive_native(folder, molecule, method, payload, [{"role": "native-goat-search", "result": payload}])
@@ -301,7 +311,9 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
             require(result.converged is True and bool(result.ensemble), "Native GOAT did not complete its finite stopping criterion")
             refined = [calculate(f"goat-refinement-{index}", frame.molecule, "r2SCAN-3c", "optimize", maximum=300)
                        for index, frame in enumerate(result.ensemble)]
-            return {"native_run_id": sealed.run_id, "native_frame_count": len(result.ensemble),
+            return {"seed_optimization_run_id": seed_run.run_id,
+                    "native_run_id": sealed.run_id, "native_frame_count": len(result.ensemble),
+                    "native_budget_seconds": native_budget, "native_progress": result.metadata.get("native_progress"),
                     "refinement_run_ids": [record.run_id for record in refined],
                     "scope": "finite GOAT stopping criterion and all returned frames refined; no global/exhaustive claim"}
 
@@ -349,7 +361,7 @@ def main() -> int:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--memory-mb", type=int, default=2048)
-    parser.add_argument("--budget-seconds", type=float, default=3600)
+    parser.add_argument("--budget-seconds", type=float, default=7200)
     parser.add_argument("--include-goat", action="store_true")
     parser.add_argument("--include-counterpoise", action="store_true")
     args = parser.parse_args()

@@ -76,7 +76,8 @@ unconstrained, nonlinear stationary minimum with explicit semirigid applicabilit
 [5]. It requires the `orca-vpt2-reference-v1` profile: `ExtremeSCF`, `DEFGRID3`,
 `Z_Tol 1e-14`, and optimization tolerances including `TolMaxG 1e-7` and `TolRMSG 3e-8`.
 The native VPT2 job declares `AnharmDisp 0.05`, `HessianCutoff 1e-12` and retains the
-complete `.vpt2` force field and raw native evidence. Displacement is configurable
+complete `.vpt2` force field, the explicitly requested native `pickett.txt`
+spectroscopy template, and raw native evidence. Displacement is configurable
 within the adapter's declared range and is part of the recovery protocol.
 
 The physical reference gradient must satisfy 1e-7 hartree/bohr and the independently

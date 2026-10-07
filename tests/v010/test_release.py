@@ -60,6 +60,32 @@ def test_candidate_rejects_symlinked_source_before_build(tmp_path):
         module.release_files(tmp_path)
 
 
+def test_native_provisioning_patch_is_distributed_and_binds_source_identity(tmp_path):
+    module = script("build_release")
+    patch = tmp_path / ".docs/patches/crest-3.0.2-generic-paths.patch"
+    patch.parent.mkdir(parents=True)
+    patch.write_text("--- source.f90\n+++ source.f90\n@@\n-old\n+new\n")
+    assert patch in module.release_files(tmp_path)
+    before = source_inventory(tmp_path)
+    assert before[str(patch.relative_to(tmp_path))] == hashlib.sha256(patch.read_bytes()).hexdigest()
+    patch.write_text(patch.read_text().replace("+new", "+changed"))
+    assert source_inventory(tmp_path) != before
+    assert "recursive-include .docs *.md *.json *.patch *.xml" in (ROOT / "MANIFEST.in").read_text()
+
+
+def test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt(tmp_path):
+    module = script("build_release")
+    fixture = tmp_path / "tests/v010/fixtures/cfour_corrections/carbon12-dboc.out"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("inert parser fixture identity example\n")
+    assert fixture in module.release_files(tmp_path)
+    before = source_inventory(tmp_path)
+    assert before[str(fixture.relative_to(tmp_path))] == hashlib.sha256(fixture.read_bytes()).hexdigest()
+    fixture.write_text(fixture.read_text() + "altered native observation\n")
+    assert source_inventory(tmp_path) != before
+    assert "recursive-include tests *.py *.txt *.json *.stdout *.out" in (ROOT / "MANIFEST.in").read_text()
+
+
 def test_wheel_normalization_changes_metadata_not_payload_or_record(tmp_path):
     module = script("build_release")
     wheel = write_wheel(tmp_path, "cochem-topos", {"topos/__init__.py": "PAYLOAD\n", "topos-0.1.dist-info/RECORD": "RECORD BYTES\n"})
@@ -152,3 +178,181 @@ def test_source_identity_is_content_based_and_ignores_local_caches(tmp_path):
     assert source_inventory(tmp_path) == before
     source.write_text("second")
     assert source_inventory(tmp_path) != before
+
+
+def test_worker_source_inventory_rejects_namespace_symlinks(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / 'scripts'))
+    module = script('build_ml_worker')
+    (tmp_path / 'topos').mkdir()
+    (tmp_path / 'topos/ml_worker.py').write_text('# exact worker\n')
+    assert module.worker_sources(tmp_path) == {
+        'topos/ml_worker.py': hashlib.sha256(b'# exact worker\n').hexdigest(),
+    }
+    (tmp_path / 'topos/escape.py').symlink_to(tmp_path / 'topos/ml_worker.py')
+    with pytest.raises(ValueError, match='symlinks'):
+        module.worker_sources(tmp_path)
+
+
+def test_worker_installer_refuses_controller_ownership_before_pip(tmp_path, monkeypatch):
+    module = script('install_ml_worker')
+    monkeypatch.setattr(module.sys, 'prefix', str(tmp_path / 'venv'))
+    monkeypatch.setattr(module.sys, 'base_prefix', str(tmp_path / 'system'))
+    monkeypatch.setattr(module.importlib.metadata, 'distribution', lambda name: object())
+    invoked = []
+    monkeypatch.setattr(module.subprocess, 'run', lambda *a, **k: invoked.append(a))
+    with pytest.raises(ValueError, match='controller namespace'):
+        module.install(tmp_path / 'unread.whl', tmp_path / 'unread.json')
+    assert invoked == []
+
+
+def test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip(tmp_path):
+    module = script('refresh_srs_acceptance')
+    docs = tmp_path / '.docs'
+    docs.mkdir()
+    srs = docs / 'CoChem-TOPOS_SRS.md'
+    srs.write_text('requirement fixture')
+    source = tmp_path / 'source.py'
+    source.write_text('# reviewed implementation\n')
+    tests = tmp_path / 'test_contract.py'
+    tests.write_text('def test_supported(): pass\ndef test_native(): pass\n')
+    xml = tmp_path / 'results.xml'
+    xml.write_text('<testsuites><testsuite tests="2" failures="0" errors="0" skipped="1">'
+                   '<testcase classname="tests.test_contract" name="test_supported"/>'
+                   '<testcase classname="tests.test_contract" name="test_native"><skipped message="licensed engine absent"/></testcase>'
+                   '</testsuite></testsuites>')
+    def identity(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    validation = tmp_path / 'validation.json'
+    validation.write_text(json.dumps({'verification': {'sources_unchanged': True,
+        'source_sha256': {'source.py': identity(source), 'test_contract.py': identity(tests)},
+        'checks': [{'check': 'pytest', 'exit_code': 0, 'command': ['python', '-m', 'pytest', 'tests/v010'],
+                    'junit': {'tests': 2, 'failures': 0, 'errors': 0, 'skipped': 1},
+                    'junit_sha256': identity(xml)}]}}))
+    def requirement(function, conditions):
+        return {'implementation': [{'path': 'source.py'}],
+                'acceptance_tests': [{'path': 'test_contract.py', 'test_functions': [function]}],
+                'verification': {}, 'evidence': [], 'coding_gaps': [],
+                'additional_acceptance_conditions': conditions}
+    ledger_path = docs / 'ledger.json'
+    ledger_path.write_text(json.dumps({'srs_sha256': identity(srs), 'requirements': {
+        'supported': requirement('test_supported', []),
+        'native': requirement('test_native', ['hosted_orca']),
+        'missing': requirement('test_not_collected', []),
+    }}))
+    report = module.refresh(tmp_path, ledger_path, validation, reviewer='contract-test', junit_path=xml)
+    assert report['requirements']['supported']['status'] == 'verified'
+    assert report['requirements']['native']['status'] == 'verification-pending'
+    assert report['requirements']['native']['additional_acceptance_conditions'] == ['hosted_orca']
+    assert report['requirements']['missing']['status'] == 'verification-pending'
+    assert report['requirements']['supported']['verification']['current_suite_skipped'] == 1
+    xml.write_text(xml.read_text().replace('<skipped message="licensed engine absent"/>', ''))
+    with pytest.raises(ValueError, match='JUnit artifact'):
+        module.refresh(tmp_path, ledger_path, validation, reviewer='contract-test', junit_path=xml)
+
+
+def test_release_gate_composes_only_exact_same_source_named_test_results(tmp_path):
+    (tmp_path / 'topos').mkdir()
+    source = tmp_path / 'topos/contract.py'
+    source.write_text('# deliberately inert release-gate fixture\n')
+    current = source_inventory(tmp_path)
+
+    def receipt(name, case, skipped):
+        xml = tmp_path / f'{name}.xml'
+        xml.write_text('<testsuites><testsuite><testcase classname="tests.test_native" name="' + case + '">'
+                       + ('<skipped message="native engine unavailable locally"/>' if skipped else '')
+                       + '</testcase></testsuite></testsuites>')
+        document = {'all_srs_acceptance_complete': True, 'all_matrix_recipes_implemented': True,
+                    'verification': {'source_sha256': current, 'sources_unchanged': True, 'checks': [{
+                        'check': 'pytest', 'exit_code': 0, 'junit_path': xml.name,
+                        'junit_sha256': hashlib.sha256(xml.read_bytes()).hexdigest(),
+                        'junit': {'tests': 1, 'failures': 0, 'errors': 0, 'skipped': int(skipped)},
+                    }]}}
+        path = tmp_path / f'{name}.json'
+        path.write_text(json.dumps(document))
+        return path
+
+    local = receipt('local', 'test_exact_native', True)
+    unrelated = receipt('unrelated', 'test_another_native_method', False)
+    result = release_gate(tmp_path, validation=local, supplemental_validations=[unrelated])
+    assert result['testcase_coverage']['uncovered'] == ['tests.test_native::test_exact_native']
+    matching = receipt('matching', 'test_exact_native', False)
+    result = release_gate(tmp_path, validation=local, supplemental_validations=[matching])
+    assert result['testcase_coverage']['uncovered'] == []
+    assert 'tests.test_native::test_exact_native' in result['testcase_coverage']['covered_by_supplements']
+    assert not any(reason.startswith('Regression') for reason in result['blockers'])
+    assert result['status'] == 'blocked'  # Missing native/SRS/distribution evidence remains mandatory.
+    altered = json.loads(matching.read_text())
+    altered['verification']['source_sha256']['topos/contract.py'] = '0' * 64
+    matching.write_text(json.dumps(altered))
+    result = release_gate(tmp_path, validation=local, supplemental_validations=[matching])
+    assert any('source identity' in reason for reason in result['blockers'])
+
+
+def test_hosted_receipts_require_same_selected_run_and_both_native_case_sets(tmp_path):
+    """Receipt metadata fixtures test refusal logic, never native chemistry."""
+    (tmp_path / 'topos').mkdir()
+    (tmp_path / 'topos/science.py').write_text('# inert fixture\n')
+    (tmp_path / 'scripts').mkdir()
+    for name in ('accept_orca_topos.py', 'accept_orca_extended.py'):
+        (tmp_path / 'scripts' / name).write_text('# inert receipt-producing script identity\n')
+    inventory = source_inventory(tmp_path)
+    identity = {'github_repository': 'ProfJJK-CoChem/CoChem-BASE', 'github_run_id': '1234',
+                'github_run_attempt': '2', 'github_sha': 'a' * 40}
+    baseline = {'schema_version': 'topos-orca-physical-acceptance/0.1.0', 'status': 'passed', **identity,
+        'source': {'source_files': inventory}, 'acceptance_script_sha256': inventory['scripts/accept_orca_topos.py'],
+        'cases': {name: {'status': 'passed'} for name in ('hf3c-energy-gradient',
+            'r2scan3c-optimization-thermochemistry', 'wb97xv-optimization', 'counterpoise', 'goat-refinement')}}
+    extended = {'schema_version': 'topos-orca-extended-acceptance/0.1.0', 'status': 'passed', **identity,
+        'source': {'source_files': inventory}, 'script_sha256': inventory['scripts/accept_orca_extended.py'],
+        'cases': {name: {'status': 'passed'} for name in ('native-hessian', 'native-vpt2', 'MP2', 'MP2-optimization', 'CCSD(T)', 'DLPNO-counterpoise',
+            'AUTOCI-CCSD(T)', 'DLPNO-CCSD(T1)', 'CCSD(T)-F12D/RI', 'F12-MP2', 'F12-RI-MP2', 'F12-composite', 'R2-composite')}}
+    first, second = tmp_path / 'baseline.json', tmp_path / 'extended.json'
+    first.write_text(json.dumps(baseline))
+    second.write_text(json.dumps(extended))
+    def gate():
+        return release_gate(tmp_path, hosted=first, hosted_extended=second,
+                            hosted_repository=identity['github_repository'], hosted_run_id='1234', hosted_run_attempt='2')
+    report = gate()
+    assert not any(reason.startswith('Hosted ORCA') for reason in report['blockers'])
+    assert report['status'] == 'blocked'  # Other release evidence is still absent.
+    for missing in ('DLPNO-counterpoise', 'MP2-optimization', 'F12-composite', 'R2-composite'):
+        del extended['cases'][missing]
+        second.write_text(json.dumps(extended))
+        assert any('every required native case' in reason for reason in gate()['blockers'])
+        extended['cases'][missing] = {'status': 'passed'}
+    extended['github_run_attempt'] = '1'
+    second.write_text(json.dumps(extended))
+    assert any('selected repository/run/attempt' in reason for reason in gate()['blockers'])
+    extended['github_run_attempt'] = '2'
+    extended['cases']['native-vpt2']['status'] = 'failed'
+    second.write_text(json.dumps(extended))
+    assert any('every required native case' in reason for reason in gate()['blockers'])
+    extended['cases']['native-vpt2']['status'] = 'passed'
+    extended['source']['source_files'] = dict(inventory, **{'topos/science.py': '0' * 64})
+    second.write_text(json.dumps(extended))
+    assert any('current package source' in reason for reason in gate()['blockers'])
+
+
+def test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps(tmp_path, monkeypatch):
+    import topos.matrix_workflow as matrix
+
+    source = tmp_path / 'wiki/Method_Matrix.md'
+    source.parent.mkdir()
+    source.write_text('CFOUR has no 10 s or 1 min entry\n')
+    report = {'additional_adapter_recipes': [], 'topos_track_gaps': ['T3C-10s', 'T3C-1min'],
+              'unresolved_track_gaps': [], 'unavailable_by_design': [
+                  {'row_id': row, 'disposition': 'unavailable-by-design', 'source_path': 'wiki/Method_Matrix.md',
+                   'source_lines': [1], 'source_excerpt': 'CFOUR has no 10 s or 1 min entry',
+                   'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+                  for row in ['T3C-10s', 'T3C-1min']]}
+    monkeypatch.setattr(matrix, 'execution_support_report', lambda: report)
+    result = release_gate(tmp_path)
+    assert not any(reason.startswith('Method matrix') for reason in result['blockers'])
+    assert result['status'] == 'blocked'  # All scientific/runtime evidence remains mandatory.
+    report['topos_track_gaps'].append('T3O-1w')
+    report['unresolved_track_gaps'].append('T3O-1w')
+    assert any('unresolved source track gaps T3O-1w' in reason for reason in release_gate(tmp_path)['blockers'])
+    report['unresolved_track_gaps'].clear()
+    assert any('lack an explicit' in reason for reason in release_gate(tmp_path)['blockers'])
+    source.write_text('Changed source does not declare the unsupported tiers\n')
+    assert any('matching source evidence' in reason for reason in release_gate(tmp_path)['blockers'])

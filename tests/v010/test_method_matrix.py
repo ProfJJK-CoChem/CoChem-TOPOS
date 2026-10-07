@@ -24,6 +24,7 @@ from topos.method_matrix import (
     load_catalog,
     plan_route,
     resolve_row,
+    unavailable_by_design,
     validate_request_matrix,
 )
 
@@ -93,6 +94,39 @@ def test_source_revision_drift_is_a_failure(tmp_path):
     changed.write_text((ROOT / "wiki/Method_Matrix.md").read_text() + "\nchanged\n")
     with pytest.raises(ValueError, match="differs"):
         load_catalog(changed)
+
+
+def test_higher_quadruples_plan_records_energy_difference_derivatives():
+    from topos.method_matrix import resolved_recipe
+
+    steps, _ = resolved_recipe(resolve_row('T3C-1w'))
+    quadruples = next(step for step in steps if step.method == 'CCSDTQ')
+    assert quadruples.derivative == 'gradient'
+    assert quadruples.options['native_analytic_gradient'] is False
+    assert quadruples.options['step_size_check'] == 'explicit h and h/2 agreement'
+    assert 'native NCC CCSDTQ energies' in quadruples.options['derivative_mechanism']
+
+
+def test_model_training_plan_requires_exact_patched_native_build_and_mixed_devices():
+    from topos.matrix_workflow import runtime_recipe_capabilities
+
+    common = dict(verified=True, evidence='conditional adapter contract; native execution separately checked',
+                  supported_elements=['H', 'O'], supported_multiplicities=[1], devices=['gpu'],
+                  model_sha256='1' * 64, gpu_memory_required_mb=4096)
+    training = BackendCapability(engine='mace', engine_version='0.3.16', methods=['MACE'],
+                                  operations=['fine-tune'], **common)
+    search = BackendCapability(engine='orca+crest', engine_version='6.1.1+3.0.2+topos-generic-paths-v1',
+                                methods=['custom-MLFF'], operations=['goat-and-crest-union'], **common)
+    caps = [*runtime_recipe_capabilities(), training, search]
+    inputs = ['molecule', 'model_manifest', 'reference_training_set', 'training_protocol', 'ml_search_allocation']
+    gpu = hardware(device='gpu', gpu_model='explicit-test-device', gpu_memory_mb=8192)
+    route = plan('T1-1w', capabilities=caps, hardware=gpu, available_inputs=inputs)
+    assert route.runnable, route.blockers
+    assert [step.device for step in route.steps] == ['gpu', 'gpu', 'cpu', 'cpu']
+    assert route.steps[1].options['identical_trained_checkpoint'] is True
+    stock = search.model_copy(update={'engine_version':'6.1.1+3.0.2'})
+    assert not plan('T1-1w', capabilities=[*caps[:-1], stock], hardware=gpu, available_inputs=inputs).runnable
+    assert not plan('T1-1w', capabilities=caps, hardware=hardware(), available_inputs=inputs).runnable
 
 
 @pytest.mark.parametrize("alias,canonical", [("T3-3h", "T3O-3h"), ("T4-1h", "T4O-1h"),
@@ -229,6 +263,42 @@ def test_source_track_gaps_remain_explicit_with_alternatives(row):
     assert p.row.track_gap
     assert p.row.alternatives
     assert not p.runnable
+
+
+@pytest.mark.parametrize("row_id", [f"T{table}C-{tier}" for table in (3, 4, 6, 8) for tier in ("10s", "1min")])
+def test_short_cfour_tiers_are_intentionally_unavailable_with_pinned_source(row_id):
+    source = ROOT / "wiki/Method_Matrix.md"
+    lines = source.read_text().splitlines()
+    before = resolve_row(row_id).model_dump(mode="json")
+    disposition = unavailable_by_design(row_id)
+    assert disposition == {
+        "row_id": row_id, "disposition": "unavailable-by-design", "source_path": "wiki/Method_Matrix.md",
+        "source_lines": [36, before["source"]["line"]], "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+    }
+    assert disposition["source_excerpt"] in lines[disposition["source_lines"][0]-1]
+    assert row_id in lines[disposition["source_lines"][1]-1]
+    route = plan(row_id)
+    # Even an asserted external adapter does not override an intentional gap.
+    caps = [BackendCapability(engine=step.engine, engine_version="declared-test-capability", verified=True,
+                              evidence="structural planner fixture; not native execution", operations=[step.operation],
+                              methods=[step.method] if step.method else [], supported_elements=["H", "O"],
+                              supported_multiplicities=[1]) for step in route.steps]
+    declared = plan(row_id, capabilities=caps, available_inputs=route.required_inputs)
+    assert not declared.runnable
+    assert any("unavailable-by-design" in reason and "wiki/Method_Matrix.md:36" in reason for reason in declared.blockers)
+    assert all(step.engine == "matrix-recipe" and step.method is None for step in declared.steps)
+    request = SimpleNamespace(matrix_row_id=row_id, matrix_revision=MATRIX_REVISION)
+    status, reason = validate_request_matrix(request)
+    assert status == "unsupported" and "unavailable-by-design" in reason
+    assert resolve_row(row_id).model_dump(mode="json") == before
+    disposition["source_lines"].append(999)
+    assert len(unavailable_by_design(row_id)["source_lines"]) == 2
+
+
+@pytest.mark.parametrize("row_id", ["T3C-30min", "T3O-10s", "T1-1min", "T6O-1mo", "T8O-1mo"])
+def test_intentional_cfour_exclusion_does_not_reclassify_other_rows(row_id):
+    assert unavailable_by_design(row_id) is None
 
 
 def test_all_140_rows_have_a_typed_plan_without_claiming_unavailable_recipe_execution():

@@ -17,18 +17,23 @@ requires both declared maximum and RMS Cartesian gradient thresholds. It
 establishes stationarity; positive vibrational curvature requires a separate
 Hessian calculation. One wall-clock deadline bounds the entire campaign.
 
-The input is Cartesian, with conventional AO-integral handling, an explicit
+The input is Cartesian, with conventional integral handling, an explicit
 core choice, RHF reference, charge, CPU memory allocation, SCF/CC thresholds,
 and a named basis from the supplied native installation's GENBAS file. The
 executable and GENBAS bytes are hashed. GENBAS must occupy a documented native
 installation location and contain the exact requested basis for every element.
 No arbitrary replacement basis is renamed to satisfy a matrix label.
+Full triples explicitly use `CC_PROG=ECC,ABCDTYPE=STANDARD`; the AO algorithm
+is only available through CCSD(T). Public CFOUR 2.1 full quadruples additionally
+have an energy-only `CC_PROG=NCC,ABCDTYPE=STANDARD` contract. No analytic
+CCSDTQ derivative is inferred from availability of its energy method.
 
 Output acceptance requires the exact engine version, complete successful native
 subprogram termination, actual SCF and correlated-method convergence, matching
 charge/core/reference/basis controls, and the requested correlated total energy.
 Analytic gradients require agreement between the native GRD and stdout gradient,
-both at the requested geometry. Proper rotations and translations are allowed;
+both at the requested geometry. Total dipoles are expressed at the requested
+origin, including the charge-dependent translation term. Proper rotations and translations are allowed;
 unestablished atom permutations and mirror matches are rejected. Atom IDs,
 isotopes, fragment states, and declared bonds remain those of the typed input.
 The adapter never treats an intermediate HF/MP2 energy as a CCSD(T) result.
@@ -41,6 +46,14 @@ optimizer resolution and the explicit same-basis core-valence resolution.
 Component energies are retained individually; no composite electronic energy
 is invented from a geometry formula. These CFOUR routes still require live
 licensed-engine acceptance.
+
+The parameterized `T3C-1w` [higher geometry composite](TOPOS_HIGHER_COMPOSITES.md)
+adds all eight explicit CBS/CV/fT/fQ component geometries, checked numerical
+energy derivatives for full quadruples, and durable displacement-level
+recovery. Its bases, extrapolation exponent, and numerical derivative settings
+must be selected explicitly. Counterpoise-bracketed geometry, relativistic
+increments and isotope-resolved DBOC geometry corrections remain separate
+requirements; their rows cannot borrow an uncorrected geometry.
 
 **Psi4:** the explicitly selected SAPT2+3 branch, with two balanced closed-shell
 monomers, declared orbital/SCF-fitting/SAPT-fitting bases, core treatment,
@@ -120,7 +133,7 @@ dependencies `qcengine==0.51.0` and `qcelemental==0.51.2` are installed; these a
 parsers/contracts, not replacements for quantum-chemistry engines. The verified
 optional dependency set belongs to the packaging/release configuration.
 
-The focused adapter/workflow suite has **54 passing tests**, zero skips when
+The focused adapter/workflow suite has **56 passing tests**, zero skips when
 the actual Psi4 executable is configured, and a clean
 Ruff check. It covers authentic historical MP2 and CCSD(T) output, native
 geometry/gradient frame handling, wrong-method/core/basis/version rejection,

@@ -35,6 +35,47 @@ XTB_INTERFACE_MANUAL = "https://www.faccts.de/docs/orca/6.1/manual/contents/mode
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 
 
+def parse_goat_progress(raw: str) -> dict[str, Any]:
+    """Retain native workload/progress without inferring successful completion.
+
+    A global cycle contains many local optimizations. Reporting its native
+    summary row is progress only; normal termination, the finite stopping
+    criterion and the final ensemble remain independent acceptance gates.
+    """
+    fields = {
+        "minimum_global_iterations": "Minimum global steps",
+        "base_workers": "Number of base workers",
+        "workers": "Final number of workers",
+        "available_cpus": "Number of available CPUs",
+        "optimizations_per_global_iteration": "Optimizations per global step",
+        "optimizations_per_worker": "Optimizations per worker",
+    }
+    result: dict[str, Any] = {}
+    for key, label in fields.items():
+        matches = re.findall(r"(?m)^\s*" + re.escape(label) + r"\s*\.\.\.\s*(\d+)\s*$", raw)
+        result[key] = int(matches[-1]) if matches else None
+    reported = []
+    for match in re.finditer(r"GOAT Global Iter\s+(\d+)(.*?)(?=GOAT Global Iter|\Z)", raw, re.S):
+        index, section = int(match.group(1)), match.group(2)
+        rows = re.findall(r"(?m)^\s*(\d+)\s+(" + _FLOAT + r")\s+(" + _FLOAT + r")\s+(" + _FLOAT + r")\s*$", section)
+        for row in rows:
+            if int(row[0]) != index:
+                continue
+            try:
+                for value in row[1:]:
+                    _number(value)
+            except EngineParseError:
+                continue
+            reported.append(index)
+            break
+    result.update(reported_global_iteration_indices=sorted(set(reported)),
+                  reported_global_iterations=len(set(reported)),
+                  finite_stopping_marker_present=bool(re.search(r"Global minimum found\s*!", raw, re.I)),
+                  normal_termination_marker_present="ORCA TERMINATED NORMALLY" in raw,
+                  scope="native workload and completed summary rows; not calculation success or search exhaustiveness")
+    return result
+
+
 def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits, *,
                energy_window_kcal_mol: float = 12.0, uphill_method: str | None = None,
                deterministic: bool = False, max_global_iterations: int = 100,
@@ -258,6 +299,7 @@ def run_goat(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
         result.diagnostics["process"] = process.to_dict()
         result.status = process.status
         raw = Path(process.stdout_path).read_text(errors="replace")
+        result.metadata["native_progress"] = parse_goat_progress(raw)
         ensemble = folder / "goat.finalensemble.xyz"
         if ensemble.is_file():
             try:

@@ -1,0 +1,51 @@
+Global parameters
+-----------------
+  GOAT version                               ... default
+  Minimum global steps                       ... 3
+  Number of base workers                     ... 4
+  Split workers by                           ... 1
+  Final number of workers                    ... 4
+  Number of available CPUs                   ... 2
+  Parameter list (worker : temperature)      ...  0 : 2903.97,  1 : 1451.98, 
+                                                  2 :  725.99,  3 :  363.00 
+  GradComp (mean : sigma)                    ... 1.00 : 0.50
+  Number of fragments                        ... 2
+  Number of atoms                            ... 3
+  Flexibility parameter                      ... 0.71
+  Optimizations per global step              ... 60
+  Optimizations per worker                   ... 15
+  *Reached the min. opt. per worker: max(flex * NAtoms, 15) = 15
+
+Filtering criteria
+------------------
+  RMSD                                       ... 0.125 Angs (atom. pos.)
+  EnDiff                                     ... 0.100 kcal/mol
+  RotConst                                   ... 1.00-2.50 %
+  Maximum Conf. Energy                       ... 12.000 kcal/mol
+
+Thermodynamics
+--------------
+  Ensemble temperature                       ... 298.15 K
+  Degeneracy of conformers                   ... auto
+
+------------------------------------------------------------------------------
+   Iter  MinTemp     MaxEn       GradComp    NOpt   NProcs    Output
+------------------------------------------------------------------------------
+List of participating nodes    ...  goat.goat.0.hostnames
+
+   1     1451.98      9.00    1.00 : 0.50      15        1    goat.goat.0.1.out
+   0     2903.97      9.00    1.00 : 0.50      15        1    goat.goat.0.0.out
+   2      725.99      9.00    1.00 : 0.50      15        1    goat.goat.0.2.out
+   3      363.00      9.00    1.00 : 0.50      15        1    goat.goat.0.3.out
+
+			     GOAT Global Iter 1
+		Iter    Min En       Sconf       Gconf   
+		        Hartree      cal/(molK)  kcal/mol
+		=========================================
+
+		   1    -76.418935   0.000       0.000
+
+List of participating nodes    ...  goat.goat.1.hostnames
+
+   1     1451.98      9.00    1.00 : 0.50      15        1    goat.goat.1.1.out
+   0     2903.97      9.00    1.00 : 0.50      15        1    goat.goat.1.0.out

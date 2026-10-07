@@ -121,6 +121,22 @@ def method_references(engine: str, method: str) -> list[dict[str, Any]]:
             "doi": "10.1039/C9CP06869D", "year": 2020,
             "source": "https://github.com/crest-lab/crest/blob/master/README.md",
         }])
+    elif engine == "abcluster":
+        references.extend([
+            {"kind": "software", "title": "ABCluster rigidmol", "url": "https://zhjun-sci.com/abcluster.html",
+             "role": "executed external rigid-molecule sampler; executable rights are separate from TOPOS"},
+            {"kind": "peer-reviewed-method", "method": method,
+             "title": "ABCluster: The Artificial Bee Colony Algorithm for Cluster Global Optimization",
+             "authors": ["Jun Zhang", "Michael Dolg"], "year": 2015, "doi": "10.1039/C5CP04060D",
+             "source": "https://zhjun-sci.com/abcluster/doc/introduction.html"},
+            {"kind": "peer-reviewed-method", "method": method,
+             "title": "Global Optimization of Clusters of Rigid Molecules Using the Artificial Bee Colony Algorithm",
+             "authors": ["Jun Zhang", "Michael Dolg"], "year": 2016, "doi": "10.1039/C5CP06313B",
+             "source": "https://zhjun-sci.com/abcluster/doc/introduction.html"},
+            {"kind": "documentation", "method": method, "title": "ABCluster CHARMM pair potential and native parameter units",
+             "url": "https://zhjun-sci.com/abcluster/doc/charmmff.html",
+             "role": "enumeration score; independent QM refinement required, no universal force-field accuracy claim"},
+        ])
     elif engine in {"aimnet2", "mace"}:
         references.append({"kind": "software", "title": "AIMNet2" if engine == "aimnet2" else "MACE",
                            "url": "https://github.com/isayevlab/aimnetcentral" if engine == "aimnet2" else "https://github.com/ACEsuit/mace",
@@ -165,7 +181,7 @@ def method_references(engine: str, method: str) -> list[dict[str, Any]]:
         references.append({"kind": "documentation", "method": method,
                            "title": "Psi4 SAPT: Symmetry-Adapted Perturbation Theory",
                            "url": "https://psicode.org/psi4manual/master/sapt.html"})
-    elif engine not in {"crest", "aimnet2", "mace"}:
+    elif engine not in {"crest", "aimnet2", "mace", "abcluster"}:
         references.append({"kind": "unresolved-reference", "title": method, "method": method,
                            "role": "exact method/basis reference requires author verification"})
     return references
@@ -199,8 +215,19 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
         if metadata.get("execution_kind") != "real" or not attempt.get("command"):
             continue
         additions = []
-        manifest = metadata.get("manifest") or metadata.get("model_manifest")
-        if manifest and manifest.get("backend") in {"aimnet2", "mace"}:
+        if attempt["engine"].lower() == "abcluster":
+            options = metadata.get("protocol", {}).get("options", {})
+            if options.get("parameter_source"):
+                additions.append({"kind": "author-supplied-parameter-source", "method": attempt["method"],
+                                  "title": "Executed rigidmol parameter provenance",
+                                  "source": options["parameter_source"],
+                                  "role": "user-declared origin; actual coefficients and units are retained in the attempt input"})
+            else:
+                unresolved.add("Verify actual ABCluster parameter provenance; no automatic atom typing or generic CHARMM accuracy claim")
+        manifest = metadata.get("manifest") or metadata.get("model_manifest") or metadata.get("model")
+        if isinstance(manifest, Mapping) and manifest.get("backend") in {"aimnet2", "mace"}:
+            if attempt["engine"].lower() != manifest["backend"]:
+                additions.extend(method_references(manifest["backend"], manifest["family"]))
             additions.append({"kind": "model-artifact", "title": manifest["family"],
                               "method": attempt["method"], "backend": manifest["backend"],
                               "manifest_sha256": metadata.get("manifest_sha256"),
@@ -268,7 +295,7 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
             basis_attempts.setdefault(basis, []).append(attempt["attempt_id"])
         if auxiliary:
             auxiliary_attempts.setdefault(auxiliary, []).append(attempt["attempt_id"])
-        for key in ("auxiliary_scf_basis", "auxiliary_sapt_basis", "cabs_basis", "correlation_auxiliary_basis"):
+        for key in ("auxiliary_scf_basis", "auxiliary_sapt_basis", "cabs_basis", "correlation_auxiliary_basis", "auxiliary_c", "auxiliary_jk", "cabs"):
             if recipe.get(key):
                 auxiliary_attempts.setdefault(recipe[key], []).append(attempt["attempt_id"])
     for basis, attempt_ids in basis_attempts.items():
@@ -293,6 +320,27 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
             unresolved.add("Verify underlying correlation-consistent basis references for the actual elements")
         else:
             unresolved.add(f"Verify explicit orbital basis citation from executed input: {basis}")
+    for basis, attempt_ids in basis_attempts.items():
+        basis_reference = None
+        if basis.startswith("cc-pV") and basis.endswith("Z-F12"):
+            basis_reference = {"title": "Systematically convergent basis sets for explicitly correlated wavefunctions: The atoms H, He, B-Ne, and Al-Ar",
+                               "authors": ["Kirk A. Peterson", "Thomas B. Adler", "Hans-Joachim Werner"],
+                               "year": 2008, "doi": "10.1063/1.2831537"}
+        elif "cc-pwCV" in basis or "cc-pCV" in basis:
+            basis_reference = {"title": "Accurate correlation consistent basis sets for molecular core-valence correlation effects: The second row atoms Al-Ar, and the first row atoms B-Ne revisited",
+                               "authors": ["Kirk A. Peterson", "Thom H. Dunning"], "year": 2002,
+                               "doi": "10.1063/1.1520138"}
+        elif "cc-pV" in basis:
+            basis_reference = {"title": "Gaussian basis sets for use in correlated molecular calculations. I. The atoms boron through neon and hydrogen",
+                               "authors": ["Thom H. Dunning"], "year": 1989, "doi": "10.1063/1.456153"}
+        if basis_reference:
+            entry = references.setdefault(basis_reference["doi"], {"kind": "peer-reviewed-basis", **basis_reference,
+                                          "source": BASIS_BIBLIOGRAPHY, "bases": [], "attempt_ids": [],
+                                          "scope": "basis-family paper; verify element-specific extensions and augmentation from the actual basis library"})
+            entry["bases"].append(basis)
+            entry["attempt_ids"].extend(attempt_ids)
+            unresolved.discard(f"Verify explicit orbital basis citation from executed input: {basis}")
+            unresolved.add(f"Verify element-specific basis-library provenance for {basis}")
     for auxiliary, attempt_ids in auxiliary_attempts.items():
         if auxiliary in {"def2/J", "def2-J"}:
             references["10.1039/b515623h"] = {
@@ -302,7 +350,26 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
                 "doi": "10.1039/b515623h", "source": BASIS_BIBLIOGRAPHY,
                 "attempt_ids": attempt_ids,
             }
+        elif auxiliary.endswith("-F12-CABS"):
+            references.setdefault("10.1063/1.3009271", {
+                "kind": "peer-reviewed-auxiliary-basis", "basis": auxiliary, "attempt_ids": attempt_ids,
+                "title": "Optimized auxiliary basis sets for explicitly correlated methods",
+                "authors": ["Kazim E. Yousaf", "Kirk A. Peterson"], "year": 2008,
+                "doi": "10.1063/1.3009271", "source": BASIS_BIBLIOGRAPHY,
+            })
+        elif auxiliary.endswith("/C") and "cc-pV" in auxiliary:
+            references.setdefault("10.1063/1.1445115", {
+                "kind": "peer-reviewed-auxiliary-basis", "basis": auxiliary, "attempt_ids": attempt_ids,
+                "title": "Efficient use of the correlation consistent basis sets in resolution of the identity MP2 calculations",
+                "authors": ["Florian Weigend", "Andreas Köhn", "Christof Hättig"], "year": 2002,
+                "doi": "10.1063/1.1445115", "source": BASIS_BIBLIOGRAPHY,
+            })
         else:
+            references.setdefault("basis-library:" + auxiliary, {
+                "kind": "reference-data", "basis": auxiliary, "attempt_ids": attempt_ids,
+                "title": "Executed auxiliary basis-library identity " + auxiliary,
+                "url": "https://www.basissetexchange.org/", "source": BASIS_BIBLIOGRAPHY,
+            })
             unresolved.add(f"Verify auxiliary basis-set citation from executed input: {auxiliary}")
     counterpoise = record.get("metadata", {}).get("matrix_counterpoise", {})
     if (actual_orca and counterpoise.get("status") == "completed"

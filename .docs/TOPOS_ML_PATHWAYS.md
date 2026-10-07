@@ -51,9 +51,11 @@ structure convergence. Model energies are never renamed as executed DFT results.
 Use BASE's reviewed ML silo provisioner and the exact lock accompanying the
 installation. TOPOS never downloads weights during a calculation. Place the
 reviewed checkpoint outside the application source tree and pass its absolute
-path and independently recorded digest in the request manifest. The installed
-TOPOS wheel must also be present in the audited silo; an injected `PYTHONPATH`
-does not establish production authority.
+path and independently recorded digest in the request manifest. The separately packaged `cochem-topos-ml-worker` wheel must be installed in the
+audited silo with source bytes matching the controller. It must never share an
+environment with the full TOPOS controller distribution. Use the [worker installation
+procedure](TOPOS_INSTALLATION.md#isolated-ml-inference-worker); an injected
+`PYTHONPATH` does not establish production authority.
 
 The actual CPU verification used `mace-torch==0.3.16` and `torch==2.8.0+cpu`.
 The previously supplied BASE pin `mace-torch==0.3.17` was unavailable on the package
@@ -75,6 +77,30 @@ disagreement was `3.56e-9 hartree/bohr`; the energy change under the tested rigi
 transformations was zero at recorded precision. This is CPU model/units evidence,
 not BASE silo, AIMNet, GPU, committee, training, or combined ORCA acceptance.
 
+A separate genuine AIMNet2 verification used `aimnet==0.2.0`, `torch==2.8.0+cpu`,
+`numpy==2.5.3` and `ase==3.29.0`, with four distinct official `wb97m-d3` checkpoints
+whose recorded hashes matched the pinned AIMNet registry. The manifest explicitly
+identifies the training Hamiltonian as `wB97M-D3(BJ)/def2-TZVPP`; the reported
+energies are model predictions, not executed DFT results. No checkpoint weights
+are included in the TOPOS distribution.
+
+For water, 75 actual committee inference frames tested fourth-order energy
+finite-difference gradients at three step pairs and rigid transformations.
+Maximum gradient discrepancies were `1.65e-6`, `2.00e-6` and `6.55e-6 Eh/bohr`;
+the report retains the float32 energy-roundoff bound and each actual step size.
+The tested rotation changed energy by `3.52e-8 Eh` and the transformed gradient
+by `1.69e-8 Eh/bohr`. The tested translation changed energy by `2.55e-8 Eh` and
+gradient by `2.58e-7 Eh/bohr`. The four-member energy standard deviation was
+`1.16e-4 Eh` (`ddof=1`), which is uncalibrated model disagreement.
+
+The [unaltered verification receipt](evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json)
+and [hash-matched raw predictions](evidence/TOPOS_AIMNET_CPU_RAW_20261007.json)
+retain all model identities, numerical checks, versions, worker hash and scope.
+This verifies CPU model inference and derivative/unit consistency for the tested
+molecule. It does not establish BASE authorization, GPU execution, broader-domain
+accuracy, a DFT benchmark or the accuracy of uncertainty estimates. The BASE
+production path and its separately audited interpreter have independent evidence.
+
 ## Sources
 
 1. [Official MACE-OFF repository, model license and citation](https://github.com/ACEsuit/mace-off/tree/91a78c5a9c300d1104700d9352c8bfe449227737).
@@ -83,3 +109,5 @@ not BASE silo, AIMNet, GPU, committee, training, or combined ORCA acceptance.
 4. [Official AIMNet source and hash-pinned model registry](https://github.com/isayevlab/aimnetcentral/tree/718ffd62babf92d91b3b14cb909b01308e4c5b1d).
 5. [ORCA 6.1 external-method workflow](https://www.faccts.de/docs/orca/6.1/tutorials/workflows/extopt.html).
 6. [Supplied method matrix, Sections 10 and 13](../wiki/Method_Matrix.md).
+
+7. Anstine, Zubatyuk and Isayev, [AIMNet2: A Neural Network Potential to Meet Your Neutral, Charged, Organic, and Elemental-Organic Needs](https://doi.org/10.1039/D4SC08572H), *Chemical Science* **16**, 10228–10244 (2025); citation verified in the official AIMNet project README.

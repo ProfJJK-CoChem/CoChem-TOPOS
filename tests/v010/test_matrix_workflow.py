@@ -11,7 +11,6 @@ import pytest
 
 from topos.config import SystemConfig
 from topos.matrix_workflow import (
-    EXECUTABLE_ROWS,
     MatrixInputs,
     _child_request,
     _validate_ensemble,
@@ -46,12 +45,14 @@ def real_xtb():
     pytest.skip("A real xTB executable is required; no engine result is simulated")
 
 
-def test_unimplemented_full_campaign_does_not_execute_a_cheap_component(tmp_path):
-    result = Workflow(tmp_path, config=dev_config("/missing/xtb")).run(request("T3O-3h"))
+def test_unavailable_vv10_vpt2_campaign_does_not_execute_a_cheap_component(tmp_path):
+    result = Workflow(tmp_path, config=dev_config("/missing/xtb")).run(request("T3O-3h",
+        matrix_inputs={'source_resolution':'r2-separate-dft-vpt2-transfer-v1'}))
     assert result.status == "unsupported"
     assert not result.attempts
-    assert len(result.metadata["matrix_plan"]["steps"]) == 3
-    assert "additional" in result.metadata["termination_reason"]
+    assert len(result.metadata["matrix_plan"]["steps"]) == 5
+    assert 'VV10' in result.metadata['termination_reason']
+    assert "analytic Hessians" in result.metadata["termination_reason"]
 
 
 def test_missing_binary_produces_no_matrix_completion_or_fabricated_energy(tmp_path):
@@ -70,7 +71,8 @@ def test_matrix_source_text_and_advanced_external_capability_cannot_supply_code(
                  supported_elements=["O", "H"], supported_multiplicities=[1], verified=True, evidence="caller")
         ]}))
     assert result.status == "unsupported" and not result.attempts
-    assert "T1-30min" not in EXECUTABLE_ROWS
+    assert "model_manifest" in result.metadata["termination_reason"]
+    assert "orca+aimnet2" in result.metadata["termination_reason"]
 
 
 def test_supplied_capabilities_can_narrow_but_not_bypass_runtime_adapter(tmp_path):

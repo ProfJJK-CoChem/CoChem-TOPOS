@@ -14,11 +14,15 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import Field
 
+from .cfour_counterpoise import CfourCounterpoiseGeometryProtocol
 from .correlated import CorrelatedMethod
+from .correlated_counterpoise import CorrelatedCounterpoiseProtocol
 from .data.runtime_recipes import EXECUTABLE_ROWS, IMPLEMENTED_BRANCH_ROWS
 from .energy_composite import EnergyCompositeProtocol
 from .entropy import EntropyOptions
 from .external_engines import ExternalProtocol
+from .higher_composite import HigherGeometryProtocol
+from .matrix_r2 import R2MonomerProvenance, R2VPT2Options
 from .matrix_sources import SourceEnsembleInput
 from .method_matrix import (
     MATRIX_REVISION,
@@ -28,6 +32,7 @@ from .method_matrix import (
     resolve_row,
 )
 from .ml import ModelManifest
+from .ml_training import MACETrainingOptions, TrainingDatasetSpec
 from .ml_workflow import RigidMLGrid
 from .models import (
     Artifact,
@@ -39,25 +44,38 @@ from .models import (
     RunRecord,
     RunRequest,
 )
+from .month_geometry import MonthCorrectionProtocol
+from .orca_f12_composite import OrcaF12CompositeProtocol
+from .orca_numerical_geometry import OrcaF12GeometryProtocol
 from .scans import ScanCoordinate, ScanOptions
 from .storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest
 
 
 def execution_support_report() -> dict[str, Any]:
     """Report code coverage without turning availability into scientific validation."""
-    from .method_matrix import load_catalog
+    from .data.reviewed_matrix_v010 import RECIPES
+    from .method_matrix import load_catalog, reviewed_revision, unavailable_by_design
 
     catalog = load_catalog()
     topos_rows = [r for r in catalog.rows if r.owner == "TOPOS"]
+    unresolved = {
+        "T3C-1mo": "Conditional explicit HF X2C/native-default HF DBOC corrected geometry is implemented for H/C/N/O/F without explicit isotopes. Numeric native masses are not attested, so all rotor constants and full original-row completion remain withheld.",
+    }
     return {
         "catalog_revision": catalog.revision,
         "catalog_source_sha256": catalog.source_sha256,
         "catalog_rows": len(catalog.rows),
         "topos_owned_rows": len(topos_rows),
         "topos_track_gaps": [r.row_id for r in topos_rows if r.track_gap],
+        "unavailable_by_design": [disposition for r in topos_rows
+                                  if (disposition := unavailable_by_design(r.row_id)) is not None],
+        "unresolved_track_gaps": [r.row_id for r in topos_rows if r.track_gap and unavailable_by_design(r.row_id) is None],
         "compiled_complete_recipes": sorted(EXECUTABLE_ROWS),
         "compiled_recipe_count": len(EXECUTABLE_ROWS),
         "implemented_partial_branches": sorted(IMPLEMENTED_BRANCH_ROWS),
+        "source_conflict_rows": [r.row_id for r in catalog.rows if r.source_conflicts],
+        "reviewed_scientific_revisions": {key: reviewed_revision(key) for key in RECIPES},
+        "revision_scope": "Original v4 rows remain archived verbatim. Compiled revised rows require their explicit separately hashed reviewed variant; source benchmark claims are not transferred.",
         "conditional_recipe_resolutions": {
             "T1-3h": {
                 "source_literal": "ORCA Freq (native analytic Hessian)",
@@ -71,17 +89,55 @@ def execution_support_report() -> dict[str, Any]:
             "T3O-3d": {"required_explicit_resolution": "autoci-conventional-transformation-v1",
                         "source_conflict": "MDCI AO-direct options cannot be transplanted to AUTOCI",
                         "implemented_variant": "canonical AUTOCI analytic gradients and native integral transformation; no AO-direct claim"},
+            "T3O-1d": {"required_explicit_resolution": "orca-f12d-numerical-geometry-dz-v1",
+                        "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVDZ-F12/CABS/cc-pVDZ/C; checked numerical energy derivatives and explicit stationarity controls"},
+            "T3O-1mo": {"required_explicit_resolution": "orca-f12d-numerical-geometry-tz-v1",
+                         "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVTZ-F12/CABS/cc-pVTZ/C; checked numerical energy derivatives, not Molpro F12b",
+                         "compatibility_branch": "orca-f12-reference-singlepoint-v1 remains explicitly energy-only and does not complete the revised geometry protocol"},
             "T5-12h": {"required_input": "complete correlated_protocol with exact correlation fitting basis and core convention",
                         "implemented_variant": "plain DLPNO-CCSD(T1) with cc-pVDZ-F12 orbital basis and native !LED; not an F12 Hamiltonian"},
             "T5-1d": {"required_input": "complete DLPNO protocol; identical reference/settings except consecutive TCutPNO6/7",
                        "implemented_variant": "HF + correlation6 + 1.5*(correlation7-correlation6), then frozen fragment subtraction"},
             "T5-3d": {"required_input": "explicit RI correlation fitting basis omitted by the source row",
                        "implemented_variant": "canonical CCSD(T)-F12D/RI with cc-pVTZ-F12 and its CABS; never relabeled F12b"},
+            "T5-3h": {"required_explicit_resolution": "orca-f12d-composite-interaction-v1",
+                       "implemented_variant": "five exact ORCA protocols per frozen complex/fragment: F12D/RI base, separate HF+CABS exponential and F12-correlation inverse-power CBS, same-basis MP2 ae-fc correction",
+                       "scientific_difference": "Explicit reviewed ORCA approximation; not archived junChS-F12b or its A14 benchmark"},
+            "T5-30min": {"required_explicit_resolution": "native-composite-rawinteraction-v1",
+                         "implemented_variant": "native r2SCAN-3c frozen interaction including built-in gCP; no separate CP/half-CP claim"},
+            "T5-1w": {"required_input": "energy_composite with explicit consecutive CBS bases, HF exponential coefficient, correlation power, core-valence and full-triples bases",
+                      "implemented_variant": "eight genuine native CFOUR components per complex/fragment; no named HEAT/Wn recipe or benchmark-accuracy transfer"},
+            "T3C geometry rows": {"required_explicit_resolution": "cfour-topos-cartesian-optimizer-v1",
+                                  "implemented_variant": "TOPOS Cartesian L-BFGS-B using actual CFOUR analytic gradients; not the source's native internal-coordinate optimizer"},
+            "T3C-1w": {"required_input": "higher_geometry with explicit consecutive CBS bases, geometry exponent, CV/full-triples/full-quadruples bases and independent coordinate chart",
+                       "implemented_variant": "seven optimizations use native analytic derivatives; the full-quadruples optimization uses checked h/h2 central differences of genuine CFOUR 2.1 NCC CCSDTQ energies",
+                       "derivative_limit": "No native CCSDTQ analytic-gradient claim; same torsional-basin membership remains an explicit unverified assumption"},
+            "T3O-1w": {"required_explicit_resolution": "cfour-relaxed-counterpoise-geometry-v1",
+                       "required_input": "cfour_counterpoise with every native basis/core/chart/numerical derivative choice",
+                       "implemented_variant": "sixteen component optimizations: eight raw and eight relaxed CP total surfaces; separate parameter-wise composite geometry bracket",
+                       "validation_limit": "Strict conditional CFOUR 2.1 ghost/core/native output contract; live correlated ghost acceptance remains pending, no benchmark or verified composite minimum claim"},
+            "T3O-3h": {"required_explicit_resolution": "r2-b3lyp-d4-vpt2-transfer-v1",
+                       "implemented_variant": "frozen QZ target plus ordinary DLPNO CP; independently relaxed strict B3LYP-D4/TZVPP native VPT2 reference and explicit axis/mass matched correction transfer",
+                       "validation_limit": "Approximate composite with explicitly changed reference functional; archived wB97X-V/VV10 native VPT2 remains unsupported, no automatic fallback or experimental accuracy claim"},
+            "T3C-1mo": {"required_explicit_resolution": "cfour-native-default-mass-corrected-geometry-v1",
+                        "implemented_variant": "conditional higher composite plus paired HF X2C and native-default HF DBOC geometry increments",
+                        "completion_limit": "All rotor constants withheld because numeric native masses are unattested; never certifies the full original row"},
+            "T1-30min": {"required_input": "explicit AIMNet2 checkpoint manifest and concurrent ML/ORCA resource allocation",
+                         "implemented_variant": "native GOAT-EXPLORE ExtOpt followed by actual common r2SCAN-3c refinement and Stage-A native CREGEN; ML energies remain raw enumeration observations"},
+            "T1-1w": {"required_input": "100–500 provenance-verified DFT configurations, group-disjoint data partitions, explicit GPU training/model/allocation, and hash-verified CREST 3.0.2+topos-generic-paths-v1",
+                      "implemented_variant": "float64 MACE fine-tuning and held-out evaluation; both native GOAT and patched CREST use the identical trained checkpoint; real common r2SCAN-3c refinement and native Stage-A CREGEN",
+                      "validation_limit": "Native reduced-profile CREST/MACE interface passed; no actual GPU training, combined native GOAT/ML or full default compound-campaign acceptance is claimed"},
+            "T1-1d": {"required_input": "identical explicit seed geometries at 298.15 K",
+                      "implemented_variant": "both native stopping criteria plus abs(GOAT Sconf-CREST Sconf)<0.1; excludes CREST total entropy and delta-RRHO"},
+            "T1-1mo": {"required_input": "at least three distinct seeds and an exact coupled-cluster energy protocol",
+                       "implemented_variant": "native GOAT-DIVERSITY and CREST-v4, actual common GFN2 refinement, native CREGEN and DLPNO reranking; no exhaustive-sampling proof"},
+            "T5-1min": {"required_input": "independent float64 committee and explicit ml_no_energy_culling=True",
+                        "implemented_variant": "frozen interaction and paired committee disagreement; retains all structures, no pruning without a separate G4 audit"},
         },
         "additional_adapter_recipes": [
             {"row_id": r.row_id, "purpose": r.purpose, "method": r.method_text,
              "source_conflicts": r.source_conflicts,
-             "reason": "A complete registered recipe adapter is required; the typed plan is available."}
+             "reason": unresolved.get(r.row_id, "A complete registered recipe adapter is required; the typed plan is available.")}
             for r in topos_rows if not r.track_gap and r.row_id not in EXECUTABLE_ROWS
         ],
         "torq_owned_rows": sum(r.owner == "TORQ" for r in catalog.rows),
@@ -91,7 +147,7 @@ def execution_support_report() -> dict[str, Any]:
 
 class GoatOptions(Contract):
     deterministic: bool = False
-    max_global_iterations: int = Field(default=100, ge=3, le=10000)
+    max_global_iterations: int = Field(default=100, ge=3, le=1000, strict=True)
 
 
 class MLSearchAllocation(Contract):
@@ -102,10 +158,22 @@ class MLSearchAllocation(Contract):
 
 
 class MatrixInputs(Contract):
+    r2_vpt2: R2VPT2Options | None = None
+    cfour_counterpoise: CfourCounterpoiseGeometryProtocol | None = None
+    month_corrections: MonthCorrectionProtocol | None = None
+    r2_counterpoise: CorrelatedCounterpoiseProtocol | None = None
+    r2_monomer_provenance: list[R2MonomerProvenance] = Field(default_factory=list)
+    orca_f12_composite: OrcaF12CompositeProtocol | None = None
+    orca_numerical_geometry: OrcaF12GeometryProtocol | None = None
+    higher_geometry: HigherGeometryProtocol | None = None
     energy_composite: EnergyCompositeProtocol | None = None
-    source_resolution: Literal["native-composite-rawinteraction-v1", "orca-f12-reference-singlepoint-v1"] | None = None
+    source_resolution: Literal["native-composite-rawinteraction-v1", "orca-f12-reference-singlepoint-v1",
+        "orca-f12d-numerical-geometry-dz-v1", "orca-f12d-numerical-geometry-tz-v1",
+        "orca-f12d-composite-interaction-v1", "cfour-native-default-mass-corrected-geometry-v1",
+        "cfour-relaxed-counterpoise-geometry-v1", "r2-separate-dft-vpt2-transfer-v1",
+        "r2-b3lyp-d4-vpt2-transfer-v1"] | None = None
     external_protocol: ExternalProtocol | None = None
-    external_resolution: Literal["cfour-topos-cartesian-optimizer-v1"] | None = None
+    external_resolution: Literal["cfour-topos-cartesian-optimizer-v1", "cfour-relaxed-counterpoise-geometry-v1"] | None = None
     entropy_seeds: list[Molecule] = Field(default_factory=list)
     entropy_options: EntropyOptions = Field(default_factory=EntropyOptions)
     ml_model: ModelManifest | None = None
@@ -115,6 +183,10 @@ class MatrixInputs(Contract):
     ml_no_energy_culling: bool = False
     ml_search_allocation: MLSearchAllocation | None = None
     ml_search_seeds: list[Molecule] = Field(default_factory=list)
+    ml_training_dataset: TrainingDatasetSpec | None = None
+    ml_training_options: MACETrainingOptions | None = None
+    ml_max_requests: int = Field(default=10000, ge=1, le=1_000_000, strict=True)
+    ml_receipt_mb: int = Field(default=1024, ge=4, le=65536, strict=True)
     correlated_protocol: CorrelatedMethod | None = None
     correlated_resolution: Literal["autoci-conventional-transformation-v1", "junchs-same-basis-core-valence-v1"] | None = None
     composite_coordinates: dict[str, Any] | None = None
@@ -153,7 +225,7 @@ def runtime_recipe_capabilities() -> list[BackendCapability]:
                           supports_rigid_fragments=True, **common),
         BackendCapability(engine="crest", engine_version="3.0.2", methods=["GFN2-xTB"],
                           operations=["crest-nci", "screen", "cregen-reporting", "entropy"], **common),
-        BackendCapability(engine="topos", engine_version="0.1.0", methods=["junChS", "CPS(6/7)"],
+        BackendCapability(engine="topos", engine_version="0.1.0", methods=["junChS", "CPS(6/7)", "CBS+CV+fT+fQ"],
                           operations=["union", "composite-geometry", "pno-extrapolation", "entropy-convergence"], **common),
         BackendCapability(engine="orca", engine_version="6.1.1", methods=["MP2", "CCSD(T)", "AUTOCI-CCSD(T)", "DLPNO-CCSD(T1)", "CCSD(T)-F12D/RI"],
                           bases=["jun-cc-pVTZ", "jun-cc-pVQZ", "cc-pwCVTZ", "cc-pVDZ-F12", "cc-pVTZ-F12"],
@@ -192,8 +264,31 @@ def _available_inputs(request: RunRequest, inputs: MatrixInputs) -> list[str]:
         available.extend(["internal_coordinates", "sapt_basis_protocol"])
     if inputs.energy_composite is not None:
         available.append("composite_basis_protocol")
+    if inputs.higher_geometry is not None:
+        available.extend(["composite_basis_protocol", "coordinate_parameterization"])
+    if inputs.cfour_counterpoise is not None:
+        available.append("cfour_counterpoise")
+    for name in ('r2_monomer_provenance', 'r2_counterpoise', 'r2_vpt2'):
+        if getattr(inputs, name):
+            available.append(name)
+    if inputs.month_corrections is not None:
+        available.append("month_corrections")
+        from .cfour_dboc import validate_default_mass_domain
+
+        validate_default_mass_domain(request.molecule)
+        available.append("native_default_mass_domain")
+    if inputs.orca_numerical_geometry is not None:
+        available.append("orca_numerical_geometry")
+    if inputs.orca_f12_composite is not None:
+        available.append("orca_f12_composite")
     if inputs.ml_model is not None:
         available.append("model_manifest")
+    if inputs.ml_training_dataset is not None:
+        available.append("reference_training_set")
+    if inputs.ml_training_options is not None:
+        available.append("training_protocol")
+    if inputs.ml_search_allocation is not None:
+        available.append("ml_search_allocation")
     if inputs.ml_grid is not None:
         available.append("scan_coordinates")
     if inputs.ml_no_energy_culling:
@@ -205,7 +300,7 @@ def _validate_ensemble(reference: Molecule, geometries: list[Molecule], *, minim
                        maximum: int = 10000, distinct: bool = False) -> None:
     if not minimum <= len(geometries) <= maximum:
         raise ValueError(f"This route requires {minimum}–{maximum} explicitly supplied geometries")
-    identity_fields = ("symbols", "atom_ids", "isotopes", "charge", "multiplicity", "environment",
+    identity_fields = ("symbols", "atom_ids", "isotopes", "charge", "multiplicity", "environment", "bonds",
                        "fragments", "fragment_states", "stereochemistry")
     fingerprints = set()
     for molecule in geometries:
@@ -218,6 +313,18 @@ def _validate_ensemble(reference: Molecule, geometries: list[Molecule], *, minim
         raise ValueError("Seed geometries must be distinct; rigidly translated/rotated copies do not add topology coverage")
 
 
+def _validate_sampled_geometry(reference: Molecule, sampled: Molecule) -> None:
+    """Check the original chemistry before a sampler frame becomes a child input."""
+    from .science import validate_stereochemical_preservation
+    from .workflow import _topology_preserved
+
+    _validate_ensemble(reference, [sampled], minimum=1)
+    if not _topology_preserved(reference, sampled):
+        raise ValueError("Sampled geometry changed the original inferred covalent topology; raw source retained for separate chemical review")
+    if validate_stereochemical_preservation(reference, sampled)["status"] != "preserved":
+        raise ValueError("Sampled geometry does not preserve the original mapped stereochemistry; raw source retained for review")
+
+
 def _child_request(parent: RunRequest, molecule: Molecule, *, engine: str, method: str,
                    purpose: str, remaining: float, basis: str | None = None,
                    constraints: dict[str, Any] | None = None, sampler: bool = False,
@@ -226,7 +333,7 @@ def _child_request(parent: RunRequest, molecule: Molecule, *, engine: str, metho
     data.update(
         molecule=molecule.model_dump(mode="json"), engine=engine, method=method,
         engine_version={"xtb": "6.7.1", "orca": "6.1.1"}[engine], purpose=purpose, basis=basis,
-        auxiliary_basis="def2/J" if method == "wB97X-V" else None, dispersion=None, solvent=None,
+        auxiliary_basis="def2/J" if method in {"wB97X-V", "wB97M-V"} else None, dispersion=None, solvent=None,
         profile_id="xtb-vtight-v1" if engine == "xtb" else "orca-mapping-v4.1",
         matrix_row_id=None, matrix_revision="topos-0.1.0-supported-profile-v1",
         budget_seconds=remaining, constraints=constraints or {}, search_algorithm="crest" if sampler else "jiggle-quench",
@@ -305,6 +412,12 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
     except IntegrityError:
         raise
     except (ValueError, RuntimeError, OSError) as exc:
+        from .models import utc_now
+
+        for attempt in record.attempts:
+            if attempt.status == "running":
+                attempt.status, attempt.finished_at = "failed", utc_now()
+                attempt.diagnostics["reason"] = "Matrix adapter interrupted: " + str(exc)
         record.status = "unsupported" if not record.attempts else "partial"
         record.metadata["termination_reason"] = str(exc)
         store.commit(record)
@@ -321,8 +434,19 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
             raise ValueError("Matrix execution requires an explicit row and pinned full-matrix revision")
         row = resolve_row(request.matrix_row_id, product=getattr(request, "matrix_product", "A"))
         inputs = _input_data(request)
+        explicit_variants = {
+            'T3O-3h': {'r2-separate-dft-vpt2-transfer-v1', 'r2-b3lyp-d4-vpt2-transfer-v1'},
+            'T3O-1w': {'cfour-relaxed-counterpoise-geometry-v1'},
+            'T3C-1mo': {'cfour-native-default-mass-corrected-geometry-v1'},
+            'T3O-1d': {'orca-f12d-numerical-geometry-dz-v1'},
+            'T3O-1mo': {'orca-f12d-numerical-geometry-tz-v1', 'orca-f12-reference-singlepoint-v1'},
+            'T5-3h': {'orca-f12d-composite-interaction-v1'},
+        }
+        if row.row_id in explicit_variants and inputs.source_resolution not in explicit_variants[row.row_id]:
+            raise ValueError(f"{row.row_id} requires an explicit compiled scientific source_resolution: "
+                             + ', '.join(sorted(explicit_variants[row.row_id])))
         per_geometry_cap = getattr(request, "per_geometry_budget_seconds", None)
-        if per_geometry_cap is not None and row.row_id in {"T1-1min", "T1-3h", "T1-12h", "T1-1d", "T1-1mo"}:
+        if per_geometry_cap is not None and row.row_id in {"T1-1min", "T1-30min", "T1-3h", "T1-12h", "T1-1d", "T1-1w", "T1-1mo"}:
             raise ValueError("A per-geometry wall cap cannot currently be enforced inside native GOAT or CREST screening; use its explicit ensemble/workflow budget")
         if per_geometry_cap is not None and row.row_id.startswith("T2-"):
             existing = inputs.scan_options.per_point_budget_seconds
@@ -352,6 +476,32 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                               threads_per_worker=request.threads, memory_per_worker_mb=request.memory_mb,
                               fingerprint="execution-allocation; runtime calibration not supplied", device=request.device, **gpu)
         capabilities = inputs.backend_capabilities or runtime_recipe_capabilities()
+        if inputs.r2_vpt2 is not None and not inputs.backend_capabilities:
+            common = dict(verified=True, supported_elements=list(set(request.molecule.symbols)),
+                supported_multiplicities=[1], supports_ions=True,
+                evidence='explicit R2/B3LYP-D4 compiled native contracts; native completion and correction transfer validated per execution')
+            capabilities.extend([
+                BackendCapability(engine='orca', engine_version='6.1.1', methods=['wB97M-V', 'B3LYP', 'DLPNO-CCSD(T1)'],
+                    bases=['def2-QZVPP', 'def2-TZVPP', 'cc-pVDZ-F12'], supports_rigid_fragments=True,
+                    operations=['optimize', 'counterpoise', 'strict-unconstrained-reference-optimize', 'vpt2'], **common),
+                BackendCapability(engine='topos', engine_version='0.1.0', methods=['R2-separate-DFT-VPT2'],
+                    operations=['rotational-correction-transfer'], **common)])
+        if inputs.orca_numerical_geometry is not None and not inputs.backend_capabilities:
+            native = inputs.orca_numerical_geometry.energy_protocol
+            capabilities.append(BackendCapability(engine='orca', engine_version=native.engine_version,
+                methods=[native.method], bases=[native.orbital_basis], operations=['numerical-energy-geometry'],
+                verified=True, evidence='checked numerical derivative driver over genuine native ORCA energies; execution validated per component',
+                supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True))
+        if inputs.orca_f12_composite is not None and not inputs.backend_capabilities:
+            common = dict(verified=True, evidence='explicit ORCA F12D composite protocol; actual native partitions checked per execution',
+                          supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True)
+            capabilities.extend([
+                BackendCapability(engine='orca', engine_version='6.1.1',
+                    methods=['CCSD(T)-F12D/RI', 'MP2', inputs.orca_f12_composite.mp2_low.method],
+                    bases=['jun-cc-pVTZ', 'jun-cc-pVQZ', 'cc-pwCVTZ'],
+                    operations=['energy', 'mp2-f12-cbs', 'same-basis-core-valence'], **common),
+                BackendCapability(engine='topos', engine_version='0.1.0', methods=['ORCA-F12D-CBS-CV'],
+                    operations=['composite-interaction'], **common)])
         if inputs.external_protocol is not None and not inputs.backend_capabilities:
             external = inputs.external_protocol
             capabilities.append(BackendCapability(engine=external.engine, engine_version=external.engine_version,
@@ -371,6 +521,30 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                 BackendCapability(engine="topos", engine_version="0.1.0", methods=["CBS+CV+fT"],
                     operations=["composite-energy"], verified=True, evidence="finite explicit native component arithmetic",
                     supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True)])
+        if inputs.higher_geometry is not None and not inputs.backend_capabilities:
+            capabilities.append(BackendCapability(engine="cfour", engine_version="2.1", methods=["CCSD(T)", "CCSDT", "CCSDTQ"],
+                operations=["cbs-geometry", "core-valence-geometry-increment", "full-triples-geometry-increment", "full-quadruples-geometry-increment"],
+                verified=True, evidence="explicit higher composite with native analytic derivatives and checked physical central energy differences for full quadruples",
+                supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True))
+        if inputs.cfour_counterpoise is not None and not inputs.backend_capabilities:
+            common = dict(verified=True, supported_elements=['H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'],
+                supported_multiplicities=[1], supports_ions=True,
+                evidence='conditional exact native CFOUR 2.1 ghost/core energy contracts and checked raw/CP numerical derivatives')
+            capabilities.extend([
+                BackendCapability(engine='cfour', engine_version='2.1', methods=['CCSD(T)', 'CCSDT', 'CCSDTQ'],
+                    operations=['raw-and-cp-cbs-geometry', 'raw-and-cp-core-valence-geometry-increment',
+                                'raw-and-cp-full-triples-geometry-increment', 'raw-and-cp-full-quadruples-geometry-increment'], **common),
+                BackendCapability(engine='topos', engine_version='0.1.0', methods=['CBS+CV+fT+fQ'],
+                    operations=['counterpoise-bracketed-composite-geometries'], **common)])
+        if inputs.month_corrections is not None and not inputs.backend_capabilities:
+            common = dict(verified=True, supported_elements=['H', 'C', 'N', 'O', 'F'],
+                supported_multiplicities=[1], supports_ions=True,
+                evidence='conditional native HF correction adapters; actual native controls, identity, energies and precision checked per component')
+            capabilities.extend([
+                BackendCapability(engine='cfour', engine_version='2.1', methods=['HF'],
+                    operations=['scalar-HF-geometry-increment', 'default-mass-HF-dboc-geometry-increment'], **common),
+                BackendCapability(engine='topos', engine_version='0.1.0', methods=['CBS+CV+fT+fQ+HF-corrections'],
+                    operations=['conditional-corrected-geometry'], **common)])
         if inputs.ml_model is not None and not inputs.backend_capabilities:
             manifest = inputs.ml_model
             capabilities.append(BackendCapability(engine="mlff", engine_version=manifest.package_version,
@@ -382,17 +556,58 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                 devices=["gpu"] if request.device == "gpu" else ["cpu"],
                 gpu_memory_required_mb=inputs.ml_gpu_memory_mb if request.device == "gpu" else None,
                 supports_rigid_fragments=True))
+            if row.row_id == "T1-1w" and manifest.backend == "mace":
+                from .ml_crest import (
+                    CREST_GENERIC_CAPABILITY_VERSION,
+                    validate_crest_ml_distribution,
+                )
+
+                if request.device != "gpu" or workflow.base_runtime is None:
+                    raise ValueError("T1-1w requires GPU training and actual BASE authority")
+                build = validate_crest_ml_distribution(workflow.base_runtime.resolve_executable("crest"))
+                model_identity = digest_json(manifest.model_dump(mode="json"))
+                model_common = dict(verified=True, supported_elements=manifest.supported_elements,
+                    supported_multiplicities=manifest.supported_multiplicities,
+                    supports_ions=any(charge != 0 for charge in manifest.supported_charges), precision="float64",
+                    model_sha256=model_identity, devices=["gpu"], gpu_memory_required_mb=inputs.ml_gpu_memory_mb)
+                capabilities.extend([
+                    BackendCapability(engine="mace", engine_version=manifest.package_version,
+                        methods=["MACE"], operations=["fine-tune"],
+                        evidence="explicit GPU float64 fine-tuning and group-disjoint held-out evaluation contract", **model_common),
+                    BackendCapability(engine="orca+crest", engine_version="6.1.1+" + CREST_GENERIC_CAPABILITY_VERSION,
+                        methods=["custom-MLFF"], operations=["goat-and-crest-union"],
+                        evidence="verified native generic-calculator distribution " + build["binary_sha256"] +
+                        "; identical trained model and genuine native completion checked by both samplers", **model_common),
+                ])
+            if manifest.backend == "aimnet2":
+                capabilities.append(BackendCapability(engine="orca+aimnet2", engine_version="6.1.1+"+manifest.package_version,
+                    methods=["AIMNet2"], operations=["goat-explore"], verified=True,
+                    evidence="persistent BASE-audited ML ExtOpt bridge; native ORCA and model identities checked on execution",
+                    supported_elements=manifest.supported_elements, supported_multiplicities=manifest.supported_multiplicities,
+                    supports_ions=any(charge != 0 for charge in manifest.supported_charges), precision=manifest.precision,
+                    model_sha256=digest_json(manifest.model_dump(mode="json")),
+                    devices=["gpu"] if request.device == "gpu" else ["cpu"],
+                    gpu_memory_required_mb=inputs.ml_gpu_memory_mb if request.device == "gpu" else None))
         plan = plan_route(row.row_id, hardware=limits, capabilities=capabilities,
                           available_inputs=_available_inputs(request, inputs),
                           symbols=request.molecule.symbols, charge=request.molecule.charge,
                           multiplicity=request.molecule.multiplicity, product=row.product or "A",
                           source_resolution=inputs.source_resolution)
+        previous_reviewed = record.metadata.get('matrix_plan', {}).get('reviewed_revision')
+        if previous_reviewed is not None and previous_reviewed != plan.reviewed_revision:
+            raise IntegrityError('Reviewed matrix revision changed since the recorded campaign; resume cannot replace its scientific definition')
         record.metadata["matrix_plan"] = plan.model_dump(mode="json")
         if request.constraints and row.row_id != "T3O-1min":
             raise ValueError("This matrix recipe does not include the requested constraints; choose an explicit constrained protocol")
         if row.row_id not in EXECUTABLE_ROWS | IMPLEMENTED_BRANCH_ROWS:
+            from .method_matrix import unavailable_by_design
+
+            disposition = unavailable_by_design(row.row_id)
             record.status = "unsupported"
             record.metadata["termination_reason"] = (
+                f"{row.row_id} is unavailable by design: {disposition['source_excerpt']} "
+                f"({disposition['source_path']}:{disposition['source_lines'][0]})"
+                if disposition is not None else
                 f"{row.row_id} requires additional {row.owner} recipe adapters. The complete plan and "
                 "specific capability prerequisites are recorded; no cheaper method was substituted."
             )
@@ -414,6 +629,8 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                 not source.strip() for source in inputs.isolated_monomer_sources
             ):
                 raise ValueError("Each isolated monomer reference requires a cited or calculation-linked source")
+    except IntegrityError:
+        raise
     except (ValueError, TypeError) as exc:
         record.status = "unsupported"
         record.metadata["termination_reason"] = str(exc)
@@ -433,6 +650,8 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
               purpose: str = "optimize", basis: str | None = None,
               constraints: dict[str, Any] | None = None, sampler: bool = False,
               include_candidates: bool = True, optimize_first: bool | None = None) -> RunRecord | None:
+        if (molecule.atom_ids == request.molecule.atom_ids and molecule.symbols == request.molecule.symbols):
+            _validate_sampled_geometry(request.molecule, molecule)
         if cancel_event is not None and cancel_event.is_set():
             record.status = "cancelled"
             record.metadata["termination_reason"] = "Matrix recipe cancelled before next component"
@@ -499,7 +718,48 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         return result
 
     row_id = row.row_id
-    if row_id == "T5-1w":
+    if row_id == 'T3O-3h' and inputs.source_resolution == 'r2-b3lyp-d4-vpt2-transfer-v1':
+        from .matrix_r2 import execute_reviewed_r2
+
+        if request.per_geometry_budget_seconds is not None:
+            # The child closure captures this same deadline: all R2 phases
+            # share the cap, rather than refreshing it for each calculation.
+            deadline = min(deadline, time.monotonic() + request.per_geometry_budget_seconds)
+        if not execute_reviewed_r2(workflow, record, store, inputs, child, deadline, cancel_event):
+            return
+    elif row_id in {'T3O-1d', 'T3O-1mo'} and inputs.source_resolution in {
+            'orca-f12d-numerical-geometry-dz-v1', 'orca-f12d-numerical-geometry-tz-v1'}:
+        from .orca_numerical_geometry import execute_orca_numerical_geometry
+
+        if not execute_orca_numerical_geometry(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id == 'T5-3h' and inputs.source_resolution == 'orca-f12d-composite-interaction-v1':
+        from .orca_f12_composite import execute_orca_f12_composite
+
+        if not execute_orca_f12_composite(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id == 'T3O-1w' and inputs.source_resolution == 'cfour-relaxed-counterpoise-geometry-v1':
+        from .cfour_counterpoise import execute_cfour_counterpoise_recipe
+
+        if not execute_cfour_counterpoise_recipe(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id == 'T3C-1mo' and inputs.source_resolution == 'cfour-native-default-mass-corrected-geometry-v1':
+        from .month_geometry import execute_month_geometry
+
+        if not execute_month_geometry(workflow, record, store, inputs, deadline, cancel_event):
+            return
+        state['full_row_completed'] = False
+        state['implemented_branch_completed'] = True
+        state['completion_scope'] = 'Conditional corrected geometry only; native numeric isotope masses and all rotor constants remain unverified/withheld'
+        record.status, record.validation_status = 'completed', 'human-review'
+        store.commit(record)
+        return
+    elif row_id == "T3C-1w":
+        from .higher_composite import execute_higher_recipe
+
+        if not execute_higher_recipe(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id == "T5-1w":
         from .energy_composite import execute_energy_composite
 
         if not execute_energy_composite(workflow, record, store, inputs, deadline, cancel_event):
@@ -517,6 +777,16 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         execute_ml_matrix(workflow, record, store, deadline, cancel_event, inputs)
         if record.status != "completed":
             return
+    elif row_id == "T1-30min":
+        from .matrix_ml_search import execute_ml_search
+
+        if not execute_ml_search(workflow, record, store, inputs, child, deadline, cancel_event):
+            return
+    elif row_id == "T1-1w":
+        from .matrix_ml_training import execute_ml_training
+
+        if not execute_ml_training(workflow, record, store, inputs, child, deadline, cancel_event):
+            return
     elif row_id == "T1-1d":
         from .matrix_entropy import execute_entropy_recipe
 
@@ -532,7 +802,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
 
         if not execute_correlated_recipe(workflow, record, store, inputs, deadline, cancel_event):
             return
-        if row_id in IMPLEMENTED_BRANCH_ROWS:
+        if row_id in IMPLEMENTED_BRANCH_ROWS and inputs.source_resolution == 'orca-f12-reference-singlepoint-v1':
             state["full_row_completed"] = False
             state["implemented_branch_completed"] = True
             state["completion_scope"] = "ORCA reference electronic energy on supplied geometry only; Molpro reference-geometry branch is unimplemented"
@@ -898,7 +1168,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         if child("geometry", molecule, engine=step.engine, method=step.method,
                  basis=step.basis, constraints=constraints) is None:
             return
-    comparison = "completed" if row_id == "T1-3h" else workflow._compare(record, deadline=deadline, cancel_event=cancel_event)
+    comparison = "completed" if row_id in {"T1-3h", "T1-30min", "T1-1w"} else workflow._compare(record, deadline=deadline, cancel_event=cancel_event)
     if comparison != "completed":
         record.status = comparison
         return

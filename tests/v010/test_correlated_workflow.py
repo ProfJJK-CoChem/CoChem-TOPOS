@@ -265,3 +265,134 @@ def test_real_xtb_result_cannot_certify_different_requested_xtb_method(genuine_c
     with pytest.raises(IntegrityError, match="method|protocol|identity"):
         run_component(workflow, record, store, "wrong-method", water(), requested,
                       miswired_executor, time.monotonic() + 30, None)
+
+
+def test_unexpected_adapter_exception_keeps_terminal_prelaunch_attempt(tmp_path):
+    workflow, record, store = context(tmp_path, molecule=water())
+    def broken_adapter(*args, **kwargs):
+        raise OSError('deliberate infrastructure exception; no scientific result')
+    with pytest.raises(OSError, match='infrastructure exception'):
+        run_component(workflow, record, store, 'broken-adapter', water(), xtb_method(),
+                      broken_adapter, time.monotonic()+30, None)
+    saved = RunRecord.model_validate(store.load())
+    assert saved.status == 'failed' and saved.attempts[-1].status == 'failed'
+    assert not saved.attempts[-1].quantities and saved.attempts[-1].finished_at
+
+
+@pytest.mark.integration
+def test_postprocessing_topology_corruption_of_real_optimization_is_rejected(genuine_component):
+    workflow, record, store, _ = genuine_component
+    method = xtb_method().model_copy(update={'purpose':'optimize'})
+    def corrupted_postprocessor(molecule, protocol, resources, folder, **kwargs):
+        result = run_engine(molecule, protocol, resources, folder, operation='optimize', **kwargs)
+        assert result.status == 'completed'
+        # Negative adversarial postprocessing test: a real optimized O-H bond
+        # is displaced by 10 Angstrom; copied connectivity must not hide it.
+        result.molecule.coordinates[1][0] += 10
+        return result
+    with pytest.raises(IntegrityError, match='topology'):
+        run_component(workflow, record, store, 'corrupted-optimized-geometry', water(), method,
+                      corrupted_postprocessor, time.monotonic()+30, None)
+    saved = RunRecord.model_validate(store.load())
+    assert saved.status == 'failed' and saved.attempts[-1].validation_status == 'rejected'
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize('failure', ['receipt', 'commit'])
+def test_post_native_storage_failure_never_publishes_complete_component(genuine_component, monkeypatch, failure):
+    import topos.matrix_components as components
+    import topos.matrix_workflow as matrix
+
+    workflow, record, store, _ = genuine_component
+    real_commit = store.commit
+    triggered = []
+
+    def fail_receipt(path, payload):
+        assert path.name == 'matrix-component-result.json'
+        triggered.append(True)
+        raise OSError('Injected result receipt storage failure')
+
+    def fail_commit(value):
+        attempt = value.attempts[-1]
+        if attempt.metadata.get('component_key') == 'storage-failure' and attempt.status == 'completed' and not triggered:
+            triggered.append(True)
+            raise OSError('Injected final component commit failure')
+        return real_commit(value)
+
+    if failure == 'receipt':
+        monkeypatch.setattr(components, 'atomic_json', fail_receipt)
+    else:
+        monkeypatch.setattr(store, 'commit', fail_commit)
+
+    def actual_component(w, r, s, deadline, event):
+        components.run_component(w, r, s, 'storage-failure', water(), xtb_method(), execute_xtb, deadline, event)
+
+    monkeypatch.setattr(matrix, '_execute_matrix', actual_component)
+    matrix.execute_matrix(workflow, record, store, time.monotonic()+30, None)
+    saved = RunRecord.model_validate(store.load())
+    assert triggered and saved.status == 'partial'
+    attempt = saved.attempts[-1]
+    assert attempt.status == 'failed' and attempt.validation_status == 'rejected'
+    assert not attempt.converged and not attempt.quantities
+    assert attempt.metadata['native_result']['metadata']['execution_kind'] == 'real'
+    assert attempt.metadata['native_result']['energy_hartree'] is not None
+    assert any(artifact.path.endswith('engine.stdout') for artifact in attempt.artifacts)
+    assert store.verify()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize('damage', ['missing-receipt-membership', 'receipt-bytes-rebound', 'wrong-method-rebound'])
+def test_completed_component_requires_bound_receipt_and_requested_protocol(genuine_component, damage):
+    workflow, record, store, _ = genuine_component
+    attempt = record.attempts[-1]
+    artifact = next(a for a in attempt.artifacts if a.role == 'matrix-native-component-result')
+    path = store.run_dir / artifact.path
+    if damage == 'missing-receipt-membership':
+        attempt.artifacts.remove(artifact)
+    elif damage == 'receipt-bytes-rebound':
+        payload = json.loads(path.read_text())
+        payload['energy_hartree'] += .1
+        path.write_text(json.dumps(payload))
+        artifact.sha256, artifact.size_bytes = file_digest(path), path.stat().st_size
+    else:
+        payload = attempt.metadata['native_result']
+        payload['method'] = 'GFN1-xTB'
+        attempt.metadata['native_result_sha256'] = digest_json(payload)
+        path.write_text(json.dumps(payload))
+        artifact.sha256, artifact.size_bytes = file_digest(path), path.stat().st_size
+    with pytest.raises(IntegrityError):
+        run_component(workflow, record, store, 'genuine-xtb-energy', water(), xtb_method(), execute_xtb,
+                      time.monotonic()+30, None)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize('outcome', ['completed', 'unavailable'])
+def test_component_commit_acknowledgement_loss_preserves_verified_publication(genuine_component, monkeypatch, outcome):
+    workflow, record, store, _ = genuine_component
+    real_commit, acknowledged = store.commit, []
+    if outcome == 'unavailable':
+        workflow.config.executables['xtb'] = '/missing/real-xtb'
+
+    def lose_ack(value):
+        answer = real_commit(value)
+        attempt = value.attempts[-1]
+        if attempt.metadata.get('component_key') == 'lost-ack' and attempt.status == outcome and not acknowledged:
+            acknowledged.append(True)
+            raise OSError('Injected lost acknowledgement after successful durable commit')
+        return answer
+
+    monkeypatch.setattr(store, 'commit', lose_ack)
+    result = run_component(workflow, record, store, 'lost-ack', water(), xtb_method(), execute_xtb,
+                           time.monotonic()+30, None)
+    saved = RunRecord.model_validate(store.load())
+    assert acknowledged and saved.attempts[-1].status == outcome
+    assert record.attempts[-1] == saved.attempts[-1] and store.verify()
+    if outcome == 'completed':
+        assert result is not None and result.metadata['execution_kind'] == 'real'
+        assert saved.attempts[-1].quantities[0].value == result.energy_hartree
+        workflow.config.executables['xtb'] = '/missing/real-xtb'
+        reused = run_component(workflow, saved, store, 'lost-ack', water(), xtb_method(), execute_xtb,
+                               time.monotonic()+30, None)
+        assert reused == result
+    else:
+        assert result is None and not saved.attempts[-1].quantities

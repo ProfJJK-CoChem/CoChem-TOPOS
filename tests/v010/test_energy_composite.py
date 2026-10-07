@@ -43,6 +43,7 @@ def test_each_component_preserves_native_identity_and_exact_core_convention():
 
 @pytest.mark.parametrize('updates', [dict(high_basis='PV5Z'), dict(low_basis='def2-TZVPP'),
     dict(core_valence_basis='PVTZ'), dict(hf_exponential_alpha=0), dict(correlation_inverse_power=-3),
+    dict(hf_exponential_alpha=1e-20), dict(correlation_inverse_power=1e-20),
     dict(convention='W4-accuracy-guaranteed'), dict(full_triples_basis='bad\ncommands')])
 def test_missing_or_incompatible_composite_choices_are_not_guessed(updates):
     with pytest.raises(ValueError):

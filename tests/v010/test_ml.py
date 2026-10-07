@@ -1,10 +1,20 @@
 """Scientific invariants for explicit molecular ML inference and rigid grids."""
 import copy
+import json
+import os
+import subprocess
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-from topos.ml import BOHR_ANGSTROM, HARTREE_EV, ModelManifest, reduce_committee
+from topos.ml import (
+    BOHR_ANGSTROM,
+    HARTREE_EV,
+    ModelManifest,
+    molecule_system_identity,
+    reduce_committee,
+)
 from topos.ml_workflow import RigidMLGrid
 from topos.models import Molecule
 
@@ -54,6 +64,27 @@ def test_mace_cannot_ignore_charge_or_spin():
         ModelManifest.model_validate(data)
 
 
+def test_aimnet_cannot_silently_ignore_a_mace_head_selection():
+    data = manifest_data()
+    data.update(backend="aimnet2", precision="float32", head="another-potential")
+    with pytest.raises(ValueError, match="model-head"):
+        ModelManifest.model_validate(data)
+
+
+def test_system_specific_checkpoint_retains_identity_but_allows_new_coordinates():
+    water = Molecule(symbols=["O", "H", "H"], coordinates=[[0, 0, 0], [.96, 0, 0], [-.24, .93, 0]])
+    data = manifest_data()
+    data["system_identity_sha256"] = molecule_system_identity(water)
+    model = ModelManifest.model_validate(data)
+    moved = water.model_copy(update={"coordinates": [[0, 0, 0], [1.01, 0, 0], [-.24, .99, 0]], "name": "another geometry"})
+    model.validate_molecule(moved)
+    with pytest.raises(ValueError, match="system-specific"):
+        model.validate_molecule(Molecule(symbols=["O", "H", "H", "O", "H", "H"],
+            coordinates=[*water.coordinates, *[(np.asarray(x) + [4, 0, 0]).tolist() for x in water.coordinates]]))
+    with pytest.raises(ValueError, match="system-specific"):
+        model.validate_molecule(water.model_copy(update={"isotopes": [18, None, None]}))
+
+
 def test_domain_rejects_collision_and_embedding():
     model = ModelManifest.model_validate(manifest_data())
     molecule = Molecule(symbols=["H", "H"], coordinates=[[0, 0, 0], [0.2, 0, 0]])
@@ -92,3 +123,54 @@ def test_grid_rejects_repeated_and_excessive_points():
     with pytest.raises(ValueError, match="10000"):
         RigidMLGrid(moving_fragment=0, translation_x_angstrom=list(range(101)), translation_y_angstrom=list(range(101)),
                     isolated_fragment_geometry_sources=["a","b"])
+
+
+@pytest.mark.integration
+def test_actual_aimnet_committee_derivative_and_rigid_invariance(tmp_path):
+    """Run official hash-bound weights; no generated checkpoint or fabricated energy."""
+    executable = os.environ.get("TOPOS_ML_TEST_PYTHON")
+    request_path = os.environ.get("TOPOS_AIMNET_TEST_REQUEST")
+    if not executable or not request_path:
+        pytest.skip("Explicit AIMNet interpreter and official checkpoint request required")
+    request = json.loads(Path(request_path).read_text())
+    assert request["manifest"]["backend"] == "aimnet2"
+    assert len(request["manifest"]["members"]) == 4
+    original = request["molecules"][0]
+    xyz = np.asarray(original["coordinates"])
+    frames = [original]
+    for step in (.04, .02):
+        for column in range(xyz.size):
+            for sign in (1, -1):
+                shifted = xyz.copy()
+                shifted.flat[column] += sign * step * BOHR_ANGSTROM
+                frame = copy.deepcopy(original)
+                frame["coordinates"] = shifted.tolist()
+                frames.append(frame)
+    rotation = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
+    frame = copy.deepcopy(original)
+    frame["coordinates"] = (xyz @ rotation.T + [10, -3, 2]).tolist()
+    frames.append(frame)
+    request["molecules"] = frames
+    request["resources"]["device"] = "cpu"
+    request["gpu_memory_mb"] = None
+    path = tmp_path / "request.json"
+    path.write_text(json.dumps(request))
+    process = subprocess.run([executable, "-m", "topos.ml_worker", "--request", str(path)],
+                             capture_output=True, text=True, timeout=120, check=False)
+    assert process.returncode == 0, process.stderr
+    result = json.loads((tmp_path / "ml-result.json").read_text())
+    energies = np.asarray([frame["energy_hartree"] for frame in result["frames"]])
+    derivatives = []
+    for index, step in enumerate((.04, .02)):
+        offset = 1 + index * xyz.size * 2
+        derivatives.append(np.asarray([(energies[offset+2*i] - energies[offset+2*i+1]) / (2*step)
+                                       for i in range(xyz.size)]).reshape(xyz.shape))
+    numerical = (4*derivatives[1] - derivatives[0]) / 3
+    gradient = np.asarray(result["frames"][0]["gradient_hartree_per_bohr"])
+    # Fourth-order differences reduce truncation; retain realistic float32 tolerance.
+    np.testing.assert_allclose(gradient, numerical, atol=1e-5, rtol=0)
+    np.testing.assert_allclose(result["frames"][-1]["gradient_hartree_per_bohr"],
+                               gradient @ rotation.T, atol=2e-6, rtol=0)
+    assert abs(energies[-1] - energies[0]) < 1e-6
+    assert result["frames"][0]["committee"]["members"] == 4
+    assert result["frames"][0]["committee"]["energy_std_hartree"] > 0

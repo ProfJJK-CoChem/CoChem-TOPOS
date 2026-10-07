@@ -192,6 +192,11 @@ def _matrix_panel(st: Any) -> None:
         gpu_memory = st.number_input("Available GPU memory (MB)", min_value=1, value=1024)
         fingerprint = st.text_input("Hardware fingerprint", value="interactive-local-observation")
         product = st.selectbox("Matrix product", ["A", "B", "C"])
+        from .data.reviewed_matrix_v010 import RECIPES
+
+        source_resolution = st.selectbox("Explicit source-conflict resolution", ["None",
+            "native-composite-rawinteraction-v1", "orca-f12-reference-singlepoint-v1", *RECIPES],
+            help="Choose only when the selected row documents this resolution. Reference single points do not complete an optimized-geometry row.")
         capabilities = st.text_area("Verified backend capabilities (JSON array)", value="[]",
                                     help="Use actual versioned adapter evidence. With no declarations, the plan reports missing capabilities.")
         inputs = st.text_input("Available scientific input names (comma separated)")
@@ -207,7 +212,8 @@ def _matrix_panel(st: Any) -> None:
                                         fingerprint=fingerprint)
                 plan = plan_route(row_id, hardware=hardware, product=product,
                                   capabilities=[BackendCapability.model_validate(value) for value in values],
-                                  available_inputs=[name.strip() for name in inputs.split(",") if name.strip()])
+                                  available_inputs=[name.strip() for name in inputs.split(",") if name.strip()],
+                                  source_resolution=None if source_resolution == "None" else source_resolution)
                 st.json(plan.model_dump(mode="json"))
                 st.caption("Plan inspection does not submit calculations or establish that all required adapters are implemented.")
             except (ValueError, OSError, RuntimeError) as exc:
@@ -262,9 +268,10 @@ def render_streamlit() -> None:
             if purpose == "matrix":
                 st.caption("The chosen matrix row specifies the calculation methods and required scientific inputs. Only compiled complete recipes can execute.")
             search_settings = {}
+            abcluster_input_text = None
             if purpose == "search":
-                algorithm = st.selectbox("Search algorithm", ["jiggle-quench", "crest", "union"],
-                                         format_func=lambda value: {"jiggle-quench": "Jiggle–quench", "crest": "CREST", "union": "Jiggle–quench + CREST union"}[value])
+                algorithm = st.selectbox("Search algorithm", ["jiggle-quench", "crest", "union", "abcluster"],
+                                         format_func=lambda value: {"jiggle-quench": "Jiggle–quench", "crest": "CREST", "union": "Jiggle–quench + CREST union", "abcluster": "ABCluster rigid packing"}[value])
                 search_settings["search_algorithm"] = algorithm
                 count, randomization = st.columns(2)
                 with count:
@@ -279,6 +286,12 @@ def render_streamlit() -> None:
                         "Jiggle displacement scale (angstrom)", min_value=0.0, value=0.15, step=0.01,
                         help="Controls TOPOS perturbations before local optimization; it does not establish exhaustive sampling.",
                     )
+                if algorithm == "abcluster":
+                    abcluster_input_text = st.text_area("ABCluster force-field parameters and sampling options (JSON object)", value="{}",
+                        help="Supply atomic_parameters with atom_id, charge_e, epsilon_kj_mol and sigma_angstrom for every real atom, plus a cited parameter_source. Optional controls: population (at least 5), generations, scout_limit, amplitude_angstrom and max_saved_minima.")
+                    search_settings["sampler_budget_fraction"] = st.slider("ABCluster fraction of remaining workflow budget",
+                        min_value=.05, max_value=.95, value=.5, step=.05)
+                    st.caption("Declare rigid fragments and their charge/spin states. ABCluster generates packing seeds using your classical force field; TOPOS independently refines them with the selected quantum method. Classical scores are retained as sampling evidence. Native randomness is engine-controlled.")
                 if algorithm in {"crest", "union"}:
                     sampler_profile = st.selectbox("CREST sampling protocol", ["crest-imtdgc-v1", "crest-mquick-v1", "crest-nci-v1"])
                     fraction = st.slider("CREST fraction of remaining workflow budget", min_value=0.05,
@@ -359,6 +372,11 @@ def render_streamlit() -> None:
                               "calculation_environment": environment, "budget_seconds": budget,
                               "device": device, "basis": basis or None, "profile_id": profile,
                               **search_settings, **matrix_settings}
+                if abcluster_input_text is not None:
+                    parameters = _parse_json(abcluster_input_text)
+                    if not isinstance(parameters, dict):
+                        raise ValueError("ABCluster options must be a JSON object")
+                    selections["abcluster_options"] = parameters
                 if matrix_row.strip():
                     from topos.method_matrix import MATRIX_REVISION
                     matrix_inputs = _parse_json(matrix_input_text)

@@ -24,6 +24,11 @@ BOHR_ANGSTROM = 0.529177210903
 ML_SCHEMA = "topos-ml/0.1.0"
 
 
+def molecule_system_identity(molecule: Molecule) -> str:
+    """Exact atom/state/topology identity, independent of geometry and display name."""
+    return digest_json(molecule.model_dump(mode="json", exclude={"coordinates", "name"}))
+
+
 class ModelMember(Contract):
     path: str
     sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
@@ -55,6 +60,7 @@ class ModelManifest(Contract):
     head: str | None = Field(default=None, min_length=1)
     minimum_distance_angstrom: float = Field(default=0.4, gt=0)
     domain_reference: str = Field(min_length=1)
+    system_identity_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
 
     @model_validator(mode="after")
     def validate_members(self):
@@ -72,9 +78,14 @@ class ModelManifest(Contract):
             raise ValueError("The supported MACE-OFF adapter is neutral closed-shell only")
         if self.backend == "aimnet2" and self.precision != "float32":
             raise ValueError("AIMNet2 adapter retains the native float32 model precision")
+        if self.backend == "aimnet2" and self.head is not None:
+            raise ValueError("AIMNet2 does not expose the MACE model-head selection contract")
         return self
 
     def validate_molecule(self, molecule: Molecule) -> None:
+        if (self.system_identity_sha256 is not None
+                and molecule_system_identity(molecule) != self.system_identity_sha256):
+            raise ValueError("Molecule differs from the checkpoint's system-specific training identity")
         if not set(molecule.symbols) <= set(self.supported_elements):
             raise ValueError("Element outside declared model domain")
         if molecule.charge not in self.supported_charges or molecule.multiplicity not in self.supported_multiplicities:
@@ -188,6 +199,7 @@ class MLRunner:
                 energy_hartree=checked["energy_hartree"], gradient_hartree_per_bohr=checked["gradient_hartree_per_bohr"],
                 molecule=molecule, converged=True, command=command, artifacts=inventory,
                 elapsed_seconds=time.monotonic() - started,
+                diagnostics={"process": process.to_dict()},
                 metadata={"execution_kind": "real", "result_kind": "ML-prediction", "manifest": request["manifest"],
                           "manifest_sha256": result["manifest_sha256"], "request_sha256": request_hash,
                           "output_molecule": molecule.model_dump(mode="json"), "predictions": checked,

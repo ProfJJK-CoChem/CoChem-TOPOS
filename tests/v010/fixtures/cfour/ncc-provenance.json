@@ -1,0 +1,7 @@
+{
+  "fixture": "ccsdt-ncc-native.stdout",
+  "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/H2O/9z_cfour-ncc.txt",
+  "sha256": "a4ca7064147cd6ecc4c25c193ae2d711bcf839b32fe1f3a51d2877867414e26c",
+  "selection": "complete unmodified native xncc stdout, without parent driver header; only standalone native NCC convergence and total-energy grammar are tested",
+  "scope": "Historical external CCSDT output. Not local execution, not CCSDTQ output, not evidence of complete native driver success or geometry."
+}

@@ -19,6 +19,7 @@ from topos.ml_extopt import (
     SOCKET_SCHEMA,
     ExtOptAllocation,
     connect_server,
+    crest_client,
     extopt_client,
     goat_extopt_input,
     parse_extopt_input,
@@ -109,6 +110,11 @@ def test_concurrent_allocations_and_native_deck_are_explicit(tmp_path):
     assert '%geom\n  TolE 1e-5\n' in deck
     assert f'ProgExt "{tmp_path / "fixed-client"}"' in deck
     assert 'NWORKERS 2' in deck and 'MAXEN 12' in deck
+    assert 'RANDOMSEED true' in deck
+    seeded = goat_extopt_input(water(), tmp_path / 'fixed-client', ResourceLimits(threads=2), deterministic=True)
+    assert 'RANDOMSEED false' in seeded
+    with pytest.raises(ValueError, match='boolean'):
+        goat_extopt_input(water(), tmp_path / 'fixed-client', ResourceLimits(), deterministic='false')
 
 
 def test_endpoint_rejects_nonprivate_socket(tmp_path):
@@ -139,7 +145,7 @@ def test_authentic_persistent_mace_extopt_callback_and_unit_conversion(tmp_path)
     native = tmp_path / 'native'
     native.mkdir()
     request = {**original, 'molecules': [molecule.model_dump(mode='json')], 'mode': 'server',
-               'server': {'socket_name': 's', 'max_requests': 20, 'request_timeout_seconds': 60,
+               'server': {'socket_name': 's', 'max_requests': 1_000_000, 'max_receipt_mb': 4, 'request_timeout_seconds': 60,
                           'client_module_sha256': file_digest(Path(ml_extopt.__file__))}}
     request['resources'] = {**request['resources'], 'budget_seconds': 120}
     request_path = server / 'ml-request.json'
@@ -184,14 +190,36 @@ def test_authentic_persistent_mace_extopt_callback_and_unit_conversion(tmp_path)
             raw = receipt['request']['external_input']
             assert hashlib.sha256(raw['xyz_text'].encode()).hexdigest() == raw['xyz_sha256']
             assert frame['member_energies_hartree'][0] * HARTREE_EV == pytest.approx(energy * HARTREE_EV)
+        generic = native / 'genericinp.xyz'
+        external_files(native, molecule)
+        generic.write_text((native / 'ORCA_EXT.xyz').read_text())
+        crest_client(config_path, file_digest(config_path), generic)
+        generic_rows = [line.strip() for line in (native / 'genericinp.engrad').read_text().splitlines()
+                        if line.strip() and not line.startswith('#')]
+        assert int(generic_rows[0]) == len(molecule.symbols)
+        assert float(generic_rows[1]) == pytest.approx(energies[0], abs=1e-12)
+        np.testing.assert_allclose(np.array([float(v) for v in generic_rows[2:]]).reshape(-1,3), gradients[0], atol=1e-12, rtol=0)
+        generic.write_text('incomplete native geometry\n')
+        with pytest.raises(ValueError, match='atom count'):
+            crest_client(config_path, file_digest(config_path), generic)
+        assert not (native / 'genericinp.engrad').exists(), 'failed CREST callback must remove previous geometry gradient'
+        altered = molecule.model_dump(mode='json')
+        altered['atom_ids'] = ['altered-' + str(i) for i in range(len(molecule.symbols))]
+        with connect_server(server, timeout=10) as connection:
+            send_json(connection, {'schema_version': SOCKET_SCHEMA, 'action': 'evaluate', 'manifest_sha256': manifest_sha,
+                                   'molecule': altered, 'external_input': {'negative_contract_test': 'changed atom IDs'}})
+            rejected = receive_json(connection)
+            assert rejected['status'] == 'failed' and 'frame' not in rejected
         with connect_server(server, timeout=10) as connection:
             send_json(connection, {'schema_version': SOCKET_SCHEMA, 'action': 'stop', 'manifest_sha256': manifest_sha})
             assert receive_json(connection)['status'] == 'stopped'
         assert process.wait(timeout=30) == 0, (server / 'native-worker.stderr').read_text()
         summary = json.loads((server / 'ml-result.json').read_text())
         assert summary['model_load_count'] == len(model['members']) == 1
-        assert summary['requests'] == summary['successful_requests'] == 3
+        assert summary['requests'] == 5 and summary['successful_requests'] == 4
         assert summary['request_sha256'] == file_digest(request_path)
+        assert summary['max_receipt_mb'] == 4
+        assert 5 * 4096 <= summary['receipt_allocated_bytes'] <= 4 * 1024**2
         assert not (server / 's').exists()
     finally:
         if process.poll() is None:

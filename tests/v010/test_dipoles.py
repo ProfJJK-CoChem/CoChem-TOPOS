@@ -3,6 +3,7 @@
 ORCA text below is explicitly an analytical parser fixture, not engine evidence.
 """
 import hashlib
+import json
 import os
 import shutil
 from pathlib import Path
@@ -34,7 +35,7 @@ Electronic contribution:      1.000000     -2.000000       2.000000
 Nuclear contribution:         0.000000      0.000000       0.000000
 Total Dipole Moment    :       1.000000     -2.000000       2.000000
 Magnitude (a.u.)       :       3.000000
-Magnitude (Debye)      :       7.625239
+Magnitude (Debye)      :       7.625394
 """
 
 
@@ -54,6 +55,31 @@ def test_orca_signed_atomic_components_and_explicit_magnitude_crosscheck():
     assert result["cartesian_debye"][1] < 0
 
 
+def test_actual_orca611_dipole_preserves_native_and_codata_conventions():
+    folder = Path(__file__).parent / "fixtures" / "orca611"
+    path = folder / "hf3c-water-native.stdout"
+    provenance = json.loads((folder / "provenance.json").read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == provenance["files"][path.name]
+    result = parse_cartesian_dipole(path.read_text(), "orca")
+    assert result["cartesian_atomic_units"] == [.452502582, .778491971, -.045575976]
+    assert result["printed_magnitude_debye"] == 2.291689229
+    assert result["printed_atomic_unit_debye"] == 2.541798
+    assert np.linalg.norm(result["engine_native_cartesian_debye"]) == pytest.approx(2.291689229, abs=2e-9)
+    assert np.linalg.norm(result["cartesian_debye"]) == pytest.approx(2.291642770181216, abs=1e-12)
+    assert result["cartesian_debye"] != result["engine_native_cartesian_debye"]
+
+
+@pytest.mark.parametrize("original,changed", [
+    ("0.452502582", "0.453502582"),
+    ("0.901601633", "0.902601633"),
+    ("2.291689229", "2.292689229"),
+])
+def test_native_dipole_corruption_cannot_hide_in_conversion_rounding(original, changed):
+    path = Path(__file__).parent / "fixtures" / "orca611" / "hf3c-water-native.stdout"
+    with pytest.raises(EngineParseError, match="dipole"):
+        parse_cartesian_dipole(path.read_text().replace(original, changed), "orca")
+
+
 @pytest.mark.parametrize("engine", ["xtb", "orca"])
 def test_absent_dipole_is_not_a_zero_vector(engine):
     assert parse_cartesian_dipole("energy only", engine) is None
@@ -69,7 +95,7 @@ def test_physical_zero_vector_survives_parser():
     (XTB_BLOCK.replace("tot (Debye)", "tot unknown"), "xtb"),
     (XTB_BLOCK.replace("0.534", "NaN"), "xtb"),
     (XTB_BLOCK + "molecular dipole:\n incomplete", "xtb"),
-    (ORCA_FIXTURE.replace("7.625239", "2.999999"), "orca"),
+    (ORCA_FIXTURE.replace("7.625394", "2.999999"), "orca"),
     (ORCA_FIXTURE.replace("Magnitude (a.u.)", "Magnitude (unknown)"), "orca"),
     (ORCA_FIXTURE + "DIPOLE MOMENT\n incomplete", "orca"),
 ])
@@ -86,7 +112,8 @@ def test_hybrid_matrix_recipe_renders_its_actual_rijcosx_auxiliary_basis(method,
                       profile_id="orca-mapping-v4.1")
     assert _method_problem(spec, ResourceLimits(), "optimize") is None
     text = _orca_input(molecule, spec, ResourceLimits(), "optimize")
-    assert f"! {method} TightSCF DEFGRID3 def2-TZVPP RIJCOSX def2/J Opt Engrad" in text
+    assert f"! {method} TightSCF DEFGRID3 def2-TZVPP RIJCOSX def2/J Opt" in text
+    assert "Engrad" not in text.splitlines()[0]
 
 
 @pytest.mark.parametrize("method, basis, auxiliary", [("HF-3c", None, "def2/J"),

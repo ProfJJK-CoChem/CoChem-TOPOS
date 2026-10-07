@@ -149,7 +149,7 @@ def test_authentic_native_single_conformer_gc_failure_is_preserved(water, method
     # CREST 3.0.2 legacy iMTD-GC has an upstream failure at genetic crossing
     # for this single-conformer water fixture. It must not become a pass or
     # silently switch to --nocross/mquick to hide that scientific limitation.
-    result = run_crest(water, method, ResourceLimits(budget_seconds=45), tmp_path / "full",
+    result = run_crest(water, method, ResourceLimits(budget_seconds=120), tmp_path / "full",
                        profile="crest-imtdgc-v1", **native_samplers)
     assert result.status == "failed", result.diagnostics
     assert result.converged is False

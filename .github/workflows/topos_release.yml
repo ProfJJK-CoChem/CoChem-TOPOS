@@ -7,6 +7,19 @@ on:
         description: Completed TOPOS ORCA acceptance run with GOAT and counterpoise evidence
         required: false
         type: string
+      hosted_acceptance_repository:
+        description: Repository that executed the licensed acceptance run
+        required: true
+        type: choice
+        default: ProfJJK-CoChem/CoChem-BASE
+        options:
+          - ProfJJK-CoChem/CoChem-BASE
+          - ProfJJK-CoChem/CoChem-TOPOS
+      hosted_acceptance_run_attempt:
+        description: Exact attempt of the selected native acceptance run
+        required: true
+        type: string
+        default: '1'
 
 permissions:
   contents: read
@@ -34,14 +47,14 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-BASE
-          ref: 86fd7bdbc77b87ab4303e03e0902b4089054f402
+          ref: 705b9d54370d5089da286a02b7a1c4afdcbafec1
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/base
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-TORQ
-          ref: d7a4739a5f7d6f22ed659b32eeb4706bef16225e
+          ref: 79fbb111125e50627a1a2c129888a45496f368d4
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/torq
           persist-credentials: false
@@ -52,6 +65,7 @@ jobs:
         run: |
           python -m pip install -r scripts/release-build-requirements.txt
           python scripts/build_release.py --output "$RUNNER_TEMP/topos-candidate"
+          python scripts/build_ml_worker.py --output "$RUNNER_TEMP/topos-candidate/ml-worker"
           python -m build --wheel --no-isolation --outdir "$RUNNER_TEMP/wheelhouse" .cochem-dependencies/base
           python -m build --wheel --no-isolation --outdir "$RUNNER_TEMP/wheelhouse" .cochem-dependencies/torq
           cp "$RUNNER_TEMP"/topos-candidate/*.whl "$RUNNER_TEMP/wheelhouse/"
@@ -80,17 +94,27 @@ jobs:
         if: inputs.hosted_acceptance_run_id != ''
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: topos-orca-acceptance-${{ inputs.hosted_acceptance_run_id }}
+          name: ${{ inputs.hosted_acceptance_repository == 'ProfJJK-CoChem/CoChem-BASE' && format('topos-orca-acceptance-{0}-{1}', inputs.hosted_acceptance_run_id, inputs.hosted_acceptance_run_attempt) || format('topos-orca-acceptance-{0}', inputs.hosted_acceptance_run_id) }}
+          repository: ${{ inputs.hosted_acceptance_repository }}
           run-id: ${{ inputs.hosted_acceptance_run_id }}
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN || github.token }}
           path: ${{ runner.temp }}/hosted-acceptance
       - name: Require complete current SRS, matrix, regression and licensed evidence
         if: always()
+        env:
+          HOSTED_ACCEPTANCE_REPOSITORY: ${{ inputs.hosted_acceptance_repository }}
+          HOSTED_ACCEPTANCE_RUN_ID: ${{ inputs.hosted_acceptance_run_id }}
+          HOSTED_ACCEPTANCE_RUN_ATTEMPT: ${{ inputs.hosted_acceptance_run_attempt }}
         run: |
           runtime="$RUNNER_TEMP/cochem-release-runtime/ui-env/bin/python"
           if test ! -x "$runtime"; then
             echo 'Release certification blocked: mandatory wheel installation failed.' >&2
             exit 3
+          fi
+          supplements=()
+          native_pytest="$RUNNER_TEMP/hosted-acceptance/topos-orca-evidence/pytest-receipt.json"
+          if test -f "$native_pytest"; then
+            supplements+=(--supplemental-validation "$native_pytest")
           fi
           "$runtime" -m topos.release gate \
             --source-root "$GITHUB_WORKSPACE" \
@@ -99,7 +123,11 @@ jobs:
             --distribution-manifest "$RUNNER_TEMP/topos-candidate/distribution-manifest.json" \
             --installation "$RUNNER_TEMP/installed-release/acceptance/installed-acceptance.json" \
             --hosted "$RUNNER_TEMP/hosted-acceptance/topos-orca-evidence/acceptance.json" \
-            --output "$RUNNER_TEMP/topos-candidate/release-gate.json"
+            --hosted-extended "$RUNNER_TEMP/hosted-acceptance/topos-orca-extended/acceptance.json" \
+            --hosted-repository "$HOSTED_ACCEPTANCE_REPOSITORY" \
+            --hosted-run-id "$HOSTED_ACCEPTANCE_RUN_ID" \
+            --hosted-run-attempt "$HOSTED_ACCEPTANCE_RUN_ATTEMPT" \
+            --output "$RUNNER_TEMP/topos-candidate/release-gate.json" "${supplements[@]}"
       - name: Retain candidate archives and separate evidence without publishing
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
