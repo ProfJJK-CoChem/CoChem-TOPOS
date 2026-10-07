@@ -242,7 +242,7 @@
           "errors": 0,
           "skipped": 2
         },
-        "junit_path": "evidence/TOPOS_CURRENT_SUITE_20261007T165703Z.xml",
+        "junit_path": "TOPOS_CURRENT_SUITE_20261007T165703Z.xml",
         "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c"
       },
       {
