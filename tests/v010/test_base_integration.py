@@ -293,6 +293,32 @@ def test_export_utility_rejects_noncanonical_arguments_before_execution(runtime,
     assert not (tmp_path / "export").exists()
 
 
+@pytest.mark.parametrize("requested_mb,expected_mb,expected_maxcore", [(256, 256, 192), (4096, 2730, 2047)])
+def test_serial_basis_utility_cannot_inherit_excessive_mpi_campaign_memory(
+    utility_distribution, tmp_path, monkeypatch, requested_mb, expected_mb, expected_maxcore,
+):
+    """Real BASE authority, stopped before execution; no ORCA output is produced."""
+    runtime, _, _ = utility_distribution
+
+    class InspectedBeforeLaunch(RuntimeError):
+        pass
+
+    def inspect(command, folder, effective, authority, **kwargs):
+        assert effective.memory_mb == expected_mb
+        assert effective.threads == authority.cores == 1
+        assert authority.maxcore_mb == expected_maxcore <= runtime.registry.hardware.maxcore_mb
+        assert effective.budget_seconds == 123
+        assert kwargs["threads_per_process"] == 1
+        raise InspectedBeforeLaunch
+
+    monkeypatch.setattr(runtime, "_execute_authorized", inspect)
+    requested = ResourceLimits(threads=1, memory_mb=requested_mb, budget_seconds=123)
+    with pytest.raises(InspectedBeforeLaunch):
+        runtime.export_orca_basis("cc-pVDZ-F12", ["H", "O"], tmp_path / "utility", requested)
+    assert requested.memory_mb == requested_mb
+    assert not (tmp_path / "utility").exists()
+
+
 @pytest.mark.parametrize("engine", [None, "orca", "xtb", "crest", "infrastructure-python"])
 def test_gpu_allocation_never_bypasses_the_native_cpu_boundary(runtime, engine):
     with pytest.raises(BaseIntegrationError, match="audited ML"):

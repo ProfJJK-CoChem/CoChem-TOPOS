@@ -1,0 +1,54 @@
+{
+  "schema_version": "topos-hosted-evidence-index/0.1.0",
+  "repository": "ProfJJK-CoChem/CoChem-BASE",
+  "run_id": "37650295795",
+  "run_attempt": 1,
+  "workflow_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "topos_commit": "4cdcf3853eb839eaf05da9bdae0d4fd4a0a879bc",
+  "scope": "Failed historical exact-source licensed run. Genuine case passes are retained, but neither this source snapshot nor the current source obtains complete licensed or release certification. Original receipt bytes are unchanged.",
+  "files": [
+    {
+      "path": "TOPOS_ORCA_BASELINE_RUN_37650295795.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/fifth-topos-artifact/topos-orca-evidence/acceptance.json",
+      "sha256": "b6e83c76a2a27aacc27f55551a23779ef105a755e5111f2a1ef238746eef0b4e",
+      "bytes": 50788,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_ORCA_EXTENDED_RUN_37650295795.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/fifth-topos-artifact/topos-orca-extended/acceptance.json",
+      "sha256": "fdd1a59554e2fc4088e53c741253375ba8c23961d87700fdd8c3c5bd74ff7c6e",
+      "bytes": 44477,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_ORCA_PYTEST_RUN_37650295795.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/fifth-topos-artifact/topos-orca-evidence/pytest-receipt.json",
+      "sha256": "861e3e9b1d08dbc7907c8443a9cb8bd9f47e649ffaa26e3e88a335b78cf99d24",
+      "bytes": 24222,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_ORCA_PYTEST_RUN_37650295795.xml",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/fifth-topos-artifact/topos-orca-evidence/native-pytest.xml",
+      "sha256": "85a130bae390be4c9921a47da97a3b8aa6c95f52486d54b535264fd31e5c97f7",
+      "bytes": 7797,
+      "copy": "exact-original-bytes"
+    }
+  ],
+  "native_pytest_log": {
+    "original_path": "/workspace/.cochem-setup/base-topos-proposal/fifth-topos-artifact/topos-orca-evidence/native-pytest.log",
+    "sha256": "27146c1b3251c8da0c7b2b25163349cc9f47b206c46f17977a15f4387cd7da6a",
+    "bytes": 4213,
+    "retained_in_repository": false
+  },
+  "pytest": {
+    "passed": 25,
+    "failed": 2,
+    "skipped": 0,
+    "failed_tests": [
+      "tests.v010.test_native_hessian::test_authentic_orca_native_hessian_and_verified_recovery",
+      "tests.v010.test_anharmonic::test_authentic_orca_vpt2_water_and_completed_recovery"
+    ]
+  }
+}

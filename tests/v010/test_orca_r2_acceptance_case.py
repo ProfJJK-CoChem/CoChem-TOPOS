@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -80,3 +82,35 @@ def test_missing_evidence_or_nonwater_input_cannot_construct_acceptance():
         acceptance.acceptance_request(ResourceLimits(), mathematical_water(), ' ')
     with pytest.raises(ValueError, match='water profile'):
         acceptance.water_dimer_from_monomer(Molecule(symbols=['He'], coordinates=[[0, 0, 0]]))
+
+
+def test_rejected_native_basis_authority_stops_before_high_level_geometry(tmp_path, monkeypatch):
+    """Infrastructure rejection only; no successful native result is simulated."""
+    observed = []
+
+    class DeniedUtility:
+        def validate_resources(self, resources):
+            pass
+
+        def resolve_executable(self, name):
+            # A real file is used only for identity hashing; never executed.
+            return sys.executable
+
+        def provenance(self):
+            return {'scope': 'test-only rejection before execution'}
+
+        def export_orca_basis(self, basis, elements, folder, resources):
+            observed.append((basis, elements, resources))
+            raise RuntimeError('explicit native basis authority rejection')
+
+    def forbidden_geometry(*args, **kwargs):
+        pytest.fail('High-level geometry ran before basis availability was established')
+
+    monkeypatch.setattr(acceptance, 'run_correlated', forbidden_geometry)
+    with pytest.raises(RuntimeError, match='basis authority rejection'):
+        acceptance.r2_composite_case(DeniedUtility(), tmp_path / 'acceptance',
+                                      ResourceLimits(threads=2, memory_mb=4096, budget_seconds=60))
+    assert len(observed) == 1 and observed[0][:2] == ('cc-pVDZ-F12', ['H', 'O'])
+    assert observed[0][2].threads == 1 and 0 < observed[0][2].budget_seconds <= 60
+    retained = json.loads((tmp_path / 'acceptance/native-process-calls.json').read_text())
+    assert retained == {'native_processes': [], 'basis_utilities': []}

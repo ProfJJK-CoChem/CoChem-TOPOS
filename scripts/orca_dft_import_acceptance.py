@@ -23,10 +23,15 @@ def verify_optimized_dft_import(result: EngineResult, initial: Molecule, folder:
     folder = folder.resolve()
     if folder.exists() or folder.is_relative_to(Path(__file__).resolve().parents[1]):
         raise ValueError("DFT import acceptance requires a fresh directory outside source")
-    original_root = Path(result.diagnostics["process"]["stdout_path"]).parent.resolve(strict=True)
+    final_native_root = Path(result.diagnostics["process"]["stdout_path"]).parent.resolve(strict=True)
+    refinement = result.metadata.get("optimization_refinement")
+    original_root = (Path(refinement["attempt_root"]).resolve(strict=True)
+                     if refinement else final_native_root)
+    if refinement and final_native_root != original_root / refinement["accepted_stage_directory"]:
+        raise ValueError("Final native optimizer path differs from its retained refinement chain")
     if original_root.is_relative_to(folder):
         raise ValueError("Source engine artifacts cannot be staged in the new import proof directory")
-    resources = result.metadata["resources"]
+    resources = refinement["original_resources"] if refinement else result.metadata["resources"]
     method = MethodSpec.model_validate(result.metadata["requested_method"])
     request = RunRequest(molecule=initial, engine="orca", method=result.method, purpose="optimize",
         engine_version="6.1.1", budget_seconds=resources["budget_seconds"], threads=resources["threads"],
@@ -72,16 +77,18 @@ def verify_optimized_dft_import(result: EngineResult, initial: Molecule, folder:
     source = DFTSourcePoint(run_dir=str(store.run_dir), record_sha256=snapshot["record_sha256"],
         attempt_id=attempt.attempt_id, group_id="hosted-native-optimization-import", partition="test")
     imported = import_dft_point(source, folder / "reference")
+    final_gradient = folder / "reference" / result.metadata["final_gradient_verification"]["directory"] / "job.engrad"
     if (imported.molecule.model_dump(mode="json") != result.molecule.model_dump(mode="json")
             or abs(imported.energy_hartree - result.energy_hartree) > 2e-7
             or not np.allclose(imported.gradient_hartree_per_bohr, result.gradient_hartree_per_bohr, rtol=0, atol=1e-12)
-            or not (folder / "reference/final-gradient/job.engrad").is_file()):
+            or not final_gradient.is_file()):
         raise RuntimeError("Imported DFT reference differs from the actual optimized final-gradient observation")
     report = {"status": "passed", "additional_native_calculations": 0, "training_performed": False,
         "source_record_sha256": source.record_sha256, "snapshot_id": snapshot["snapshot_id"],
         "source_engine_result_sha256": record.metadata["source_engine_result_sha256"],
         "reference_sha256": file_digest(folder / "reference/reference.json"),
-        "final_gradient_sha256": file_digest(folder / "reference/final-gradient/job.engrad"),
+        "final_gradient_sha256": file_digest(final_gradient),
+        "final_gradient_relative_path": final_gradient.relative_to(folder / "reference").as_posix(),
         "energy_hartree": imported.energy_hartree,
         "scope": "One genuine optimized DFT point with exact native final-stage binding; not a training dataset or model"}
     atomic_json(folder / "acceptance.json", report)

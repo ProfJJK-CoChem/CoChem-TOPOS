@@ -1,0 +1,36 @@
+{
+  "run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37650295795",
+  "scope": "Genuine hosted outputs replayed for parser/physics/regression; no local ORCA execution",
+  "sources": [
+    {
+      "file": "incomplete-r2scan-optimization.stdout",
+      "source_path": "native-hessian/optimization/engine.stdout",
+      "sha256": "08b7b9ed7b9627a078174bb40e6fefb09321ad2981226b2eefa321874603bcc4"
+    },
+    {
+      "file": "incomplete-r2scan-result.json",
+      "source_path": "native-hessian/optimization-result.json",
+      "sha256": "85fc1f7842bc28ab82abff9f13fffddd40474e29018eb4716545210ddfbabacb"
+    },
+    {
+      "file": "b3lyp-frequency.hess",
+      "source_path": "native-vpt2/native/reference/frequency-3f72a53f4efc4181a3b46ca95e565274/frequency.hess",
+      "sha256": "4146b57509577230552a7585d2dfee2f1482f45ea69771eff658713b21eb5e07"
+    },
+    {
+      "file": "b3lyp-frequency.stdout",
+      "source_path": "native-vpt2/native/reference/frequency-3f72a53f4efc4181a3b46ca95e565274/frequency.stdout",
+      "sha256": "c7a01d1d837406782905f89dc9330b16ab27459825dc32b7cbf3447f57807849"
+    },
+    {
+      "file": "b3lyp-reference.engrad",
+      "source_path": "native-vpt2/native/reference/reference-80e0c4eb6fff4504885c138528376671/job.engrad",
+      "sha256": "006dcdd36c9d6441c50fe3bcab02911131e652b233a4db72bbff92dad7ab3476"
+    }
+  ],
+  "derived_molecule_source": {
+    "file": "native-vpt2/optimization-result.json",
+    "sha256": "0b87f1ab92a540175951343dc4c169b7b69d6541a624419cb2533016bece90d1",
+    "json_pointer": "/molecule"
+  }
+}

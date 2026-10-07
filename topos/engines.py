@@ -296,7 +296,11 @@ def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimit
     if method.dispersion == "D4":
         keywords.append("D4")
     if method.basis and not basis_files:
-        keywords.append(method.basis)
+        from .orca_basis_names import resolve_orca_orbital_basis, validate_basis_elements
+
+        resolution = resolve_orca_orbital_basis(molecule, method.basis)
+        validate_basis_elements(resolution["native_basis"], "orbital", molecule.symbols)
+        keywords.append(resolution["native_basis"])
     if method.method in {"B3LYP", "wB97X-V", "wB97M-V"}:
         keywords.append("RIJCOSX")
         if not basis_files or "auxiliary" not in basis_files:
@@ -367,7 +371,119 @@ def _orca_convergence(text: str) -> dict[str, bool]:
     return result
 
 
+ORCA_OPTIMIZATION_MAX_RESTARTS = 3
+
+
+def _orca_refinement_needed(result: EngineResult) -> bool:
+    """Only a genuine early native stop can request another optimization."""
+    criteria = result.diagnostics.get("convergence", {})
+    return (result.engine == "orca" and result.operation == "optimize"
+            and result.status == "partial" and result.converged is False
+            and result.metadata.get("execution_kind") == "real" and result.molecule is not None
+            and result.diagnostics.get("native_optimizer_reported_converged") is True
+            and len(criteria) == 5 and all(isinstance(value, bool) for value in criteria.values())
+            and (not all(criteria.values())
+                 or result.diagnostics.get("independent_stationarity", {}).get("passed") is False))
+
+
 def run_engine(
+    molecule: Molecule, method: MethodSpec, resources: ResourceLimits, workdir: str | Path,
+    operation: Literal["energy", "gradient", "optimize"] = "optimize",
+    cancel_event: Event | None = None, executable: str | Path | None = None, *,
+    process_runner: Callable[..., Any] | None = None,
+    ghost_atom_indices: list[int] | None = None, ghost_electronic_state: tuple[int, int] | None = None,
+    orbital_basis_file: str | Path | None = None, auxiliary_basis_file: str | Path | None = None,
+) -> EngineResult:
+    """Run genuine stages within one budget, refining ORCA's early-stop shortcut.
+
+    Native ORCA may announce geometry convergence before all five printed
+    tolerances pass. Keep those thresholds and the independent final gradient;
+    restart at most three times from its actual returned geometry. Every stage
+    retains its original files, status and input. No failed calculation is
+    promoted to successful merely because continuation was attempted.
+    """
+    from .storage import atomic_json, file_digest
+
+    started = time.monotonic()
+    folder = Path(workdir).resolve()
+    arguments = dict(operation=operation, cancel_event=cancel_event, executable=executable,
+                     process_runner=process_runner, ghost_atom_indices=ghost_atom_indices,
+                     ghost_electronic_state=ghost_electronic_state,
+                     orbital_basis_file=orbital_basis_file, auxiliary_basis_file=auxiliary_basis_file)
+    current = _run_engine_once(molecule, method, resources, folder, **arguments)
+    if not _orca_refinement_needed(current):
+        return current
+    stages = []
+    stage_input, stage_directory, stage_resources = molecule, ".", resources
+    initial_identity = [current.engine_version, current.metadata.get("executable_sha256")]
+    for stage_index in range(ORCA_OPTIMIZATION_MAX_RESTARTS + 1):
+        receipt = folder / f"optimization-stage-{stage_index}.json"
+        try:
+            atomic_json(receipt, current.model_dump(mode="json"))
+            receipt_identity = {"path": receipt.relative_to(folder).as_posix(), "sha256": file_digest(receipt),
+                                "size_bytes": receipt.stat().st_size}
+        except OSError as exc:
+            current.status, current.converged = "failed", False
+            current.diagnostics["reason"] = f"ORCA refinement stage receipt could not be retained: {exc}"
+            break
+        stage_gradient = (dict(current.metadata["final_gradient_verification"])
+                          if current.metadata.get("final_gradient_verification") else None)
+        if stage_gradient is not None and stage_directory != ".":
+            stage_gradient["directory"] = stage_directory + "/final-gradient"
+        stages.append({"stage_directory": stage_directory, "input_molecule": stage_input.model_dump(mode="json"),
+            "output_molecule": current.molecule.model_dump(mode="json") if current.molecule else None,
+            "status": current.status, "converged": current.converged, "command": current.command,
+            "method": method.model_dump(mode="json"), "resources": stage_resources.model_dump(mode="json"),
+            "engine_version": current.engine_version, "executable_sha256": current.metadata.get("executable_sha256"),
+            "convergence": current.diagnostics.get("convergence", {}),
+            "native_optimizer_reported_converged": current.diagnostics.get("native_optimizer_reported_converged"),
+            "independent_stationarity": current.diagnostics.get("independent_stationarity"),
+            "process": current.diagnostics.get("process"),
+            "final_gradient_verification": stage_gradient,
+            "receipt": receipt_identity})
+        if [current.engine_version, current.metadata.get("executable_sha256")] != initial_identity:
+            current.status, current.converged = "failed", False
+            current.diagnostics["reason"] = "ORCA optimization refinement changed native version or executable"
+            break
+        if not _orca_refinement_needed(current) or stage_index == ORCA_OPTIMIZATION_MAX_RESTARTS:
+            break
+        remaining = resources.budget_seconds - (time.monotonic() - started)
+        cancelled = cancel_event is not None and cancel_event.is_set()
+        if cancelled or remaining <= 0:
+            current.status, current.converged = "cancelled" if cancelled else "timed-out", False
+            current.diagnostics["reason"] = "Original optimization budget or cancellation stopped native refinement"
+            break
+        stage_input = current.molecule
+        stage_directory = f"optimization-refinement-{stage_index+1}"
+        stage_resources = resources.model_copy(update={"budget_seconds": remaining})
+        current = _run_engine_once(stage_input, method, stage_resources, folder / stage_directory, **arguments)
+    current.metadata["optimization_refinement"] = {
+        "schema": "topos-orca-optimization-refinement/1", "maximum_restarts": ORCA_OPTIMIZATION_MAX_RESTARTS,
+        "attempt_root": str(folder), "accepted_stage_directory": stage_directory if current.status == "completed" else None,
+        "final_stage_directory": stage_directory, "initial_molecule": molecule.model_dump(mode="json"),
+        "original_resources": resources.model_dump(mode="json"), "stages": stages,
+        "policy": "bounded same-protocol native continuation; unchanged five criteria plus independent final gradient",
+        "budget_scope": "one original attempt wall budget including all native stages"}
+    if stage_directory != ".":
+        if current.metadata.get("final_gradient_verification"):
+            current.metadata["final_gradient_verification"]["directory"] = stage_directory + "/final-gradient"
+        if current.metadata.get("dipole_provenance"):
+            current.metadata["dipole_provenance"]["raw_output"] = stage_directory + "/" + current.metadata["dipole_provenance"]["raw_output"]
+    try:
+        current.artifacts = artifact_inventory(folder)
+    except (OSError, EngineParseError) as exc:
+        current.status, current.converged = "failed", False
+        current.metadata["optimization_refinement"]["accepted_stage_directory"] = None
+        current.diagnostics["artifact_error"] = str(exc)
+    current.elapsed_seconds = time.monotonic() - started
+    if (cancel_event is not None and cancel_event.is_set()) or current.elapsed_seconds >= resources.budget_seconds:
+        current.status, current.converged = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out", False
+        current.metadata["optimization_refinement"]["accepted_stage_directory"] = None
+        current.diagnostics["reason"] = "Optimization refinement ended after the original budget or cancellation"
+    return current
+
+
+def _run_engine_once(
     molecule: Molecule,
     method: MethodSpec,
     resources: ResourceLimits,
@@ -448,6 +564,21 @@ def run_engine(
     if method.engine == "xtb" and any(atomic_number(s) > 86 for s in molecule.symbols):
         result.diagnostics["reason"] = "GFN2-xTB parameterization does not cover elements beyond radon"
         return result
+    if method.engine == "orca":
+        from .orca_basis_names import resolve_orca_orbital_basis, validate_basis_elements
+
+        try:
+            receipts = []
+            if method.basis and not external_basis:
+                resolution = resolve_orca_orbital_basis(molecule, method.basis)
+                receipts.append(validate_basis_elements(resolution["native_basis"], "orbital", molecule.symbols))
+                result.metadata["orbital_basis_resolution"] = resolution
+            if method.method in {"B3LYP", "wB97X-V", "wB97M-V"} and "auxiliary" not in external_basis:
+                receipts.append(validate_basis_elements("def2/J", "auxiliary_j", molecule.symbols))
+            result.metadata["basis_support_receipts"] = receipts
+        except ValueError as exc:
+            result.diagnostics["reason"] = str(exc)
+            return result
     requested = str(executable) if executable is not None else os.environ.get(
         f"TOPOS_{method.engine.upper()}_EXECUTABLE", method.engine)
     binary = shutil.which(requested)
@@ -617,6 +748,7 @@ def run_engine(
             if operation == "optimize":
                 criteria = _orca_convergence(raw)
                 result.diagnostics["convergence"] = criteria
+                result.diagnostics["native_optimizer_reported_converged"] = "THE OPTIMIZATION HAS CONVERGED" in raw
                 result.converged = ("THE OPTIMIZATION HAS CONVERGED" in raw and
                                     len(criteria) == 5 and all(criteria.values()))
                 if result.converged:

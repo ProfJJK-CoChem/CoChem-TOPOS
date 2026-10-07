@@ -93,7 +93,9 @@ class ReferenceFrame(Contract):
 
 def _reference_artifact(snapshot: Path, attempt: Attempt, name: str, *, stage: str | None = None) -> Path:
     """Bind a retained native file to its exact stage, never an arbitrary basename."""
-    if name not in {"job.inp", "engine.stdout", "job.engrad", "job.xyz"} or stage not in {None, "", "final-gradient"}:
+    receipt = stage == "" and re.fullmatch(r"optimization-stage-[0-3]\.json", name)
+    if (name not in {"job.inp", "engine.stdout", "job.engrad", "job.xyz"} and not receipt
+            or stage is not None and not re.fullmatch(r"(?:optimization-refinement-[1-3](?:/final-gradient)?|final-gradient)?", stage)):
         raise ValueError("Unknown DFT native evidence stage or filename")
     if stage is None:
         matches = [artifact for artifact in attempt.artifacts if Path(artifact.path).name == name]
@@ -122,10 +124,12 @@ def _dft_output_energy(path: Path) -> tuple[str, float]:
 
 
 def _final_gradient_contract(attempt: Attempt, molecule: Molecule, method: MethodSpec,
-                             resources: ResourceLimits) -> dict:
+                             resources: ResourceLimits, *, optimization_stage: str = "") -> dict:
     """Reject an unbound final stage before reading any of its scientific data."""
     stage = attempt.metadata.get("final_gradient_verification")
-    if (not isinstance(stage, dict) or stage.get("directory") != "final-gradient"
+    expected_directory = (Path(optimization_stage) / "final-gradient").as_posix()
+    if (optimization_stage and not re.fullmatch(r"optimization-refinement-[1-3]", optimization_stage)
+            or not isinstance(stage, dict) or stage.get("directory") != expected_directory
             or stage.get("execution_kind") != "real" or stage.get("engine") != "orca"
             or stage.get("engine_version") != attempt.engine_version
             or stage.get("executable_sha256") != attempt.metadata.get("executable_sha256")
@@ -145,7 +149,156 @@ def _final_gradient_contract(attempt: Attempt, molecule: Molecule, method: Metho
     return stage
 
 
-def _validate_final_stationarity(gradient: list[list[float]], method: MethodSpec, stationarity: dict) -> None:
+def _optimization_refinement_contract(attempt: Attempt, initial: Molecule, molecule: Molecule,
+                                      method: MethodSpec, resources: ResourceLimits) -> list[dict]:
+    """Validate the bounded native restart chain before selecting any raw stage."""
+    history = attempt.metadata.get("optimization_refinement")
+    if history is None:
+        return []
+    if (not isinstance(history, dict) or history.get("schema") != "topos-orca-optimization-refinement/1"
+            or history.get("maximum_restarts") != 3
+            or not attempt.command
+            or history.get("initial_molecule") != initial.model_dump(mode="json")):
+        raise IntegrityError("DFT optimization refinement lacks its original geometry and bounded protocol")
+    stages = history.get("stages")
+    if not isinstance(stages, list) or not 2 <= len(stages) <= 4:
+        raise IntegrityError("DFT optimization refinement must retain every bounded native stage")
+    original = ResourceLimits.model_validate(history.get("original_resources"))
+    expected_input = initial.model_dump(mode="json")
+    previous_budget = original.budget_seconds
+    for index, stage in enumerate(stages):
+        directory = "." if index == 0 else f"optimization-refinement-{index}"
+        if (not isinstance(stage, dict) or stage.get("stage_directory") != directory
+                or stage.get("input_molecule") != expected_input
+                or stage.get("method") != method.model_dump(mode="json")
+                or stage.get("engine_version") != attempt.engine_version
+                or stage.get("executable_sha256") != attempt.metadata.get("executable_sha256")
+                or stage.get("command") != [attempt.command[0], "job.inp"]
+                or stage.get("process", {}).get("status") != "completed"
+                or stage.get("process", {}).get("returncode") != 0
+                or stage.get("status") != ("completed" if index == len(stages) - 1 else "partial")
+                or stage.get("native_optimizer_reported_converged") is not True
+                or stage.get("converged") is not (index == len(stages) - 1)):
+            raise IntegrityError("DFT optimization refinement changed identity or skipped a native stage")
+        allocation = ResourceLimits.model_validate(stage.get("resources"))
+        if (allocation.model_dump(exclude={"budget_seconds"}) != original.model_dump(exclude={"budget_seconds"})
+                or allocation.budget_seconds > previous_budget
+                or index == 0 and allocation != original):
+            raise IntegrityError("DFT optimization refinement changed allocation or reset its deadline")
+        output = Molecule.model_validate(stage.get("output_molecule"))
+        if output.model_dump(exclude={"coordinates", "name"}) != initial.model_dump(exclude={"coordinates", "name"}):
+            raise IntegrityError("DFT optimization refinement changed molecular identity")
+        previous_budget = allocation.budget_seconds
+        expected_input = output.model_dump(mode="json")
+    if (history.get("accepted_stage_directory") != stages[-1]["stage_directory"]
+            or history.get("final_stage_directory") != stages[-1]["stage_directory"]
+            or expected_input != molecule.model_dump(mode="json")
+            or stages[-1]["resources"] != resources.model_dump(mode="json")
+            or stages[-1].get("final_gradient_verification") != attempt.metadata.get("final_gradient_verification")
+            or any(stages[-1].get(key) != attempt.diagnostics.get(key) for key in (
+                "process", "convergence", "native_optimizer_reported_converged", "independent_stationarity"))):
+        raise IntegrityError("DFT optimized result does not identify the final accepted native stage")
+    return stages
+
+
+def _optimization_stage_receipt(snapshot: Path, attempt: Attempt, index: int,
+                                stage: dict) -> tuple[Path, EngineResult]:
+    """Bind history to the unchanged per-stage result before reparsing raw files."""
+    name = f"optimization-stage-{index}.json"
+    path = _reference_artifact(snapshot, attempt, name, stage="")
+    receipt = stage.get("receipt")
+    if receipt != {"path": name, "sha256": file_digest(path), "size_bytes": path.stat().st_size}:
+        raise IntegrityError("DFT refinement stage receipt changed or identifies another stage")
+    native = EngineResult.model_validate_json(path.read_text())
+    if (not math.isfinite(native.elapsed_seconds) or native.elapsed_seconds <= 0
+            or native.elapsed_seconds > ResourceLimits.model_validate(stage["resources"]).budget_seconds):
+        raise IntegrityError("DFT refinement receipt exceeds its remaining wall budget")
+    gradient = native.metadata.get("final_gradient_verification")
+    if gradient is not None:
+        gradient = dict(gradient)
+        if gradient.get("directory") != "final-gradient":
+            raise IntegrityError("DFT refinement receipt has an unexpected native gradient directory")
+        gradient["directory"] = (Path(stage["stage_directory"]) / "final-gradient").as_posix()
+    if (native.engine != "orca" or native.operation != "optimize"
+            or native.metadata.get("execution_kind") != "real"
+            or native.method != attempt.method or native.engine_version != stage["engine_version"]
+            or native.metadata.get("executable_sha256") != stage["executable_sha256"]
+            or native.metadata.get("requested_method") != stage["method"]
+            or native.metadata.get("resources") != stage["resources"]
+            or native.command != stage["command"] or native.status != stage["status"]
+            or native.converged is not stage["converged"] or native.molecule is None
+            or native.molecule.model_dump(mode="json") != stage["output_molecule"]
+            or any(native.diagnostics.get(key) != stage.get(key) for key in (
+                "process", "convergence", "native_optimizer_reported_converged", "independent_stationarity"))
+            or gradient != stage.get("final_gradient_verification")):
+        raise IntegrityError("DFT refinement history differs from its retained native stage receipt")
+    return path, native
+
+
+def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: list[dict],
+                                      method: MethodSpec) -> dict[str, Path]:
+    """Reparse each unchanged optimizer stage; no metadata pass flag is enough."""
+    retained = {}
+    remaining_ceiling = None
+    for index, stage in enumerate(stages):
+        receipt, native = _optimization_stage_receipt(snapshot, attempt, index, stage)
+        retained[receipt.name] = receipt
+        directory = "" if index == 0 else stage["stage_directory"]
+        files = {name: _reference_artifact(snapshot, attempt, name, stage=directory)
+                 for name in ("job.inp", "engine.stdout", "job.xyz")}
+        initial = Molecule.model_validate(stage["input_molecule"])
+        output = Molecule.model_validate(stage["output_molecule"])
+        allocation = ResourceLimits.model_validate(stage["resources"])
+        if remaining_ceiling is not None and allocation.budget_seconds > remaining_ceiling + 1e-9:
+            raise IntegrityError("DFT refinement restarted without charging the preceding native stage")
+        remaining_ceiling = allocation.budget_seconds - native.elapsed_seconds
+        if files["job.inp"].read_text() != _orca_input(initial, method, allocation, "optimize"):
+            raise IntegrityError("DFT refinement native input changed its recorded method or geometry")
+        stdout, optimizer_energy = _dft_output_energy(files["engine.stdout"])
+        criteria = _orca_convergence(stdout)
+        if ("THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5
+                or criteria != stage.get("convergence")
+                or native.energy_hartree != optimizer_energy
+                or read_xyz(files["job.xyz"], initial) != output):
+            raise IntegrityError("DFT refinement lacks a genuine native optimizer endpoint")
+        if index == len(stages) - 1 and not all(criteria.values()):
+            raise IntegrityError("Final DFT refinement did not meet all five geometry gates")
+        if index < len(stages) - 1 and all(criteria.values()):
+            # A restart after all native gates passed is justified only by the
+            # independently evaluated final gradient, at these same tolerances.
+            final_directory = (Path(directory) / "final-gradient").as_posix()
+            gradient_files = {name: _reference_artifact(snapshot, attempt, name, stage=final_directory)
+                              for name in ("job.inp", "engine.stdout", "job.engrad")}
+            verified = stage.get("final_gradient_verification")
+            temporary = attempt.model_copy(deep=True)
+            temporary.metadata["final_gradient_verification"] = verified
+            contract = _final_gradient_contract(temporary, output, method, allocation,
+                                                optimization_stage=directory)
+            if (any(file_digest(path) != contract["native_files_sha256"][name]
+                    for name, path in gradient_files.items())
+                    or gradient_files["job.inp"].read_text() != _orca_input(
+                        output, method, ResourceLimits.model_validate(contract["resources"]), "gradient")):
+                raise IntegrityError("DFT refinement restart gradient changed its bound native evidence")
+            _, native_energy = _dft_output_energy(gradient_files["engine.stdout"])
+            derivative_energy, gradient = parse_orca_engrad(gradient_files["job.engrad"], output)
+            if (abs(derivative_energy - native_energy) > 2e-7 or abs(native_energy - optimizer_energy) > 2e-7
+                    or contract.get("energy_hartree") != native_energy
+                    or contract.get("energy_difference_hartree") != native_energy - optimizer_energy):
+                raise IntegrityError("DFT refinement restart gradient has inconsistent energies")
+            if native.gradient_hartree_per_bohr != gradient:
+                raise IntegrityError("DFT refinement receipt changed its independently evaluated native gradient")
+            _validate_final_stationarity(gradient, method, stage.get("independent_stationarity"), expected_passed=False)
+            retained.update({(Path(final_directory) / name).as_posix(): path for name, path in gradient_files.items()})
+        elif index < len(stages) - 1 and (stage.get("final_gradient_verification") is not None
+                                        or stage.get("independent_stationarity") is not None
+                                        or native.gradient_hartree_per_bohr is not None):
+            raise IntegrityError("DFT refinement claims a final gradient before all native geometry gates passed")
+        retained.update({(Path(directory) / name).as_posix(): path for name, path in files.items()})
+    return retained
+
+
+def _validate_final_stationarity(gradient: list[list[float]], method: MethodSpec, stationarity: dict,
+                                 *, expected_passed: bool = True) -> None:
     """Recompute Cartesian stationarity; a stored pass flag is insufficient."""
     values = np.asarray(gradient, dtype=float)
     if values.ndim != 2 or not len(values) or values.shape[1] != 3 or not np.isfinite(values).all():
@@ -153,7 +306,8 @@ def _validate_final_stationarity(gradient: list[list[float]], method: MethodSpec
     strict = method.profile_id == "orca-vpt2-reference-v1"
     max_limit, rms_limit = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
     maximum, rms = float(np.max(np.abs(values))), float(np.sqrt(np.mean(values ** 2)))
-    if (not isinstance(stationarity, dict) or maximum > max_limit or rms > rms_limit or stationarity.get("passed") is not True
+    passed = maximum <= max_limit and rms <= rms_limit
+    if (not isinstance(stationarity, dict) or passed is not expected_passed or stationarity.get("passed") is not passed
             or stationarity.get("max_gradient_threshold") != max_limit
             or stationarity.get("rms_gradient_threshold") != rms_limit
             or any(isinstance(stationarity.get(key), bool) or not isinstance(stationarity.get(key), (float, int))
@@ -201,25 +355,31 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
         raise ValueError("DFT training data require an actual analytic-gradient calculation")
     resources = ResourceLimits.model_validate(attempt.metadata.get("resources"))
 
-    selected_stage = "" if operation == "optimize" else None
+    stages = (_optimization_refinement_contract(attempt, initial, molecule, method, resources)
+              if operation == "optimize" else [])
+    selected_stage = stages[-1]["stage_directory"] if stages else ("" if operation == "optimize" else None)
+    stage_initial = Molecule.model_validate(stages[-1]["input_molecule"]) if stages else initial
+    retained = _optimization_refinement_evidence(snapshot, attempt, stages, method)
 
     def native_file(name: str, stage: str | None = selected_stage) -> Path:
         return _reference_artifact(snapshot, attempt, name, stage=stage)
 
     deck = native_file("job.inp").read_text()
-    if deck != _orca_input(initial, method, resources, operation):
+    if deck != _orca_input(stage_initial, method, resources, operation):
         raise IntegrityError("DFT native input differs from the recorded typed Hamiltonian and geometry")
     stdout, optimizer_energy = _dft_output_energy(native_file("engine.stdout"))
-    retained = {name: native_file(name) for name in ("job.inp", "engine.stdout")}
+    retained.update({(Path(selected_stage or "") / name).as_posix(): native_file(name)
+                     for name in ("job.inp", "engine.stdout")})
     if operation == "optimize":
         criteria = _orca_convergence(stdout)
         if "THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5 or not all(criteria.values()):
             raise IntegrityError("DFT optimization raw output does not establish all five geometry gates")
-        if read_xyz(native_file("job.xyz"), initial).coordinates != molecule.coordinates:
+        if read_xyz(native_file("job.xyz"), stage_initial).coordinates != molecule.coordinates:
             raise IntegrityError("DFT stored output geometry differs from its native XYZ")
-        retained["job.xyz"] = native_file("job.xyz")
-        stage = _final_gradient_contract(attempt, molecule, method, resources)
-        final_files = {name: native_file(name, "final-gradient") for name in stage["native_files_sha256"]}
+        retained[(Path(selected_stage) / "job.xyz").as_posix()] = native_file("job.xyz")
+        stage = _final_gradient_contract(attempt, molecule, method, resources,
+                                         optimization_stage=selected_stage)
+        final_files = {name: native_file(name, stage["directory"]) for name in stage["native_files_sha256"]}
         if any(file_digest(path) != stage["native_files_sha256"][name] for name, path in final_files.items()):
             raise IntegrityError("Final DFT gradient native file differs from its bound stage identity")
         final_resources = ResourceLimits.model_validate(stage["resources"])
@@ -232,7 +392,11 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
                 or stage.get("energy_difference_hartree") != final_energy - optimizer_energy):
             raise IntegrityError("DFT optimization, final-gradient output and derivative energies disagree")
         _validate_final_stationarity(gradient, method, attempt.diagnostics.get("independent_stationarity", {}))
-        retained.update({"final-gradient/" + name: path for name, path in final_files.items()})
+        if stages:
+            final_receipt = EngineResult.model_validate_json(retained[f"optimization-stage-{len(stages)-1}.json"].read_text())
+            if final_receipt.gradient_hartree_per_bohr != gradient:
+                raise IntegrityError("Final DFT refinement receipt changed its native gradient")
+        retained.update({stage["directory"] + "/" + name: path for name, path in final_files.items()})
     elif initial.coordinates != molecule.coordinates:
         raise IntegrityError("A DFT single-point gradient changed its geometry")
     else:

@@ -123,7 +123,10 @@ def test_underspecified_recipes_do_not_launch_or_claim_any_result(tmp_path, row,
     ("T3O-3d", canonical_protocol(), "autoci-conventional-transformation-v1"),
 ])
 def test_missing_licensed_binary_persists_unavailable_without_derived_completion(tmp_path, row, protocol, resolution):
-    workflow, record, store = context(tmp_path, row=row)
+    # The missing-binary test must first use an element with the requested
+    # native basis roles. ORCA's F12 CABS table includes Ne but not He.
+    supported = Molecule.model_validate({**dimer().model_dump(), "symbols": ["Ne", "Ne"]}) if protocol.cabs else None
+    workflow, record, store = context(tmp_path, row=row, molecule=supported)
     inputs = MatrixInputs(correlated_protocol=protocol, correlated_resolution=resolution)
     assert not execute_correlated_recipe(workflow, record, store, inputs, time.monotonic() + 30, None)
     assert record.status == "unavailable"
