@@ -1,0 +1,3 @@
+# Exact original GitHub checkout logs retain their native whitespace and hashes.
+.docs/evidence/TOPOS_CANDIDATE14_WORKER11_6264_20261007/*_ACTUAL_CHECKOUT.md -whitespace
+.docs/evidence/TOPOS_WORKER12_CI_4ED_20261007/*_ACTUAL_CHECKOUT.md -whitespace

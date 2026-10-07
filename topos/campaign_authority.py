@@ -207,4 +207,3 @@ def base_authority_evidence(record: dict[str, Any], store: RunStore,
         raise IntegrityError("BASE registry metadata alone cannot certify a native calculation")
     return {"parent_registry_sha256": parent_digest,
             "child_run_ids": sorted(children), "native_attempts": proofs}
-
