@@ -426,16 +426,33 @@ def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime,
     save_system_config(CoChemSystemConfig.model_validate(config), runtime.registry_path)
     runtime = BaseRuntime(runtime.registry_path, require_torq=False)
     monkeypatch.setenv("PATH", "/usr/bin:/bin")
+    monkeypatch.setenv("COCHEM_CPU_ALLOCATION_POLICY", "github_hosted_vcpus")
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.setenv("RUNNER_ENVIRONMENT", "github-hosted")
+    monkeypatch.setenv("OMPI_unrelated_token", "must-not-leak")
     authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
                                    cores=2, maxcore_mb=64)
     command = [str(Path(sys.executable).absolute()), "-c",
-               "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS'])"]
+               "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS']); "
+               "print(os.environ['OMPI_MCA_rmaps_base_mapping_policy']); "
+               "assert 'OMPI_unrelated_token' not in os.environ"]
     resources = ResourceLimits(threads=2, memory_mb=256, budget_seconds=10)
     result = runtime._execute_authorized(command, tmp_path / "mpi-path-probe", resources,
                                          authority, engine="orca")
     assert result.status == "completed", result
-    assert Path(result.stdout_path).read_text().splitlines() == [str(mpi), "1"]
+    assert Path(result.stdout_path).read_text().splitlines() == [str(mpi), "1", "hwthread:NOOVERSUBSCRIBE"]
     mpi.write_bytes(b"altered infrastructure executable")
     with pytest.raises(BaseIntegrationError, match="MPI launcher"):
         runtime._execute_authorized(command, tmp_path / "changed-mpi", resources,
                                     authority, engine="orca")
+
+
+def test_training_engine_guard_uses_actual_base_dictionary_schema(runtime, tmp_path, monkeypatch):
+    # Resource authorization is an infrastructure double here; this test must
+    # reject a missing package record before any worker or science can launch.
+    monkeypatch.setattr(runtime, "validate_resources", lambda *args, **kwargs: None)
+    with pytest.raises(BaseIntegrationError, match="actually audited"):
+        runtime.run_mace_training_process([], tmp_path, ResourceLimits(device="gpu"),
+                                         package_version="0.3.16", input_files={},
+                                         gpu_index=0, gpu_memory_mb=128)
+    assert not (tmp_path / "training-worker-request.json").exists()

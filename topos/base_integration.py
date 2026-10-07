@@ -134,9 +134,10 @@ def _engine_environment(environment: dict[str, str], threads: int) -> dict[str, 
         "XTBPATH", "XTBHOME", "FORTRAN_UNBUFFERED_ALL",
     }
     result = {key: value for key, value in environment.items()
-              if key in allowed or re.fullmatch(r"(?:OMP|MKL|OPENBLAS|NUMEXPR|OMPI|PMI|UCX|XTB|CREST)_[A-Z0-9_]+", key)}
+              if key in allowed or re.fullmatch(r"(?:OMP|MKL|OPENBLAS|NUMEXPR|PMI|UCX|XTB|CREST)_[A-Z0-9_]+", key)
+              or re.fullmatch(r"OMPI_[A-Za-z0-9_]+", key)}
     result = {key: value for key, value in result.items()
-              if not re.search(r"TOKEN|PASSWORD|SECRET|CREDENTIAL|AUTHORIZATION", key)}
+              if not re.search(r"TOKEN|PASSWORD|SECRET|CREDENTIAL|AUTHORIZATION", key, re.I)}
     result.update({key: str(threads) for key in (
         "OMP_NUM_THREADS", "OMP_THREAD_LIMIT", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
         "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
@@ -253,7 +254,8 @@ class BaseRuntime:
         if resources.device != "gpu":
             raise BaseIntegrationError("MACE fine-tuning requires an explicitly audited CUDA allocation")
         self.validate_resources(resources, engine="mace", gpu_index=gpu_index, gpu_memory_mb=gpu_memory_mb)
-        if package_version != "0.3.16" or self.registry.engines.mace is None or self.registry.engines.mace.version != package_version:
+        mace_record = self.registry.model_dump(mode="json")["engines"].get("mace")
+        if package_version != "0.3.16" or not mace_record or mace_record.get("version") != package_version:
             raise BaseIntegrationError("MACE fine-tuning requires the reviewed, actually audited 0.3.16 package")
         folder = Path(workdir).resolve()
         if folder.exists() and any(folder.iterdir()):
@@ -473,24 +475,33 @@ print(json.dumps(result,sort_keys=True))
             provenance_path = next((path.resolve() for path in candidates if path.is_file()), None)
             if provenance_path is None:
                 raise BaseIntegrationError("The complete installed ORCA distribution provenance is required for basis export")
-            source = _source_root("COCHEM_BASE_ROOT", "CoChem-BASE", "cochem_base")
-            if source is None:
-                spec = importlib.util.find_spec("cochem_base")
-                # BASE is a PEP 420 namespace package: origin is intentionally
-                # None for a genuine editable installation. Resolve its actual
-                # package search location before looking for the installer pin.
-                locations = list(spec.submodule_search_locations or ()) if spec else []
-                package_path = (Path(spec.origin).resolve().parent if spec and spec.origin else
-                                Path(locations[0]).resolve() if locations else None)
-                source = package_path.parent if package_path is not None else None
-            manifests = [] if source is None else [source / "scripts/orca-distribution.json",
-                                                   source.parent / "scripts/orca-distribution.json"]
-            manifest_path = next((path for path in manifests if path.is_file()), None)
-            if manifest_path is None:
-                raise BaseIntegrationError("The installed BASE source distribution manifest is unavailable")
-            manifest_bytes = manifest_path.read_bytes()
-            manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
-            manifest = json.loads(manifest_bytes)
+            try:
+                identity = importlib.import_module("cochem_base.core_engine.orca_distribution_identity")
+            except ModuleNotFoundError as exc:
+                if exc.name != "cochem_base.core_engine.orca_distribution_identity":
+                    raise
+                identity = None
+            if identity is not None:
+                manifest, manifest_hash = identity.reviewed_orca_distribution()
+            else:
+                source = _source_root("COCHEM_BASE_ROOT", "CoChem-BASE", "cochem_base")
+                if source is None:
+                    spec = importlib.util.find_spec("cochem_base")
+                    # BASE is a PEP 420 namespace package: origin is intentionally
+                    # None for a genuine editable installation. Resolve its actual
+                    # package search location before looking for the installer pin.
+                    locations = list(spec.submodule_search_locations or ()) if spec else []
+                    package_path = (Path(spec.origin).resolve().parent if spec and spec.origin else
+                                    Path(locations[0]).resolve() if locations else None)
+                    source = package_path.parent if package_path is not None else None
+                manifests = [] if source is None else [source / "scripts/orca-distribution.json",
+                                                       source.parent / "scripts/orca-distribution.json"]
+                manifest_path = next((path for path in manifests if path.is_file()), None)
+                if manifest_path is None:
+                    raise BaseIntegrationError("The installed BASE source distribution manifest is unavailable")
+                manifest_bytes = manifest_path.read_bytes()
+                manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
+                manifest = json.loads(manifest_bytes)
             provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
             if (provenance.get("schema_version") != 1 or provenance.get("distribution") != manifest
                     or provenance.get("manifest_sha256") != manifest_hash
@@ -660,7 +671,21 @@ print(json.dumps(result,sort_keys=True))
         native_threads = threads_per_process if threads_per_process is not None else (
             1 if engine == "orca" else resources.threads
         )
-        supplied = _engine_environment({**os.environ, **(environment or {})}, native_threads)
+        native_environment = {**os.environ, **(environment or {})}
+        if engine == "orca":
+            from cochem_base.core_engine.engine_environment import engine_runtime_environment
+
+            # Apply BASE's actual allocation policy before excluding controller
+            # variables. In particular, hosted vCPUs need MPI hardware-thread
+            # mapping and no oversubscription, distinct from workstation cores.
+            execution = self.registry.model_dump(mode="json").get("execution") or {}
+            allocation = execution.get("cpu_allocation") or {}
+            if allocation.get("policy"):
+                native_environment["COCHEM_CPU_ALLOCATION_POLICY"] = allocation["policy"]
+            native_environment = engine_runtime_environment(
+                engine, native_environment, executable=authorization.executable,
+            )
+        supplied = _engine_environment(native_environment, native_threads)
         if cuda_visible_devices is not None:
             supplied["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
         if isolated_python:
