@@ -1,3 +1,8 @@
 # Exact original GitHub checkout logs retain their native whitespace and hashes.
 .docs/evidence/TOPOS_CANDIDATE14_WORKER11_6264_20261007/*_ACTUAL_CHECKOUT.md -whitespace
 .docs/evidence/TOPOS_WORKER12_CI_4ED_20261007/*_ACTUAL_CHECKOUT.md -whitespace
+# Authenticated native output and exact historical diffs retain original bytes.
+.docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/ORIGINAL_LICENSED_PYTEST_JUNIT.xml -whitespace
+.docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/ORIGINAL_LICENSED_PYTEST_LOG.txt -whitespace
+.docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/SOURCE73_TO_6264_CPU_FIX.patch -whitespace
+.docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/r2/ORIGINAL_FINAL_STDOUT_FRAME.txt -whitespace

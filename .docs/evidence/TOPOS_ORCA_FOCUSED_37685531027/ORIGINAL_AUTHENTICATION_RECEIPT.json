@@ -1,0 +1,66 @@
+{
+  "all_archive_members": 32548,
+  "all_immutable_snapshots": 103,
+  "current_pointers": 4,
+  "extended_counts": {
+    "failed": 2,
+    "passed": 2,
+    "requested": 4
+  },
+  "files": {
+    "native-repair-base-original-artifact-verification.json": {
+      "sha256": "7350c2e5188b16de03ac270da5b5936016c18f84f0db4648e5aae279a9e6f8ac",
+      "size_bytes": 44781
+    },
+    "native-repair-dispatch.json": {
+      "sha256": "816304617a6b48de5604764580ec07b33a7e27e91b3e5800f5d75fde50dd737d",
+      "size_bytes": 939
+    },
+    "native-repair-github-artifacts.json": {
+      "sha256": "650556140333d18f7afc1d24bf29985bc56689aacdc9780d70f15117de361ca8",
+      "size_bytes": 1863
+    },
+    "native-repair-hosted-status.json": {
+      "sha256": "a6baeaace571965b57b47fc5b97bcd6ee85711f1744fbe1fce74a2e726085821",
+      "size_bytes": 6025
+    },
+    "native-repair-hosted.log": {
+      "sha256": "652fd8221bb47a2941b38b8f652bbd6ae21d97392efa9ecb7d2a2569c0380162",
+      "size_bytes": 294901
+    },
+    "native-repair-independent-source-proof.json": {
+      "sha256": "118fa8e9336f8844b521778bfc4cb027e88202803833ff7ba5aacc18e0702257",
+      "size_bytes": 1281
+    },
+    "native-repair-native-summary.json": {
+      "sha256": "fd3d309b417f4f22a6cd47c172e5695043b17190cefd410359f90868f205c1e8",
+      "size_bytes": 104400
+    },
+    "native-repair-topos-original-artifact-verification.json": {
+      "sha256": "22406bc78b2efe38047d4ba8d59ed3a3f55207a900712f7e402cdbffabea7c8c",
+      "size_bytes": 34192897
+    },
+    "verify-native-repair-zip-snapshots.py": {
+      "sha256": "3759452a2c86b6ca3c585b924564eaee3f87229184ce7b47e8590c3b1681d1f9",
+      "size_bytes": 14817
+    }
+  },
+  "github_conclusion": "failure",
+  "github_run_id": "37685531027",
+  "licensed_pytest_counts": {
+    "errors": 0,
+    "failures": 2,
+    "skipped": 0,
+    "tests": 34
+  },
+  "native_artifact_references": 6133,
+  "physical_native_tests": {
+    "test_authentic_orca_native_hessian_and_verified_recovery": "passed",
+    "test_authentic_orca_vpt2_water_and_completed_recovery": "failed"
+  },
+  "scope": "Original historical focused73 evidence fully authenticated; no current-source or release acceptance claim",
+  "third_native_thermal_test_covered": false,
+  "topos_commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+  "verification_completed": true,
+  "verification_mode": "streamed original ZIP everymember CRC/SHA, exactsource73 typedrecord validators, immutable HDF5/membership and pointer checks; no full expanded native tree"
+}

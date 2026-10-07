@@ -1,0 +1,1559 @@
+{
+  "all_original_report_source_bindings_verified": true,
+  "all_retained_snapshot_memberships_verified": true,
+  "base_original_archive": {
+    "all_retained_bytes_match_original_zip": true,
+    "archive_path": "/workspace/.cochem-setup/base-topos-proposal/native-repair-base-original-artifact.zip",
+    "archive_sha256": "77786ee079e86f0f18132b477e66f037a66e4e35b62b3dd0abe2c29b07bfc849",
+    "archive_size_bytes": 1220315,
+    "artifact_id": 11516588423,
+    "artifact_name": "orca-6.1.1-acceptance-37685531027-1",
+    "extracted_root": "/workspace/.cochem-setup/base-topos-proposal/native-repair-base-artifact",
+    "github_digest": "sha256:77786ee079e86f0f18132b477e66f037a66e4e35b62b3dd0abe2c29b07bfc849",
+    "github_digest_verified": true,
+    "member_count": 163,
+    "run_id": "37685531027"
+  },
+  "forensic_dependency_versions": {
+    "h5py": "3.16.0",
+    "mendeleev": "1.3.0",
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pydantic": "2.13.5"
+  },
+  "forensic_validator_source_sha256": {
+    "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+    "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+    "topos/models.py": "c1e5c4240942ffb03edde0869473418aba90cc396ffabb1f396f29150a9de205",
+    "topos/storage.py": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732"
+  },
+  "github_run_id": "37685531027",
+  "overall_status": "failed",
+  "reports": {
+    "extended": {
+      "cases": {
+        "DLPNO-counterpoise": {
+          "finished_at": "2026-10-07T21:16:16.891303+00:00",
+          "native_failure_tails": null,
+          "reason": null,
+          "started_at": "2026-10-07T21:15:35.490049+00:00",
+          "status": "passed"
+        },
+        "F12-composite": {
+          "finished_at": "2026-10-07T21:20:46.876261+00:00",
+          "native_failure_tails": null,
+          "reason": null,
+          "started_at": "2026-10-07T21:16:16.892598+00:00",
+          "status": "passed"
+        },
+        "R2-composite": {
+          "finished_at": "2026-10-07T22:50:55.909001+00:00",
+          "native_failure_tails": [
+            {
+              "path": "runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82/artifacts/r2-basis-exports/orbital_11c079a26f8b432d833ce87f91aa3184/basis-export.stdout",
+              "tail": "----------------------------------------------------------------------------\n                           ORCA EXPORT BASIS UTILITY\n----------------------------------------------------------------------------\n\n         >>>  Basis will be written to basis.bas  >>>"
+            },
+            {
+              "path": "runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82/artifacts/r2-basis-exports/jk_473ea871639146c3bde047000870a7c5/basis-export.stdout",
+              "tail": "----------------------------------------------------------------------------\n                           ORCA EXPORT BASIS UTILITY\n----------------------------------------------------------------------------\n\n         >>>  Basis will be written to basis.bas  >>>"
+            },
+            {
+              "path": "runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82/artifacts/r2-basis-exports/correlation_7e15a2f48f1d4c7ab31b9161360f294f/basis-export.stdout",
+              "tail": "----------------------------------------------------------------------------\n                           ORCA EXPORT BASIS UTILITY\n----------------------------------------------------------------------------\n\n         >>>  Basis will be written to basis.bas  >>>"
+            },
+            {
+              "path": "runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82/artifacts/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/attempts/attempt_eea790909506489fbb2c8653d01f1067/version.stdout",
+              "tail": "un to complete.\nOur perspective: the developers of density functionals and basis sets usually get cited in chemistry papers\nGood! But without the algorithms to do something with them, the functionals or basis sets would not do anything.\nHence, in our opinion, the algorithm design and method developments papers are equally worthy of getting cited\n\n  1. Neese, F.\n     The SHARK Integral Generation and Digestion System\n     J. Comp. Chem. 2022 44(3), 381\n     doi.org/10.1002/jcc.26942\n\nList of suggested additional citations. These are papers that are important in the 'surrounding' of \nof this run, or papers that preceded the highly important papers. If you like your results we are grateful for a citation.\n\n  1. Neese, F.\n     The ORCA program system\n     WIRES Comput. Molec. Sci. 2012 2(1), 73-78\n     doi.org/10.1002/wcms.81\n  2. Neese, F.\n     Software update: the ORCA program system, version 4.0\n     WIRES Comput. Molec. Sci. 2018 8(1), 1-6\n     doi.org/10.1002/wcms.1327\n  3. Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C.\n     The ORCA quantum chemistry program package\n     J. Chem. Phys. 2020 152(22), 224108\n     doi.org/10.1063/5.0004608\n  4. Neese, F.\n     Software update: The ORCA program system\u2014Version 5.0\n     WIRES Comput. Molec. Sci. 2022 12(1), e1606\n     doi.org/10.1002/wcms.1606\n\nList of optional additional citations\n\n  1. Neese, F.\n     Approximate second-order SCF convergence for spin unrestricted wavefunctions\n     Chem. Phys. Lett. 2000 325(1-3), 93-98\n     doi.org/10.1016/s0009-2614(00)00662-x\n\nTimings for individual modules:\n\nSum of individual times          ...        0.109 sec (=   0.002 min)\nStartup calculation              ...        0.039 sec (=   0.001 min)  35.4 %\nSCF iterations                   ...        0.055 sec (=   0.001 min)  50.6 %\nProperty calculations            ...        0.015 sec (=   0.000 min)  14.1 %\n                             ****ORCA TERMINATED NORMALLY****\nTOTAL RUN TIME: 0 days 0 hours 0 minutes 0 seconds 159 msec"
+            }
+          ],
+          "reason": "Reviewed R2 did not complete its exact approximate scope: timed-out; Matrix component r2-independent-dft-reference-optimize: BASE broker exit code -124",
+          "started_at": "2026-10-07T21:20:46.877836+00:00",
+          "status": "failed"
+        },
+        "native-vpt2": {
+          "finished_at": "2026-10-07T21:15:35.488686+00:00",
+          "native_failure_tails": [
+            {
+              "path": "native/vpt2-4688b8b1204d4d928d115e3617a79ae9/anharmonic.stdout",
+              "tail": "stems: accuracy and interpretation\n     Phys. Chem. Chem. Phys. 2014 16 , 1759-1787\n     doi.org/10.1039/C3CP53413H\n  7. Neese, F.\n     Software update: the ORCA program system, version 4.0\n     WIRES Comput. Molec. Sci. 2018 8(1), 1-6\n     doi.org/10.1002/wcms.1327\n  8. Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C.\n     The ORCA quantum chemistry program package\n     J. Chem. Phys. 2020 152(22), 224108\n     doi.org/10.1063/5.0004608\n  9. Franke, P.R.; Stanton, J.F.; Douberly, G.E.\n     How to VPT2: Accurate and Intuitive Simulations of CH Stretching \n     Infrared Spectra Using VPT2+K with Large Effective Hamiltonian \n     Resonance Treatments\n     J. Phys. Chem. A 2021 125(6), 1301-1324\n     doi.org/10.1021/acs.jpca.0c09526\n 10. Neese, F.\n     Software update: The ORCA program system\u2014Version 5.0\n     WIRES Comput. Molec. Sci. 2022 12(1), e1606\n     doi.org/10.1002/wcms.1606\n\nList of optional additional citations\n\n  1. Waston, J.K.\n     Determination of Centrifugal Distortion Coefficients of Asymmetric-Top Molecules\n     J. Chem. Phys. 1967 46 , 1035\n     doi.org/10.1063/1.1840957\n  2. Amos, R.D.; Handy, N.C.; Green, W.H.; Jayatilaka, D.; Willetts, A.; Palmieri, P.\n     Anharmonic vibrational properties of CH2F2 : \n     A comparison of theory and experiment\n     J. Chem. Phys. 1991 95 , 8323-8336\n     doi.org/10.1063/1.461259\n  3. Neese, F.\n     Approximate second-order SCF convergence for spin unrestricted wavefunctions\n     Chem. Phys. Lett. 2000 325(1-3), 93-98\n     doi.org/10.1016/s0009-2614(00)00662-x\n\nTimings for individual modules:\n\nSum of individual times          ...        3.470 sec (=   0.058 min)\nStartup calculation              ...        0.309 sec (=   0.005 min)   8.9 %\nSCF iterations                   ...        3.119 sec (=   0.052 min)  89.9 %\nProperty calculations            ...        0.042 sec (=   0.001 min)   1.2 %\n                             ****ORCA TERMINATED NORMALLY****\nTOTAL RUN TIME: 0 days 0 hours 3 minutes 3 seconds 113 msec"
+            },
+            {
+              "path": "native/reference/frequency-e509fac74b974d5c95274ac1d454f8a3/frequency.stdout",
+              "tail": "d chain of spheres exchange method\n     J. Chem. Phys. 2011 135 , 144105\n     doi.org/10.1063/1.3646921\n  2. Izsak, R.; Hansen, A.; Neese, F.\n     The resolution of identity and chain of spheres approximations for the LPNO-CCSD singles Fock term\n     Molec. Phys. 2012 110 , 2413-2417\n     doi.org/10.1080/00268976.2012.687466\n  3. Neese, F.\n     The ORCA program system\n     WIRES Comput. Molec. Sci. 2012 2(1), 73-78\n     doi.org/10.1002/wcms.81\n  4. Izsak, R.; Neese, F.; Klopper, W.\n     Robust fitting techniques in the chain of spheres approximation to the Fock exchange: The role of the complementary space\n     J. Chem. Phys. 2013 139 , \n     doi.org/10.1063/1.4819264\n  5. Neese, F.\n     Software update: the ORCA program system, version 4.0\n     WIRES Comput. Molec. Sci. 2018 8(1), 1-6\n     doi.org/10.1002/wcms.1327\n  6. Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C.\n     The ORCA quantum chemistry program package\n     J. Chem. Phys. 2020 152(22), 224108\n     doi.org/10.1063/5.0004608\n  7. Neese, F.\n     Software update: The ORCA program system\u2014Version 5.0\n     WIRES Comput. Molec. Sci. 2022 12(1), e1606\n     doi.org/10.1002/wcms.1606\n\nList of optional additional citations\n\n  1. Neese, F.\n     Approximate second-order SCF convergence for spin unrestricted wavefunctions\n     Chem. Phys. Lett. 2000 325(1-3), 93-98\n     doi.org/10.1016/s0009-2614(00)00662-x\n\nTimings for individual modules:\n\nSum of individual times          ...       25.610 sec (=   0.427 min)\nStartup calculation              ...        0.520 sec (=   0.009 min)   2.0 %\nSCF iterations                   ...        3.167 sec (=   0.053 min)  12.4 %\nProperty integrals               ...        3.314 sec (=   0.055 min)  12.9 %\nSCF Response                     ...        2.260 sec (=   0.038 min)   8.8 %\nProperty calculations            ...       16.349 sec (=   0.272 min)  63.8 %\n                             ****ORCA TERMINATED NORMALLY****\nTOTAL RUN TIME: 0 days 0 hours 0 minutes 25 seconds 785 msec"
+            },
+            {
+              "path": "native/reference/reference-b9d1ac38887b41d59de2eced3bdb1498/engine.stdout",
+              "tail": "e are grateful for a citation.\n\n  1. Izsak, R.; Neese, F.\n     An overlap fitted chain of spheres exchange method\n     J. Chem. Phys. 2011 135 , 144105\n     doi.org/10.1063/1.3646921\n  2. Izsak, R.; Hansen, A.; Neese, F.\n     The resolution of identity and chain of spheres approximations for the LPNO-CCSD singles Fock term\n     Molec. Phys. 2012 110 , 2413-2417\n     doi.org/10.1080/00268976.2012.687466\n  3. Neese, F.\n     The ORCA program system\n     WIRES Comput. Molec. Sci. 2012 2(1), 73-78\n     doi.org/10.1002/wcms.81\n  4. Izsak, R.; Neese, F.; Klopper, W.\n     Robust fitting techniques in the chain of spheres approximation to the Fock exchange: The role of the complementary space\n     J. Chem. Phys. 2013 139 , \n     doi.org/10.1063/1.4819264\n  5. Neese, F.\n     Software update: the ORCA program system, version 4.0\n     WIRES Comput. Molec. Sci. 2018 8(1), 1-6\n     doi.org/10.1002/wcms.1327\n  6. Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C.\n     The ORCA quantum chemistry program package\n     J. Chem. Phys. 2020 152(22), 224108\n     doi.org/10.1063/5.0004608\n  7. Neese, F.\n     Software update: The ORCA program system\u2014Version 5.0\n     WIRES Comput. Molec. Sci. 2022 12(1), e1606\n     doi.org/10.1002/wcms.1606\n\nList of optional additional citations\n\n  1. Neese, F.\n     Approximate second-order SCF convergence for spin unrestricted wavefunctions\n     Chem. Phys. Lett. 2000 325(1-3), 93-98\n     doi.org/10.1016/s0009-2614(00)00662-x\n\nTimings for individual modules:\n\nSum of individual times          ...        5.487 sec (=   0.091 min)\nStartup calculation              ...        0.526 sec (=   0.009 min)   9.6 %\nSCF iterations                   ...        3.161 sec (=   0.053 min)  57.6 %\nProperty calculations            ...        0.134 sec (=   0.002 min)   2.4 %\nSCF Gradient evaluation          ...        1.667 sec (=   0.028 min)  30.4 %\n                             ****ORCA TERMINATED NORMALLY****\nTOTAL RUN TIME: 0 days 0 hours 0 minutes 5 seconds 651 msec"
+            },
+            {
+              "path": "native/reference/reference-b9d1ac38887b41d59de2eced3bdb1498/version.stdout",
+              "tail": "un to complete.\nOur perspective: the developers of density functionals and basis sets usually get cited in chemistry papers\nGood! But without the algorithms to do something with them, the functionals or basis sets would not do anything.\nHence, in our opinion, the algorithm design and method developments papers are equally worthy of getting cited\n\n  1. Neese, F.\n     The SHARK Integral Generation and Digestion System\n     J. Comp. Chem. 2022 44(3), 381\n     doi.org/10.1002/jcc.26942\n\nList of suggested additional citations. These are papers that are important in the 'surrounding' of \nof this run, or papers that preceded the highly important papers. If you like your results we are grateful for a citation.\n\n  1. Neese, F.\n     The ORCA program system\n     WIRES Comput. Molec. Sci. 2012 2(1), 73-78\n     doi.org/10.1002/wcms.81\n  2. Neese, F.\n     Software update: the ORCA program system, version 4.0\n     WIRES Comput. Molec. Sci. 2018 8(1), 1-6\n     doi.org/10.1002/wcms.1327\n  3. Neese, F.; Wennmohs, F.; Becker, U.; Riplinger, C.\n     The ORCA quantum chemistry program package\n     J. Chem. Phys. 2020 152(22), 224108\n     doi.org/10.1063/5.0004608\n  4. Neese, F.\n     Software update: The ORCA program system\u2014Version 5.0\n     WIRES Comput. Molec. Sci. 2022 12(1), e1606\n     doi.org/10.1002/wcms.1606\n\nList of optional additional citations\n\n  1. Neese, F.\n     Approximate second-order SCF convergence for spin unrestricted wavefunctions\n     Chem. Phys. Lett. 2000 325(1-3), 93-98\n     doi.org/10.1016/s0009-2614(00)00662-x\n\nTimings for individual modules:\n\nSum of individual times          ...        0.108 sec (=   0.002 min)\nStartup calculation              ...        0.038 sec (=   0.001 min)  35.3 %\nSCF iterations                   ...        0.057 sec (=   0.001 min)  52.6 %\nProperty calculations            ...        0.013 sec (=   0.000 min)  12.1 %\n                             ****ORCA TERMINATED NORMALLY****\nTOTAL RUN TIME: 0 days 0 hours 0 minutes 0 seconds 151 msec"
+            }
+          ],
+          "reason": "native did not establish a genuine completed native result: failed; {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca', 'anharmonic.inp'], 'status': 'completed', 'returncode': 0, 'elapsed_seconds': 183.226503182, 'peak_rss_mb': 431.73828125, 'stdout_path': '/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-4688b8b1204d4d928d115e3617a79ae9/anharmonic.stdout', 'stderr_path': '/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-4688b8b1204d4d928d115e3617a79ae9/anharmonic.stderr', 'reason': None}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}",
+          "started_at": "2026-10-07T21:11:16.614043+00:00",
+          "status": "failed"
+        }
+      },
+      "receipt_sha256": "6b11b4c92f8d8745acdcea102e3da87895d6d76563c029c76e3080d53ae1a105",
+      "source_commit_verified": true,
+      "status": "failed"
+    },
+    "mandatory_setup": {
+      "all_eleven_phases_present": true,
+      "base_registry_status": "DEGRADED_OPERATIONAL",
+      "receipt_sha256": "7c3c123c7f1914d3122702d150165750cc0955560aae4443107ca44521a50602",
+      "registry_sha256": "715e0ae887e868fa9f593db06528823a4babdd138a2d03a06c089959cfc9561a",
+      "scope": "Source pins and actual setup/authority; no TORQ scientific solver certification",
+      "status": "verified",
+      "torq_consumer_ready": false,
+      "torq_import_shadowed": true
+    },
+    "property_diagnostic": {
+      "cases": {
+        "mpi2-control": {
+          "final_energy_literals": [
+            "-76.430061576458"
+          ],
+          "initial_pickett_write_reached": false,
+          "normal_completion": true,
+          "pickett_file": {
+            "bytes": null,
+            "exists": false,
+            "sha256": null
+          },
+          "process_status": "completed",
+          "properties_error_printed": false,
+          "returncode": 0
+        },
+        "mpi2-pickett": {
+          "final_energy_literals": [
+            "-76.430061576458"
+          ],
+          "initial_pickett_write_reached": true,
+          "normal_completion": false,
+          "pickett_file": {
+            "bytes": 1305,
+            "exists": true,
+            "sha256": "ab0a2c290e53ab68844ef7ac8c749716a1173f87298e95829fda051342ca37be"
+          },
+          "process_status": "timed-out",
+          "properties_error_printed": false,
+          "returncode": -124
+        },
+        "serial-control": {
+          "final_energy_literals": [
+            "-76.430061576458"
+          ],
+          "initial_pickett_write_reached": false,
+          "normal_completion": true,
+          "pickett_file": {
+            "bytes": null,
+            "exists": false,
+            "sha256": null
+          },
+          "process_status": "completed",
+          "properties_error_printed": false,
+          "returncode": 0
+        },
+        "serial-pickett": {
+          "final_energy_literals": [
+            "-76.430061576458"
+          ],
+          "initial_pickett_write_reached": true,
+          "normal_completion": true,
+          "pickett_file": {
+            "bytes": 1305,
+            "exists": true,
+            "sha256": "ab0a2c290e53ab68844ef7ac8c749716a1173f87298e95829fda051342ca37be"
+          },
+          "process_status": "completed",
+          "properties_error_printed": false,
+          "returncode": 0
+        }
+      },
+      "parallel_pickett_supported": false,
+      "receipt_sha256": "21ffdfde014066e6fc30e419b766eea4ab20d00bf91aefd93f0bf7b80d2c5ff9",
+      "serial_pickett_supported": true,
+      "source_commit_verified": true,
+      "status": "diagnostic-retained"
+    },
+    "pytest": {
+      "counts": {
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0,
+        "tests": 34
+      },
+      "failed_cases": [
+        {
+          "class": "tests.v010.test_anharmonic",
+          "failure": "tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_vpt2_serial_policy_retain2')\nthreads = 4, memory = 8192\n\n    @pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])\n    def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):\n        from topos.base_integration import _orca_deck_allocation\n    \n        resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)\n        policy = vpt2_execution_policy(resources)\n>       deck = orca_vpt2_input(water(), method(), resources)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/v010/test_anharmonic.py:68: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \ntopos/anharmonic.py:83: in orca_vpt2_input\n    lines = orca_frequency_input(molecule, method, resources).splitlines()\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nmolecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0.0, 0.0, 0.0], [0.95, 0.0, 0.0], [-0.24, 0.93, 0.0]], coordinate_unit...tom-0', 'atom-1', 'atom-2'], fragments=[], fragment_states=[], bonds=[], stereochemistry={}, environment={}, name=None)\nmethod = MethodSpec(engine='orca', method='B3LYP', purpose='optimize', basis='def2-TZVPP', auxiliary_basis=None, dispersion='D4', solvent=None, engine_version=None, profile_id='orca-vpt2-reference-v1', constraints={})\nresources = ResourceLimits(budget_seconds=1200.0, threads=4, memory_mb=8192, device='cpu')\n\n    def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits) -> str:\n        problem = _method_problem(method, resources, \"gradient\")\n        if problem or method.engine != \"orca\" or method.constraints:\n>           raise ValueError(problem or \"native analytic frequencies require unconstrained ORCA HF/DFT\")\nE           ValueError: requested total worker count exceeds available CPU affinity\n\ntopos/native_hessian.py:111: ValueError",
+          "name": "test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[4-8192]"
+        },
+        {
+          "class": "tests.v010.test_anharmonic",
+          "failure": "tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0')\n\n    def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):\n        import os\n        import shutil\n    \n        from topos.engines import run_engine\n    \n        binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')\n        if not binary or not shutil.which(binary):\n            pytest.skip('licensed ORCA 6.1.1 must be provisioned explicitly')\n        process_runner = None\n        if os.environ.get('TOPOS_REQUIRE_BASE') == '1':\n            from topos.base_integration import BaseRuntime\n    \n            runtime = BaseRuntime()\n            binary = runtime.resolve_executable('orca', binary)\n            process_runner = runtime.run_process\n        resources = ResourceLimits(budget_seconds=600, threads=2, memory_mb=4096)\n        optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary,\n                               process_runner=process_runner)\n        assert optimized.status == 'completed', optimized.diagnostics\n        assert optimized.molecule is not None\n        result = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',\n                               executable=binary, semirigid_modes=True, process_runner=process_runner)\n>       assert result.status == 'completed', result.diagnostics\nE       AssertionError: {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca',...: 182.12990408799942, ...}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}\nE       assert 'failed' == 'completed'\nE         \nE         - completed\nE         + failed\n\ntests/v010/test_anharmonic.py:207: AssertionError",
+          "name": "test_authentic_orca_vpt2_water_and_completed_recovery"
+        }
+      ],
+      "junit_sha256": "7c68e83de0d8bfbef45689d99b3074715056a8aa362a149f237f621722f6e543",
+      "physical_native_tests": {
+        "test_authentic_orca_native_hessian_and_verified_recovery": "passed",
+        "test_authentic_orca_vpt2_water_and_completed_recovery": "failed"
+      },
+      "receipt_sha256": "bdc92cbdfdc958e81869185149076d8c473306b3335568f41e9cb4d5b6a8597c",
+      "scope": "34 named cases including 2 actual licensed native/recovery executions; no third thermal native acceptance case in this focused run",
+      "source_commit_verified": true,
+      "status": "failed"
+    }
+  },
+  "scope": "Original focused native repair cases and named licensed pytest; historical source73, not complete matrix or release acceptance",
+  "source_commits": {
+    "base_scientific": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "base_workflow": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+    "topos": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "topos_original_archive": {
+    "all_member_crc32_verified": true,
+    "all_member_crc_verified": true,
+    "all_member_sha256_computed": true,
+    "all_member_sha256_verified": true,
+    "all_member_sizes_verified": true,
+    "api_compressed_bytes": 1974961699,
+    "api_digest": "sha256:3586fafff5058b311b1036c6c83b9beab337bb9525b3ffec100cda6fcecf6839",
+    "api_digest_matches": true,
+    "api_metadata_path": "/workspace/.cochem-setup/base-topos-proposal/native-repair-github-artifacts.json",
+    "api_metadata_sha256": "650556140333d18f7afc1d24bf29985bc56689aacdc9780d70f15117de361ca8",
+    "artifact_id": 11517420915,
+    "artifact_name": "topos-orca-acceptance-37685531027-1",
+    "compressed_bytes": 1974961699,
+    "compressed_sha256": "3586fafff5058b311b1036c6c83b9beab337bb9525b3ffec100cda6fcecf6839",
+    "directory_member_count": 0,
+    "distribution_name_rules": {
+      "mpi_executable_names": [
+        "mpiexec",
+        "mpirun",
+        "ompi_info",
+        "orte-info",
+        "orted"
+      ],
+      "orca_distribution_archive_regex": "orca[-_]\\d.*\\.(?:tar(?:\\.(?:gz|bz2|xz|zst))?|tgz|tbz2|zip|msi)",
+      "orca_executable_regex": "orca(?:_[a-z0-9_-]+)?(?:\\.exe)?",
+      "shared_library_regex": "(?:lib(?:orca|mpi|open-pal|open-rte|int|int2).*\\.so(?:\\.\\d+)*|(?:lib)?orca.*\\.(?:dll|dylib))"
+    },
+    "duplicate_member_names": [],
+    "expanded_file_bytes": 5890246045,
+    "file_member_count": 32548,
+    "github_digest_verified": true,
+    "github_run_id": 37685531027,
+    "known_distribution_names": [],
+    "member_count": 32548,
+    "original_zip_path": "/workspace/.cochem-setup/base-topos-proposal/native-repair-topos-original-artifact.zip",
+    "repository": "ProfJJK-CoChem/CoChem-BASE",
+    "scope": "Original generated scientific-output ZIP integrity; no extraction or scientific-outcome relabeling",
+    "symlink_members": [],
+    "unsafe_member_names": [],
+    "verification_status": "verified",
+    "verified_at": "2026-10-07T23:10:17.287952+00:00",
+    "workflow_run": {
+      "head_branch": "codex/topos-native-repair-probes",
+      "head_repository_id": 1325368799,
+      "head_sha": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+      "id": 37685531027,
+      "repository_id": 1325368799
+    },
+    "zip_member_count": 32548
+  },
+  "verification_mode": "Original ZIP streaming CRC/SHA manifest, original-source typed validators, exact HDF5 and explicit snapshot membership; no expanded native tree",
+  "verified_all_snapshots": [
+    {
+      "artifact_count": 0,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "51d14e3377380432c209709b45f73d43f5108d2653e5e909584f4567a7fa3551",
+      "manifest_sha256": "46de34c81a958eb4cc8d30bfd3dc8343624e475b3e0be2c6fe1758ab8b1e31a7",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/2efe79970d514a8234f3da6837e4a47f0883a4f6f98c7c51f78f4a0db905c25d",
+      "record_sha256": "4542c1c39b55d55a461c31e3711509e6c564e9e5c2df0541faa5a84f7c3b52bb",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "2efe79970d514a8234f3da6837e4a47f0883a4f6f98c7c51f78f4a0db905c25d",
+      "status": "running"
+    },
+    {
+      "artifact_count": 12,
+      "attempt_count": 1,
+      "candidate_count": 0,
+      "hdf5_sha256": "352178df94e95b895580ebf759553b4b7d3cf70ab8e0b07d6d81e17756e87f90",
+      "manifest_sha256": "d7d9dabae37f55f1749a8a845ca324f96493cf9276711c1d40127d4887222464",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/466719ebf46882005bf01f5ffb13ee698dd1709bcd1f30a03480d1c8f49286f5",
+      "record_sha256": "3f79d16d51cd285e8ed20649f84ceda6b4d669585391908d477732afdd3edb16",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "466719ebf46882005bf01f5ffb13ee698dd1709bcd1f30a03480d1c8f49286f5",
+      "status": "running"
+    },
+    {
+      "artifact_count": 43,
+      "attempt_count": 1,
+      "candidate_count": 0,
+      "hdf5_sha256": "9ee2608f16709debada910fee9bb230ac639bf1a5d3ea36edddb63fc67a9503d",
+      "manifest_sha256": "2412c9699e271a492bfe2b3be23926b218ef8df72a0c98ab6b8b86e111e59f4d",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/467e66cf899e3405248beb54a67915a616fd1b19ad8b4e58c37c31de7b31f0d7",
+      "record_sha256": "74c0cb54ad59fb3ea078060ba482979cc83ebbcb5276e7f966ce9292a26403f8",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "467e66cf899e3405248beb54a67915a616fd1b19ad8b4e58c37c31de7b31f0d7",
+      "status": "running"
+    },
+    {
+      "artifact_count": 105,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "9709677ed94822b93e88d71be514e0f3d53e3e18a67ecbf986d3f3d161d19f2a",
+      "manifest_sha256": "e5f63b7b0a838e69a2eb2f3cd66901880935cb08a8887b85c54032c51ffacf72",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/5480ba7bb4ce4211646a699e8b18fb75d3381e5906b54af73dcfa57b6534527c",
+      "record_sha256": "acd4458a1a8cf366fc6cf7b2ae6433344b4a6d7ce3bfbe92a62e018481f8cbec",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "5480ba7bb4ce4211646a699e8b18fb75d3381e5906b54af73dcfa57b6534527c",
+      "status": "completed"
+    },
+    {
+      "artifact_count": 43,
+      "attempt_count": 2,
+      "candidate_count": 0,
+      "hdf5_sha256": "83e2eb50a4fb90fc3a3b39a83f526ec22c71df7af5a884311a1e9008a1bba4d1",
+      "manifest_sha256": "373e5dbe1c67dd51d5bdfe62bb75a0614709a77fd0adfe7c1842c08e826d27ba",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/87e498a9ffbbe500c7d1047fc82ae2bcaefb6f73e1a7887f656580d4ad0d78fd",
+      "record_sha256": "57230e376b045b0075a5d030bd6cb78b177f00609a4e9ccec61455c90361c8ca",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "87e498a9ffbbe500c7d1047fc82ae2bcaefb6f73e1a7887f656580d4ad0d78fd",
+      "status": "running"
+    },
+    {
+      "artifact_count": 4,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "78aeb659b41e9801e038a489cf6b0f7e101e0d0fbb1cca556bed51ada566b5d2",
+      "manifest_sha256": "7e51c226528d14b25c46b1eb3e721d6d70ba75d22efafd9cc71db682b4a98b21",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/b68e6b7d3e0f80b9f9018d249b70ad5daebe1c44ed85a898ada1eebd3da5545c",
+      "record_sha256": "99a5997d11cd930866cb6ec7c4a703e267ac861c8245d2555f2949e9f5f3bcef",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "b68e6b7d3e0f80b9f9018d249b70ad5daebe1c44ed85a898ada1eebd3da5545c",
+      "status": "running"
+    },
+    {
+      "artifact_count": 8,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "8b0e77be421fe5aadbf14d225a05fecab612e23df37ff89eecf512c1c65e7608",
+      "manifest_sha256": "b919d9dd2a67bea7ff15e7889f008c35727676c46c20124152a568ab0f4ed45c",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/bcd75f0deaac49061af38c83179c46a48a5737bfee7cc6e8700fad5eb5fa486a",
+      "record_sha256": "5fab57e456f0f3e934bf7c93187f23bc9ac4abf3fdb70862f9bdc64d0977b4c4",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "bcd75f0deaac49061af38c83179c46a48a5737bfee7cc6e8700fad5eb5fa486a",
+      "status": "running"
+    },
+    {
+      "artifact_count": 12,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "7f907baff040638549d3bf9053fbfdc0d11cc9c64bc0f0bc6dcab1350bb14818",
+      "manifest_sha256": "99a89ec5d93f774f8df32f6feaa693cc5a4e1e217b5e8d5b79ebb55bb2a207e1",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/c5a26b0c74b91beb7ab1ddb3205b801e609f7877ba9bf28949c969eee2dfedfd",
+      "record_sha256": "0e987b2c76ec61e53bfe20305389655a65c1b4de1377e19503990e4953d7c07b",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "c5a26b0c74b91beb7ab1ddb3205b801e609f7877ba9bf28949c969eee2dfedfd",
+      "status": "running"
+    },
+    {
+      "artifact_count": 74,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "554d5ba3bfbf02581ff99bdbf4b7b92507b06028f8c3d606a0af2487505635ae",
+      "manifest_sha256": "05c7acd60b72fd89384679b76bad0c4f71b6ced1988f35cd007b54342b5cf07d",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/e6aeb65f8b2b3b461bc09bc888961b3917bdda62b208f3c0e6489bec9dc14ce2",
+      "record_sha256": "cfceb7a5dbdf6ad4d89aa71b11950bddf81cc8d47247532d8955127085c28731",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "e6aeb65f8b2b3b461bc09bc888961b3917bdda62b208f3c0e6489bec9dc14ce2",
+      "status": "running"
+    },
+    {
+      "artifact_count": 74,
+      "attempt_count": 2,
+      "candidate_count": 0,
+      "hdf5_sha256": "3b48bf3d6825a6cc2c59d46c005fe71d44fe356160014bb1f7a7cf23f35d8db6",
+      "manifest_sha256": "8e7a87a2581bba69d5d25b95bef1eb1fbd741df3710b9ff209a48a1182369cb3",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/e6d3b0a129bb523694972d699f8d12d6463043450b6158a3cdf208ce6bee23b9",
+      "record_sha256": "f4cdd85f0eb4348ceaf36e1c1859acf782c875e9cda2447effc0c93b290981b4",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "e6d3b0a129bb523694972d699f8d12d6463043450b6158a3cdf208ce6bee23b9",
+      "status": "running"
+    },
+    {
+      "artifact_count": 105,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "61655e9501ca46449c9d1b6a9a7c9ce2c834e61acdf306f43308d4dfb80021e6",
+      "manifest_sha256": "2e6a0f62d46c4f29d27f343fcd7eb1170e242cae918f5ccc27126499a9e6a718",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/eaa8bed31a47651495e7bcb868bf42e30a783ead637c8943ac0a6cc50b53fd94",
+      "record_sha256": "12bd3b45da669d167315ffe10d6dbeb6d82a7e54389d7823f5d7a02bebdec66b",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "eaa8bed31a47651495e7bcb868bf42e30a783ead637c8943ac0a6cc50b53fd94",
+      "status": "running"
+    },
+    {
+      "artifact_count": 54,
+      "attempt_count": 4,
+      "candidate_count": 0,
+      "hdf5_sha256": "2ee07f169b83d637d7ab27905d936654a75c45411c2cf3ba8aceec25badc6e9b",
+      "manifest_sha256": "9b02d1f113bcf02e5cc5d3ceb1b08ea8aa7cfe966ad1be63ec230eaf90b31495",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/02fcaac46ee7ab397fce71f482e938d887bd7951f4443f16f69326e604714b71",
+      "record_sha256": "6e301f1272fbb36cb000b4af1351530576402352aeaf1d82cf36b179e776af5b",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "02fcaac46ee7ab397fce71f482e938d887bd7951f4443f16f69326e604714b71",
+      "status": "running"
+    },
+    {
+      "artifact_count": 144,
+      "attempt_count": 9,
+      "candidate_count": 0,
+      "hdf5_sha256": "57e030249a72b81cb7a99df39434f2949bcb18c3be0e30945297eb63188d20b9",
+      "manifest_sha256": "a44ec6b2e3c9737e14085e72a00715978bd111ef8e7fab424c319e007c21e220",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/06b9a9c5a92756ba8dbe6a989831f73ff249491aee24c68890d9ef859401fefd",
+      "record_sha256": "bcf74e2abf72d32393c485d3b4bd8629846d5fdfdae5081d493393cb267c4c05",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "06b9a9c5a92756ba8dbe6a989831f73ff249491aee24c68890d9ef859401fefd",
+      "status": "running"
+    },
+    {
+      "artifact_count": 234,
+      "attempt_count": 13,
+      "candidate_count": 0,
+      "hdf5_sha256": "49fab8f5bcabb39c676f4da49b0108f1aeb39868ddbd2ee88a87e34698f61475",
+      "manifest_sha256": "622d3a054065aeed89795f215c6f72d9d9c5dcba65caf2a857cbe7d41e5e934c",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/1141a892cc1d32bd9bdba0a6f04e69e4a0eaccaf42a5101bec2554190276e615",
+      "record_sha256": "153aedbed3089f3f43e8b4687388722097c1d2fb8292fecc65f47270231ddf7f",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "1141a892cc1d32bd9bdba0a6f04e69e4a0eaccaf42a5101bec2554190276e615",
+      "status": "running"
+    },
+    {
+      "artifact_count": 36,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "6b920c147fb6e381dfed71fe215ed50ab0675f14a804424e44ff54096754cce1",
+      "manifest_sha256": "977c7dce555fd9f7a55d29927abf0a3e14b32553c64a2c5fcadef868a5472f43",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/11524a3d39fddf8f486ca988023dbba6aceef40c8b5ef5ac8d48e7bcd5416136",
+      "record_sha256": "d66d4cfdff6c08e0c8f232a1f50c1cd43e9e4e2751b365f99bbc4371c8f88c02",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "11524a3d39fddf8f486ca988023dbba6aceef40c8b5ef5ac8d48e7bcd5416136",
+      "status": "running"
+    },
+    {
+      "artifact_count": 72,
+      "attempt_count": 4,
+      "candidate_count": 0,
+      "hdf5_sha256": "dff63849e1611def06cc7970d981a81974fca921c1023763f7201d8ec9862816",
+      "manifest_sha256": "f1118a332aa642532734f3c006a22f1bea1399d81d3b37c8b7e7fe7156a45112",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/1215a4493d5d8bd9955a24af366c322dd21b0c1157e2125a139318c236a1759d",
+      "record_sha256": "6837f3012718eee0b2f270fa1037d5c82331f38934f3151dfd2e3b48eb9885cd",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "1215a4493d5d8bd9955a24af366c322dd21b0c1157e2125a139318c236a1759d",
+      "status": "running"
+    },
+    {
+      "artifact_count": 216,
+      "attempt_count": 12,
+      "candidate_count": 0,
+      "hdf5_sha256": "0a58e606230f130e1bc9f1bb98d06af1eb0222550defa01b04554f6d47f75f6a",
+      "manifest_sha256": "002165f94f33c299fe7ec6014f8bb6c2a49ef37f634f813b190a2a57b0db3167",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/1860249516e602a095db7e0068b5d1d690b5ccf1c5b2b5569b6328df051dc57f",
+      "record_sha256": "85975761169e810559460f05eae47cbaa93fcd5354500bd1d0f5e1c2efc9b6aa",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "1860249516e602a095db7e0068b5d1d690b5ccf1c5b2b5569b6328df051dc57f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 0,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "a3ec8e9f715f6ed16ec918be5a52b62e77c7b74fb009c7c2d4d87e12d17fde81",
+      "manifest_sha256": "fef1445ee1f1e0dde3eb606e2d853f1cc22278e79037addc8e10afcda31bc0e0",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/37a1840c7a4132054e7a703f2f339c459232228f757f0ba0da93bd37a4faf5db",
+      "record_sha256": "1f17613272d7e5c45a7a7b08d51794257da814eafda97e3f9aeb96d275541521",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "37a1840c7a4132054e7a703f2f339c459232228f757f0ba0da93bd37a4faf5db",
+      "status": "running"
+    },
+    {
+      "artifact_count": 234,
+      "attempt_count": 14,
+      "candidate_count": 0,
+      "hdf5_sha256": "ae01512d87ca031927ac3542dd296aaa7c6a65b13d3d7fd5174719bda46da22a",
+      "manifest_sha256": "704d6edb2c3816be963364bd245bad4091e82a8c9919d001c4f1b14fcc7e20ee",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/38633137783f047c2d991785b001c3a08aa37f9b8b6901b285c024f11d8048ff",
+      "record_sha256": "4745a1aea2987615ff1d7e60217dc672c2410524895c823fbcce60308cd64617",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "38633137783f047c2d991785b001c3a08aa37f9b8b6901b285c024f11d8048ff",
+      "status": "running"
+    },
+    {
+      "artifact_count": 0,
+      "attempt_count": 1,
+      "candidate_count": 0,
+      "hdf5_sha256": "a8c9342e5b76b8cdae4478c0915b97281d44e24de23a1b2d5ca9b027107cb028",
+      "manifest_sha256": "f959fddfae4977e5283a18ef6f770b46e948829b70c530f741c384e565356cd1",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/38944208860599cb46e4fe0924f22dfde17a3a5b7420e5b12123cd1b82f7b137",
+      "record_sha256": "17cf17db76a69607b1488b38feec7e02c9c3eb71f32972f49e80ae9ae81446a8",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "38944208860599cb46e4fe0924f22dfde17a3a5b7420e5b12123cd1b82f7b137",
+      "status": "running"
+    },
+    {
+      "artifact_count": 198,
+      "attempt_count": 11,
+      "candidate_count": 0,
+      "hdf5_sha256": "351359b82208d110e21d3b6a816664d361d7adcb64498f7412689d5f34a68d22",
+      "manifest_sha256": "eaf51cbd4d6be43de50beef970847efcd3bc65c24de340cbe7d64b39a0b3ffc9",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/3c855a9a844cd599b9b223b75dc5796fcb6fdc2f360deb7aad4a9c0e2297a8b7",
+      "record_sha256": "150c010eb7edad2e2dc7946bfba9097d61b2809c47c00379d63d6d3928dcc6bb",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "3c855a9a844cd599b9b223b75dc5796fcb6fdc2f360deb7aad4a9c0e2297a8b7",
+      "status": "running"
+    },
+    {
+      "artifact_count": 36,
+      "attempt_count": 2,
+      "candidate_count": 0,
+      "hdf5_sha256": "042227f086ee83ef320cab56e0c8d938ac6c0455c9a159a1672d16551168cd67",
+      "manifest_sha256": "e1485b19119ae553cdc5344d01527bb2157861623bcaeb239277237765c5d72e",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/41f5675b1ec024ac97cae72c380b73a441cb0741ce16fd0a12549145bf8b153e",
+      "record_sha256": "ddd9c92ed9b6680f42dffb86f6bd210652f935e580ab06b20eda03a06490b300",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "41f5675b1ec024ac97cae72c380b73a441cb0741ce16fd0a12549145bf8b153e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 162,
+      "attempt_count": 10,
+      "candidate_count": 0,
+      "hdf5_sha256": "4859eef8e0cb731189965105432440c4dcbdc2c46554e1f968367c6322ff2e61",
+      "manifest_sha256": "a500a952026d07ff0f8a18f1964a1f82be7304ed38e457ab8ee108e669892598",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/51f23713842df3b9f578f8cedfcb7f15651b62a0c251e51588489eb8a54c31c3",
+      "record_sha256": "83a18e8b67b64bd369c2e1a28ca3ae1dd75cb2f56637f2d046719537418dfaef",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "51f23713842df3b9f578f8cedfcb7f15651b62a0c251e51588489eb8a54c31c3",
+      "status": "running"
+    },
+    {
+      "artifact_count": 72,
+      "attempt_count": 5,
+      "candidate_count": 0,
+      "hdf5_sha256": "4c06299bd1deacbba5171441c8c132d0256ef54ccb77c94e7ba2bde92d272761",
+      "manifest_sha256": "f4b2e477112977f6ea77e8220b52da04473a4348d85348b5ef61a9b77bfe3023",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/580945ff1bbcd62b54dee5dd8b97c807e20d8164e6b04c88eb049ac90fd9f87e",
+      "record_sha256": "b5cd139b0ae5a5ecf0a681c3ae850bcd279e0fa6a07f5d534111e0213e165315",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "580945ff1bbcd62b54dee5dd8b97c807e20d8164e6b04c88eb049ac90fd9f87e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 271,
+      "attempt_count": 16,
+      "candidate_count": 0,
+      "hdf5_sha256": "2fcfdf2dc78be24c878638778d4b6216599c592f3ea13128ebcb9c30e1d9843c",
+      "manifest_sha256": "1e67dce7d07d4a8a8457e155921c7015c085177f02b43b64c00a4f54d49f2737",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/68f4ee2dc41885f2f534d362a8ec98b8fc5de4e21d294422f5082abab997a968",
+      "record_sha256": "b252b1915a88d06cedfc3305df57c4e259146eda360c7ff527a01a700f4186b1",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "68f4ee2dc41885f2f534d362a8ec98b8fc5de4e21d294422f5082abab997a968",
+      "status": "running"
+    },
+    {
+      "artifact_count": 90,
+      "attempt_count": 5,
+      "candidate_count": 0,
+      "hdf5_sha256": "9edbd9f0c3cafd617c7390a320f03ac25e9c15cd90cdaba486d8d3ae13021977",
+      "manifest_sha256": "f9ede45b33ac690c27988f0a918075257945bbfee7dbdd79d8b81532ffdbdb36",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/75399ffd9b19a6c751a853f32fd349634032afc752bd443ca55d9c23f9d4a939",
+      "record_sha256": "14ef1c2ce8660e8d4644394265732b1b5c839784ae6e16558d01b34be37c689d",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "75399ffd9b19a6c751a853f32fd349634032afc752bd443ca55d9c23f9d4a939",
+      "status": "running"
+    },
+    {
+      "artifact_count": 270,
+      "attempt_count": 15,
+      "candidate_count": 0,
+      "hdf5_sha256": "23ff9987f6b87c820cf1cca78f729825c4dc19b9262f692442621cca92763d8c",
+      "manifest_sha256": "97af6f5685999a25ec4ed524d28dc2dd8dfc8586eae9472ee5b1d1bc0246d907",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/78fbefdb04cbdc15f097fb791e65566ec96388309a6242a80f84120a293a989b",
+      "record_sha256": "7e2ab0723c9469c69d39c24bde5984766e0706ffe30f10ace3441e0e25e4ba8d",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "78fbefdb04cbdc15f097fb791e65566ec96388309a6242a80f84120a293a989b",
+      "status": "running"
+    },
+    {
+      "artifact_count": 216,
+      "attempt_count": 13,
+      "candidate_count": 0,
+      "hdf5_sha256": "55dc3e9e23d63f245cddebfd5881d3685399906b517f08544dc8e015ae59fac7",
+      "manifest_sha256": "5dc9144b88d58b2bd530f07ee33a7898c55ec07473305ad5601a4ec50a6f1842",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/980e9fb07e9761511cf3791780ef24960f0917e61b087b81f3c435f7d9d94617",
+      "record_sha256": "f7ead744f1bca58ae7cbe436e816c66ca46d3acdd30b20e851b2574cf118b864",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "980e9fb07e9761511cf3791780ef24960f0917e61b087b81f3c435f7d9d94617",
+      "status": "running"
+    },
+    {
+      "artifact_count": 108,
+      "attempt_count": 7,
+      "candidate_count": 0,
+      "hdf5_sha256": "6abbba0bcfd7fb688277a59f985f3416b074c20ef83222433e1ec320a0f05cd4",
+      "manifest_sha256": "c433f8b285babddc698c7951b6c65338968178ea72c2306f668811a1d5295954",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/a2b6598d21fbf8aa9fec9c5b61504427da19c110313c98ffc6571ace86d1cebb",
+      "record_sha256": "f2d917a6736abf5e644606bf96058eed9f3ae5349e451ff67dd2852a6e8666e3",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "a2b6598d21fbf8aa9fec9c5b61504427da19c110313c98ffc6571ace86d1cebb",
+      "status": "running"
+    },
+    {
+      "artifact_count": 126,
+      "attempt_count": 7,
+      "candidate_count": 0,
+      "hdf5_sha256": "f7c04caaeafe75915d30c2d3baca9ce8fe4dd2a965108c031cbb8b7fc3423168",
+      "manifest_sha256": "18207c488546ba18f6d9aff7742c497e2c67e86a05ce7c8f516dc8bac9b3ad14",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/a46ca16b9b4a120db1939b773895a185c0d3134ed584a5b06e5e904091e8801e",
+      "record_sha256": "f10aa2f903ba5bb2aae8b38f669dd59522feef8ee7bdcc0341234b70a85151e6",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "a46ca16b9b4a120db1939b773895a185c0d3134ed584a5b06e5e904091e8801e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 252,
+      "attempt_count": 14,
+      "candidate_count": 0,
+      "hdf5_sha256": "f5e05f4ac959bd477cb873b1f54613bc90b0fed775b41df60c0215ab5be1ae20",
+      "manifest_sha256": "900681244098ad42c89434e6b0c5649b153c277edaffa6ac10bf5b0951e8f6ff",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/a5f8ce480010c17d200224f0f464adc0c3dd191a532bea644b2b6972382a99a4",
+      "record_sha256": "75a75244c3bdbe7361dacf3ba6ff14d0f2775d2b53a84b02aa22336476616d86",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "a5f8ce480010c17d200224f0f464adc0c3dd191a532bea644b2b6972382a99a4",
+      "status": "running"
+    },
+    {
+      "artifact_count": 180,
+      "attempt_count": 11,
+      "candidate_count": 0,
+      "hdf5_sha256": "b65068363189c8d62099eebea5d9b7ab733d6ff64ab83becd25673a4d2ae06c6",
+      "manifest_sha256": "0cabdff5d4e42908b8df5fc4f77558d1a47e87f62020c8397e62be2225b487f7",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/a72acc408d07faa73c070ff6fd7d32c8e354707a988fec87b82bb51f9e00fc48",
+      "record_sha256": "a38bc48502b53b95ce3889bf30e4f3cdd53f43e105ca472267efe06b5085646d",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "a72acc408d07faa73c070ff6fd7d32c8e354707a988fec87b82bb51f9e00fc48",
+      "status": "running"
+    },
+    {
+      "artifact_count": 90,
+      "attempt_count": 6,
+      "candidate_count": 0,
+      "hdf5_sha256": "0e2cfc4b73f605f1fa74ef1854b1f56662ff65fd933d9115151667e516ef88f9",
+      "manifest_sha256": "8921534538170a6932d82c93be7f3014c0000c56cb758ea1988e35fcbfc98fc2",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/ad8a6e173fdd870ba8446252b7864166f34971be7ecab9b466449ad6c56530b5",
+      "record_sha256": "18cb4061258d1320ec74f5557e38fbe341538fef9fd680707ed6e7d90a4bef6c",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "ad8a6e173fdd870ba8446252b7864166f34971be7ecab9b466449ad6c56530b5",
+      "status": "running"
+    },
+    {
+      "artifact_count": 144,
+      "attempt_count": 8,
+      "candidate_count": 0,
+      "hdf5_sha256": "6bf1f8c6f507d28f62a61645d27f91258c1bef4845640b5d2a08b8cd67e6059e",
+      "manifest_sha256": "2c09b3d2fb15a2012aa15751f1cb5bb7d170d1acaa70b481197a07ec674d5cd7",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/b5b7b0c0c5298c432ae851aa469375c0b261ffb939923a2e0107b4d7f169164d",
+      "record_sha256": "0e0cc52ab99b67662a652a6bf0ad1daee931ff6368ec46f2b452fc79d7c711ad",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "b5b7b0c0c5298c432ae851aa469375c0b261ffb939923a2e0107b4d7f169164d",
+      "status": "running"
+    },
+    {
+      "artifact_count": 252,
+      "attempt_count": 15,
+      "candidate_count": 0,
+      "hdf5_sha256": "60440d81b0ccaa6ee482f8d70a41abf6edc4c65f556fe336725ff174f2d126fb",
+      "manifest_sha256": "2c7e4ce86a6f36ce043a1f7d025bac3f0b60b99a052a296a5763a4034e22663f",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/b963a516115b630a6611cfd1247796ade0653ff16fe67b4d44a1fb97e66d739a",
+      "record_sha256": "8c8a8f8bf4952c8386a064623ad95356516f7356763f58d905d33bc77c2e063f",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "b963a516115b630a6611cfd1247796ade0653ff16fe67b4d44a1fb97e66d739a",
+      "status": "running"
+    },
+    {
+      "artifact_count": 108,
+      "attempt_count": 6,
+      "candidate_count": 0,
+      "hdf5_sha256": "04f8910946b8ba88d032fa3b6ea69297b999ac3808b5d4f01004fb481ea17db9",
+      "manifest_sha256": "7aff0a911e8398b138ac717a9b1a9fb6e424a8c8e003a297065422178f057608",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/c458d7bbe4e89c3cc854220e6263faa2f0c806bb6f3490e642461c8d9b528470",
+      "record_sha256": "54e629325b9cae2ef219cbff89468282d931054d7920bf4b807d020db606ff73",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "c458d7bbe4e89c3cc854220e6263faa2f0c806bb6f3490e642461c8d9b528470",
+      "status": "running"
+    },
+    {
+      "artifact_count": 54,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "2351e0cc916c9884e63d2ca2a623ed058ac60fa10ad0f6967a9bdf895e5e3de8",
+      "manifest_sha256": "571038ce6058d12d5d4b738b3bdf49daaaea87f9b6182b6953a3e666ae22abbd",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/c5a5fe2800302c3e8f5963137b6bb1301f6b3189ad667bd801ca78506972b962",
+      "record_sha256": "5ba438be8ee1362295e7128fb6712e4547019318b8dfc6ac20b8e004256fc8a3",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "c5a5fe2800302c3e8f5963137b6bb1301f6b3189ad667bd801ca78506972b962",
+      "status": "running"
+    },
+    {
+      "artifact_count": 198,
+      "attempt_count": 12,
+      "candidate_count": 0,
+      "hdf5_sha256": "82aa0dfb76b480f16ae168f4e4ab96670a9c8c859f43ccf683a0038123d37e67",
+      "manifest_sha256": "e567ce0cb22a027a6e5007a76c0ee8a10397fcc6688cecde8ce17eb34e1c1296",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/d2a4db19fb95d3c256b66327d48a0d9f094b5657a15e9d848619733ee5fb2a22",
+      "record_sha256": "6aa7c77ee6d23146e1fcdd0a436de6c5d619d0e576dab5fc6e6588c664fb3097",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "d2a4db19fb95d3c256b66327d48a0d9f094b5657a15e9d848619733ee5fb2a22",
+      "status": "running"
+    },
+    {
+      "artifact_count": 18,
+      "attempt_count": 2,
+      "candidate_count": 0,
+      "hdf5_sha256": "aca0ab70fcaa6ed623749e39f36fa441f40abd3f150ddd2e00f4f80ac7cfb5ce",
+      "manifest_sha256": "fbf452bd380e9f3929b1e4238227dda0ee1ea68a4fe6d0234473351cbce5e126",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/ddaf5512481f2b8e4b180eefa8a9053cda98275b7531b9b2812e34b8f31d73cf",
+      "record_sha256": "fc57c5a4e60683fe76131927f847acac520d6dd61d2913e5687f97a1ad8ba1e3",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "ddaf5512481f2b8e4b180eefa8a9053cda98275b7531b9b2812e34b8f31d73cf",
+      "status": "running"
+    },
+    {
+      "artifact_count": 162,
+      "attempt_count": 9,
+      "candidate_count": 0,
+      "hdf5_sha256": "b23f36e78607e066ee8b9076c30c5ca33d90f453a86b58743dc2e3325336896f",
+      "manifest_sha256": "61aedfa842dc79cd1844be474b74214b507677b010448781bcbc0c01246b067c",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/e0f8428e2fd0b7019a64c598bc2533c6ba5dbc374ad32505ef0a6c5a8f6f7590",
+      "record_sha256": "6c0e5da9e3e973a3fbac5ae1e7db3fc75796f4362b984fe5b97222af51853b12",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "e0f8428e2fd0b7019a64c598bc2533c6ba5dbc374ad32505ef0a6c5a8f6f7590",
+      "status": "running"
+    },
+    {
+      "artifact_count": 126,
+      "attempt_count": 8,
+      "candidate_count": 0,
+      "hdf5_sha256": "dbfdbeba69a7098d582b06170992ec9ce4580fddfd0967c9dadf6ac8cef0ec96",
+      "manifest_sha256": "7a76c86805b15211d7428748abac1f2b980b515c70c654e2513575a505a34cd3",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/ee31caada6b139e0dfb12099b57ddbec29c22ea3bca831c8c4f5ef0ec4291ad2",
+      "record_sha256": "578933571cfe7b6747e034bb61fd3be7d0c04b3e1445fb63abeda829cc8e86d9",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "ee31caada6b139e0dfb12099b57ddbec29c22ea3bca831c8c4f5ef0ec4291ad2",
+      "status": "running"
+    },
+    {
+      "artifact_count": 271,
+      "attempt_count": 16,
+      "candidate_count": 0,
+      "hdf5_sha256": "a7268075e4dcd17fe0832f8610cfa48812b59a570394b642dbe79c482e2ae58b",
+      "manifest_sha256": "9284668c41780a007d634eda6c9628be30b4feeb31920e6df1ea92f922ede9b2",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/f3fbce09c5c9e06900f03c222864a4e6576ee676eda2b768df72f47a79f7eac6",
+      "record_sha256": "b8f368f53e97f47067cf04a830e2109aea6aead89a12b2eb650235848e5e5b91",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "f3fbce09c5c9e06900f03c222864a4e6576ee676eda2b768df72f47a79f7eac6",
+      "status": "completed"
+    },
+    {
+      "artifact_count": 18,
+      "attempt_count": 1,
+      "candidate_count": 0,
+      "hdf5_sha256": "fd6d0d444797718f22c3a2d2e063b8bb5efba1101fccf3b5576f16771ce4d0e9",
+      "manifest_sha256": "324f4560bfbae906c8d00ecf06260098089321bae77ef07644fbeed6294ddb2d",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/f78c4ce773dacf188dc5639180c50fbd534205a0dd3499ed013b2f993f8fa7ed",
+      "record_sha256": "162cd137fc7739488dcd9060fecb041f51a9d98208f3f968445487185b24c299",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "f78c4ce773dacf188dc5639180c50fbd534205a0dd3499ed013b2f993f8fa7ed",
+      "status": "running"
+    },
+    {
+      "artifact_count": 180,
+      "attempt_count": 10,
+      "candidate_count": 0,
+      "hdf5_sha256": "7d4301c5707d746f90f19a49b9c1ec0059a1cbd47f00e04d61b4ffbd41156a3f",
+      "manifest_sha256": "e0dcf395ed3d856130347d24542d26a117d4efe42b98498bd69f4d98a5e4f844",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/fc83af892a4e0e3c2a486038c42dd8feae620fa83215973996d9465135210823",
+      "record_sha256": "e9c2c340866a4929cc44d10f9e4a063f29184f3cdf9120c03d43dba436598bc0",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "fc83af892a4e0e3c2a486038c42dd8feae620fa83215973996d9465135210823",
+      "status": "running"
+    },
+    {
+      "artifact_count": 164,
+      "attempt_count": 10,
+      "candidate_count": 0,
+      "hdf5_sha256": "b6e4cd7361927bd9cc81d02068a98431d78c6b9bdeaec64c66c72d538b4308a4",
+      "manifest_sha256": "e1bdd66f17f2db9eedc290006743188a9dcd344a4cce87b3518529a43c3038d6",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/00ed58e4776e902e19bd6b40ac0c30c42e8f87409012ba524a939a93952fe4ab",
+      "record_sha256": "418b778dada3985b51e82107260215d98ad17d2f3e685e7b817847ac7f1ac3e5",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "00ed58e4776e902e19bd6b40ac0c30c42e8f87409012ba524a939a93952fe4ab",
+      "status": "running"
+    },
+    {
+      "artifact_count": 2,
+      "attempt_count": 1,
+      "candidate_count": 0,
+      "hdf5_sha256": "207e20727f4bfe16ed6b789a90903d0f48dff17aa1144e87b36a4461914f094d",
+      "manifest_sha256": "38cce8531152ea2a1ed200e39e0c676c21368df66247880e3cb48329c92e20d5",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/0a611698d2eb851c95e03281f48a5c7c27ed39bd7f95af97dede025acc6dfad0",
+      "record_sha256": "3cd81cad08bb8397a477894b4d652e5de72982f0c11348b2d89ff2efc9afc2c2",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "0a611698d2eb851c95e03281f48a5c7c27ed39bd7f95af97dede025acc6dfad0",
+      "status": "running"
+    },
+    {
+      "artifact_count": 182,
+      "attempt_count": 11,
+      "candidate_count": 0,
+      "hdf5_sha256": "dddeae695c7242c44b91015e9ee03ac319e9ce4eb02bdaba3508fd0cc066887d",
+      "manifest_sha256": "0631ff6dafa7fa770c8868802f0a2222ec7164747950886615ec0af35ebebfe0",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/0e1327528df4777f6acfc93793c57bf59ac211ef27b177e18b732a9e127e979e",
+      "record_sha256": "7aa73d729189e8add5f0e89246e92e90f2a997b7d805ea4a0e765951ef7da342",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "0e1327528df4777f6acfc93793c57bf59ac211ef27b177e18b732a9e127e979e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 596,
+      "attempt_count": 34,
+      "candidate_count": 0,
+      "hdf5_sha256": "5516cec4bfbcce0c8ea3b949803376ebc98213ae7905c8bc15f24b115c097c44",
+      "manifest_sha256": "6cc86c04a95291510854c4ff6985f3d668bf87796941ded003c80ae78466ed47",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/0e2ab021efbe15720d3de2713405b9fc8dbd9d037884cf6a86c934bcf891ffc6",
+      "record_sha256": "bf4d0b4b52cf06dbad0f3463d95c98a357cfbb42f6970cfc6848415e78d71217",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "0e2ab021efbe15720d3de2713405b9fc8dbd9d037884cf6a86c934bcf891ffc6",
+      "status": "running"
+    },
+    {
+      "artifact_count": 542,
+      "attempt_count": 31,
+      "candidate_count": 0,
+      "hdf5_sha256": "ae5423b2ca3f86f97105367001962a0a59b35303eab5a483a7956d4d4a6c52b5",
+      "manifest_sha256": "0511f874e2af35b7345ce1f180103e692c1552b067deea83e795e2677e09a2d8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/13b465ed057ea9ecb0b14755c6c835459249d6dcab36f16f367bfeb60bda6baf",
+      "record_sha256": "d36507c3260cce6b2682af149abdfec9066f6b10dc6070e1696a97491e184e92",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "13b465ed057ea9ecb0b14755c6c835459249d6dcab36f16f367bfeb60bda6baf",
+      "status": "running"
+    },
+    {
+      "artifact_count": 632,
+      "attempt_count": 36,
+      "candidate_count": 0,
+      "hdf5_sha256": "9e41d58060ffc72142e75470ec2d6454fd26f537ba401deb11aa105a662b0011",
+      "manifest_sha256": "a40e0ae4dbc7733349b4974e60980ef97ee025ebc2f1724be4692d140e62afb8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/19578de5f8d501bc5088678bf313a210b549c6a291f0e116842e032383bb5c3e",
+      "record_sha256": "5c821edbb39ad19c2cdab32a62d8456d3f4555913f0e4ddd624ce5bd2a8c334f",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "19578de5f8d501bc5088678bf313a210b549c6a291f0e116842e032383bb5c3e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 38,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "bee55074e301812ca2e190e3ff0ba334f5f0a0bac029473aa11152c20047dc9a",
+      "manifest_sha256": "ddb50903610b7cd022ad74eb966b30eec884f6ba437414e513d1377d27d215e5",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/213834a24287cc9a5895cd37adc4aeee93bdc32b19f9edbc62810ca5ec092086",
+      "record_sha256": "8f85686a449d2e741c065c2a0b701d833bdc7d3f2a44273a49d0d79683e5d74e",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "213834a24287cc9a5895cd37adc4aeee93bdc32b19f9edbc62810ca5ec092086",
+      "status": "running"
+    },
+    {
+      "artifact_count": 92,
+      "attempt_count": 6,
+      "candidate_count": 0,
+      "hdf5_sha256": "a4aec619636aa3a43682fa7c296b692eaa1a79038c12ebe4f38f24bb5aa5c2d0",
+      "manifest_sha256": "9a69d0e6c7bb7d32bda963901903acdc4582fa818b2f452cfa33a74dd3459a50",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/24a62ffaf0eb705c25d25e570034c2e433dc09c5222292c92c0d644292e5149e",
+      "record_sha256": "5be85032caeb01963616807ed79f5fb88b4bbcc58a244b7f6280580c1cbdcf24",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "24a62ffaf0eb705c25d25e570034c2e433dc09c5222292c92c0d644292e5149e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 686,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "7cb303727aa96169f47bd4859dce42340f61ee160796b7f14823827cead1c358",
+      "manifest_sha256": "738ea2633249c637a5866515218dc644172daaa7666a4c4a31f4c66bd1258ef9",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/28e91391b93d0c97b99af581d08c8c3c2d3fc6a401a81592908c59cf99aa5b2d",
+      "record_sha256": "26bc8e9b0f5560558796c90f3148615af407f3c8d10ffaca8f97ca1bed5ca6e7",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "28e91391b93d0c97b99af581d08c8c3c2d3fc6a401a81592908c59cf99aa5b2d",
+      "status": "running"
+    },
+    {
+      "artifact_count": 488,
+      "attempt_count": 28,
+      "candidate_count": 0,
+      "hdf5_sha256": "4fc0ad2c890d61514763fb548aff0e5a75c718a24fd0fe31bd05a0f3ab83792b",
+      "manifest_sha256": "3f7e78e700456236f74844a824500c32ba82b8a1c6147960ef80bc82763afd90",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/2be23dc628299eed9d6bbc99c157d4301159a90312b1acc07e7bce9f49638cee",
+      "record_sha256": "6547758724f165fc20e82ded07a79083c26fa95b3664c1e8a52724a97c4ee0e2",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "2be23dc628299eed9d6bbc99c157d4301159a90312b1acc07e7bce9f49638cee",
+      "status": "running"
+    },
+    {
+      "artifact_count": 56,
+      "attempt_count": 4,
+      "candidate_count": 0,
+      "hdf5_sha256": "30056943a2758862ee35c5f900bd80fef8e92630908af1bae341b22a96e655ba",
+      "manifest_sha256": "eb7ce4bb817d052198d0ea00be6e360edc8cc3320322ab41a29acc8e725109e3",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/36be4b5a6275403dbb42cab0950aadc79d01f567d076080455059f0ca953ad6f",
+      "record_sha256": "2df0f93fc1dcd801f7393d5401733a24c321b55feadaa2a12c88b73c0e9a470e",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "36be4b5a6275403dbb42cab0950aadc79d01f567d076080455059f0ca953ad6f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 434,
+      "attempt_count": 25,
+      "candidate_count": 0,
+      "hdf5_sha256": "283cfdcd18926aafb38fe712470ff0fddf3e63200a0e655610b4dd91cc2e1c46",
+      "manifest_sha256": "ab1711481eca48a9dcb6c451df56700ea0c2e52d1f24bf2c485e7343f930bbce",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/3853d08075ceae198349c15e48ded1ea29787cf7b49aed2a8839f6e2364a217c",
+      "record_sha256": "e399e64e77810a2d70d7182910d7a372ec4ee1ab6d45f16337c8ab10f8bc98b8",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "3853d08075ceae198349c15e48ded1ea29787cf7b49aed2a8839f6e2364a217c",
+      "status": "running"
+    },
+    {
+      "artifact_count": 506,
+      "attempt_count": 29,
+      "candidate_count": 0,
+      "hdf5_sha256": "aa00665b0e464dc7d1f0e34356edd190b48e39585708715548a4d9ec4b313227",
+      "manifest_sha256": "97ba723ce8f7a4c049fe254e3c4aa550873626b0236ee56747c3e5dd62b7efce",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/38bed42dd87be2d27b2b19bcc10ef5f4cfaf05071f394357169d19ec12e4ef0e",
+      "record_sha256": "c9c150a6fe25a5a831edc50f158d3c347a524b67db7ef9cd9c336866724b1e6f",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "38bed42dd87be2d27b2b19bcc10ef5f4cfaf05071f394357169d19ec12e4ef0e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 74,
+      "attempt_count": 5,
+      "candidate_count": 0,
+      "hdf5_sha256": "0caf7c165e0af7e27255fceb679c04b7b49a6f7eec36af4bb3a003e72c58decb",
+      "manifest_sha256": "9e6e8ffeabf0f6348e4ef41f047b356348df8f274b348e0fe649d70423e95418",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/3ee72a5e5f6d94a747f6aadbc426a0ece6d787fddcb7815dd55f6ef0cb64232a",
+      "record_sha256": "09546bafd023c32be777df9474067a30c90e167f921b09d80fdb3d371aadc4aa",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "3ee72a5e5f6d94a747f6aadbc426a0ece6d787fddcb7815dd55f6ef0cb64232a",
+      "status": "running"
+    },
+    {
+      "artifact_count": 668,
+      "attempt_count": 38,
+      "candidate_count": 0,
+      "hdf5_sha256": "690814458b3860b61707171b33a780fdbeab3ca814aeede54468b3c63bc18184",
+      "manifest_sha256": "4d446a7cdd8297735a3a2629f42a2eb98affd2baa1e723becbf4c9cfcec50e83",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/40259a5c92ed5b3b0faaad93d645d6544cc77081d0f532f0f0ba8fbc296eab8f",
+      "record_sha256": "6ceb264ffe5e374556266e389a0db069358ee89196dc51dd6dbb270e0cf9ca91",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "40259a5c92ed5b3b0faaad93d645d6544cc77081d0f532f0f0ba8fbc296eab8f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 452,
+      "attempt_count": 26,
+      "candidate_count": 0,
+      "hdf5_sha256": "9d0efbcfaaa50360079163b9e88235b4d441b7dd24f83b4311a0129f1c31c580",
+      "manifest_sha256": "80281e326830baeba916315d874264c088169d7c20472030e6d38b5e718472c9",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/41495687dda29c6e5e8333ddff1bd2b91fa955cbccc47792fa8ad62bb6cfa2dc",
+      "record_sha256": "18c301d6e22d1f61acc56fd213f0d3f7f60db49a6ab0e09da4184a1e92a45bcb",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "41495687dda29c6e5e8333ddff1bd2b91fa955cbccc47792fa8ad62bb6cfa2dc",
+      "status": "running"
+    },
+    {
+      "artifact_count": 272,
+      "attempt_count": 16,
+      "candidate_count": 0,
+      "hdf5_sha256": "f81f7382797604eae9cb59bb555581b5834f79869c645f8342f63dbd0bc1d5cd",
+      "manifest_sha256": "080c8c904ca43493e1f1cbdf710866abfcf91918fcfbd0be6fc052b33174fe03",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/5d35946b73e6748afd9b0ed092e8ba92b648f261ac2a8bd5c6892d8ec2d7e269",
+      "record_sha256": "4f98cc6f17c3aa4ad036999aefb62b8957aaaed3d96bc7d26f0fe7fa8bdb15bb",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "5d35946b73e6748afd9b0ed092e8ba92b648f261ac2a8bd5c6892d8ec2d7e269",
+      "status": "running"
+    },
+    {
+      "artifact_count": 110,
+      "attempt_count": 7,
+      "candidate_count": 0,
+      "hdf5_sha256": "857457f12cb3c971149f4b248a01d35eb2d5bda343731c87b47726dfeddb71be",
+      "manifest_sha256": "6339850d2c5820ed70d446a50b0640ea6dbeac4786206c106b5d04a8619751f1",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/6fa900e79fcc6ed9a645e8790948691163b87a01be652f2d484d34cb7c8ce558",
+      "record_sha256": "5a44fc6847c1513b5a3648dd557041374dd96bcc08a3c0982dc4944558ff41aa",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "6fa900e79fcc6ed9a645e8790948691163b87a01be652f2d484d34cb7c8ce558",
+      "status": "running"
+    },
+    {
+      "artifact_count": 200,
+      "attempt_count": 12,
+      "candidate_count": 0,
+      "hdf5_sha256": "f31fcf45c694fd1e477f4c8f27339f55e66eeb458688db47a106c759e1bb335c",
+      "manifest_sha256": "602a22812b2f1c7dc8491706eea0efba210f50aa1e5bb874e0a83e194003a86b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/707ab42d7780de2bc3d1ab2a1ae3a408d74ff5816c6d2e755ac305fa3e560dd2",
+      "record_sha256": "4cf45a96a6cc704935832a88528d3bd052432ca52fa053327b5ec53bb69746b8",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "707ab42d7780de2bc3d1ab2a1ae3a408d74ff5816c6d2e755ac305fa3e560dd2",
+      "status": "running"
+    },
+    {
+      "artifact_count": 290,
+      "attempt_count": 17,
+      "candidate_count": 0,
+      "hdf5_sha256": "7dd62245445eac76a15178ca09881afac4ffeee8f0f9c0e1ff36e70331447cd5",
+      "manifest_sha256": "5d698ed7174b31e30802147d007936a011c94f8cb787c04ffc460b709ecf5b8b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/71ed18914fff22e578e42c94e5ca714cf05ca6f89377336b7716f61eac2b535a",
+      "record_sha256": "6d12dd36e93064c491efca83c662b711e1d6dd63b6e7b95fb05db3ca746a462b",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "71ed18914fff22e578e42c94e5ca714cf05ca6f89377336b7716f61eac2b535a",
+      "status": "running"
+    },
+    {
+      "artifact_count": 686,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "0a414a2b5a0807b541273f9bf138ea70334125fc85cddaaec288dd6f685d3b20",
+      "manifest_sha256": "bd6a50e217e063bd21211ae549c2ff35afae10f6e9dad696d2398ef5fad797f8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/77183b56d071a378300c3799331de1ade81cdc91dd3425656328c664a0eb7273",
+      "record_sha256": "6f2e4180a094db07e2a73ce1e0a3a02e444984f6fd2914ab810e32b8cdcd384f",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "77183b56d071a378300c3799331de1ade81cdc91dd3425656328c664a0eb7273",
+      "status": "completed"
+    },
+    {
+      "artifact_count": 560,
+      "attempt_count": 32,
+      "candidate_count": 0,
+      "hdf5_sha256": "ff8c861bed356dbb397f5b9716d80752df397208e3e9d84eccee9cd38b6339db",
+      "manifest_sha256": "7c06c97aa03314c0ed913803695bf8961a4f1933e069cdd3e5397ed8e545e573",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/7760c16ace853e353ff960889fa651d57d350f03cec39588125874f1cd8ac45f",
+      "record_sha256": "bd6c8c25c01408954de2c4fcf71c4d0d93f6efa443598b9e307054267dae86f1",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "7760c16ace853e353ff960889fa651d57d350f03cec39588125874f1cd8ac45f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 470,
+      "attempt_count": 27,
+      "candidate_count": 0,
+      "hdf5_sha256": "24e1cb4bfe8c0128a9058b43ea53a10ef618963c91fa0c62da989cb7bd512cdb",
+      "manifest_sha256": "4c03c09c5bcf39c3b689fc56fa1e1e222713b9b60cbff9cf99b5923400f4fc77",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/7f3af57d046a69819c47710b27b3224fe43801b3d2f5c52ae76ae9b66c091a1e",
+      "record_sha256": "3d916d42abfbf146c0426438493cb75d0bb13fd128b5f324aac1845cb8e62d46",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "7f3af57d046a69819c47710b27b3224fe43801b3d2f5c52ae76ae9b66c091a1e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 2,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "8ddccc1e2762ad74437c8303d99d00bb17b4a725a20a2fe2b719e0d6c0b1a31f",
+      "manifest_sha256": "eba64e55bb777332c113318bac9a64980d4dae46a1cff8e12a7a15d92315a78e",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/804035b5bd633ee632d208735b8b66f1aff0527f92ed7a4677f7ca8825977df4",
+      "record_sha256": "1684abc852a00f4506c325024983ea211ee58ca43361eff33d51e08860302a60",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "804035b5bd633ee632d208735b8b66f1aff0527f92ed7a4677f7ca8825977df4",
+      "status": "running"
+    },
+    {
+      "artifact_count": 524,
+      "attempt_count": 30,
+      "candidate_count": 0,
+      "hdf5_sha256": "135ac64d01e1de87a408ba0aeeefcbcf232697cecdd9694373723131a7d5f2a5",
+      "manifest_sha256": "904ea869f4385e69a4a9bb7d7e16041f02e34e463813496b27395fa8ea8c2267",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/8a54e0baaa141e54ecffe00c03c864bbe3b0868b4a5ff265b94bac55f7a6634e",
+      "record_sha256": "2622aeab8a0a8fbdf6130e7ac3d6118c1224bc4ed3c109eefb7ac780df53ddd7",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "8a54e0baaa141e54ecffe00c03c864bbe3b0868b4a5ff265b94bac55f7a6634e",
+      "status": "running"
+    },
+    {
+      "artifact_count": 20,
+      "attempt_count": 2,
+      "candidate_count": 0,
+      "hdf5_sha256": "5522da698be3292cc9243430a7753656b1fff3283f0177753aab6d0c2308285d",
+      "manifest_sha256": "e3a341985076b8bc89c6e851c6e8d835a14ee3f139fc7c0eda3644effac39251",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/911855da16d7f43521e7ee3fb6c64d4ed00c533d2a897ad654a78d639e733163",
+      "record_sha256": "1885e79814596b29b359ae964e77b7a623f92ab735c5fe6691a109e879fa33da",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "911855da16d7f43521e7ee3fb6c64d4ed00c533d2a897ad654a78d639e733163",
+      "status": "running"
+    },
+    {
+      "artifact_count": 218,
+      "attempt_count": 13,
+      "candidate_count": 0,
+      "hdf5_sha256": "d4176702770e2bb24adb0bbabaac1aa9759fc33b7d9bb45bed7d0339d4729e2f",
+      "manifest_sha256": "88b59b52f3df41a21ee60d31fa854ee68971c652609a01672f7d2f05f61420f1",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/9d2e978de060b3c1ba22be1433a18db61d93104430df407a4c01471ca79bd856",
+      "record_sha256": "735a07e20650897b3eb5cfef9a78c47f62b81662a03a6f57f5762823f75c3879",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "9d2e978de060b3c1ba22be1433a18db61d93104430df407a4c01471ca79bd856",
+      "status": "running"
+    },
+    {
+      "artifact_count": 236,
+      "attempt_count": 14,
+      "candidate_count": 0,
+      "hdf5_sha256": "8a742c218465ac2caf8466fbebbb515ea601468c28f37cef65e26c1788fe1897",
+      "manifest_sha256": "3d752f301fac54a1c2d37dc60212fb4672cdf52907d0fdb74692fb41d4b70ce9",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/a85ef52b23898e828dd2ef67e19123528ed2f4729790c9b8feefa7072a74a447",
+      "record_sha256": "7e852bd504474be4e79c1947f6e33c483cc5fc240bc010ae21db1c8055b06fd6",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "a85ef52b23898e828dd2ef67e19123528ed2f4729790c9b8feefa7072a74a447",
+      "status": "running"
+    },
+    {
+      "artifact_count": 2,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "0f7de3207099fb7c1acd6ff39ebc7e17728626b78e11b0490be301097a729307",
+      "manifest_sha256": "014ba3c9f27242d20dbf435248ced2f749e16bae8c66c26d84574dfd7906e3d0",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/abaa7082bf063ea4249bfcd3e07112e46291093a0b09059695abba60bbfbeeb5",
+      "record_sha256": "8b7ff0b2990f22c8250aa3e3d5893cbb0349380f6d1dc9cf0c486cc0a35f8bc1",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "abaa7082bf063ea4249bfcd3e07112e46291093a0b09059695abba60bbfbeeb5",
+      "status": "queued"
+    },
+    {
+      "artifact_count": 326,
+      "attempt_count": 19,
+      "candidate_count": 0,
+      "hdf5_sha256": "a97cfbae3d44061061345a89601d5cf6c11fe04020016fb9f271f649b0f968db",
+      "manifest_sha256": "9df7d3ae55841e809af73b67d7034321a193d38065dc47f052db3fd81445a174",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/ac6cabcfa905ba417ff018ef587a0497c8a3d0a74db50a8067c87f113416e271",
+      "record_sha256": "359bd04595a86b91fd1cbf03aeb6ee99d7d7526d9510928385929dea51a27c59",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "ac6cabcfa905ba417ff018ef587a0497c8a3d0a74db50a8067c87f113416e271",
+      "status": "running"
+    },
+    {
+      "artifact_count": 128,
+      "attempt_count": 8,
+      "candidate_count": 0,
+      "hdf5_sha256": "ba5313f4e9de4164fcae7a07a03a9ce37d0dafb74719a3683d970bb5bf280572",
+      "manifest_sha256": "b3bebafebcf8d9521f585a7b0e3f5ee077fca38b17dfdc867b899b838ffe6f90",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/af9d5ce22d0fc37e93d0ba0c2efde36b8a3be7e13e29c2136c6c624028f8defe",
+      "record_sha256": "937bc4f16b62e63810ee6d20f9c568a35d3bdd04050848d486a9cecc3effeeb3",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "af9d5ce22d0fc37e93d0ba0c2efde36b8a3be7e13e29c2136c6c624028f8defe",
+      "status": "running"
+    },
+    {
+      "artifact_count": 416,
+      "attempt_count": 24,
+      "candidate_count": 0,
+      "hdf5_sha256": "1c9dfd10e13dcd12702ab29aa526fea49a8efc6e03b90129125ab56eb6da0c86",
+      "manifest_sha256": "663004cc452f855132349d537d780124f0bc7241be8d71e83ebb779556784ee6",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/b8308499df638f5d19d9b51fa9c737e1c0adb6268ccdb7b765e28b7a49f77f77",
+      "record_sha256": "cfddaa90f5b5267eb0179a6c6f505c9d5857bfc1ecdb8a7ba6faa786513f5c81",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "b8308499df638f5d19d9b51fa9c737e1c0adb6268ccdb7b765e28b7a49f77f77",
+      "status": "running"
+    },
+    {
+      "artifact_count": 308,
+      "attempt_count": 18,
+      "candidate_count": 0,
+      "hdf5_sha256": "0112a1ee27c954407df324014c3858cc0af23341825ccabde407e3b9111cca65",
+      "manifest_sha256": "8f55c1763b7986f9942284a805be6d87d9d4731101ef3871fa08b5993e9389eb",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/be949d923c72dd2b3e7f4c2fac94584f6d00dd3b5d4a7a1388712da6e123a15f",
+      "record_sha256": "9d55ae7bd8f18602a0975b8e2047686833402b4f68a1dc27474d6bce5e29eed5",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "be949d923c72dd2b3e7f4c2fac94584f6d00dd3b5d4a7a1388712da6e123a15f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 344,
+      "attempt_count": 20,
+      "candidate_count": 0,
+      "hdf5_sha256": "0609e320a27a4655e97b70355d4ca2bdf329d5fd9d243e412dec2ebfbd8f22e3",
+      "manifest_sha256": "ef8dad9d552b662b85207acb845869fb9b7a3cb5e32fa63b4f78bf71c04f8eb1",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/bfec4da0a0fc43c2472e3feb4a7c5e46df625c91de6a7ff9ec642472773948ef",
+      "record_sha256": "6947c5b2c2c65358ce46c6b6ff37d715fca37f203df8131905fdb552e8f5bc8c",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "bfec4da0a0fc43c2472e3feb4a7c5e46df625c91de6a7ff9ec642472773948ef",
+      "status": "running"
+    },
+    {
+      "artifact_count": 146,
+      "attempt_count": 9,
+      "candidate_count": 0,
+      "hdf5_sha256": "56237ab6641f1b03986abdb3a81c1f523460cabf73d0c1517d5e3227456d8bc6",
+      "manifest_sha256": "df93a6e6cfe5921c00661eb2a4406b18c1c03a039c3e917aa9dce08e66b7c5df",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/c44778557d9e3fb801c60f3ac7d34cef82365b627036f24a3b7ce3357ab5f419",
+      "record_sha256": "c65f428043aee8dac7aa497acb9a855aad187057f5e55d59361677bc9bbeb100",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "c44778557d9e3fb801c60f3ac7d34cef82365b627036f24a3b7ce3357ab5f419",
+      "status": "running"
+    },
+    {
+      "artifact_count": 650,
+      "attempt_count": 37,
+      "candidate_count": 0,
+      "hdf5_sha256": "a678bb4f25bc5775495e223f8912abe6e968ff596b91da78e25e62e9ebb8320a",
+      "manifest_sha256": "ac581c060e17099135cdde3e81f2f7f11e6847b94fc1374be34ed86abbd486fa",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/c8349b68b9d0dfb2787d4d3387a8364379ccbdcfcde289c2f02b49241e45a351",
+      "record_sha256": "c3f3ed1de2d5196b24b92e9ea5d73be8f2d9b32c6b87c17a2ce9110bfcb16bde",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "c8349b68b9d0dfb2787d4d3387a8364379ccbdcfcde289c2f02b49241e45a351",
+      "status": "running"
+    },
+    {
+      "artifact_count": 362,
+      "attempt_count": 21,
+      "candidate_count": 0,
+      "hdf5_sha256": "880bc45e693dd2de71761023896b1f8781b73266e01cb58f7eb3be8afdd4fab7",
+      "manifest_sha256": "7ab50724036a8eaee7caef9f0ed995e199187275e2a11aba76cda9695a93b3fb",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/cfea8e211cdc6facb8479f0002ad55494b9f17592248d9eee8b2fc8bfba5606a",
+      "record_sha256": "1effe8efdf933f1c027e975df2ddf2784e150f439e119fb7251b075462d7ee0c",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "cfea8e211cdc6facb8479f0002ad55494b9f17592248d9eee8b2fc8bfba5606a",
+      "status": "running"
+    },
+    {
+      "artifact_count": 614,
+      "attempt_count": 35,
+      "candidate_count": 0,
+      "hdf5_sha256": "ad55b384af5dc192d549eb1b8ea48e1137f93785f6474996bab47c16dc61a191",
+      "manifest_sha256": "99289652f40fb8037e16011782743f5219d3d1cf297aea68536211be4d29a283",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/ef954e1332b25732b3d73daddf2a4b7659b34b38e38983032e3e376fb92eedfd",
+      "record_sha256": "f50b8c9bb64298f84ef8958c87a76b089d4e2fe08474a58c6b7351012ee3a691",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "ef954e1332b25732b3d73daddf2a4b7659b34b38e38983032e3e376fb92eedfd",
+      "status": "running"
+    },
+    {
+      "artifact_count": 380,
+      "attempt_count": 22,
+      "candidate_count": 0,
+      "hdf5_sha256": "9fe052664c925ab6f03e7ea98e23788b6b2fcfab1ad9c04506567a06fc9535da",
+      "manifest_sha256": "43c38c099c0c89cd077e4dec524bdd76caffe5fe12a824a032c6b787376a801d",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/efc0dc77c53c7e3bfb743744ed412d5e0a6810813e1d9c5237e7880d9f63b07b",
+      "record_sha256": "f77e8d8009bcc104b3b5642b559b818b2bc534c92078e217051f3bd73969da4e",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "efc0dc77c53c7e3bfb743744ed412d5e0a6810813e1d9c5237e7880d9f63b07b",
+      "status": "running"
+    },
+    {
+      "artifact_count": 398,
+      "attempt_count": 23,
+      "candidate_count": 0,
+      "hdf5_sha256": "7c1b52ef09ff3426cdd4640e1e40d49219e288f7687a4b828b5753f5a9adddf9",
+      "manifest_sha256": "2ef66ce05abaa9905516c36054b5f1a7195c6d2933669ff171165ddb3ceee54b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/f35f78c6c45c077d34db952ee3fc3c9cca520a7146d7f163985a4b97e7d00e73",
+      "record_sha256": "846ca76d7aba9413117d97c67aeaa5c1be088f66ac9805bacfb5823506fd689a",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "f35f78c6c45c077d34db952ee3fc3c9cca520a7146d7f163985a4b97e7d00e73",
+      "status": "running"
+    },
+    {
+      "artifact_count": 578,
+      "attempt_count": 33,
+      "candidate_count": 0,
+      "hdf5_sha256": "81db6bff01268cbcde752113394728358f2144e0b796d7eb25a620605101d216",
+      "manifest_sha256": "71da2cf427f9c44a1f419580fc01b517c7c1116529299faa6b8551375c9eb4b6",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/f9980468ab32d446c3c53862348c2cfef6c5577f5eee9ed292a05936d39896ef",
+      "record_sha256": "6513d6a5aa4326d9c3e34c7ebb1e398ca03a748788528afd86fca2ea38f498d8",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "f9980468ab32d446c3c53862348c2cfef6c5577f5eee9ed292a05936d39896ef",
+      "status": "running"
+    },
+    {
+      "artifact_count": 254,
+      "attempt_count": 15,
+      "candidate_count": 0,
+      "hdf5_sha256": "ff8fb29f7e259f1fda3c429b0dc98a63dd3b0fbb10e786bd7f52a503b6ae5f6f",
+      "manifest_sha256": "7c717524d9f0b6217babb31a21f15430b7e9ff941148aa9f4bf6612fa5a6bf44",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/fe7f692ef8fda365df11141308bca04a9ae930caa5f859f4ff5f39b02b8840a9",
+      "record_sha256": "7e1bd4f0bb835046da08fb57ae57021cbbcc5e99406c0ed2d9fda8aee0315a24",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "fe7f692ef8fda365df11141308bca04a9ae930caa5f859f4ff5f39b02b8840a9",
+      "status": "running"
+    },
+    {
+      "artifact_count": 689,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "e60e7f8950ecee7bf59d0788267654e7c64035700990b6e00ebae5c094014e31",
+      "manifest_sha256": "5c5d0853e669dc18849bc74a150649dbabbfe05f469c75e8410f4e0f4bab70a8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/04274f5641daa80bcd962a0b22f4198778a1783155ed7fb1fed6ba7afb736f95",
+      "record_sha256": "ec5066112c00195bf98602949ab7849ffa9622227f5780fe115ad0b4803c4e14",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "04274f5641daa80bcd962a0b22f4198778a1783155ed7fb1fed6ba7afb736f95",
+      "status": "running"
+    },
+    {
+      "artifact_count": 764,
+      "attempt_count": 41,
+      "candidate_count": 1,
+      "hdf5_sha256": "528deae863c5aa7dfd64c915014a9ed2b1ae43f9ad1277d7ddb2cc68a8255872",
+      "manifest_sha256": "19a7b99c195b6f629b93346d6ae4e466213d0e891f8ab63ac9a7576b30c387a8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/0b1598b4c4263aa1338f5d6edf1dc2b8b28ca233aa304b26dfb834e468f629fb",
+      "record_sha256": "0e3ffda69873961cda67ff589b31fd2c63fafc3c8b080cdb138c14fb4fa93d3d",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "0b1598b4c4263aa1338f5d6edf1dc2b8b28ca233aa304b26dfb834e468f629fb",
+      "status": "running"
+    },
+    {
+      "artifact_count": 796,
+      "attempt_count": 42,
+      "candidate_count": 1,
+      "hdf5_sha256": "e816bf4d9d125cf8e0031900755affe2a7a16464ccdeb415f41ac1ff159fdd09",
+      "manifest_sha256": "3b261a7df76339547a58682ab3031a9f509d8d9e54460e48919f8dc0ea6ccd1b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/2354275016efa5a550688a197fcff952896e4460dad48dfe626bf93b99d1d567",
+      "record_sha256": "325a4296b7f9684c55eba985db94ae2b0c80d5ac4e6bbe77ac6bb31002d8ca27",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "2354275016efa5a550688a197fcff952896e4460dad48dfe626bf93b99d1d567",
+      "status": "running"
+    },
+    {
+      "artifact_count": 796,
+      "attempt_count": 43,
+      "candidate_count": 1,
+      "hdf5_sha256": "f2de1981e7545f09b1b766bfac2373d4bdbaf09ac867c0b240152b80fdc5fb75",
+      "manifest_sha256": "04448c04fcbee8606ff929fc1920307a84dfa30c5d7af5f435f6d41c08c777b0",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/24f34cfb9da1b20d7ae4cc0b105e23a7d27cd57c0ac18856d9ef2a4a3523080d",
+      "record_sha256": "745f28ca39b1d9a89fbccfa04ff9077105ed2b5e267bd8b7261328a06ca45f62",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "24f34cfb9da1b20d7ae4cc0b105e23a7d27cd57c0ac18856d9ef2a4a3523080d",
+      "status": "running"
+    },
+    {
+      "artifact_count": 702,
+      "attempt_count": 40,
+      "candidate_count": 1,
+      "hdf5_sha256": "3319e4eecc4a68b3055fb1c7d38922ee1671889b978a6c9d78f66f62861e8284",
+      "manifest_sha256": "572ba3999e1abb788e209c22b7c09abd8c7b8eb4cb5ace64d8f847ddfed64711",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/4fdf202767e16a7c2437862ee99095530c691fdb170a94551191006ae2b1bd25",
+      "record_sha256": "aa05536b327127d8fc6471a1353f6131323f38a2eee8876a0371b55ad16a57a9",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "4fdf202767e16a7c2437862ee99095530c691fdb170a94551191006ae2b1bd25",
+      "status": "running"
+    },
+    {
+      "artifact_count": 880,
+      "attempt_count": 43,
+      "candidate_count": 1,
+      "hdf5_sha256": "f187b788b29ef2fecfd43dffb82301e58cea67995e05fa88e773d14c6461788c",
+      "manifest_sha256": "39dcbd5d6658040fc7d78c03b729b4cef5a1a57e751592e3d210db58f0ae71c7",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82",
+      "record_sha256": "edf9feb953bf5b00f1731a939d54bf8bed2854738b3dac7b443cc89663b1ee7c",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82",
+      "status": "timed-out"
+    },
+    {
+      "artifact_count": 733,
+      "attempt_count": 41,
+      "candidate_count": 1,
+      "hdf5_sha256": "8c634145500561ae0f3a2d94595f181b460f9f6a8f662bb7a81915d5f79d6d33",
+      "manifest_sha256": "a49b13d8d0d4adc65f897f60eaf08c906caab7659234fc431f26b0709d8111bd",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/5c83f5b60aba00356634ef5f8859ca0b18767d2a419c4ff05b2edd6f99048834",
+      "record_sha256": "ffd43dc276adca8ce660b7fa5461b25d59548b1e76ca5f4228fa48c858a0e2b1",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "5c83f5b60aba00356634ef5f8859ca0b18767d2a419c4ff05b2edd6f99048834",
+      "status": "running"
+    },
+    {
+      "artifact_count": 694,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "a379c8cf1f7cd99299c528fd6777e35757e2a70f6bce308c5b4e7f5d8667fddd",
+      "manifest_sha256": "92dc649503dbfdae699417ba250c95fd1d939bfe5cdbd51765225e4ccec05974",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/6a1095fa4e5dd4dd0a0b960e3722614faa2bcbdfc89233ec5a91bad16eece06f",
+      "record_sha256": "ce69f4764cfd288e9949a2c2ea0af95141b777e45baf07b44811d407ba16aedd",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "6a1095fa4e5dd4dd0a0b960e3722614faa2bcbdfc89233ec5a91bad16eece06f",
+      "status": "running"
+    },
+    {
+      "artifact_count": 764,
+      "attempt_count": 42,
+      "candidate_count": 1,
+      "hdf5_sha256": "f262cf5b939b8c58ae7569ef2d679bdae034fab4605060585f19d43f2b00f6e5",
+      "manifest_sha256": "1b4f496db69e52e673c4d6bb43e09d84167b5376c9090135e1b64926a4fd170b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/83010ebccceff2b91b67413051f1c40e82d8f9e600b25347f47579dab891a915",
+      "record_sha256": "1d8467bdac9eac850128726e259d8c90006724b5ff0cf5e45a9bfa72eb18f2da",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "83010ebccceff2b91b67413051f1c40e82d8f9e600b25347f47579dab891a915",
+      "status": "running"
+    },
+    {
+      "artifact_count": 733,
+      "attempt_count": 40,
+      "candidate_count": 1,
+      "hdf5_sha256": "166f9b5b508fc2f969b01eda21a12b639dcd16b9167bb5fccc069c44a11acc2a",
+      "manifest_sha256": "53edf830bd4a99f39aa6c81441dbe6888d9556bfcb597d901d9100f04b69ebc2",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/ab415855cef6d95aab2cb9b230bd1f2034827eab5bb80e6a7bd177d86ebc8821",
+      "record_sha256": "3b8727b68c2b72da2c75dda2acd893b52c696cf056a304893f892d4cbe5b8210",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "ab415855cef6d95aab2cb9b230bd1f2034827eab5bb80e6a7bd177d86ebc8821",
+      "status": "running"
+    },
+    {
+      "artifact_count": 2,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "a0fd993fc0309fb4f6f8c001928cc001c59ac79ff3d89e3809a14626d549e472",
+      "manifest_sha256": "dcd10f3df617686ab96b09496673671aa610b1baeaf78eebb5b0cbad4bfbeb73",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/b0c5d2c670fa4639a42124628b857385001a7922149127738d880fb66c23bfb3",
+      "record_sha256": "54a676cb0097c78026be90f1a5b72277563914690d497ae1a623bb2ae7de6f49",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "b0c5d2c670fa4639a42124628b857385001a7922149127738d880fb66c23bfb3",
+      "status": "running"
+    },
+    {
+      "artifact_count": 698,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "9ec72b869fe738867a40d12933426fb04754c99eb4070b42816cae3d4aa6f6a1",
+      "manifest_sha256": "1fe291fe00ccb3d2fd397f97653ccacbd8f4fd5f3d4a5e27853b555d4ee323fc",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/c9e8030954a0f77b42de0ae3b02b10802031e98f83d5e22ec900e686a5596aa8",
+      "record_sha256": "2e8c300be175f8750c316472e39e2f508bfeec40316a4c4b8fe827b14bc3c8b7",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "c9e8030954a0f77b42de0ae3b02b10802031e98f83d5e22ec900e686a5596aa8",
+      "status": "running"
+    },
+    {
+      "artifact_count": 2,
+      "attempt_count": 0,
+      "candidate_count": 0,
+      "hdf5_sha256": "7ce06adabd36dc5d0e50ccf1530b86ab832a7cd883f4d56436e05a96e590636c",
+      "manifest_sha256": "0cf8761def5a90524c944f4682b7289d708fe8536eca28056eef4b9e3aad972b",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/d7d0a32758e5c3856351a5ba61fb6a56eba9e504e1ab36ef71890961b11a04e2",
+      "record_sha256": "ed06376c87c238b337412b9ce995064e031325b3c0b3278b49b6bcf9c356bbea",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "d7d0a32758e5c3856351a5ba61fb6a56eba9e504e1ab36ef71890961b11a04e2",
+      "status": "queued"
+    },
+    {
+      "artifact_count": 795,
+      "attempt_count": 42,
+      "candidate_count": 1,
+      "hdf5_sha256": "a2d609a26a5dcff9378d0ee6697e03f19fa0d0ec5765e92c4f90cadc8f8c0564",
+      "manifest_sha256": "0fe0802feced3e229414c359b20e6bdff9af34dfbf1e1f7a85cfaa9ad650c04d",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/db2fea73a4895a7ec0d95b553d3b4f1c08c02ded5188067805165b2a4655c235",
+      "record_sha256": "74646f459e34189c3ba6856a18e27b2ffaba10d51d34b262082363a02ffba681",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "db2fea73a4895a7ec0d95b553d3b4f1c08c02ded5188067805165b2a4655c235",
+      "status": "running"
+    },
+    {
+      "artifact_count": 702,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "689d882e35f3cef2f7aac1d79aeccda22a12fbd96c1b736b62f3af5ef28e171f",
+      "manifest_sha256": "04cf28caea63f70dc0b5e3d74706e1bbab95c2be827b65de44a2fdb2b1d2651e",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/e1d5e3e49b1a64cc4b053f12d464da23ffbaad88decf22df72f2c7fe5e78bced",
+      "record_sha256": "e54372cda17fccf85ad01e8fd2cc4e78357b7c9474908f118288b8b2e262107c",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "e1d5e3e49b1a64cc4b053f12d464da23ffbaad88decf22df72f2c7fe5e78bced",
+      "status": "running"
+    },
+    {
+      "artifact_count": 690,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "73eaaf6f2e06f345b6bcd65307508f5ade03087de0ab3a8c40280e68ca96c346",
+      "manifest_sha256": "db8b4aa0570fed1d9cbcae4f1fd816240f957a2965c9816b1f6a13a0c2c62f14",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/f46f1338dd8cdf6997d641f303f14392a129684f7fef35dd8884d7784ef525ea",
+      "record_sha256": "b113a4efe314a7462cacc6940afff59817387ee9a82d3625c588500eff14b659",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "f46f1338dd8cdf6997d641f303f14392a129684f7fef35dd8884d7784ef525ea",
+      "status": "running"
+    },
+    {
+      "artifact_count": 880,
+      "attempt_count": 43,
+      "candidate_count": 1,
+      "hdf5_sha256": "8827f1822db5280717a229e16440988f1d108e4913fb3e3519c7e3653723096f",
+      "manifest_sha256": "c846c8a13a56a6cee8706d1cc4022671cea55053d96446620a8d30b5571c04bb",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/f597f61192d2b75a321b7554578531e6afb2e39e62375bfc5af8dc416a148834",
+      "record_sha256": "6b43e8037671c20240d04eb06e35f9478c21ac68d45a806832e393e5175dd37e",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "f597f61192d2b75a321b7554578531e6afb2e39e62375bfc5af8dc416a148834",
+      "status": "timed-out"
+    }
+  ],
+  "verified_current_snapshots": [
+    {
+      "artifact_count": 105,
+      "attempt_count": 3,
+      "candidate_count": 0,
+      "hdf5_sha256": "9709677ed94822b93e88d71be514e0f3d53e3e18a67ecbf986d3f3d161d19f2a",
+      "manifest_sha256": "e5f63b7b0a838e69a2eb2f3cd66901880935cb08a8887b85c54032c51ffacf72",
+      "path": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/5480ba7bb4ce4211646a699e8b18fb75d3381e5906b54af73dcfa57b6534527c",
+      "record_sha256": "acd4458a1a8cf366fc6cf7b2ae6433344b4a6d7ce3bfbe92a62e018481f8cbec",
+      "run_id": "run_fb42917b3fd4480fa29253c782378978",
+      "snapshot_id": "5480ba7bb4ce4211646a699e8b18fb75d3381e5906b54af73dcfa57b6534527c",
+      "status": "completed"
+    },
+    {
+      "artifact_count": 271,
+      "attempt_count": 16,
+      "candidate_count": 0,
+      "hdf5_sha256": "a7268075e4dcd17fe0832f8610cfa48812b59a570394b642dbe79c482e2ae58b",
+      "manifest_sha256": "9284668c41780a007d634eda6c9628be30b4feeb31920e6df1ea92f922ede9b2",
+      "path": "topos-orca-extended/F12-composite/run/snapshots/f3fbce09c5c9e06900f03c222864a4e6576ee676eda2b768df72f47a79f7eac6",
+      "record_sha256": "b8f368f53e97f47067cf04a830e2109aea6aead89a12b2eb650235848e5e5b91",
+      "run_id": "run_947cf34334a9455a908e5d5dbe4bb829",
+      "snapshot_id": "f3fbce09c5c9e06900f03c222864a4e6576ee676eda2b768df72f47a79f7eac6",
+      "status": "completed"
+    },
+    {
+      "artifact_count": 880,
+      "attempt_count": 43,
+      "candidate_count": 1,
+      "hdf5_sha256": "f187b788b29ef2fecfd43dffb82301e58cea67995e05fa88e773d14c6461788c",
+      "manifest_sha256": "39dcbd5d6658040fc7d78c03b729b4cef5a1a57e751592e3d210db58f0ae71c7",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82",
+      "record_sha256": "edf9feb953bf5b00f1731a939d54bf8bed2854738b3dac7b443cc89663b1ee7c",
+      "run_id": "run_b8bfe81ca25843cba85a889f100f0e3f",
+      "snapshot_id": "55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82",
+      "status": "timed-out"
+    },
+    {
+      "artifact_count": 686,
+      "attempt_count": 39,
+      "candidate_count": 1,
+      "hdf5_sha256": "0a414a2b5a0807b541273f9bf138ea70334125fc85cddaaec288dd6f685d3b20",
+      "manifest_sha256": "bd6a50e217e063bd21211ae549c2ff35afae10f6e9dad696d2398ef5fad797f8",
+      "path": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/77183b56d071a378300c3799331de1ade81cdc91dd3425656328c664a0eb7273",
+      "record_sha256": "6f2e4180a094db07e2a73ce1e0a3a02e444984f6fd2914ab810e32b8cdcd384f",
+      "run_id": "run_6d29dbbcf68b483d89aa9961581a8693",
+      "snapshot_id": "77183b56d071a378300c3799331de1ade81cdc91dd3425656328c664a0eb7273",
+      "status": "completed"
+    }
+  ],
+  "verified_native_artifact_count": 6133
+}

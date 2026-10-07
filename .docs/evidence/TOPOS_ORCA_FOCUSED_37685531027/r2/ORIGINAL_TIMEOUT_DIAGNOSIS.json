@@ -1,0 +1,906 @@
+{
+  "scope": "Historical source73 selective R2 timeout diagnosis; unchanged original native bytes, no new calculations or acceptance claim",
+  "source_commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+  "source_binding": {
+    "topos/matrix_r2.py": {
+      "git_object_sha256": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32",
+      "native_reported_sha256": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32",
+      "matches": true
+    },
+    "topos/matrix_components.py": {
+      "git_object_sha256": "a1398108509a6322238acbdf1ac8e661889aeef3658d8d587bb1f6b182a0b48c",
+      "native_reported_sha256": "a1398108509a6322238acbdf1ac8e661889aeef3658d8d587bb1f6b182a0b48c",
+      "matches": true
+    },
+    "topos/engines.py": {
+      "git_object_sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6",
+      "native_reported_sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6",
+      "matches": true
+    }
+  },
+  "original_archive": "/workspace/.cochem-setup/base-topos-proposal/native-repair-topos-original-artifact.zip",
+  "selective_provenance_sha256": "f99f02d90cf099bd382bb3d3e7a9fe85e255a2df07f0b9216862d8484c89c213",
+  "selected_member_count": 29,
+  "selected_bytes": 5447335,
+  "snapshot": {
+    "snapshot_id": "55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82",
+    "record_sha256": "edf9feb953bf5b00f1731a939d54bf8bed2854738b3dac7b443cc89663b1ee7c",
+    "hdf5_sha256": "f187b788b29ef2fecfd43dffb82301e58cea67995e05fa88e773d14c6461788c",
+    "selected_record_and_pointer_hashes_verified": true,
+    "full_artifact_membership_verification": "parent separately verifying original ZIP and all RunStores"
+  },
+  "timing": {
+    "overall_started_at": "2026-10-07T21:20:46.890897+00:00",
+    "overall_finished_at": "2026-10-07T22:50:54.418588+00:00",
+    "overall_wall_seconds": 5407.527691,
+    "scientific_run_created_at": "2026-10-07T21:23:05.723089+00:00",
+    "scientific_run_budget_seconds": 5261.169384778001,
+    "nominal_scientific_deadline_from_created_at": "2026-10-07T22:50:46.892474+00:00",
+    "DFT_attempt_started_at": "2026-10-07T22:11:48.057199+00:00",
+    "DFT_attempt_finished_at": "2026-10-07T22:50:47.198021+00:00",
+    "DFT_component_resource_seconds": 2335.872845748001,
+    "DFT_native_authorized_seconds": 2335.5776805700007,
+    "DFT_native_elapsed_seconds": 2335.798455417,
+    "native_phase_timings": {
+      "isolated-high-level-monomer": {
+        "native_calls": 4,
+        "native_elapsed_seconds": 137.63865141299993,
+        "scientific_calls": 2,
+        "scientific_elapsed_seconds": 137.14053125400005
+      },
+      "frozen-QZ-geometry": {
+        "native_calls": 76,
+        "native_elapsed_seconds": 2795.3283042760004,
+        "scientific_calls": 38,
+        "scientific_elapsed_seconds": 2785.918522604
+      },
+      "DLPNO-CP-legs": {
+        "native_calls": 6,
+        "native_elapsed_seconds": 36.378444359998866,
+        "scientific_calls": 3,
+        "scientific_elapsed_seconds": 35.55273098499947
+      },
+      "independent-DFT-reference": {
+        "native_calls": 2,
+        "native_elapsed_seconds": 2336.0231305529996,
+        "scientific_calls": 1,
+        "scientific_elapsed_seconds": 2335.798455417
+      }
+    }
+  },
+  "completed_stages": {
+    "attempt_status_counts": {
+      "completed": 42,
+      "timed-out": 1
+    },
+    "QZ_geometry": {
+      "method": "wB97M-V",
+      "basis": "def2-QZVPP",
+      "geometry_state": "frozen-iso",
+      "full_molecule_stationary": false,
+      "evaluation_count": 38,
+      "elapsed_seconds": 2844.9906585649996,
+      "max_free_gradient_hartree_per_bohr": 2.8551801586077407e-06,
+      "max_frozen_gradient_hartree_per_bohr": 0.006917053680662511,
+      "max_trajectory_intrafragment_drift_angstrom": 3.774758283725532e-15
+    },
+    "counterpoise": {
+      "cp_interaction_energy_hartree": -0.006909469587981221,
+      "leg_energies_hartree": {
+        "complex-in-complex-basis": -152.63191536288,
+        "fragment-0-in-complex-basis": -76.312355659119,
+        "fragment-1-in-complex-basis": -76.312650234173
+      },
+      "protocol": {
+        "native": {
+          "auxiliary_c": "cc-pVTZ/C",
+          "auxiliary_jk": "cc-pVTZ/JK",
+          "cabs": null,
+          "engine": "orca",
+          "engine_version": "6.1.1",
+          "frozen_core": true,
+          "integral_handling": "native",
+          "local_energy_decomposition": false,
+          "max_iterations": 200,
+          "method": "DLPNO-CCSD(T1)",
+          "operation": "energy",
+          "orbital_basis": "cc-pVDZ-F12",
+          "pno_profile": "TightPNO",
+          "scf_convergence": "VeryTightSCF",
+          "scf_integrals": "RIJK",
+          "tcutpno": 1e-07
+        },
+        "source_resolution": "orca-r2-dlpno-orbital-f12-cp-v1"
+      },
+      "engine_identity": [
+        "6.1.1",
+        "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea"
+      ],
+      "f12_hamiltonian": false,
+      "full_R2_recipe_completed": false
+    }
+  },
+  "failed_stage": {
+    "component_key": "r2-independent-dft-reference-optimize",
+    "status": "timed-out",
+    "reason": "BASE broker exit code -124",
+    "native_returncode": -124,
+    "converged": null,
+    "accepted_output_molecule": null,
+    "accepted_energy_hartree": null,
+    "deck": "! B3LYP ExtremeSCF DEFGRID3 D4 def2-TZVPP RIJCOSX def2/J Opt\n%pal nprocs 2 end\n%maxcore 1536\n%method\n  Z_Tol 1e-14\nend\n%geom\n  EnforceStrictConvergence true\n  MaxIter 200\n  TolE 1e-10\n  TolMaxG 1e-7\n  TolRMSG 3e-8\n  TolRMSD 5e-7\n  TolMaxD 1e-6\n  InHess Lindh\nend\n* xyz 0 1\nO 0.1108900358387915 -0.03747700622305563 -0.0001794845932761956\nH 1.05078210684104 0.1551860731181627 3.506052322488182e-05\nH -0.2970829137713523 0.8308977826167616 9.430878015263616e-05\nO 3.010818572601776 0.3081700207342453 2.866137394431094e-05\nH 3.372935727467975 -0.1620246218721174 0.753888315102431\nH 3.372709837450199 -0.1621412402933628 -0.7538670917949114\n*\n",
+    "method_protocol": {
+      "auxiliary_basis": "def2/J",
+      "basis": "def2-TZVPP",
+      "constraints": {},
+      "dispersion": "D4",
+      "engine": "orca",
+      "engine_version": "6.1.1",
+      "method": "B3LYP",
+      "profile_id": "orca-vpt2-reference-v1",
+      "purpose": "optimize",
+      "solvent": null
+    },
+    "native_execution_metadata": {
+      "exchange_approximation": "RIJCOSX",
+      "native_optimizer_policy": {
+        "manual": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html",
+        "name": "EnforceStrictConvergence",
+        "requested_value": true,
+        "scope": "native stopping policy; unchanged requested numerical tolerances"
+      },
+      "execution_kind": "real",
+      "executable_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea"
+    },
+    "stdout_size": 3746469,
+    "stderr_size": 0,
+    "normal_termination_banner": false,
+    "geometry_optimization_converged_banner": false,
+    "last_started_cycle": 145,
+    "complete_geometry_convergence_tables": 144,
+    "all_five_criteria_passed_cycles": [],
+    "last_complete_cycle": {
+      "cycle": 144,
+      "criteria": [
+        {
+          "criterion": "Energy change",
+          "native_printed_value": -1e-10,
+          "threshold": 1e-10,
+          "native_pass": false
+        },
+        {
+          "criterion": "RMS gradient",
+          "native_printed_value": 1.62e-08,
+          "threshold": 3e-08,
+          "native_pass": true
+        },
+        {
+          "criterion": "MAX gradient",
+          "native_printed_value": 4.06e-08,
+          "threshold": 1e-07,
+          "native_pass": true
+        },
+        {
+          "criterion": "RMS step",
+          "native_printed_value": 1.0127e-06,
+          "threshold": 5e-07,
+          "native_pass": false
+        },
+        {
+          "criterion": "MAX step",
+          "native_printed_value": 3.2117e-06,
+          "threshold": 1e-06,
+          "native_pass": false
+        }
+      ]
+    },
+    "last_20_cycles": [
+      {
+        "cycle": 125,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -1e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.71e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.19e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1217e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5223e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 126,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 2e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.71e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.31e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0933e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.4628e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 127,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -1e-10,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.7e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.14e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1602e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5895e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 128,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 1e-10,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.7e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.35e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.134e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5686e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 129,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -1e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.7e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.21e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0781e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.3988e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 130,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 1e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.69e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.42e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1962e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.6593e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 131,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.68e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.16e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1046e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.4717e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 132,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 1e-10,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.68e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.25e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0655e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.3642e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 133,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.66e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.05e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1561e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5386e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 134,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.66e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.21e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1103e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.4939e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 135,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.66e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.12e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0666e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.3661e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 136,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 1e-10,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.67e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.33e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.159e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5489e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 137,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.64e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.07e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0929e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.446e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 138,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.65e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.2e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.048e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.3231e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 139,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -1e-10,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.63e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 3.92e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.1544e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.4905e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 140,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.63e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.18e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0884e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.439e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 141,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": 1e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.63e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.04e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0325e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.2601e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 142,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.63e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.25e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.157e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.5257e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 143,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -0.0,
+            "threshold": 1e-10,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.61e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.09e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0801e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.4213e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      },
+      {
+        "cycle": 144,
+        "criteria": [
+          {
+            "criterion": "Energy change",
+            "native_printed_value": -1e-10,
+            "threshold": 1e-10,
+            "native_pass": false
+          },
+          {
+            "criterion": "RMS gradient",
+            "native_printed_value": 1.62e-08,
+            "threshold": 3e-08,
+            "native_pass": true
+          },
+          {
+            "criterion": "MAX gradient",
+            "native_printed_value": 4.06e-08,
+            "threshold": 1e-07,
+            "native_pass": true
+          },
+          {
+            "criterion": "RMS step",
+            "native_printed_value": 1.0127e-06,
+            "threshold": 5e-07,
+            "native_pass": false
+          },
+          {
+            "criterion": "MAX step",
+            "native_printed_value": 3.2117e-06,
+            "threshold": 1e-06,
+            "native_pass": false
+          }
+        ]
+      }
+    ],
+    "late_displacement_failure_cycles": 20,
+    "last_unprojected_gradient_printed": {
+      "rms_hartree_per_bohr": 1.492e-07,
+      "max_hartree_per_bohr": 4.69e-07
+    }
+  },
+  "interpretation": "Actual native strict reference optimization did not converge all five requested criteria before shared budget expiration. Late projected gradients pass while displacement criteria remain failed; source73 RIJCOSX grid/numerical behavior requires science-owner review, not weakened stopping checks. No completed independent reference, VPT2 force field, transferred correction or full R2 result exists."
+}
