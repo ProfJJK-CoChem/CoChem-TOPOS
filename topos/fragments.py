@@ -10,6 +10,7 @@ import os
 import shutil
 import time
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from threading import Event
 from typing import Any
@@ -19,7 +20,7 @@ import numpy as np
 
 from .config import SystemConfig
 from .engines import EngineResult, run_engine
-from .models import Bond, Molecule, RunRecord, RunRequest
+from .models import Bond, Molecule, RunRecord, RunRequest, utc_now
 from .science import geometry_digest
 from .storage import (
     IntegrityError,
@@ -31,6 +32,25 @@ from .storage import (
     read_json,
 )
 from .thermochemistry import standard_state_correction
+
+ASSOCIATION_TIMING_SCOPE = "UTC wall clock around the actual frozen-fragment energy adapter invocation, including version probe and evidence parsing"
+
+
+def _frozen_fragment_execution_timing(evaluation: EngineResult) -> tuple[str | None, str | None]:
+    """Preserve genuine call boundaries; historical receipt imports remain undated."""
+    timing = evaluation.metadata.get("execution_timing")
+    if timing is None:
+        return None, None
+    try:
+        first, last = timing["started_at"], timing["finished_at"]
+        start, finish = datetime.fromisoformat(first), datetime.fromisoformat(last)
+        if (set(timing) != {"started_at", "finished_at", "scope"}
+                or timing["scope"] != ASSOCIATION_TIMING_SCOPE or start.utcoffset() is None
+                or finish.utcoffset() is None or finish < start):
+            raise ValueError("Invalid invocation boundary")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise IntegrityError("Frozen-fragment receipt has invalid execution wall-clock timing") from exc
+    return first, last
 
 
 def split_fragments(molecule: Molecule) -> list[Molecule]:
@@ -433,6 +453,7 @@ def monomer_first_association(
             if file_digest(receipt_path) != saved_job["receipt_sha256"] or saved_job["geometry_sha256"] != geometry_sha:
                 raise IntegrityError("Frozen-fragment recovery evidence or geometry changed")
             evaluation = EngineResult.model_validate(read_json(receipt_path))
+            _frozen_fragment_execution_timing(evaluation)
             if (evaluation.status != "completed" or evaluation.molecule is None
                     or geometry_digest(evaluation.molecule) != geometry_sha):
                 raise IntegrityError("Frozen-fragment receipt does not establish the requested completed geometry")
@@ -452,11 +473,14 @@ def monomer_first_association(
             checkpoint["fragment_jobs"][str(index)] = {"status": "running", "geometry_sha256": geometry_sha,
                                                        "evaluation_id": evaluation_id}
             atomic_json(checkpoint_path, checkpoint)
+            evaluation_started_at = utc_now()
             evaluation = run_engine(fragment, request.method_spec.model_copy(update={"constraints": {}}),
                                     request.resources.model_copy(update={"budget_seconds": min(remaining, getattr(request, "per_geometry_budget_seconds", None) or remaining)}),
                                     job_folder, operation="energy", cancel_event=cancel_event,
                                     executable=actual_config.executables.get(request.engine),
                                     **({"process_runner": runner} if runner else {}))
+            evaluation.metadata["execution_timing"] = {
+                "started_at": evaluation_started_at, "finished_at": utc_now(), "scope": ASSOCIATION_TIMING_SCOPE}
             evaluation.metadata["association_evaluation_id"] = evaluation_id
             receipt_path = folder / "fragment-receipts" / f"{evaluation_id}.json"
             atomic_json(receipt_path, evaluation.model_dump(mode="json"))

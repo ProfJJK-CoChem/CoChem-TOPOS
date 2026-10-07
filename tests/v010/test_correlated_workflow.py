@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import time
+from datetime import datetime
 from pathlib import Path
 from threading import Event
 
@@ -16,11 +17,11 @@ import pytest
 
 from topos.config import SystemConfig
 from topos.correlated import CorrelatedMethod
-from topos.correlated_workflow import _protocol_for_row, execute_correlated_recipe
+from topos.correlated_workflow import _protocol_for_row, _publish, execute_correlated_recipe
 from topos.engines import run_engine
 from topos.matrix_components import run_component
 from topos.matrix_workflow import MatrixInputs
-from topos.models import MethodSpec, Molecule, RunRecord, RunRequest
+from topos.models import MethodSpec, Molecule, RunRecord, RunRequest, utc_now
 from topos.storage import IntegrityError, RunStore, digest_json, file_digest
 from topos.workflow import Workflow
 
@@ -399,3 +400,25 @@ def test_component_commit_acknowledgement_loss_preserves_verified_publication(ge
         assert reused == result
     else:
         assert result is None and not saved.attempts[-1].quantities
+
+
+@pytest.mark.integration
+def test_derived_result_creation_timing_preserves_immutable_native_replay(genuine_component):
+    """Real xTB ledger attribution only; this never claims correlated chemistry."""
+    _, record, store, native = genuine_component
+    source = record.attempts[-1].model_dump(mode="json")
+    output = {"recipe": "actual-xTB-ledger-attribution-contract", "output_kind": "reference-electronic-energy",
+              "definition": "unchanged actual xTB energy; timing and immutable ledger contract only",
+              "electronic_energy_hartree": native.energy_hartree}
+    before = datetime.fromisoformat(utc_now())
+    _publish(record, store, "contract-only", output)
+    after = datetime.fromisoformat(utc_now())
+    aggregate = record.attempts[-1]
+    assert record.attempts[0].model_dump(mode="json") == source
+    assert aggregate.metadata["component_attempt_ids"] == [source["attempt_id"]]
+    assert before <= datetime.fromisoformat(aggregate.started_at) <= datetime.fromisoformat(aggregate.finished_at) <= after
+    assert "attribution creation" in aggregate.metadata["execution_timing_scope"]
+    original = aggregate.model_dump(mode="json")
+    _publish(record, store, "contract-only", output)
+    assert len(record.attempts) == 2 and record.attempts[-1].model_dump(mode="json") == original
+    assert store.verify()

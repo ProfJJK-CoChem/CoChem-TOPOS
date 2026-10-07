@@ -1021,7 +1021,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                 record.metadata["termination_reason"] = f"GOAT completed but {omitted} native frames exceed the explicit common-refinement candidate cap; raw ensemble is archived"
                 return
     elif row_id in {"T2-10s", "T2-30min", "T2-1h"}:
-        from .models import MethodSpec
+        from .models import MethodSpec, utc_now
         from .scans import run_relaxed_scan
 
         step = plan.steps[0]
@@ -1057,10 +1057,12 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
             attempt = Attempt(
                 attempt_id=attempt_id, run_id=record.run_id, engine=step.engine, method=step.method,
                 status="completed", converged=True, validation_status="validated-for-protocol",
+                started_at=utc_now(),
                 engine_version=source_attempt.engine_version, parent_attempt_id=source_attempt.attempt_id,
                 command=["topos-internal", "equality-constrained-relaxed-scan"],
                 diagnostics=point["diagnostics"],
                 metadata={"execution_kind": "real", "result_kind": "derived-constrained-scan",
+                          "execution_timing_scope": "constrained scan-point attribution creation; actual gradient invocation boundaries remain on accepted_gradient_attempt_id",
                           "operation": "relaxed-scan", "direction": point["direction"], "targets": point["targets"],
                           "output_molecule": point["molecule"], "point_sha256": point["point_sha256"],
                           "executable_sha256": source_attempt.metadata.get("executable_sha256")},
@@ -1071,6 +1073,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
             )
             attempt.artifacts = [artifact.model_copy(update={"path": (scan_folder / evidence["run_path"] / artifact.path).relative_to(store.run_dir).as_posix()}) for artifact in source_attempt.artifacts]
             attempt.metadata["accepted_gradient_attempt_id"] = source_attempt.attempt_id
+            attempt.finished_at = utc_now()
             record.attempts.append(attempt)
             record.candidates.append(Candidate(
                 candidate_id=candidate_id, molecule=Molecule.model_validate(point["molecule"]),

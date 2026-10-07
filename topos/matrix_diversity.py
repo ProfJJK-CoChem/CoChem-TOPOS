@@ -6,10 +6,11 @@ from pathlib import Path
 from threading import Event
 
 from .correlated import CorrelatedMethod, run_correlated
+from .entropy import SAMPLING_TIMING_SCOPE, sampling_execution_timing
 from .goat import run_goat
 from .matrix_components import run_component
 from .matrix_union import native_stage
-from .models import Artifact, Attempt, MethodSpec
+from .models import Artifact, Attempt, MethodSpec, utc_now
 from .sampling import SampledConformer, SamplingResult, run_crest
 from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
@@ -32,11 +33,14 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
         attempt = previous[-1]
         if digest_json(attempt.metadata['native_sampling_result']) != attempt.metadata['native_sampling_result_sha256']:
             raise IntegrityError('Completed diversity sampling result identity changed')
+        sampled = SamplingResult.model_validate(attempt.metadata["native_sampling_result"])
+        if (attempt.started_at, attempt.finished_at) != sampling_execution_timing(sampled):
+            raise IntegrityError("Completed diversity dispatch timestamps differ from retained native evidence")
         for artifact in attempt.artifacts:
             path = store.run_dir / artifact.path
             if path.is_symlink() or not path.resolve().is_relative_to(store.run_dir) or not path.is_file() or file_digest(path) != artifact.sha256:
                 raise IntegrityError("Completed diversity search artifact changed")
-        return SamplingResult.model_validate(attempt.metadata["native_sampling_result"])
+        return sampled
     if cancel_event is not None and cancel_event.is_set():
         record.status = "cancelled"
         return None
@@ -49,7 +53,7 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
     engine_name = "orca" if engine == "goat" else "crest"
     executable = runtime.resolve_executable(engine_name, workflow.config.executables.get(engine_name)) if runtime else workflow.config.executables.get(engine_name)
     xtb = runtime.resolve_executable("xtb", workflow.config.executables.get("xtb")) if runtime else workflow.config.executables.get("xtb")
-    attempt = Attempt(run_id=record.run_id, engine=engine_name, method="GFN2-xTB", status="running",
+    attempt = Attempt(run_id=record.run_id, engine=engine_name, method="GFN2-xTB", status="running", started_at=utc_now(),
                       metadata={"role": "matrix-diversity-search", "matrix_diversity_identity": identity,
                                 "seed_index": index, "sampling_engine": engine})
     record.attempts.append(attempt)
@@ -58,6 +62,7 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
     remaining = deadline - time.monotonic()
     if remaining <= 0:
         attempt.status = record.status = "timed-out"
+        attempt.finished_at = utc_now()
         store.commit(record)
         return None
     limits = record.request.resources.model_copy(update={"budget_seconds": remaining})
@@ -71,6 +76,10 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
         result = run_crest(seed, method, limits, folder, executable=executable, xtb_executable=xtb,
                           profile="crest-v4-v1", energy_window_kcal_mol=60,
                           process_runner=runner, cancel_event=cancel_event)
+    attempt.finished_at = utc_now()
+    result.metadata["execution_timing"] = {
+        "started_at": attempt.started_at, "finished_at": attempt.finished_at, "scope": SAMPLING_TIMING_SCOPE}
+    sampling_execution_timing(result)
     attempt.status, attempt.converged = result.status, result.converged
     attempt.command, attempt.engine_version, attempt.diagnostics = result.command, result.engine_version, result.diagnostics
     attempt.metadata.update(result.metadata)
