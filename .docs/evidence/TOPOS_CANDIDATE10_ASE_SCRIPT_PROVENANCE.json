@@ -1,0 +1,13 @@
+{
+  "scope": "Exact external acceptance script used for the retained installed mathematical replay-I/O check; not a native chemistry execution",
+  "script": "acceptance_script.py",
+  "sha256": "7bb99ae007bc5ff01e7c01765d6593cc1e960fa80915ac03f2553f098d60d6ca",
+  "command": [
+    "python",
+    "-I",
+    "acceptance_script.py",
+    "--output",
+    "/absolute/path/to/new/ase-io-evidence"
+  ],
+  "data_kind": "mathematical fixtures"
+}

@@ -1,0 +1,18 @@
+{
+  "base": {
+    "source_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "source_archive_sha256": "1460b299a7262babb4861bd3225cfa675ecfab6e49b0a3c0b61b3b10401f3e85",
+    "repeated_wheel_sha256": [
+      "c21f595824ec62da8f70d1aa25fb812297f8cd8cc85e59190e88f0992b63e7e6",
+      "c21f595824ec62da8f70d1aa25fb812297f8cd8cc85e59190e88f0992b63e7e6"
+    ]
+  },
+  "torq": {
+    "source_commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+    "source_archive_sha256": "198b9bb8c4a7c58eaae3bf2c6848d8a1ccc84d6810488ec503c35cf1e431b750",
+    "repeated_wheel_sha256": [
+      "d5e7ec3f8e1ae8cef85ca7aefe995219d3523e4e1330e465915a3159816fe617",
+      "d5e7ec3f8e1ae8cef85ca7aefe995219d3523e4e1330e465915a3159816fe617"
+    ]
+  }
+}
