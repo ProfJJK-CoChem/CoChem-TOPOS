@@ -1,0 +1,1 @@
+{"device":"cpu","manifest_sha256":"f63860cdb5a970878138864ee239530f1029892dc794cd0610c884e2e2985727","model_load_count":1,"schema_version":"topos-ml-extopt/0.1.0","socket_name":"s","versions":{"ase":"3.29.0","mace-torch":"0.3.16","numpy":"2.5.3","torch":"2.8.0+cpu"}}

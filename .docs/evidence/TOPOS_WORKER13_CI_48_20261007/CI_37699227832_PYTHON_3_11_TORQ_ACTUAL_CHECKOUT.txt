@@ -1,0 +1,106 @@
+﻿2026-10-07T22:56:33.5446073Z ##[group]Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+2026-10-07T22:56:33.5446508Z with:
+2026-10-07T22:56:33.5446753Z   repository: ProfJJK-CoChem/CoChem-TORQ
+2026-10-07T22:56:33.5447088Z   ref: 79fbb111125e50627a1a2c129888a45496f368d4
+2026-10-07T22:56:33.5447794Z   token: ***
+2026-10-07T22:56:33.5448052Z   path: .cochem-dependencies/torq
+2026-10-07T22:56:33.5448358Z   persist-credentials: false
+2026-10-07T22:56:33.5448633Z   ssh-strict: true
+2026-10-07T22:56:33.5448872Z   ssh-user: git
+2026-10-07T22:56:33.5449086Z   clean: true
+2026-10-07T22:56:33.5449322Z   sparse-checkout-cone-mode: true
+2026-10-07T22:56:33.5449608Z   fetch-depth: 1
+2026-10-07T22:56:33.5449844Z   fetch-tags: false
+2026-10-07T22:56:33.5450096Z   show-progress: true
+2026-10-07T22:56:33.5450326Z   lfs: false
+2026-10-07T22:56:33.5450537Z   submodules: false
+2026-10-07T22:56:33.5450779Z   set-safe-directory: true
+2026-10-07T22:56:33.5451034Z env:
+2026-10-07T22:56:33.5451269Z   TOPOS_REQUIRE_REAL_ENGINES: 1
+2026-10-07T22:56:33.5451600Z   TOPOS_EXECUTION_BACKEND: development
+2026-10-07T22:56:33.5451884Z   OMP_NUM_THREADS: 1
+2026-10-07T22:56:33.5452128Z   OPENBLAS_NUM_THREADS: 1
+2026-10-07T22:56:33.5452441Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-07T22:56:33.5452908Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib/pkgconfig
+2026-10-07T22:56:33.5453373Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-07T22:56:33.5453953Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-07T22:56:33.5454372Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.16/x64
+2026-10-07T22:56:33.5454794Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.16/x64/lib
+2026-10-07T22:56:33.5455166Z ##[endgroup]
+2026-10-07T22:56:33.6446148Z Syncing repository: ProfJJK-CoChem/CoChem-TORQ
+2026-10-07T22:56:33.6455110Z ##[group]Getting Git version info
+2026-10-07T22:56:33.6456391Z Working directory is '/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/.cochem-dependencies/torq'
+2026-10-07T22:56:33.6504497Z [command]/usr/bin/git version
+2026-10-07T22:56:33.6552627Z git version 2.55.0
+2026-10-07T22:56:33.6577500Z ##[endgroup]
+2026-10-07T22:56:33.6601058Z Temporarily overriding HOME='/home/runner/work/_temp/07d75a54-0504-4382-b9b2-01f8c643a931' before making global git config changes
+2026-10-07T22:56:33.6602255Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T22:56:33.6606273Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/CoChem-TOPOS/CoChem-TOPOS/.cochem-dependencies/torq
+2026-10-07T22:56:33.6653236Z ##[group]Initializing the repository
+2026-10-07T22:56:33.6660830Z [command]/usr/bin/git init /home/runner/work/CoChem-TOPOS/CoChem-TOPOS/.cochem-dependencies/torq
+2026-10-07T22:56:33.6717957Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T22:56:33.6722408Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T22:56:33.6724241Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T22:56:33.6725351Z hint: call:
+2026-10-07T22:56:33.6725928Z hint:
+2026-10-07T22:56:33.6726611Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T22:56:33.6727411Z hint:
+2026-10-07T22:56:33.6728520Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T22:56:33.6730891Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T22:56:33.6731879Z hint:
+2026-10-07T22:56:33.6732452Z hint: 	git branch -m <name>
+2026-10-07T22:56:33.6733118Z hint:
+2026-10-07T22:56:33.6734450Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T22:56:33.6735841Z Initialized empty Git repository in /home/runner/work/CoChem-TOPOS/CoChem-TOPOS/.cochem-dependencies/torq/.git/
+2026-10-07T22:56:33.6738159Z [command]/usr/bin/git remote add origin https://github.com/ProfJJK-CoChem/CoChem-TORQ
+2026-10-07T22:56:33.6777746Z ##[endgroup]
+2026-10-07T22:56:33.6778828Z ##[group]Disabling automatic garbage collection
+2026-10-07T22:56:33.6783376Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T22:56:33.6849775Z ##[endgroup]
+2026-10-07T22:56:33.6855225Z ##[group]Setting up auth
+2026-10-07T22:56:33.6856528Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T22:56:33.6895195Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T22:56:33.7150193Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T22:56:33.7191213Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T22:56:33.7472722Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T22:56:33.7561477Z ##[endgroup]
+2026-10-07T22:56:33.7562793Z ##[group]Fetching the repository
+2026-10-07T22:56:33.7576859Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 79fbb111125e50627a1a2c129888a45496f368d4
+2026-10-07T22:56:34.4114415Z From https://github.com/ProfJJK-CoChem/CoChem-TORQ
+2026-10-07T22:56:34.4131052Z  * branch            79fbb111125e50627a1a2c129888a45496f368d4 -> FETCH_HEAD
+2026-10-07T22:56:34.4144678Z ##[endgroup]
+2026-10-07T22:56:34.4145577Z ##[group]Determining the checkout info
+2026-10-07T22:56:34.4146667Z ##[endgroup]
+2026-10-07T22:56:34.4149067Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T22:56:34.4191770Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T22:56:34.4267981Z ##[group]Checking out the ref
+2026-10-07T22:56:34.4268906Z [command]/usr/bin/git checkout --progress --force 79fbb111125e50627a1a2c129888a45496f368d4
+2026-10-07T22:56:34.4765377Z Note: switching to '79fbb111125e50627a1a2c129888a45496f368d4'.
+2026-10-07T22:56:34.4766271Z 
+2026-10-07T22:56:34.4766863Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T22:56:34.4768042Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T22:56:34.4769444Z state without impacting any branches by switching back to a branch.
+2026-10-07T22:56:34.4770225Z 
+2026-10-07T22:56:34.4770789Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T22:56:34.4771852Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T22:56:34.4772529Z 
+2026-10-07T22:56:34.4772903Z   git switch -c <new-branch-name>
+2026-10-07T22:56:34.4773447Z 
+2026-10-07T22:56:34.4774120Z Or undo this operation with:
+2026-10-07T22:56:34.4774721Z 
+2026-10-07T22:56:34.4775074Z   git switch -
+2026-10-07T22:56:34.4775550Z 
+2026-10-07T22:56:34.4784721Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T22:56:34.4786164Z 
+2026-10-07T22:56:34.4786874Z HEAD is now at 79fbb11 Accept exact reviewed TOPOS handoffs into durable TORQ storage
+2026-10-07T22:56:34.4789386Z ##[endgroup]
+2026-10-07T22:56:34.4839846Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T22:56:34.4874440Z 79fbb111125e50627a1a2c129888a45496f368d4
+2026-10-07T22:56:34.4885448Z ##[group]Removing auth
+2026-10-07T22:56:34.4891451Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T22:56:34.4931858Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T22:56:34.5198557Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T22:56:34.5229753Z http.https://github.com/.extraheader
+2026-10-07T22:56:34.5239036Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T22:56:34.5284083Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T22:56:34.5543117Z ##[endgroup]
