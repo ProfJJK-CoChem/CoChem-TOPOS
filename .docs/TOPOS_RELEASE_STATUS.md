@@ -4,7 +4,9 @@ TOPOS now has reproducible wheel/source builds, a mandatory BASE/TOPOS/TORQ
 installation path and a tested noneditable installation. Full scientific release
 certification remains pending. The [50-requirement acceptance ledger](TOPOS_SRS_ACCEPTANCE.json)
 records **33 verified supported-profile requirements and 17 awaiting physical
-acceptance**, with no remaining identified coding gaps. It records the current
+acceptance**. All available recipe entry points are implemented; the failed
+native ORCA runs have exposed integration defects requiring correction and fresh
+acceptance. The ledger records the current
 chapter-by-chapter implementation assessments and outstanding
 physical/protocol conditions. A module's presence, a compiled recipe or a refusal
 test does not establish successful execution of that scientific pathway.
@@ -86,6 +88,26 @@ input/parser errors, and GOAT reached its real time limit. Subsequent fixes and
 new protocols require a new hosted run; these historical passes do not certify
 the current source or the complete release.
 
+The subsequent [hosted run 37650295795](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37650295795)
+has now completed and its artifacts have been retrieved. It tested TOPOS
+`4cdcf3853eb839eaf05da9bdae0d4fd4a0a879bc` through the same BASE `705b9d5` commit;
+it did not test the current `e811bda` executable snapshot. All three acceptance
+stages failed overall. Their original bytes are retained with an
+[evidence index](evidence/TOPOS_ORCA_RUN_37650295795_EVIDENCE_INDEX.json):
+
+| Stage | Actual outcome |
+| --- | --- |
+| [Baseline](evidence/TOPOS_ORCA_BASELINE_RUN_37650295795.json) | One of five cases passed: the native five-leg counterpoise calculation. HF-3c validation, r2SCAN-3c thermochemistry, wB97X-V optimization and GOAT refinement did not complete their required acceptance. |
+| [Extended](evidence/TOPOS_ORCA_EXTENDED_RUN_37650295795.json) | Eight of thirteen cases passed. Canonical **CCSD(T)-F12D/RI** and **MP2 optimization with a separate final-gradient check** now passed, in addition to repeated MP2, CCSD(T), AUTOCI-CCSD(T), DLPNO-CCSD(T1), F12-MP2 and F12-RI-MP2 passes. Native Hessian, VPT2, DLPNO counterpoise, F12 composite and R2 composite acceptance failed. |
+| [Licensed pytest receipt](evidence/TOPOS_ORCA_PYTEST_RUN_37650295795.json) and [JUnit](evidence/TOPOS_ORCA_PYTEST_RUN_37650295795.xml) | 25 passed, **two failed**, zero skipped. The two actual native tests failed at the Hessian reference optimization and VPT2 reference-Hessian stages. The passing parser/contract tests do not replace those native tests. |
+
+The receipts retain the observed failure boundaries: optimization/convergence or
+protocol validation, reference-Hessian completion, BASE's audited per-core memory
+limit for basis export, and a BASE broker failure in the F12 composite. These are
+diagnostic evidence for fixes and a new hosted run. A successful component does
+not complete a failed composite; this run supplies neither current-source native
+certification nor a passing supplement for the two local licensed skips.
+
 ## Method-matrix and scientific decisions
 
 The full source catalog has 140 rows: 44 owned by TOPOS and 96 by TORQ. Inspect
@@ -95,6 +117,9 @@ branches, prerequisites and exact source conflicts. The reviewed compiler has
 the remaining two TOPOS rows are intentionally unavailable CFOUR time tiers and are preserved rather
 than filled with an invented method. Recipe compilation is distinct from native
 acceptance and from the source papers' experimental accuracy claims. The
+[native basis-name mapping](TOPOS_ORCA_BASIS_MAPPING.md) preserves requested
+orbital spaces within its documented element domain and rejects unavailable
+fitting or CABS combinations before execution. The
 [month Product A route](TOPOS_MONTH_GEOMETRY_BRANCH.md) uses directly observed
 native atomic masses for its scalar/DBOC-corrected equilibrium rotors. Historical
 native output does contain numeric mass tables; earlier absence claims were

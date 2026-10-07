@@ -50,6 +50,9 @@ def test_hosted_case_preserves_exact_15_component_chemical_and_method_inventory(
     assert len(decks) == 15 and all("* xyz 0 1" in deck for deck in decks)
     assert sum("NoFrozenCore" in deck for deck in decks) == 3
     assert all(" Opt" not in deck and " Engrad" not in deck for deck in decks)
+    assert sum("jun-cc-pV(T+d)Z" in deck for deck in decks) == 6
+    assert sum("jun-cc-pV(Q+d)Z" in deck for deck in decks) == 3
+    assert all(" jun-cc-pVTZ " not in deck and " jun-cc-pVQZ " not in deck for deck in decks)
 
 
 def test_hosted_case_rejects_gpu_allocation_before_native_execution():

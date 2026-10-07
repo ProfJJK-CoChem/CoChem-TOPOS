@@ -34,6 +34,12 @@ def isolated_water_protocol() -> CorrelatedMethod:
                             frozen_core=True, scf_integrals="conventional", scf_convergence="VeryTightSCF")
 
 
+def counterpoise_protocol() -> CorrelatedCounterpoiseProtocol:
+    return CorrelatedCounterpoiseProtocol(native=CorrelatedMethod(method="DLPNO-CCSD(T1)", operation="energy",
+        orbital_basis="cc-pVDZ-F12", auxiliary_c="cc-pVTZ/C", auxiliary_jk="cc-pVTZ/JK", scf_integrals="RIJK",
+        frozen_core=True, pno_profile="TightPNO", tcutpno=1e-7), source_resolution=R2_ENERGY_RESOLUTION)
+
+
 def water_dimer_from_monomer(monomer: Molecule) -> tuple[Molecule, list[Molecule], list[dict]]:
     """Rigidly place two exact native monomer shapes in a hydrogen-bond seed.
 
@@ -92,9 +98,7 @@ def acceptance_request(resources: ResourceLimits, monomer: Molecule, native_sour
     if not native_source.strip():
         raise ValueError("Actual high-level monomer evidence reference is required")
     molecule, references, transformations = water_dimer_from_monomer(monomer)
-    cp = CorrelatedCounterpoiseProtocol(native=CorrelatedMethod(method="DLPNO-CCSD(T1)", operation="energy",
-        orbital_basis="cc-pVDZ-F12", auxiliary_c="cc-pVTZ/C", auxiliary_jk="cc-pVTZ/JK", scf_integrals="RIJK",
-        frozen_core=True, pno_profile="TightPNO", tcutpno=1e-7), source_resolution=R2_ENERGY_RESOLUTION)
+    cp = counterpoise_protocol()
     inputs = MatrixInputs(source_resolution=R2_REVIEWED_RESOLUTION, isolated_monomer_references=references,
         r2_monomer_provenance=[R2MonomerProvenance(geometry_sha256=digest_json(m.model_dump(mode="json")),
             method="fc-CCSD(T)/cc-pVTZ", source=native_source,
@@ -242,6 +246,25 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
         atomic_json(folder / "isolated-water-request.json", {"molecule": monomer.model_dump(mode="json"),
                     "protocol": protocol.model_dump(mode="json"), "scope": "actual canonical frozen-core CCSD(T)/cc-pVTZ monomer optimization via AUTOCI"})
         with patch.object(BaseRuntime, "run_process", counted_process), patch.object(BaseRuntime, "run_orca_utility", counted_utility):
+            # Verify the actual utility authority and exact H/O basis names
+            # before spending the campaign budget on high-level geometry.
+            # These are genuine exports, not substituted basis definitions.
+            basis_preflight = {}
+            for role, basis in counterpoise_protocol().basis_names().items():
+                receipt = runtime.export_orca_basis(basis, sorted(set(monomer.symbols)),
+                    folder / "basis-preflight" / role, remaining().model_copy(update={"threads": 1}))
+                exported = Path(receipt.get("output_path", ""))
+                if (receipt.get("status") != "completed" or receipt.get("orca_version") != "6.1.1"
+                        or receipt.get("orca_sha256") != binary_hash or receipt.get("basis") != basis
+                        or not exported.is_file() or exported.is_symlink()
+                        or file_digest(exported) != receipt.get("output_sha256")):
+                    raise RuntimeError(f"Native R2 basis-export preflight failed for {basis}")
+                basis_preflight[role] = receipt
+            atomic_json(folder / "basis-preflight.json", basis_preflight)
+            progress["stages"].append({"stage": "native-basis-export-preflight", "status": "completed",
+                "receipt_sha256": file_digest(folder / "basis-preflight.json"),
+                "scope": "Actual exact-basis export availability; native calculation compatibility remains checked by each real leg"})
+            atomic_json(folder / "progress.json", progress)
             high_level = run_correlated(monomer, protocol, remaining(), folder / "isolated-water",
                                        executable=binary, process_runner=runtime.run_process)
             atomic_json(folder / "isolated-water-result.json", high_level.model_dump(mode="json"))
@@ -291,6 +314,7 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
             "snapshot_id": snapshot["snapshot_id"], "source_resolution": R2_REVIEWED_RESOLUTION,
             "reviewed_method_revision": reviewed_revision(R2_REVIEWED_RESOLUTION),
             "high_level_monomer_protocol": protocol.model_dump(mode="json"),
+            "basis_preflight_sha256": file_digest(folder / "basis-preflight.json"),
             "high_level_result_sha256": file_digest(folder / "isolated-water-result.json"),
             "monomer_placement_sha256": file_digest(folder / "monomer-placement.json"),
             "result_sha256": file_digest(folder / "native-result.json"), "helper_sha256": file_digest(Path(__file__)),

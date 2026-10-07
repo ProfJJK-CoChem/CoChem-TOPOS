@@ -30,6 +30,7 @@ from .engines import (
     read_xyz,
 )
 from .models import Contract, Molecule, ResourceLimits
+from .orca_basis_names import resolve_orca_orbital_basis, validate_basis_elements
 from .runtime import available_cpu_count
 from .storage import atomic_json, digest_json
 
@@ -37,12 +38,14 @@ MDCI_SOURCE = "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistr
 AUTOCI_SOURCE = "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/autoci.html"
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 ORBITAL_BASES = frozenset(
-    [f"{prefix}cc-pV{zeta}Z" for prefix in ("", "aug-", "jun-") for zeta in ("D", "T", "Q", "5")]
+    [f"{prefix}cc-pV{zeta}Z" for prefix in ("", "aug-") for zeta in ("D", "T", "Q", "5")]
+    + [f"jun-cc-pV{zeta}Z" for zeta in ("D", "T", "Q")]
     + [f"cc-pV{zeta}Z-F12" for zeta in ("D", "T", "Q")]
     + [f"cc-pwCV{zeta}Z" for zeta in ("D", "T", "Q", "5")]
     + ["def2-SVP", "def2-TZVP", "def2-TZVPP", "def2-QZVPP"]
 )
-AUXILIARY_BASES = frozenset([f"cc-pV{zeta}Z/{kind}" for zeta in ("D", "T", "Q", "5") for kind in ("C", "JK")]
+AUXILIARY_BASES = frozenset([f"cc-pV{zeta}Z/C" for zeta in ("D", "T", "Q", "5")]
+                          + [f"cc-pV{zeta}Z/JK" for zeta in ("T", "Q", "5")]
                           + ["def2/JK", "def2-SVP/C", "def2-TZVP/C", "def2-TZVPP/C", "def2-QZVPP/C"])
 CABS_BASES = frozenset(f"cc-pV{zeta}Z-F12-CABS" for zeta in ("D", "T", "Q"))
 
@@ -99,6 +102,14 @@ class CorrelatedMethod(Contract):
         return self
 
 
+def correlated_basis_support(molecule: Molecule, protocol: CorrelatedMethod) -> dict[str, dict]:
+    """Resolve exact orbital spelling and preflight every native basis role."""
+    basis = resolve_orca_orbital_basis(molecule, protocol.orbital_basis)
+    return {role: validate_basis_elements(name, role, molecule.symbols)
+            for role, name in (("orbital", basis["native_basis"]), ("auxiliary_c", protocol.auxiliary_c),
+                               ("auxiliary_jk", protocol.auxiliary_jk), ("cabs", protocol.cabs)) if name}
+
+
 def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: ResourceLimits) -> str:
     if molecule.multiplicity != 1:
         raise ValueError("This correlated profile requires closed-shell RHF; open-shell reference semantics must be specified separately")
@@ -108,7 +119,9 @@ def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: 
         raise ValueError("Correlated ORCA requires a valid CPU allocation; no GPU substitution")
     if resources.memory_mb * .75 < 16 * resources.threads:
         raise ValueError("Insufficient memory for explicit per-rank MaxCore and driver reserve")
-    keywords = ["RHF", protocol.method, protocol.orbital_basis, protocol.scf_convergence,
+    basis = resolve_orca_orbital_basis(molecule, protocol.orbital_basis)
+    correlated_basis_support(molecule, protocol)
+    keywords = ["RHF", protocol.method, basis["native_basis"], protocol.scf_convergence,
                 "FrozenCore" if protocol.frozen_core else "NoFrozenCore"]
     keywords.extend(value for value in (protocol.auxiliary_c, protocol.auxiliary_jk, protocol.cabs, protocol.pno_profile) if value)
     keywords.extend(["RIJK", "NOCOSX"] if protocol.scf_integrals == "RIJK" else ["NOCOSX"])
@@ -248,6 +261,8 @@ def run_correlated(molecule: Molecule, protocol: CorrelatedMethod, resources: Re
     folder = Path(workdir).resolve()
     try:
         deck = correlated_input(molecule, protocol, resources)
+        result.metadata["orbital_basis_resolution"] = resolve_orca_orbital_basis(molecule, protocol.orbital_basis)
+        result.metadata["basis_support_receipts"] = correlated_basis_support(molecule, protocol)
         runtime = None
         if process_runner is None:
             runtime = BaseRuntime()

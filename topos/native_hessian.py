@@ -41,7 +41,7 @@ _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 
 
 def parse_orca_hessian(path: str | Path, molecule: Molecule) -> dict[str, Any]:
-    """Parse a complete blocked Cartesian .hess matrix and its Bohr geometry.
+    """Parse and transform a physical .hess matrix to its requested frame.
 
     Native atomic masses are retained separately; isotope-independent electronic
     derivatives are mass weighted using the explicit TOPOS isotope policy.
@@ -67,8 +67,17 @@ def parse_orca_hessian(path: str | Path, molecule: Molecule) -> dict[str, Any]:
             raise EngineParseError("Hessian atom order mismatch")
         masses = [_number(r[1]) for r in rows]
         xyz = np.asarray([[_number(v) for v in r[2:]] for r in rows]) * BOHR_ANGSTROM
-        if min(masses) <= 0 or not np.allclose(xyz, molecule.coordinates, atol=2e-7, rtol=0):
-            raise EngineParseError("Hessian masses or reference geometry invalid")
+        if min(masses) <= 0:
+            raise EngineParseError("Hessian masses invalid")
+        # Native Freq translates to its mass center, and VPT2 additionally
+        # rotates into principal axes. Equality of absolute coordinates would
+        # reject genuine derivatives. Bind indexed geometry under a proper
+        # rigid transformation, then transform the Cartesian tensor itself.
+        from .rotational_transfer import proper_alignment, rotate_cartesian_hessian
+
+        alignment = proper_alignment(xyz, molecule.coordinates, masses)
+        if alignment['max_atom_displacement_angstrom'] > 2e-7:
+            raise EngineParseError("Hessian reference geometry differs beyond a proper rigid transformation")
         dimension = 3 * n
         hessian = np.full((dimension, dimension), np.nan)
         cursor = 1
@@ -86,10 +95,13 @@ def parse_orca_hessian(path: str | Path, molecule: Molecule) -> dict[str, Any]:
                     raise EngineParseError("Hessian duplicate matrix elements")
                 hessian[expected, columns] = [_number(value) for value in values[1:]]
         validate_derivatives(hessian=hessian, natoms=n)
+        hessian = rotate_cartesian_hessian(hessian, alignment['rotation_source_to_target'])
     except (KeyError, IndexError, ValueError) as exc:
         raise EngineParseError(f"incomplete or invalid ORCA Hessian: {exc}") from exc
     return {"hessian_hartree_per_bohr2": hessian.tolist(), "native_masses_amu": masses,
             "units": "hartree/bohr^2", "native_coordinates_units": "bohr",
+            "native_coordinates_angstrom": xyz.tolist(), "native_to_requested_frame": alignment,
+            "hessian_frame": "requested molecule Cartesian frame; native tensor transformed by indexed proper rotation",
             "mass_policy": "native masses retained; TOPOS isotope masses used for independent mode analysis"}
 
 

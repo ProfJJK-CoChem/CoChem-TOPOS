@@ -11,11 +11,12 @@ from pathlib import Path
 
 from topos.base_integration import BaseRuntime
 from topos.config import SystemConfig
-from topos.correlated import CorrelatedMethod, correlated_input
+from topos.correlated import CorrelatedMethod, correlated_basis_support, correlated_input
 from topos.fragments import split_fragments
 from topos.matrix_workflow import MatrixInputs
 from topos.method_matrix import MATRIX_REVISION, reviewed_revision
 from topos.models import Molecule, ResourceLimits, RunRecord, RunRequest
+from topos.orca_basis_names import resolve_orca_orbital_basis
 from topos.orca_f12_composite import (
     SOURCE_RESOLUTION,
     OrcaF12CompositeProtocol,
@@ -109,6 +110,8 @@ def _verify_composite(record: RunRecord, protocol: OrcaF12CompositeProtocol, bin
                 or attempt.metadata.get("requested_protocol") != native.model_dump(mode="json")
                 or payload.get("molecule") != molecule.model_dump(mode="json")
                 or metadata.get("executable_sha256") != binary_hash
+                or metadata.get("orbital_basis_resolution") != resolve_orca_orbital_basis(molecule, native.orbital_basis)
+                or metadata.get("basis_support_receipts") != correlated_basis_support(molecule, native)
                 or payload.get("status") != "completed" or payload.get("converged") is not True):
             raise RuntimeError("F12 composite component lacks exact genuine native identity and frozen geometry")
     details = output.get("component_details", {})

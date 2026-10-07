@@ -570,13 +570,24 @@ print(json.dumps(result,sort_keys=True))
         if folder.exists() and any(folder.iterdir()):
             raise BaseIntegrationError("Basis export requires a fresh empty work directory")
         helper, parent, authority = self._orca_distribution_utility()
+        # Export is serial even when its parent scientific campaign uses MPI.
+        # A total campaign ceiling is not a request to reserve that entire RAM
+        # amount for one helper core. Fit this non-scientific utility beneath
+        # BASE's audited per-core ceiling and retain both allocations explicitly.
+        maximum = self.registry.hardware.maxcore_mb
+        if type(maximum) is not int or maximum <= 0:
+            raise BaseIntegrationError("BASE basis export lacks an audited per-core memory ceiling")
+        utility_memory_mb = min(resources.memory_mb, maximum * 4 // 3)
+        if utility_memory_mb < 64:
+            raise BaseIntegrationError("BASE basis-export memory ceiling cannot support the minimum allocation")
+        utility_resources = resources.model_copy(update={"memory_mb": utility_memory_mb})
         try:
             parent = self._authorize("orca", registry_path=self.registry_path, cores=1,
-                                     maxcore_mb=max(1, int(resources.memory_mb * .75)))
+                                     maxcore_mb=max(1, utility_memory_mb * 3 // 4))
         except Exception as exc:
             raise BaseIntegrationError(f"BASE basis-export resource authority failed: {exc}") from exc
         command = [str(helper), *arguments]
-        result = self._execute_authorized(command, folder, resources, parent, engine="orca", cancel_event=cancel_event,
+        result = self._execute_authorized(command, folder, utility_resources, parent, engine="orca", cancel_event=cancel_event,
                                           log_prefix="basis-export", threads_per_process=1, output_limit_mb=32)
         # Native code and its authority must remain stable throughout execution.
         _, _, after = self._orca_distribution_utility()
@@ -591,7 +602,9 @@ print(json.dumps(result,sort_keys=True))
             "schema_version": "topos-orca-basis-export/0.1.0", **authority,
             "status": status, "basis": basis, "elements": elements, "format": "GAMESS-US",
             "command": command, "process": result.to_dict(), "output_path": str(output),
-            "resources": resources.model_dump(mode="json"),
+            "resources": utility_resources.model_dump(mode="json"),
+            "requested_resources": resources.model_dump(mode="json"),
+            "resource_policy": "Serial basis utility: hard RSS ceiling bounded by requested RAM and the audited per-core 75-percent allocation; scientific method unchanged",
             "parent_stage0": {"engine": "orca", "cores": parent.cores, "maxcore_mb": parent.maxcore_mb,
                               "cpu_affinity": list(parent.cpu_affinity)},
             "output_sha256": file_digest(output) if valid_output else None,

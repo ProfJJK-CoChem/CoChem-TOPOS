@@ -120,9 +120,8 @@ def capability_report() -> dict[str, Any]:
         "unavailable": [
             "native Windows/macOS engine execution",
             "HPC scheduler transport",
-            "ABCluster native adapter",
             "Molpro F12 and MPQC native adapters",
-            "frozen-monomer R2 VPT2 force field",
+            "native VPT2 evaluated directly at a constrained frozen-monomer geometry",
             "automatic kinetic grouping",
             "automatic journal or repository deposition",
         ],

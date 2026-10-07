@@ -1,0 +1,24 @@
+{
+  "kind": "unchanged actual native ORCA 6.1.1 input-error evidence; no successful calculation claimed",
+  "github_run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37650295795",
+  "github_run_id": "37650295795",
+  "base_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "topos_commit": "4cdcf3853eb839eaf05da9bdae0d4fd4a0a879bc",
+  "orca_executable_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea",
+  "files": {
+    "jun-tz-rejected.stdout": {
+      "sha256": "6e074753369e1dda7fc2bbea3c8fed8839efd60c12c14bb67f0a5cd7f55569ab",
+      "original_path": "F12-composite/run/attempts/attempt_82b3ac34beff413e9bf70075e6edaf10/engine.stdout"
+    },
+    "jun-tz-rejected.inp": {
+      "sha256": "12706cbda16d8760ae6732d542f29c4fbec48fcacb1b1dcad1b89c6441ce9fed",
+      "original_path": "F12-composite/run/attempts/attempt_82b3ac34beff413e9bf70075e6edaf10/job.inp"
+    },
+    "jun-tz-rejected.protocol.json": {
+      "sha256": "7df33f387e54c8bdfed59f64fffb3c55ce5acbf835334bcbb794144cf50281b6",
+      "original_path": "F12-composite/run/attempts/attempt_82b3ac34beff413e9bf70075e6edaf10/protocol.json"
+    }
+  },
+  "diagnosis": "ORCA rejects bare JUN-CC-PVTZ before SCF; documented built-in seasonal names use (X+d).",
+  "resolution_scope": "Exact H-Ne spelling mapping only; second-row extra tight d may not be silently introduced."
+}

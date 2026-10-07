@@ -63,12 +63,22 @@ def _quantity(record: RunRecord, name: str) -> Any:
     return values[0]
 
 
+def _require_calculation_validation(record: RunRecord) -> None:
+    """Numerical protocol checks do not stand in for the operator's review."""
+    require(record.validation_status in {"validated-for-protocol", "human-review"},
+            "Calculation lacks protocol validation or awaits non-numerical checks")
+    native = [attempt for attempt in record.attempts if attempt.command and attempt.command[0] != "topos-internal"]
+    require(bool(native), "No real native calculation attempt was recorded")
+    require(all(attempt.validation_status == "validated-for-protocol" for attempt in native),
+            "A native calculation lacks protocol validation")
+
+
 def _verify_run(record: RunRecord, expected_binary_hash: str) -> dict[str, Any]:
     store = RunStore(record.metadata["run_dir"])
     manifest = store.verify()
     require(store.load() == record.model_dump(mode="json"), "Verified snapshot differs from the returned record")
     require(record.status == "completed", f"Requested calculation did not complete: {record.metadata.get('termination_reason', record.status)}")
-    require(record.validation_status == "validated-for-protocol", "Calculation lacks protocol validation")
+    _require_calculation_validation(record)
     native = [attempt for attempt in record.attempts if attempt.command and attempt.command[0] != "topos-internal"]
     require(bool(native), "No real native calculation attempt was recorded")
     for attempt in native:
@@ -80,6 +90,8 @@ def _verify_run(record: RunRecord, expected_binary_hash: str) -> dict[str, Any]:
     return {"run_id": record.run_id, "run_directory": str(store.run_dir),
             "snapshot_id": manifest["snapshot_id"], "record_sha256": manifest["record_sha256"],
             "native_attempt_count": len(native), "status": record.status,
+            "record_validation_status": record.validation_status,
+            "validation_scope": "native numerical protocol evidence; operator review is not inferred",
             "request": record.request.model_dump(mode="json")}
 
 

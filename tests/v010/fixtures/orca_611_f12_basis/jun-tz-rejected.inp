@@ -1,0 +1,10 @@
+! RHF CCSD(T)-F12D/RI jun-cc-pVTZ VeryTightSCF FrozenCore cc-pVQZ/C cc-pVTZ-F12-CABS NOCOSX
+%pal nprocs 2 end
+%maxcore 1536
+* xyz 0 1
+O 0 0 0
+H 0.96 0 0
+H -0.24 0.93 0
+H 0 0 6
+H 0.74 0 6
+*
