@@ -22,6 +22,10 @@ The [official VPT2 manual](https://www.faccts.de/docs/orca/6.1/manual/contents/s
 
 ## Recovery and installation
 
+Ordinary CI [37677708731](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37677708731) exposed a subprocess cleanup race: the process-group leader had exited, but an owned child was still runnable when the timeout result returned. Cleanup now checks all non-zombie members of the owned group after escalation and fails explicitly if their termination cannot be established within a bounded cleanup interval. The calculation deadline remains unchanged; termination has a separate maximum 0.5-second graceful interval and 2-second confirmation interval. Unrelated process groups remain untouched.
+
+The [focused JUnit](evidence/TOPOS_RUNTIME_CLEANUP_FOCUSED_20261007.xml) records 15 passing tests. The unchanged [stress receipt](evidence/TOPOS_RUNTIME_CLEANUP_STRESS_20261007.json) records 48 real supervised executions across four workers: ordinary timeout, a child ignoring SIGTERM, and an orphaned child after its parent exits. Every child was already absent or a zombie when execution returned; the longest invocation took 1.254 seconds. This verifies process supervision rather than a scientific calculation, and does not replace the subsequent full regression.
+
 Remote recovery now binds the caller's immutable request separately from the worker's deliberate local request, retains owned dispatch/controller identities before submission, and polls/retrieves the same job after interruption. A lost submission response remains explicitly unconfirmed until an authenticated matching job is observed; recovery does not submit another job. Imported terminal scientific records, including failures, remain immutable.
 
 The hosted preflight now expands only the reviewed `orca+crest` compound label into its supported native ORCA/CREST/xTB installations. It does not infer installers for arbitrary compound labels or ML/CFOUR profiles.
