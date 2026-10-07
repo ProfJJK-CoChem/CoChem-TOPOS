@@ -36,15 +36,15 @@ identify the changed F12D/RI approximation. Compilation is not native acceptance
 or a transfer of benchmark accuracy. `cochem-topos matrix support` is the current
 executable inventory.
 
-The current-source [regression](evidence/TOPOS_VALIDATION_20261007T165703Z.json)
-passed all five checks: **1,679 tests passed and two licensed ORCA tests were
+The current-source [regression](evidence/TOPOS_VALIDATION_20261007T183854Z.json)
+passed all five checks: **1,774 tests passed and two licensed ORCA tests were
 skipped**, with unchanged source hashes. The ledger has **33 verified supported-profile
 requirements, 17 awaiting physical acceptance, and no identified coding gaps**.
-The [fresh mandatory-wheel installation](evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json)
+The [fresh mandatory-wheel installation](evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json)
 passed actual BASE-authorized xTB, reviewed export and TORQ import; separate
-[ASE I/O checks](evidence/TOPOS_CANDIDATE07_ASE_IO.json) passed without importing Torch.
-The [ordinary hosted CI](evidence/TOPOS_ORDINARY_CI_37654067259.json) passed on Python
-3.11 and 3.12, with 1,588 passed and 42 skipped per interpreter. The
+[ASE I/O checks](evidence/TOPOS_CANDIDATE10_ASE_IO.json) passed without importing Torch.
+The [ordinary hosted CI](evidence/TOPOS_ORDINARY_CI_37666928361.json) passed on Python
+3.11 and 3.12, with 1,681 passed and 42 skipped per interpreter. The
 [portable current-evidence index](evidence/TOPOS_CURRENT_INSTALLATION_EVIDENCE_INDEX.json)
 links exact installation, CPU worker and BASE-authorized ABCluster receipts.
 The [907-test receipt](evidence/TOPOS_VALIDATION_20261007_113240.json) remains
@@ -70,7 +70,7 @@ describe the separate release gate. An unsigned candidate is not a certified rel
 | TOPOS-010-008 | Electronic states, mapped stereochemistry and isotope identities are independent of sampled observations; enantiomer and homometric regression cases remain distinct. [models.py](../topos/models.py); [science.py](../topos/science.py); [test_science.py](../tests/v010/test_science.py). | Verified for the supported local profile by the current source-bound regression; see the linked ledger. |
 | TOPOS-010-009 | Specified fragment connectivity/state is preserved; distance graphs are hypotheses and unsupported coordination/proton-transfer classifications require review. [chemistry.py](../topos/chemistry.py); [test_science.py](../tests/v010/test_science.py). | Verified for the supported local profile by the current source-bound regression; see the linked ledger. |
 | TOPOS-010-010 | Actual monomer-first xTB optimization and association preserve source mapping, reference states, deformation and completed-child resume evidence. [fragments.py](../topos/fragments.py); [advanced_workflow.py](../topos/advanced_workflow.py); [test_fragments.py](../tests/v010/test_fragments.py). | Verified for the supported local profile by the current source-bound regression; see the linked ledger. |
-| TOPOS-010-011 | Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. The current whole suite passed; a [BASE-authorized native Ne₂ run](evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json) completed rigidmol sampling, two actual xTB refinements and recovery without new processes. Its 46 artifact hashes were checked; no exhaustive-search or full-matrix claim is made. [constraints.py](../topos/constraints.py); [sampling.py](../topos/sampling.py); [test_constraints.py](../tests/v010/test_constraints.py). | Exact-source hosted ORCA calculations pending. |
+| TOPOS-010-011 | Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. The current whole suite passed; a [BASE-authorized native Ne₂ run](evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json) completed rigidmol sampling, two actual xTB refinements and recovery without new processes. Its 46 artifact hashes were checked; no exhaustive-search or full-matrix claim is made. [constraints.py](../topos/constraints.py); [sampling.py](../topos/sampling.py); [test_constraints.py](../tests/v010/test_constraints.py). | Exact-source hosted ORCA calculations pending. |
 ## 5. Method matrix, purpose, and hardware
 
 | Requirement | Implemented behavior and evidence | Remaining acceptance |
@@ -87,7 +87,7 @@ describe the separate release gate. An unsigned candidate is not a certified rel
 | Requirement | Implemented behavior and evidence | Remaining acceptance |
 | --- | --- | --- |
 | TOPOS-010-019 | Seeded searches preserve input/perturbations/windows/source observations, failure reasons and budget termination; discovery counts do not imply exhaustive coverage. [workflow.py](../topos/workflow.py); [sampling.py](../topos/sampling.py); [test_workflow.py](../tests/v010/test_workflow.py). | Verified for the supported local profile by the current source-bound regression; see the linked ledger. |
-| TOPOS-010-020 | Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. The current whole suite passed; a [BASE-authorized native Ne₂ run](evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json) completed rigidmol sampling, two actual xTB refinements and recovery without new processes. Its 46 artifact hashes were checked; no exhaustive-search or full-matrix claim is made. [sampling.py](../topos/sampling.py); [goat.py](../topos/goat.py); [test_sampling.py](../tests/v010/test_sampling.py). | Exact-source hosted ORCA calculations pending. |
+| TOPOS-010-020 | Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. The current whole suite passed; a [BASE-authorized native Ne₂ run](evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json) completed rigidmol sampling, two actual xTB refinements and recovery without new processes. Its 46 artifact hashes were checked; no exhaustive-search or full-matrix claim is made. [sampling.py](../topos/sampling.py); [goat.py](../topos/goat.py); [test_sampling.py](../tests/v010/test_sampling.py). | Exact-source hosted ORCA calculations pending. |
 | TOPOS-010-021 | Source-labelled seeds undergo common-level refinement and staged deduplication; rejected members remain. Native combined CREST screening reports lost per-input attribution honestly. [workflow.py](../topos/workflow.py); [matrix_union.py](../topos/matrix_union.py); [test_workflow.py](../tests/v010/test_workflow.py). | Exact-source hosted ORCA calculations pending. |
 | TOPOS-010-022 | Restart checks state/protocol/input and completed raw artifacts; retries are immutable linked attempts. Missing electronic diagnostics are not inferred; automatic active-space/method changes are not enabled. [workflow.py](../topos/workflow.py); [correlated.py](../topos/correlated.py); [test_workflow.py](../tests/v010/test_workflow.py). | Exact-source hosted ORCA calculations pending. |
 | TOPOS-010-023 | Frozen monomer references retain geometry/state/maps and rank-checked rigid/free coordinates; genuine xTB rigid-dimer optimization preserves internal distances. [constraints.py](../topos/constraints.py); [fragments.py](../topos/fragments.py); [test_constraints.py](../tests/v010/test_constraints.py). | Verified for the supported local profile by the current source-bound regression; see the linked ledger. |
@@ -172,7 +172,7 @@ describe the separate release gate. An unsigned candidate is not a certified rel
   coded default-isotopologue Product A route only when all native mass observations
   validate. Historical outputs do print numeric atomic-mass tables; they establish
   parser grammar, not current native acceptance or arbitrary-isotope support.
-- [TORQ consumption evidence](evidence/TOPOS_CANDIDATE07_TORQ_CONSUMPTION.json) proves
+- [TORQ consumption evidence](evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json) proves
   a durable import and acknowledgment, not a downstream spectrum or kinetic result.
 
 The release gate checks complete requirement evidence, matrix coverage, matching

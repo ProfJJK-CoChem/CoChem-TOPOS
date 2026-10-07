@@ -1,7 +1,7 @@
 {
   "schema_version": "topos-portable-evidence-index/0.1.0",
   "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
-  "scope": "Exact original receipt copies for the candidate10 noneditable mandatory ecosystem installation, mathematical ASE I/O, actual TORQ import, complete tracked-fixture source archive, worker07 CPU inference and BASE ABCluster execution, all eleven BASE verification phases, and ordinary editable hosted CI from an identical source tree. No licensed ORCA, native CFOUR, physical GPU or complete scientific release certification is claimed. Original absolute paths remain unchanged; this index supplies portable locations for copied receipts. Raw calculations not copied here remain at their original recorded paths and are not implied to be portable by this index.",
+  "scope": "Exact original receipt copies for the candidate10 noneditable mandatory ecosystem installation, mathematical ASE I/O, actual TORQ import, complete tracked-fixture source archive, worker07 CPU inference and BASE ABCluster execution, and all eleven BASE verification phases. No licensed ORCA, native CFOUR, physical GPU or complete scientific release certification is claimed. Original absolute paths remain unchanged; this index supplies portable locations for copied receipts. Raw calculations not copied here remain at their original recorded paths and are not implied to be portable by this index.",
   "controller_wheel_sha256": "ac5f1705cb967cce3e938e0c6a18de092f8d190e58b4dfa625a6e2114a00876f",
   "worker_wheel_sha256": "acf225d4b50283ceaefebaf16f5b61fe1fcf10ceaabb68ead3b9f3f1fcbafe44",
   "files": [
@@ -122,27 +122,6 @@
       "original_path": "/workspace/.cochem-setup/refresh-20261007T182726876546794/all-eleven.json",
       "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca",
       "bytes": 55566,
-      "copy": "exact-original-bytes"
-    },
-    {
-      "path": "TOPOS_ORDINARY_CI_37666928361.json",
-      "original_path": "/workspace/.cochem-setup/topos-ordinary-ci-37666928361-verification.json",
-      "sha256": "e9fd40f1cf21c702b5f8ed85e6d4950eae7c29e1b4136e15e78267e422714c27",
-      "bytes": 42764,
-      "copy": "exact-original-bytes"
-    },
-    {
-      "path": "TOPOS_ORDINARY_CI_37666928361_PY311.xml",
-      "original_path": "/workspace/.cochem-setup/topos-ordinary-ci-37666928361-python-311/verification.xml",
-      "sha256": "e78e0c51cfd4e72fc2e6aa83138c0db05a692ec19498e91d07b9aa61ecfee3d9",
-      "bytes": 267463,
-      "copy": "exact-original-bytes"
-    },
-    {
-      "path": "TOPOS_ORDINARY_CI_37666928361_PY312.xml",
-      "original_path": "/workspace/.cochem-setup/topos-ordinary-ci-37666928361-python-312/verification.xml",
-      "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a",
-      "bytes": 267465,
       "copy": "exact-original-bytes"
     }
   ]

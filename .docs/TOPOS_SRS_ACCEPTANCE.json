@@ -1,6 +1,6 @@
 {
   "schema_version": "topos-srs-acceptance/0.1.0",
-  "generated_at": "2026-10-07T17:04:11.514055+00:00",
+  "generated_at": "2026-10-07T18:40:08.430383+00:00",
   "srs_sha256": "8e1c34348601be4eb25ee01c38a754998e1295ee5e32e6cfb6b133f9c8fe462d",
   "status": "incomplete",
   "interpretation": "Requirement-by-requirement implementation audit. Verified means the stated supported-profile behavior has retained concrete tests with matching listed sources; it is not full engine/domain or complete release certification. Native/external conditions and code gaps remain explicit.",
@@ -53,7 +53,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -68,7 +68,7 @@
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved",
           "tests.v010.test_schema_evolution::test_new_optional_request_defaults_preserve_old_document_identity"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -78,7 +78,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -178,7 +178,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -290,7 +290,7 @@
           "tests.v010.test_method_matrix::test_runtime_problem_features_must_be_valid_explicit_scientific_context[operation-]",
           "tests.v010.test_method_matrix::test_runtime_problem_features_must_be_valid_explicit_scientific_context[constraints_sha256-unspecified]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -300,7 +300,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -374,7 +374,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -417,7 +417,7 @@
           "tests.v010.test_base_provider::test_actual_base_handoff_executes_real_xtb_and_retains_consumption_receipt",
           "tests.v010.test_base_provider::test_base_receiver_refuses_development_execution"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -430,16 +430,28 @@
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
         },
         {
           "path": "evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
           "sha256": "393715f1221c1e72d318d721960ad0619ed17c0eecbc685d9c4817ca959e393e"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca"
         }
       ]
     },
@@ -451,11 +463,11 @@
       "implementation": [
         {
           "path": "topos/capabilities.py",
-          "sha256": "6634db9cd7a4a285580354ea30fafd5a62b285963a07731eab5be459b402cf17"
+          "sha256": "2d823884eba707c8bbeeb9eba447960beee5ef5fa16aede198ca68bd06d661d0"
         },
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/workflow.py",
@@ -510,7 +522,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -558,7 +570,7 @@
           "tests.v010.test_workflow::test_unavailable_resume_creates_new_linked_real_attempt",
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -568,7 +580,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -633,7 +645,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -691,7 +703,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -701,7 +713,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -762,7 +774,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -820,7 +832,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -830,7 +842,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -895,7 +907,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -953,7 +965,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -963,7 +975,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1051,7 +1063,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1135,7 +1147,7 @@
           "tests.v010.test_sampling::test_authentic_cancelled_preflight_does_not_claim_an_ensemble",
           "tests.v010.test_sampling::test_authentic_matrix_nci_profile"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -1145,7 +1157,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1230,7 +1242,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1314,7 +1326,7 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -1324,7 +1336,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1376,7 +1388,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1409,7 +1421,7 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -1419,7 +1431,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1549,7 +1561,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1637,13 +1649,13 @@
           "tests.v010.test_abcluster_workflow::test_actual_abcluster_scores_are_never_quantum_candidate_energies",
           "tests.v010.test_abcluster_workflow::test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression",
         "base_abcluster_authority": {
           "status": "passed",
-          "source_commit": "e811bda61dbf96f267a38fd668cd04363fcebb57",
-          "receipt": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
-          "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b",
+          "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+          "receipt": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
           "scope": "Actual native Ne2 rigidmol sampling, two xTB refinements and verified completed-record recovery; no full-matrix, ORCA, GPU or exhaustive-search claim."
         }
       },
@@ -1653,12 +1665,16 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
         }
       ]
     },
@@ -2007,7 +2023,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2352,7 +2368,7 @@
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -2366,7 +2382,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2444,7 +2460,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2498,7 +2514,7 @@
           "tests.v010.test_search_control::test_nci_needs_an_explicit_search_and_fragment_partition[options1]",
           "tests.v010.test_search_control::test_nci_needs_an_explicit_search_and_fragment_partition[options2]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -2508,7 +2524,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2524,7 +2540,7 @@
         },
         {
           "path": "topos/base_integration.py",
-          "sha256": "f46fda069ea2584c396a3f9018fba5fe243bc8d360735b6f140d09b47579a89e"
+          "sha256": "7830fd0f6dc507beeb59223daeca7aebc77cf31c38dbc445b77d05163e04a2a2"
         },
         {
           "path": "topos/ml.py",
@@ -2550,7 +2566,7 @@
         },
         {
           "path": "tests/v010/test_base_integration.py",
-          "sha256": "b851ffcf5b7f97358f5d644654689c99ae0da2a236769e853b517992687c56a7",
+          "sha256": "623e64307027c648f3ccb0bc5735db17b8140cb88f98c83ea60f1dea4988d25d",
           "test_functions": [
             "test_missing_torq_is_not_replaced_by_base_bundled_namespace",
             "test_explicit_torq_source_is_discovered_without_bootstrap",
@@ -2620,7 +2636,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2714,7 +2730,7 @@
           "tests.v010.test_ml_workflow::test_commit_acknowledgement_loss_recovers_the_verified_publication",
           "tests.v010.test_ml_workflow::test_actual_surface_publication_and_semantic_hdf5_resume_validation"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -2729,10 +2745,6 @@
         {
           "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
         },
         {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
@@ -2753,6 +2765,34 @@
         {
           "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca"
         }
       ],
       "observed_native_evidence": [
@@ -2767,11 +2807,11 @@
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/capabilities.py",
-          "sha256": "6634db9cd7a4a285580354ea30fafd5a62b285963a07731eab5be459b402cf17"
+          "sha256": "2d823884eba707c8bbeeb9eba447960beee5ef5fa16aede198ca68bd06d661d0"
         }
       ],
       "acceptance_tests": [
@@ -2825,7 +2865,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2887,7 +2927,7 @@
           "tests.v010.test_dipoles::test_auxiliary_override_does_not_leak_into_incompatible_methods[wB97X-V-def2-TZVPP-def2/JK]",
           "tests.v010.test_dipoles::test_genuine_xtb_dipole_is_bound_to_geometry_and_raw_artifact"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -2897,7 +2937,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2913,15 +2953,15 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/capabilities.py",
-          "sha256": "6634db9cd7a4a285580354ea30fafd5a62b285963a07731eab5be459b402cf17"
+          "sha256": "2d823884eba707c8bbeeb9eba447960beee5ef5fa16aede198ca68bd06d661d0"
         },
         {
           "path": "topos/ml_training.py",
-          "sha256": "8e092c01aaf225ad024f5ae0e0d8d0d698d8f87e5cecc16f86e5d22a76ef3bee"
+          "sha256": "597c70bae91dd41dafecb9a46207b1c12aa71f2d951b776e57d201dec7afbc68"
         },
         {
           "path": "topos/ml_workflow.py",
@@ -3065,7 +3105,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3237,7 +3277,7 @@
           "tests.v010.test_ml_extopt::test_endpoint_rejects_nonprivate_socket",
           "tests.v010.test_ml_extopt::test_authentic_persistent_mace_extopt_callback_and_unit_conversion"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -3252,10 +3292,6 @@
         {
           "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
         },
         {
           "path": "evidence/TOPOS_CANDIDATE07_ASE_IO.json",
@@ -3276,6 +3312,30 @@
         {
           "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
         }
       ],
       "observed_native_evidence": [
@@ -3290,7 +3350,7 @@
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/constraints.py",
@@ -3298,7 +3358,7 @@
         },
         {
           "path": "topos/native_hessian.py",
-          "sha256": "943aee14d44f1a4abe524c9f1a7db7e7b373f12ae40842141bced993195c2ee9"
+          "sha256": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b"
         }
       ],
       "acceptance_tests": [
@@ -3366,7 +3426,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3429,7 +3489,7 @@
           "tests.v010.test_native_hessian::test_frequency_input_is_analytic_scf_not_engrad_or_numfreq",
           "tests.v010.test_native_hessian::test_absent_binary_never_creates_hessian_evidence"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -3439,7 +3499,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -3451,7 +3511,7 @@
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/constraints.py",
@@ -3539,7 +3599,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3616,7 +3676,7 @@
           "tests.v010.test_thermochemistry::test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance",
           "tests.v010.test_thermochemistry::test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -3626,7 +3686,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -3697,7 +3757,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3745,7 +3805,7 @@
           "tests.v010.test_sampling::test_authentic_cancelled_preflight_does_not_claim_an_ensemble",
           "tests.v010.test_sampling::test_authentic_matrix_nci_profile"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -3755,7 +3815,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -3904,7 +3964,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4023,13 +4083,13 @@
           "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[patch-bytes]",
           "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[binary-binding]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression",
         "base_abcluster_authority": {
           "status": "passed",
-          "source_commit": "e811bda61dbf96f267a38fd668cd04363fcebb57",
-          "receipt": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
-          "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b",
+          "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+          "receipt": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
           "scope": "Actual native Ne2 rigidmol sampling, two xTB refinements and verified completed-record recovery; no full-matrix, ORCA, GPU or exhaustive-search claim."
         }
       },
@@ -4039,12 +4099,16 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
         }
       ]
     },
@@ -4130,7 +4194,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4175,7 +4239,7 @@
           "tests.v010.test_matrix_sources::test_urls_are_not_treated_as_authorized_local_native_sources[file:///tmp/run]",
           "tests.v010.test_matrix_sources::test_urls_are_not_treated_as_authorized_local_native_sources[s3://bucket/run]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -4185,7 +4249,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4201,7 +4265,7 @@
         },
         {
           "path": "topos/correlated.py",
-          "sha256": "91923a6b5df63a80086ab7a6c8f13f03315ba52807ffc37add62629213745186"
+          "sha256": "a038618f11c3ccb663b33ea7c06950133b3403f9fe47b27f1e47ec2ff65682f2"
         },
         {
           "path": "topos/counterpoise.py",
@@ -4213,7 +4277,7 @@
         },
         {
           "path": "topos/ml_training.py",
-          "sha256": "8e092c01aaf225ad024f5ae0e0d8d0d698d8f87e5cecc16f86e5d22a76ef3bee"
+          "sha256": "597c70bae91dd41dafecb9a46207b1c12aa71f2d951b776e57d201dec7afbc68"
         }
       ],
       "acceptance_tests": [
@@ -4325,7 +4389,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4469,7 +4533,7 @@
           "tests.v010.test_ml_training::test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success[cancelled]",
           "tests.v010.test_ml_training::test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success[budget]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -4479,7 +4543,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4548,7 +4612,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4592,7 +4656,7 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -4602,7 +4666,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4654,7 +4718,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4673,7 +4737,7 @@
           "tests.v010.test_constraints::test_authentic_xtb_frozen_water_dimer_converges_without_internal_drift",
           "tests.v010.test_workflow_constraints::test_real_frozen_water_workflow_retains_derivative_proof_and_exports_reviewed_result"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -4683,7 +4747,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4744,7 +4808,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4802,7 +4866,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -4812,7 +4876,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4910,7 +4974,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4996,7 +5060,7 @@
           "tests.v010.test_reporting::test_actual_stored_dipoles_are_checked_only_with_declared_method_error",
           "tests.v010.test_reporting::test_reporting_ensemble_does_not_bypass_enantiomer_dipole_disagreement"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -5006,7 +5070,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5088,7 +5152,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5151,7 +5215,7 @@
           "tests.v010.test_reporting::test_actual_stored_dipoles_are_checked_only_with_declared_method_error",
           "tests.v010.test_reporting::test_reporting_ensemble_does_not_bypass_enantiomer_dipole_disagreement"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -5161,7 +5225,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5284,7 +5348,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5398,7 +5462,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -5408,7 +5472,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5600,7 +5664,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5772,7 +5836,7 @@
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -5782,7 +5846,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5798,7 +5862,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/review.py",
@@ -5983,7 +6047,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6174,7 +6238,7 @@
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -6184,7 +6248,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6204,7 +6268,7 @@
         },
         {
           "path": "topos/native_hessian.py",
-          "sha256": "943aee14d44f1a4abe524c9f1a7db7e7b373f12ae40842141bced993195c2ee9"
+          "sha256": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b"
         }
       ],
       "acceptance_tests": [
@@ -6254,7 +6318,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6297,7 +6361,7 @@
           "tests.v010.test_native_hessian::test_frequency_input_is_analytic_scf_not_engrad_or_numfreq",
           "tests.v010.test_native_hessian::test_absent_binary_never_creates_hessian_evidence"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -6307,7 +6371,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6400,7 +6464,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6484,7 +6548,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -6494,7 +6558,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6510,7 +6574,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "0b3fddac7c21e5749f85f445e1eddad4942885e299f5e35f54e1dce48f978566"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/review.py",
@@ -6640,7 +6704,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6800,7 +6864,7 @@
           "tests.v010.test_cfour_counterpoise::test_reviewed_counterpoise_resolution_is_required_before_any_engine[None]",
           "tests.v010.test_cfour_counterpoise::test_reviewed_counterpoise_resolution_is_required_before_any_engine[cfour-topos-cartesian-optimizer-v1]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -6810,7 +6874,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6830,7 +6894,7 @@
         },
         {
           "path": "topos/native_hessian.py",
-          "sha256": "943aee14d44f1a4abe524c9f1a7db7e7b373f12ae40842141bced993195c2ee9"
+          "sha256": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b"
         },
         {
           "path": "topos/anharmonic.py",
@@ -6917,7 +6981,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6990,7 +7054,7 @@
           "tests.v010.test_entropy::test_authentic_completed_crest_entropy_reused_when_partner_unavailable",
           "tests.v010.test_entropy::test_later_engine_provisioning_preserves_protocol_without_executing_marker"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7000,7 +7064,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7121,7 +7185,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7242,7 +7306,7 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7256,7 +7320,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7268,7 +7332,7 @@
       "implementation": [
         {
           "path": "topos/capabilities.py",
-          "sha256": "6634db9cd7a4a285580354ea30fafd5a62b285963a07731eab5be459b402cf17"
+          "sha256": "2d823884eba707c8bbeeb9eba447960beee5ef5fa16aede198ca68bd06d661d0"
         },
         {
           "path": "topos/scans.py",
@@ -7342,7 +7406,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7419,7 +7483,7 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7429,7 +7493,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7508,7 +7572,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7552,7 +7616,7 @@
           "tests.v010.test_workflow::test_unavailable_resume_creates_new_linked_real_attempt",
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7562,7 +7626,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7613,7 +7677,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7649,7 +7713,7 @@
           "tests.v010.test_storage_publication::test_explicit_derived_optimizer_uses_accepted_real_derivative",
           "tests.v010.test_storage_publication::test_invalid_accepted_derivative_cannot_support_derived_result"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7659,7 +7723,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7741,7 +7805,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7815,7 +7879,7 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -7829,7 +7893,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7926,7 +7990,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8005,7 +8069,7 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8018,12 +8082,16 @@
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -8135,7 +8203,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8240,7 +8308,7 @@
           "tests.v010.test_hosted_worker::test_solver_environment_prepends_verified_installation_helpers",
           "tests.v010.test_hosted_worker::test_evidence_finalization_failure_cannot_leave_success_claim_in_receipt"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8250,7 +8318,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8315,7 +8383,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8367,7 +8435,7 @@
           "tests.v010.test_budget::test_constrained_optimizer_all_gradients_share_geometry_budget",
           "tests.v010.test_budget::test_physical_hessian_campaign_does_not_renew_geometry_budget_each_gradient"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8376,12 +8444,16 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
         }
       ]
     },
@@ -8463,7 +8535,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8537,7 +8609,7 @@
           "tests.v010.test_storage_publication::test_explicit_derived_optimizer_uses_accepted_real_derivative",
           "tests.v010.test_storage_publication::test_invalid_accepted_derivative_cannot_support_derived_result"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8551,7 +8623,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8619,7 +8691,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8673,7 +8745,7 @@
           "tests.v010.test_base_provider::test_actual_base_handoff_executes_real_xtb_and_retains_consumption_receipt",
           "tests.v010.test_base_provider::test_base_receiver_refuses_development_execution"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8686,10 +8758,6 @@
           "sha256": "6967bfdd7ded0c577f3847802dabb15107411ca1a79510fba96761387bf9966f"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
         },
@@ -8700,6 +8768,22 @@
         {
           "path": "evidence/TOPOS_CANDIDATE07_TORQ_CONSUMPTION.json",
           "sha256": "7e6735f8961885b672f5a8080b6c4940dfa8b00768f2660209ee994c5aa2f435"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json",
+          "sha256": "80b85af22a2812a5a88bfb513bfa33e5b2c3154f27c5de1e7d8c9094c68149c5"
         }
       ],
       "companion_implementation": {
@@ -8814,7 +8898,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8913,7 +8997,7 @@
           "tests.v010.test_thermochemistry::test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance",
           "tests.v010.test_thermochemistry::test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -8930,12 +9014,16 @@
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -9021,7 +9109,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9095,7 +9183,7 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -9112,12 +9200,16 @@
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
-        },
-        {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -9172,7 +9264,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9217,7 +9309,7 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -9231,7 +9323,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -9247,7 +9339,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "38a26712042ec75ccbd18d022c8b6ca65fc6ac600688c6f9895f4807ea7a5083"
+          "sha256": "112ed5c3277b7d4de31642ac4e711234edfe6744cd1c6752e0b3b486714d8226"
         }
       ],
       "acceptance_tests": [
@@ -9280,7 +9372,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
+          "sha256": "edf6b026811df1d1ff858b18a29759e70bdffb3e93a4e34176d21a4a8101853f",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -9308,7 +9400,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9369,7 +9461,7 @@
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
           "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -9387,7 +9479,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -9399,7 +9491,7 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "38a26712042ec75ccbd18d022c8b6ca65fc6ac600688c6f9895f4807ea7a5083"
+          "sha256": "112ed5c3277b7d4de31642ac4e711234edfe6744cd1c6752e0b3b486714d8226"
         }
       ],
       "acceptance_tests": [
@@ -9485,7 +9577,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
+          "sha256": "edf6b026811df1d1ff858b18a29759e70bdffb3e93a4e34176d21a4a8101853f",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -9517,7 +9609,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9629,7 +9721,7 @@
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
           "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -9644,10 +9736,6 @@
         {
           "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
         },
         {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
@@ -9684,6 +9772,50 @@
         {
           "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
+          "sha256": "228411adcebc038a72f5f18848deb3a0ac0ca74e555288e4bd81730a1126611d"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361.json",
+          "sha256": "e9fd40f1cf21c702b5f8ed85e6d4950eae7c29e1b4136e15e78267e422714c27"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
+          "sha256": "e78e0c51cfd4e72fc2e6aa83138c0db05a692ec19498e91d07b9aa61ecfee3d9"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
+          "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a"
         }
       ],
       "observed_native_evidence": [
@@ -9698,13 +9830,13 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "38a26712042ec75ccbd18d022c8b6ca65fc6ac600688c6f9895f4807ea7a5083"
+          "sha256": "112ed5c3277b7d4de31642ac4e711234edfe6744cd1c6752e0b3b486714d8226"
         }
       ],
       "acceptance_tests": [
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
+          "sha256": "edf6b026811df1d1ff858b18a29759e70bdffb3e93a4e34176d21a4a8101853f",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -9732,7 +9864,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1681,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9755,7 +9887,7 @@
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
           "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "5ef3dfa4f13739a292ae759a832dbc718a651952dcb47658550d42d51d0d0f4c",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
         "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
@@ -9770,10 +9902,6 @@
         {
           "path": "../.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "e5b54b3f7481b616980f37aeefca723e76a0bf1480b7c559aff48f82969d896a"
         },
         {
           "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
@@ -9822,6 +9950,66 @@
         {
           "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738"
+        },
+        {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_COMPANION_BUILDS.json",
+          "sha256": "07cbeda327a19108008d0e3d3499957c713e9e31efc8f1a814b3ca526078062d"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_DISTRIBUTION.json",
+          "sha256": "667cef131f25d98c120a3bc1b08a14fd82b54bf904fd4e32de0495b4aa7e3121"
+        },
+        {
+          "path": "evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
+          "sha256": "228411adcebc038a72f5f18848deb3a0ac0ca74e555288e4bd81730a1126611d"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
+        },
+        {
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361.json",
+          "sha256": "e9fd40f1cf21c702b5f8ed85e6d4950eae7c29e1b4136e15e78267e422714c27"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
+          "sha256": "e78e0c51cfd4e72fc2e6aa83138c0db05a692ec19498e91d07b9aa61ecfee3d9"
+        },
+        {
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
+          "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a"
         }
       ]
     }
