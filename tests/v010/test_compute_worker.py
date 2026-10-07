@@ -81,14 +81,18 @@ def test_free_matrix_recipe_derives_requirements_from_actual_plan(row):
     assert decode_request(encoded, digest)[0] == original
 
 
-@pytest.mark.parametrize("row", ["T1-1min", "T1-3h", "T1-12h", "T1-3d", "T2-30min", "T5-1h"])
+@pytest.mark.parametrize("row", ["T1-1min", "T1-3h", "T1-12h", "T1-3d", "T2-30min", "T3O-3h", "T5-1h"])
 def test_licensed_matrix_recipe_derives_orca_from_native_plan(row):
-    original, _, _ = encoded_request(engine="xtb", purpose="matrix", matrix_row_id=row)
+    original, encoded, digest = encoded_request(engine="xtb", purpose="matrix", matrix_row_id=row)
     assert "orca" in required_native_engines(original)
+    assert validate_submission(encoded, digest, "topos_" + "c" * 32)["requires_orca"] is True
+    assert decode_request(encoded, digest)[0] == original
 
 
-@pytest.mark.parametrize("row", ["T1-30min", "T3O-3h", "T4O-1h", "T999-10s", None])
-def test_unknown_or_unregistered_matrix_row_cannot_reach_provisioning(row):
+@pytest.mark.parametrize("row", ["T1-30min", "T4O-1h", "T999-10s", None])
+def test_unknown_or_unsupported_hosted_matrix_row_cannot_reach_provisioning(row):
+    # Registered ML recipes still need an installer the hosted worker supports;
+    # TORQ-owned and unknown rows cannot use the TOPOS native-engine provisioner.
     _, encoded, digest = encoded_request(purpose="matrix", matrix_row_id=row)
     with pytest.raises(ValueError):
         validate_submission(encoded, digest, "topos_" + "c" * 32)

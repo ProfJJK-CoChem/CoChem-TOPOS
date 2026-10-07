@@ -7,8 +7,12 @@ The caller supplies the basis, native GENBAS path/hash, internal-coordinate
 chart, finite-difference step and convergence tolerances. No default basis or
 benchmark accuracy is assigned. A separate conditional native-default-mass HF
 DBOC adapter is available in [`cfour_dboc.py`](../topos/cfour_dboc.py). Neither
-adapter certifies the original `T3C-1mo` rotor deliverable: numerical native
-masses and arbitrary isotope-dependent DBOC remain unresolved.
+adapter alone certifies the complete original `T3C-1mo` row. A separately selected
+combined branch may publish Product A equilibrium rotor constants only when
+every completed native DBOC ON evaluation supplies a verified per-atom atomic
+mass vector. Arbitrary isotope-dependent DBOC belongs to the separate isotope
+extension; it is not a prerequisite for this explicitly selected default-mass
+Product A calculation. Current CFOUR 2.1 execution remains unverified.
 
 ## Executable scalar leg
 
@@ -68,8 +72,9 @@ and restricted to **H, C, N, O and F**. Every explicit isotope is rejected,
 including an explicit label for a common primary isotope. The adapter writes
 no `ISOMASS` or `%isotopes` input, requires an empty native directory and rejects
 an `ISOMASS` file that appears during execution. This is an explicit choice of
-the engine's default convention, not a claim that its numerical masses have
-been independently attested.
+the engine's default convention. Atomic masses used for rotor calculations are
+accepted only from the actual output, as described below; no nuclear-mass
+vector used internally by DBOC is inferred or claimed numerically verified.
 
 The compiler uses documented `DBOC=ON` Cartesian input. It omits a conflicting
 `DERIV_LEVEL=ZERO`: authentic successful DBOC output enables internal response
@@ -108,17 +113,54 @@ gradient acceptance test. A ten-decimal Hartree correction has a rounding bound
 of `5e-11 Eh`; agreement of two rounded derivatives cannot turn that precision
 limit into zero error.
 
-The report explicitly records `native_numeric_masses_verified: false` and
-`rotor_mass_attestation_available: false`. The successful historical default-mass
-job does not print a numeric atomic/nuclear mass table. TOPOS therefore does
-not substitute its Mendeleev masses or a historical table as alleged native
-CFOUR masses. The combined conditional geometry pipeline may retain the
-corrected geometry, but **withholds rotor constants and full original-row
-completion** until matching native mass evidence exists. Arbitrary isotope
-handling, correlated DBOC, benchmark accuracy and stationary-point/Hessian
-certification are not claimed.
+### Observed atomic masses and conditional Product A rotor closure
 
-## Exact remaining DBOC blocker
+The historical default-mass carbon output **does** print `12.000000000` under
+`masses used (in AMU) in vibrational analysis:` at lines 1834–1835. Earlier
+wording that it printed no numeric mass table was incorrect. A separate
+[UniMoVib CFOUR water output](https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out)
+prints `1.007825035 15.994914630 1.007825035` in H/O/H order, matching its
+indexed Cartesian Z-matrix table. These are historical 2.00beta and 1.01
+grammar evidence respectively, not execution evidence for the requested 2.1/HF
+profile. Fixture bytes, source commit and hashes are retained.
+
+`parse_cfour_rotor_mass_table` reads the complete numeric vector, its actual
+per-atom printing precision and source line spans. The native element/atomic-
+number inventory and Cartesian geometry must match the requested indexed
+molecule under a proper rigid transformation. A monatomic output may bind its
+single indexed Z-matrix entry; it does not invent an unprinted position.
+Repeated mass tables must agree exactly in values and precision. An independent
+atomic-data check rejects an inconsistent isotope/order or nuclear mass vector;
+these data never substitute for native values. Missing, incomplete, negative,
+coarsely printed, reordered or contradictory observations are rejected.
+
+After successful native 2.1 method/state/geometry/completion checks, the adapter
+binds that observation to the exact binary and GENBAS hashes and immutable raw
+stdout path/hash/size. The numerical DBOC campaign requires the same per-atom
+vector and printing precision at **every completed DBOC ON energy geometry**.
+The BO reference with DBOC OFF is mass-independent and supplies no inferred
+mass attestation. `validate_rotor_mass_attestation` reconstructs the aggregate
+by rechecking every completed component receipt, reparsing each retained native
+stdout and comparing the parsed observation with the archived result. Injecting
+an aggregate vector cannot establish native mass evidence.
+
+A successful report sets `native_numeric_masses_verified: true` and
+`rotor_mass_attestation_available: true` with the explicit scope **observed
+atomic rotor masses only**. It retains per-atom IDs, symbols, values, rounding
+half-widths, actual native geometries and source references. The final additive
+composite geometry is a distinct geometric object, with the same atom identity;
+it need not equal any finite-difference energy geometry. The month consumer
+uses these exact atomic masses for its equilibrium inertia tensor and propagates
+the printed mass uncertainty. It must not rename these as DBOC nuclear masses,
+subtract electron masses itself, or claim arbitrary-isotope support.
+
+The legacy geometry-only branch still withholds rotor publication by its
+explicit policy. The separately selected observed-mass branch may publish
+**Product A equilibrium B_e**, never B_0 or a full isotope/VPT2 calculation.
+Correlated DBOC, empirical accuracy and stationary-point/Hessian certification
+of the assembled additive geometry are not claimed.
+
+## Separate arbitrary-isotope DBOC extension
 
 The supplied matrix requests a mass-dependent DBOC geometry increment, but does
 not choose its electronic method, basis, mass convention or subtraction surface.
@@ -140,7 +182,7 @@ acceptance. A [default-mass carbon job](https://github.com/HPQC-LABS/AI_ENERGIES
 finishes normally and prints `0.0016997291 a.u.`, but does not establish how to
 select and validate arbitrary requested isotope masses in public 2.1.
 
-To extend the restricted leg to isotope-specific rotor closure, the required
+For the separate arbitrary-isotope extension (not the default-mass Product A branch), the required
 evidence/choices are:
 
 1. A version-specific public 2.1 mass-input specification and a normally completed
@@ -167,7 +209,7 @@ the earlier ORCA resolution of MPQC/Molpro conflicts are not substitutes.
 [`test_cfour_corrections.py`](../tests/v010/test_cfour_corrections.py) and
 [`test_cfour_dboc.py`](../tests/v010/test_cfour_dboc.py) exercise
 the explicit compiler restrictions, authentic historical control grammar,
-rejection of the crashed isotope output, version mismatch, mathematical
+rejection of the crashed isotope output, native atomic mass/geometry binding, version mismatch, mathematical
 coordinate/derivative checks, missing-engine behavior and durable cancellation.
 Fixtures retain exact source hashes in
 [`provenance.json`](../tests/v010/fixtures/cfour_corrections/provenance.json).

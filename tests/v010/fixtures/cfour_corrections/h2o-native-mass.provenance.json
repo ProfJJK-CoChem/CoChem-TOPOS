@@ -1,0 +1,7 @@
+{
+  "url": "https://raw.githubusercontent.com/zorkzou/UniMoVib/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out",
+  "sha256": "8cd70ac7494ac175fabcf0def1fde0ab74e822a49f7a270ef11de76f12565d5c",
+  "retrieved_utc": "2026-10-07",
+  "purpose": "Historical native atom-order and mass-table grammar only; not TOPOS2.1 execution",
+  "commit": "d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc"
+}

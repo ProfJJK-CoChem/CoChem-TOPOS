@@ -127,7 +127,7 @@ def run_scalar_relativistic(molecule: Molecule, protocol: ScalarRelativisticProt
         if file_digest(folder / "GENBAS") != protocol.genbas_sha256:
             raise IntegrityError("Native GENBAS changed during staging")
         atomic_json(folder / "protocol.json", protocol.model_dump(mode="json"))
-        immutable = {str(path): file_digest(path) for path in (folder / "ZMAT", folder / "GENBAS", folder / "protocol.json")}
+        immutable = {str(path): file_digest(path) for path in (folder / "ZMAT", folder / "GENBAS", folder / "protocol.json", binary, genbas)}
         result.metadata.update(executable_sha256=file_digest(binary), executable=str(binary),
             protocol_sha256=digest_json(protocol.model_dump(mode="json")),
             basis_library={"path": str(genbas), "sha256": protocol.genbas_sha256, "contraction": "UNCONTRACTED"})

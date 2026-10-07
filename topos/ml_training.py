@@ -23,13 +23,14 @@ from .engines import (
     EngineResult,
     _engine_version,
     _number,
+    _orca_convergence,
     _orca_input,
     artifact_inventory,
     parse_orca_engrad,
     read_xyz,
 )
 from .ml import BOHR_ANGSTROM, HARTREE_EV, MLRunner, ModelManifest, molecule_system_identity
-from .models import Artifact, Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
+from .models import Artifact, Attempt, Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
 from .storage import IntegrityError, RunStore, atomic_json, confined_file, digest_json, file_digest
 
 MACE_VERSION = "0.3.16"
@@ -90,6 +91,77 @@ class ReferenceFrame(Contract):
         return self
 
 
+def _reference_artifact(snapshot: Path, attempt: Attempt, name: str, *, stage: str | None = None) -> Path:
+    """Bind a retained native file to its exact stage, never an arbitrary basename."""
+    if name not in {"job.inp", "engine.stdout", "job.engrad", "job.xyz"} or stage not in {None, "", "final-gradient"}:
+        raise ValueError("Unknown DFT native evidence stage or filename")
+    if stage is None:
+        matches = [artifact for artifact in attempt.artifacts if Path(artifact.path).name == name]
+    else:
+        expected = (Path("attempts") / attempt.attempt_id / stage / name).as_posix()
+        matches = [artifact for artifact in attempt.artifacts if artifact.path == expected]
+    if len(matches) != 1:
+        raise IntegrityError(f"DFT reference requires exactly one retained {stage or 'native'}/{name}")
+    artifact = matches[0]
+    path = confined_file(snapshot, "artifacts/" + artifact.path)
+    if path.stat().st_size != artifact.size_bytes or file_digest(path) != artifact.sha256:
+        raise IntegrityError("Immutable DFT source artifact changed during import")
+    return path
+
+
+def _dft_output_energy(path: Path) -> tuple[str, float]:
+    stdout = path.read_text(errors="replace")
+    if (_engine_version(stdout, "orca") != "6.1.1" or "ORCA TERMINATED NORMALLY" not in stdout
+            or "SCF CONVERGED AFTER" not in stdout
+            or re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", stdout, re.I)):
+        raise IntegrityError("DFT native output does not establish version and electronic convergence")
+    totals = re.findall(r"FINAL SINGLE POINT ENERGY\s+(\S+)", stdout)
+    if not totals:
+        raise IntegrityError("DFT native total energy is absent")
+    return stdout, _number(totals[-1])
+
+
+def _final_gradient_contract(attempt: Attempt, molecule: Molecule, method: MethodSpec,
+                             resources: ResourceLimits) -> dict:
+    """Reject an unbound final stage before reading any of its scientific data."""
+    stage = attempt.metadata.get("final_gradient_verification")
+    if (not isinstance(stage, dict) or stage.get("directory") != "final-gradient"
+            or stage.get("execution_kind") != "real" or stage.get("engine") != "orca"
+            or stage.get("engine_version") != attempt.engine_version
+            or stage.get("executable_sha256") != attempt.metadata.get("executable_sha256")
+            or not re.fullmatch(_SHA, str(stage.get("executable_sha256", "")))
+            or stage.get("method") != method.model_dump(mode="json")
+            or stage.get("input_molecule_sha256") != digest_json(molecule.model_dump(mode="json"))
+            or not attempt.command or stage.get("command") != [attempt.command[0], "job.inp"]):
+        raise IntegrityError("Optimized DFT reference lacks its exact independent final-gradient identity")
+    final_resources = ResourceLimits.model_validate(stage.get("resources"))
+    if (final_resources.model_dump(exclude={"budget_seconds"}) != resources.model_dump(exclude={"budget_seconds"})
+            or final_resources.budget_seconds > resources.budget_seconds):
+        raise IntegrityError("Final DFT gradient changed its native allocation/input resource convention")
+    hashes = stage.get("native_files_sha256")
+    if (not isinstance(hashes, dict) or set(hashes) != {"job.inp", "engine.stdout", "job.engrad"}
+            or any(not re.fullmatch(_SHA, str(value)) for value in hashes.values())):
+        raise IntegrityError("Final DFT gradient lacks exact native input/output/gradient hashes")
+    return stage
+
+
+def _validate_final_stationarity(gradient: list[list[float]], method: MethodSpec, stationarity: dict) -> None:
+    """Recompute Cartesian stationarity; a stored pass flag is insufficient."""
+    values = np.asarray(gradient, dtype=float)
+    if values.ndim != 2 or not len(values) or values.shape[1] != 3 or not np.isfinite(values).all():
+        raise IntegrityError("Final DFT gradient has invalid Cartesian components")
+    strict = method.profile_id == "orca-vpt2-reference-v1"
+    max_limit, rms_limit = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
+    maximum, rms = float(np.max(np.abs(values))), float(np.sqrt(np.mean(values ** 2)))
+    if (not isinstance(stationarity, dict) or maximum > max_limit or rms > rms_limit or stationarity.get("passed") is not True
+            or stationarity.get("max_gradient_threshold") != max_limit
+            or stationarity.get("rms_gradient_threshold") != rms_limit
+            or any(isinstance(stationarity.get(key), bool) or not isinstance(stationarity.get(key), (float, int))
+                   or not math.isfinite(stationarity[key]) or abs(stationarity[key] - actual) > 1e-15
+                   for key, actual in (("max_gradient_hartree_per_bohr", maximum), ("rms_gradient_hartree_per_bohr", rms)))):
+        raise IntegrityError("Optimized DFT reference lacks independently verified final-gradient stationarity")
+
+
 def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> ReferenceFrame:
     """Reparse an explicitly selected immutable ORCA DFT energy/gradient run."""
     raw_root = Path(source.run_dir).expanduser()
@@ -129,35 +201,45 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
         raise ValueError("DFT training data require an actual analytic-gradient calculation")
     resources = ResourceLimits.model_validate(attempt.metadata.get("resources"))
 
-    def native_file(name: str) -> Path:
-        found = [artifact for artifact in attempt.artifacts if Path(artifact.path).name == name]
-        if len(found) != 1:
-            raise IntegrityError(f"DFT reference requires exactly one retained {name}")
-        artifact = found[0]
-        path = confined_file(snapshot, "artifacts/" + artifact.path)
-        if path.stat().st_size != artifact.size_bytes or file_digest(path) != artifact.sha256:
-            raise IntegrityError("Immutable DFT source artifact changed during import")
-        return path
+    selected_stage = "" if operation == "optimize" else None
+
+    def native_file(name: str, stage: str | None = selected_stage) -> Path:
+        return _reference_artifact(snapshot, attempt, name, stage=stage)
 
     deck = native_file("job.inp").read_text()
     if deck != _orca_input(initial, method, resources, operation):
         raise IntegrityError("DFT native input differs from the recorded typed Hamiltonian and geometry")
-    stdout = native_file("engine.stdout").read_text(errors="replace")
-    if (_engine_version(stdout, "orca") != "6.1.1" or "ORCA TERMINATED NORMALLY" not in stdout
-            or "SCF CONVERGED AFTER" not in stdout
-            or re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", stdout, re.I)):
-        raise IntegrityError("DFT native output does not establish version and electronic convergence")
-    totals = re.findall(r"FINAL SINGLE POINT ENERGY\s+(\S+)", stdout)
-    if not totals:
-        raise IntegrityError("DFT native total energy is absent")
-    energy, gradient = parse_orca_engrad(native_file("job.engrad"), molecule)
-    if abs(energy - _number(totals[-1])) > 2e-7:
-        raise IntegrityError("DFT gradient and output energies disagree")
+    stdout, optimizer_energy = _dft_output_energy(native_file("engine.stdout"))
+    retained = {name: native_file(name) for name in ("job.inp", "engine.stdout")}
     if operation == "optimize":
+        criteria = _orca_convergence(stdout)
+        if "THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5 or not all(criteria.values()):
+            raise IntegrityError("DFT optimization raw output does not establish all five geometry gates")
         if read_xyz(native_file("job.xyz"), initial).coordinates != molecule.coordinates:
             raise IntegrityError("DFT stored output geometry differs from its native XYZ")
+        retained["job.xyz"] = native_file("job.xyz")
+        stage = _final_gradient_contract(attempt, molecule, method, resources)
+        final_files = {name: native_file(name, "final-gradient") for name in stage["native_files_sha256"]}
+        if any(file_digest(path) != stage["native_files_sha256"][name] for name, path in final_files.items()):
+            raise IntegrityError("Final DFT gradient native file differs from its bound stage identity")
+        final_resources = ResourceLimits.model_validate(stage["resources"])
+        if final_files["job.inp"].read_text() != _orca_input(molecule, method, final_resources, "gradient"):
+            raise IntegrityError("Final DFT gradient input differs from its exact optimized geometry and Hamiltonian")
+        _, final_energy = _dft_output_energy(final_files["engine.stdout"])
+        energy, gradient = parse_orca_engrad(final_files["job.engrad"], molecule)
+        if (abs(energy - final_energy) > 2e-7 or abs(energy - optimizer_energy) > 2e-7
+                or stage.get("energy_hartree") != final_energy
+                or stage.get("energy_difference_hartree") != final_energy - optimizer_energy):
+            raise IntegrityError("DFT optimization, final-gradient output and derivative energies disagree")
+        _validate_final_stationarity(gradient, method, attempt.diagnostics.get("independent_stationarity", {}))
+        retained.update({"final-gradient/" + name: path for name, path in final_files.items()})
     elif initial.coordinates != molecule.coordinates:
         raise IntegrityError("A DFT single-point gradient changed its geometry")
+    else:
+        energy, gradient = parse_orca_engrad(native_file("job.engrad"), molecule)
+        if abs(energy - optimizer_energy) > 2e-7:
+            raise IntegrityError("DFT gradient and output energies disagree")
+        retained["job.engrad"] = native_file("job.engrad")
     for name, units, actual in (("electronic_energy", "hartree", energy),
                                 ("cartesian_gradient", "hartree/bohr", gradient)):
         quantities = [quantity for quantity in attempt.quantities
@@ -173,9 +255,10 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
     target.mkdir(parents=True, exist_ok=True)
     if any(target.iterdir()):
         raise ValueError("DFT evidence import requires a fresh directory")
-    retained = ["job.inp", "engine.stdout", "job.engrad"] + (["job.xyz"] if operation == "optimize" else [])
-    for name in retained:
-        shutil.copyfile(native_file(name), target / name)
+    for name, original in retained.items():
+        copied = target / name
+        copied.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(original, copied)
     atomic_json(target / "source-record.json", raw)
     atomic_json(target / "source-manifest.json", manifest)
     frame = ReferenceFrame(source=source, molecule=molecule, method=method,
