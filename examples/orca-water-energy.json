@@ -1,0 +1,24 @@
+{
+  "molecule": {
+    "name": "water ORCA installation smoke calculation",
+    "symbols": ["O", "H", "H"],
+    "coordinates": [[0, 0, 0], [0.9572, 0, 0], [-0.23999, 0.9273, 0]],
+    "isotopes": [16, 1, 1],
+    "charge": 0,
+    "multiplicity": 1
+  },
+  "engine": "orca",
+  "engine_version": "6.1.1",
+  "method": "HF-3c",
+  "purpose": "energy",
+  "profile_id": "orca-mapping-v4.1",
+  "matrix_revision": "topos-0.1.0-supported-profile-v1",
+  "calculation_environment": "local",
+  "presentation_environment": "github-actions",
+  "budget_seconds": 120,
+  "n_candidates": 1,
+  "threads": 1,
+  "memory_mb": 2048,
+  "device": "cpu",
+  "seed": 0
+}
