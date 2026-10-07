@@ -8,7 +8,21 @@ XTB_BIBLIOGRAPHY = "https://github.com/grimme-lab/xtb/blob/main/assets/reference
 GCP_BIBLIOGRAPHY = "https://github.com/grimme-lab/gcp/blob/master/README.md"
 BASIS_BIBLIOGRAPHY = "https://github.com/MolSSI-BSE/basis_set_exchange/blob/master/basis_set_exchange/data/REFERENCES.json"
 
+CORRELATED_MANUAL = "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+AIMNET_BIBLIOGRAPHY = "https://github.com/isayevlab/aimnetcentral/blob/main/README.md#citation"
+MACE_BIBLIOGRAPHY = "https://github.com/ACEsuit/mace/blob/main/README.md#references"
+
 METHOD_REFERENCES = {
+    "DLPNO-CCSD(T1)": {
+        "title": "Communication: An Improved Linear Scaling Perturbative Triples Correction for the Domain Based Local Pair-Natural Orbital Based Singles and Doubles Coupled Cluster Method [DLPNO-CCSD(T)]",
+        "authors": ["Yang Guo", "Christoph Riplinger", "Ute Becker", "Dimitrios G. Liakos", "Yury Minenkov", "Luigi Cavallo", "Frank Neese"],
+        "year": 2018, "doi": "10.1063/1.5011798", "source": CORRELATED_MANUAL,
+    },
+    "B3LYP": {
+        "title": "Density-functional thermochemistry. III. The role of exact exchange",
+        "authors": ["Axel D. Becke"], "year": 1993, "doi": "10.1063/1.464913",
+        "source": "https://doi.org/10.1063/1.464913",
+    },
     "GFN0-xTB": {
         "title": "A Robust Non-Self-Consistent Tight-Binding Quantum Chemistry Method for large Molecules",
         "authors": ["Philipp Pracht", "Eike Caldeweyher", "Sebastian Ehlert", "Stefan Grimme"],
@@ -107,11 +121,51 @@ def method_references(engine: str, method: str) -> list[dict[str, Any]]:
             "doi": "10.1039/C9CP06869D", "year": 2020,
             "source": "https://github.com/crest-lab/crest/blob/master/README.md",
         }])
+    elif engine in {"aimnet2", "mace"}:
+        references.append({"kind": "software", "title": "AIMNet2" if engine == "aimnet2" else "MACE",
+                           "url": "https://github.com/isayevlab/aimnetcentral" if engine == "aimnet2" else "https://github.com/ACEsuit/mace",
+                           "role": "executed model implementation; checkpoint identity and rights are separate"})
+        if engine == "aimnet2":
+            references.append({"kind": "peer-reviewed-method", "method": method,
+                               "title": "AIMNet2: A Neural Network Potential to Meet Your Neutral, Charged, Organic, and Elemental-Organic Needs",
+                               "authors": ["Dylan M. Anstine", "Roman Zubatyuk", "Olexandr Isayev"],
+                               "year": 2025, "doi": "10.1039/D4SC08572H", "source": AIMNET_BIBLIOGRAPHY,
+                               "role": "model architecture; supplied checkpoint family and training Hamiltonian remain explicit"})
+        else:
+            references.append({"kind": "peer-reviewed-conference-method", "method": method,
+                               "title": "MACE: Higher Order Equivariant Message Passing Neural Networks for Fast and Accurate Force Fields",
+                               "authors": ["Ilyes Batatia", "David Peter Kovacs", "Gregor N. C. Simm", "Christoph Ortner", "Gabor Csanyi"],
+                               "year": 2022, "conference": "Advances in Neural Information Processing Systems",
+                               "url": "https://openreview.net/forum?id=YPpSngE-ZU", "source": MACE_BIBLIOGRAPHY})
+    elif engine == "cfour":
+        references.append({"kind": "software", "title": "CFOUR", "url": "https://cfour.uni-mainz.de/",
+                           "role": "executed native software; exact version and GENBAS identity retained in attempt"})
+    elif engine == "psi4":
+        references.extend([{"kind": "software", "title": "Psi4", "url": "https://github.com/psi4/psi4"},
+                           {"kind": "peer-reviewed-software", "title": "Psi4 1.4: Open-source software for high-throughput quantum chemistry",
+                            "doi": "10.1063/5.0006002", "year": 2020,
+                            "source": "https://github.com/psi4/psi4/blob/master/README.md"}])
+    if method == "B3LYP":
+        references.append({
+            "kind": "peer-reviewed-method", "method": method,
+            "title": "Development of the Colle-Salvetti correlation-energy formula into a functional of the electron density",
+            "authors": ["Chengteh Lee", "Weitao Yang", "Robert G. Parr"], "year": 1988,
+            "doi": "10.1103/PhysRevB.37.785", "source": "https://doi.org/10.1103/PhysRevB.37.785",
+        })
     reference = METHOD_REFERENCES.get(method.replace("²", "2"))
     if reference:
         references.append({"kind": "peer-reviewed-method", "method": method, **reference,
                            "verification": "bibliographic metadata in official software bibliography"})
-    elif engine != "crest":
+    elif method in {"MP2", "AUTOCI-CCSD(T)", "CCSD(T)", "CCSD", "CCSDT", "CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2", "HF"}:
+        references.append({"kind": "documentation", "method": method,
+                           "title": f"Native {engine} implementation of {method}",
+                           "url": CORRELATED_MANUAL if engine == "orca" else "https://psicode.org/psi4manual/master/cfour.html",
+                           "role": "version-specific implementation reference; canonical/local/F12 approximations are distinct"})
+    elif engine == "psi4" and method.upper() == "SAPT2+3":
+        references.append({"kind": "documentation", "method": method,
+                           "title": "Psi4 SAPT: Symmetry-Adapted Perturbation Theory",
+                           "url": "https://psicode.org/psi4manual/master/sapt.html"})
+    elif engine not in {"crest", "aimnet2", "mace"}:
         references.append({"kind": "unresolved-reference", "title": method, "method": method,
                            "role": "exact method/basis reference requires author verification"})
     return references
@@ -140,6 +194,57 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
             })
             if reference["kind"] == "unresolved-reference":
                 unresolved.add(f"Verified scientific method citation not supplied: {method}")
+    for attempt in record.get("attempts", []):
+        metadata = attempt.get("metadata", {})
+        if metadata.get("execution_kind") != "real" or not attempt.get("command"):
+            continue
+        additions = []
+        manifest = metadata.get("manifest") or metadata.get("model_manifest")
+        if manifest and manifest.get("backend") in {"aimnet2", "mace"}:
+            additions.append({"kind": "model-artifact", "title": manifest["family"],
+                              "method": attempt["method"], "backend": manifest["backend"],
+                              "manifest_sha256": metadata.get("manifest_sha256"),
+                              "members": [{key: member.get(key) for key in ("sha256", "training_run_id", "source")}
+                                          for member in manifest.get("members", [])],
+                              "training_hamiltonian": manifest.get("training_method"),
+                              "license": manifest.get("license_name"), "license_url": manifest.get("license_url"),
+                              "domain_reference": manifest.get("domain_reference"),
+                              "role": "executed checkpoint provenance; author-supplied domain/license declarations are not independent validation"})
+            family = manifest["family"].lower()
+            if family == "aimnet2-2025":
+                additions.append({"kind": "peer-reviewed-model", "title": "Critical benchmarking of machine-learned interatomic potentials for intermolecular and noncovalent interactions",
+                                  "doi": "10.1088/2632-2153/aea39f", "year": 2026, "source": AIMNET_BIBLIOGRAPHY})
+            elif family in {"mace-off23", "mace-off23-small", "mace-off23-medium", "mace-off23-large"}:
+                additions.append({"kind": "preprint-model", "title": "MACE-OFF23: Transferable Machine Learning Force Fields for Organic Molecules",
+                                  "url": "https://arxiv.org/abs/2312.15211", "source": MACE_BIBLIOGRAPHY,
+                                  "role": "family-specific source; does not validate a renamed OFF24 checkpoint"})
+        if metadata.get("requested_method", {}).get("dispersion") == "D4":
+            additions.append({"kind": "peer-reviewed-method", "title": "A generally applicable atomic-charge dependent London dispersion correction",
+                              "doi": "10.1063/1.5090222", "year": 2019, "source": "https://doi.org/10.1063/1.5090222"})
+        if metadata.get("profile", "").startswith("goat-"):
+            additions.append({"kind": "peer-reviewed-method", "title": "The Global Optimizer Algorithm (GOAT)",
+                              "doi": "10.1002/anie.202500393", "year": 2025,
+                              "source": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html"})
+        if metadata.get("profile") == "crest-entropy-v1":
+            additions.append({"kind": "peer-reviewed-method", "title": "Calculation of absolute molecular entropies and heat capacities made simple",
+                              "authors": ["Philipp Pracht", "Stefan Grimme"], "doi": "10.1039/D1SC00621E", "year": 2021,
+                              "source": "https://github.com/crest-lab/crest/blob/v3.0.2/README.md"})
+            additions.append({"kind": "peer-reviewed-method", "title": "CREST entropy sampling implementation reference",
+                              "authors": ["Jan Gorges", "Stefan Grimme", "Andreas Hansen", "Philipp Pracht"],
+                              "journal": "Physical Chemistry Chemical Physics", "volume": 24, "pages": "12249–12259", "year": 2022,
+                              "source": "https://github.com/crest-lab/crest/blob/v3.0.2/src/algos/search_entropy.f90"})
+        if metadata.get("derivative_kind") == "native-VPT2-analytic-Hessian-differences":
+            additions.append({"kind": "documentation", "title": "ORCA 6.1 VPT2/GVPT2 native force-field and spectroscopy protocol",
+                              "url": "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html"})
+            additions.append({"kind": "peer-reviewed-method", "title": "Anharmonic vibrational properties of CH2F2: A comparison of theory and experiment",
+                              "doi": "10.1063/1.461259", "year": 1991,
+                              "source": "native ORCA VPT2 output cites Amos et al., equations 5 and 6"})
+        for reference in additions:
+            key = reference.get("doi", reference.get("url", reference["title"]))
+            if reference["kind"] == "model-artifact":
+                key += ":" + str(reference.get("manifest_sha256") or attempt["attempt_id"])
+            entry = references.setdefault(key, reference)
+            entry.setdefault("attempt_ids", []).append(attempt["attempt_id"])
     request = record.get("request", {})
     if request.get("solvent"):
         # The request alone does not identify an engine's actual solvent model.
@@ -150,16 +255,22 @@ def executed_references(record: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
     basis_attempts: dict[str, list[str]] = {}
     auxiliary_attempts: dict[str, list[str]] = {}
     for attempt in record.get("attempts", []):
-        if attempt.get("attempt_id") not in actual_orca:
+        if (attempt.get("metadata", {}).get("execution_kind") != "real" or not attempt.get("command")
+                or attempt.get("engine", "").lower() not in {"orca", "cfour", "psi4"}):
             continue
         metadata = attempt.get("metadata", {})
-        recipe = metadata.get("requested_method", {})
-        basis = recipe.get("basis") or request.get("basis")
+        recipe = metadata.get("requested_method") or metadata.get("requested_protocol", {})
+        basis = recipe.get("basis") or recipe.get("orbital_basis")
+        if not basis and attempt.get("engine", "").lower() == "orca":
+            basis = request.get("basis")
         auxiliary = recipe.get("auxiliary_basis") or metadata.get("resolved_auxiliary_basis") or request.get("auxiliary_basis")
         if basis:
             basis_attempts.setdefault(basis, []).append(attempt["attempt_id"])
         if auxiliary:
             auxiliary_attempts.setdefault(auxiliary, []).append(attempt["attempt_id"])
+        for key in ("auxiliary_scf_basis", "auxiliary_sapt_basis", "cabs_basis", "correlation_auxiliary_basis"):
+            if recipe.get(key):
+                auxiliary_attempts.setdefault(recipe[key], []).append(attempt["attempt_id"])
     for basis, attempt_ids in basis_attempts.items():
         if basis in {"def2-SVP", "def2-SV(P)", "def2-TZVP", "def2-TZVPP", "def2-QZVP", "def2-QZVPP"}:
             entry = references.setdefault("10.1039/b508541a", {

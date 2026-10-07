@@ -38,7 +38,8 @@ _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits, *,
                energy_window_kcal_mol: float = 12.0, uphill_method: str | None = None,
                deterministic: bool = False, max_global_iterations: int = 100,
-               entropy_options: dict[str, float] | None = None) -> str:
+               entropy_options: dict[str, float] | None = None,
+               diversity: bool = False) -> str:
     """Render only documented GOAT/XTB2 or GOAT/r2SCAN-3c recipes."""
     problem = _method_problem(method, resources, "optimize")
     if problem:
@@ -55,6 +56,8 @@ def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits
         raise ValueError("GOAT energy window must be finite positive kcal/mol")
     if not isinstance(deterministic, bool):
         raise ValueError("GOAT deterministic option must be boolean")
+    if not isinstance(diversity, bool) or diversity and (entropy_options is not None or energy_window_kcal_mol != 60):
+        raise ValueError("GOAT-DIVERSITY requires its documented 60 kcal/mol window and cannot combine entropy mode")
     if isinstance(max_global_iterations, bool) or not isinstance(max_global_iterations, int) or not 3 <= max_global_iterations <= 1000:
         raise ValueError("GOAT maximum global iterations must be an integer from 3 to 1000")
     if uphill_method not in {None, "GFN-FF"}:
@@ -66,8 +69,9 @@ def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits
         if set(entropy_options) != {"temperature_k", "min_delta_s_cal_mol_k"} or any(
                 isinstance(v, bool) or not math.isfinite(v) or v <= 0 for v in entropy_options.values()):
             raise ValueError("GOAT entropy requires explicit positive temperature and entropy stopping threshold")
-    algorithm = "GOAT-ENTROPY" if entropy_options is not None else "GOAT"
-    lines = [f"! {theory} {algorithm} TightOpt TightSCF DEFGRID3",
+    algorithm = "GOAT-DIVERSITY" if diversity else "GOAT-ENTROPY" if entropy_options is not None else "GOAT"
+    optimization = "SloppyOpt" if diversity else "TightOpt"
+    lines = [f"! {theory} {algorithm} {optimization} TightSCF DEFGRID3",
              f"%pal nprocs {resources.threads} end",
              f"%maxcore {max(16, int(resources.memory_mb * .75 / resources.threads))}",
              "%goat", "  NWORKERS 4", f"  MAXEN {energy_window_kcal_mol:.12g}",
@@ -77,6 +81,8 @@ def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits
     if entropy_options is not None:
         lines.extend([f"  CONFTEMP {entropy_options['temperature_k']:.12g}",
                       f"  MINDELS {entropy_options['min_delta_s_cal_mol_k']:.12g}"])
+    if diversity:
+        lines.append("  RMSD 0.5")
     if uphill_method is not None:
         lines.append("  GFNUPHILL gfnff")
     lines.extend(["end", "%geom", "  EnforceStrictConvergence true", "end",
@@ -159,17 +165,23 @@ def run_goat(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
         "adapter_validation": "input/parser tested; live ORCA 6.1.1 acceptance pending",
     })
     try:
-        if profile != "goat-v1" or seed is not None:
-            raise ValueError("Select goat-v1; native RANDOMSEED is boolean, not a numeric TOPOS seed")
+        if profile not in {"goat-v1", "goat-diversity-v1"} or seed is not None:
+            raise ValueError("Select goat-v1 or goat-diversity-v1; native RANDOMSEED is boolean, not a numeric TOPOS seed")
         deck = goat_input(molecule, method, resources, energy_window_kcal_mol=energy_window_kcal_mol,
                           uphill_method=uphill_method, deterministic=deterministic,
-                          max_global_iterations=max_global_iterations, entropy_options=entropy_options)
+                          max_global_iterations=max_global_iterations, entropy_options=entropy_options,
+                          diversity=profile == "goat-diversity-v1")
     except (ValueError, TypeError) as exc:
         result.diagnostics["reason"] = str(exc)
         return result
     if entropy_options is not None:
         result.algorithm = "GOAT-ENTROPY"
         result.metadata["entropy_options"] = entropy_options
+    if profile == "goat-diversity-v1":
+        result.algorithm = "GOAT-DIVERSITY"
+        result.metadata.update(native_optimization="native SloppyOpt with strict termination; mandatory separate common refinement",
+                               diversity_filter={"rmsd_angstrom": .5, "energy_independent_duplicates": True,
+                                                 "maximum_energy_kcal_mol": 60})
     orca = shutil.which(str(executable) if executable is not None else os.environ.get("TOPOS_ORCA_EXECUTABLE", "orca"))
     if orca is None:
         result.status, result.diagnostics["reason"] = "unavailable", "Requested ORCA executable is missing"

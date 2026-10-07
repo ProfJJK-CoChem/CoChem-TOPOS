@@ -52,6 +52,7 @@ class ModelManifest(Contract):
     supported_charges: list[int] = Field(min_length=1)
     supported_multiplicities: list[int] = Field(min_length=1)
     precision: Literal["float32", "float64"]
+    head: str | None = Field(default=None, min_length=1)
     minimum_distance_angstrom: float = Field(default=0.4, gt=0)
     domain_reference: str = Field(min_length=1)
 

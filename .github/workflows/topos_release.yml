@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-BASE
-          ref: c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86
+          ref: 86fd7bdbc77b87ab4303e03e0902b4089054f402
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/base
           persist-credentials: false

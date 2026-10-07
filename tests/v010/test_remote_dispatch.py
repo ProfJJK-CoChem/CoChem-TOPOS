@@ -47,7 +47,7 @@ class GitHubFixture:
         if path.endswith("/dispatches"):
             self.run = {"id": 123, "head_sha": SHA, "display_title": payload["inputs"]["dispatch_id"],
                         "event": "workflow_dispatch", "status": "in_progress", "conclusion": None,
-                        "path": ".github/workflows/topos_compute.yml"}
+                        "path": ".github/workflows/topos_compute.yml", "created_at": "2026-10-07T12:00:00Z"}
             return {}
         if "/runs?" in path:
             return {"workflow_runs": ([self.run] if self.run else []) + self.extra_runs}
@@ -78,8 +78,14 @@ def make_evidence(root: Path, transport: GitHubFixture, receipt, *, receipt_patc
     root.mkdir()
     request = dict(receipt.inputs)
     request["calculation_environment"] = "local"
+    accounting = None
+    if receipt.inputs.get("include_queue_in_budget"):
+        from topos.actions.queue_budget import local_request_with_budget, queue_accounting
+        accounting = queue_accounting(receipt.inputs, transport.run["created_at"], "2026-10-07T12:00:30+00:00")
+        request = local_request_with_budget(receipt.inputs, accounting)
     # A failed record deliberately contains no simulated molecular result.
-    record = RunRecord(request=RunRequest.model_validate(request), status="failed")
+    record = RunRecord(request=RunRequest.model_validate(request), status="failed",
+                       metadata={"budget_accounting": accounting} if accounting else {})
     manifest = RunStore(root / "run").commit(record)
     worker = {"schema_version": "topos-compute-worker/0.1.0", "context_verified": True,
               "local_request_sha256": hashlib.sha256(_canonical(request)).hexdigest(),
@@ -87,6 +93,8 @@ def make_evidence(root: Path, transport: GitHubFixture, receipt, *, receipt_patc
               "dispatch_id": receipt.dispatch_id, "request_sha256": receipt.request_sha256,
               "request": receipt.inputs, "github_run_id": "123", "github_sha": SHA,
               "run_path": "run", "status": "failed"}
+    if accounting is not None:
+        worker["budget_accounting"] = accounting
     worker.update(receipt_patch or {})
     atomic_json(root / "worker-receipt.json", worker)
     if mutate:
@@ -135,13 +143,13 @@ def test_missing_repository_credentials_are_honest_without_local_fallback(submit
     assert result.remote_job_id is None
 
 
-def test_queue_inclusive_budget_cannot_be_silently_reinterpreted(submitted):
+def test_queue_inclusive_budget_preserves_original_submitted_request(submitted):
     client, transport, receipt = submitted
     transport.calls.clear()
     result = client.dispatch_request({**receipt.inputs, "include_queue_in_budget": True})
-    assert result.status == "unavailable"
-    assert "queue-inclusive" in result.details
-    assert transport.calls == []
+    assert result.status == "submitted"
+    assert result.inputs["include_queue_in_budget"] is True
+    assert result.inputs["budget_seconds"] == receipt.inputs["budget_seconds"]
 
 
 @pytest.mark.parametrize("private, ref", [(False, "main"), (True, "unreviewed")])
@@ -399,3 +407,32 @@ def test_artifact_redirect_rejects_unexpected_destinations(monkeypatch, location
         _GitHubTransport("explicit-credential").download("/repos/owner/controller/actions/artifacts/123/zip")
     assert "explicit-credential" not in str(error.value)
     assert location not in str(error.value)
+
+
+def test_queue_accounting_is_independently_bound_to_server_timestamp(submitted, tmp_path):
+    client, transport, receipt = submitted
+    receipt = client.dispatch_request({**receipt.inputs, "include_queue_in_budget": True, "budget_seconds": 120})
+    expected = make_evidence(tmp_path / "worker", transport, receipt)
+    result = client.retrieve_result(receipt, tmp_path / "retrieved")
+    assert result.github_created_at == transport.run["created_at"]
+    assert result.record == expected.model_dump(mode="json")
+    assert result.record["request"]["budget_seconds"] == 90
+    assert result.inputs["budget_seconds"] == 120
+
+
+def test_forged_queue_origin_cannot_extend_execution_budget(submitted, tmp_path):
+    client, transport, receipt = submitted
+    receipt = client.dispatch_request({**receipt.inputs, "include_queue_in_budget": True, "budget_seconds": 120})
+    make_evidence(tmp_path / "worker", transport, receipt)
+    transport.run["created_at"] = "2026-10-07T11:59:30Z"
+    with pytest.raises(RemoteExecutionError, match="checksum validation"):
+        client.retrieve_result(receipt, tmp_path / "retrieved")
+    assert not (tmp_path / "retrieved").exists()
+
+
+def test_queue_request_requires_valid_server_creation_time(submitted):
+    client, transport, receipt = submitted
+    receipt = client.dispatch_request({**receipt.inputs, "include_queue_in_budget": True})
+    transport.run.pop("created_at")
+    with pytest.raises(RemoteExecutionError, match="server creation timestamp"):
+        client.poll(receipt)

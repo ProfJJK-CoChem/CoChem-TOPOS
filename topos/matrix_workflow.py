@@ -15,7 +15,10 @@ import numpy as np
 from pydantic import Field
 
 from .correlated import CorrelatedMethod
-from .data.runtime_recipes import EXECUTABLE_ROWS
+from .data.runtime_recipes import EXECUTABLE_ROWS, IMPLEMENTED_BRANCH_ROWS
+from .energy_composite import EnergyCompositeProtocol
+from .entropy import EntropyOptions
+from .external_engines import ExternalProtocol
 from .matrix_sources import SourceEnsembleInput
 from .method_matrix import (
     MATRIX_REVISION,
@@ -24,6 +27,8 @@ from .method_matrix import (
     plan_route,
     resolve_row,
 )
+from .ml import ModelManifest
+from .ml_workflow import RigidMLGrid
 from .models import (
     Artifact,
     Attempt,
@@ -52,6 +57,7 @@ def execution_support_report() -> dict[str, Any]:
         "topos_track_gaps": [r.row_id for r in topos_rows if r.track_gap],
         "compiled_complete_recipes": sorted(EXECUTABLE_ROWS),
         "compiled_recipe_count": len(EXECUTABLE_ROWS),
+        "implemented_partial_branches": sorted(IMPLEMENTED_BRANCH_ROWS),
         "conditional_recipe_resolutions": {
             "T1-3h": {
                 "source_literal": "ORCA Freq (native analytic Hessian)",
@@ -88,7 +94,27 @@ class GoatOptions(Contract):
     max_global_iterations: int = Field(default=100, ge=3, le=10000)
 
 
+class MLSearchAllocation(Contract):
+    ml_threads: int = Field(ge=1)
+    ml_memory_mb: int = Field(ge=64)
+    orca_threads: int = Field(ge=1)
+    orca_memory_mb: int = Field(ge=64)
+
+
 class MatrixInputs(Contract):
+    energy_composite: EnergyCompositeProtocol | None = None
+    source_resolution: Literal["native-composite-rawinteraction-v1", "orca-f12-reference-singlepoint-v1"] | None = None
+    external_protocol: ExternalProtocol | None = None
+    external_resolution: Literal["cfour-topos-cartesian-optimizer-v1"] | None = None
+    entropy_seeds: list[Molecule] = Field(default_factory=list)
+    entropy_options: EntropyOptions = Field(default_factory=EntropyOptions)
+    ml_model: ModelManifest | None = None
+    ml_grid: RigidMLGrid | None = None
+    ml_gpu_index: int | None = Field(default=None, ge=0)
+    ml_gpu_memory_mb: int | None = Field(default=None, gt=0)
+    ml_no_energy_culling: bool = False
+    ml_search_allocation: MLSearchAllocation | None = None
+    ml_search_seeds: list[Molecule] = Field(default_factory=list)
     correlated_protocol: CorrelatedMethod | None = None
     correlated_resolution: Literal["autoci-conventional-transformation-v1", "junchs-same-basis-core-valence-v1"] | None = None
     composite_coordinates: dict[str, Any] | None = None
@@ -123,16 +149,18 @@ def runtime_recipe_capabilities() -> list[BackendCapability]:
         BackendCapability(engine="xtb", engine_version="6.7.1", methods=["GFN2-xTB"],
                           operations=["optimize", "optimize-seeds", "interaction-energy", "relaxed-scan"], **common),
         BackendCapability(engine="orca", engine_version="6.1.1", methods=["GFN2-xTB", "r2SCAN-3c", "wB97X-V", "wB97M-V"],
-                          bases=["def2-TZVPP", "jun-cc-pVTZ"], operations=["optimize", "optimize-ensemble", "hessian-ensemble", "relaxed-scan", "goat", "counterpoise"],
+                          bases=["def2-TZVPP", "jun-cc-pVTZ"], operations=["optimize", "optimize-ensemble", "hessian-ensemble", "relaxed-scan", "goat", "goat-entropy", "counterpoise", "interaction-energy"],
                           supports_rigid_fragments=True, **common),
         BackendCapability(engine="crest", engine_version="3.0.2", methods=["GFN2-xTB"],
-                          operations=["crest-nci", "screen", "cregen-reporting"], **common),
+                          operations=["crest-nci", "screen", "cregen-reporting", "entropy"], **common),
         BackendCapability(engine="topos", engine_version="0.1.0", methods=["junChS", "CPS(6/7)"],
-                          operations=["union", "composite-geometry", "pno-extrapolation"], **common),
+                          operations=["union", "composite-geometry", "pno-extrapolation", "entropy-convergence"], **common),
         BackendCapability(engine="orca", engine_version="6.1.1", methods=["MP2", "CCSD(T)", "AUTOCI-CCSD(T)", "DLPNO-CCSD(T1)", "CCSD(T)-F12D/RI"],
                           bases=["jun-cc-pVTZ", "jun-cc-pVQZ", "cc-pwCVTZ", "cc-pVDZ-F12", "cc-pVTZ-F12"],
-                          operations=["energy", "optimize", "led-energy-decomposition"],
+                          operations=["energy", "optimize", "led-energy-decomposition", "rerank-ensemble"],
                           **{**common, "supported_multiplicities": [1]}),
+        BackendCapability(engine="orca+crest", engine_version="6.1.1+3.0.2", methods=["GFN2-xTB"],
+                          operations=["exhaustive-union"], **common),
     ]
 
 
@@ -158,6 +186,18 @@ def _available_inputs(request: RunRequest, inputs: MatrixInputs) -> list[str]:
         available.extend(["correlated_protocol", "auxiliary_basis_protocol", "cc_protocol"])
     if inputs.composite_coordinates is not None:
         available.append("coordinate_parameterization")
+    if inputs.entropy_seeds:
+        available.append("same_seed_ensembles")
+    if inputs.external_protocol is not None:
+        available.extend(["internal_coordinates", "sapt_basis_protocol"])
+    if inputs.energy_composite is not None:
+        available.append("composite_basis_protocol")
+    if inputs.ml_model is not None:
+        available.append("model_manifest")
+    if inputs.ml_grid is not None:
+        available.append("scan_coordinates")
+    if inputs.ml_no_energy_culling:
+        available.append("explicit_no_culling_policy")
     return available
 
 
@@ -190,6 +230,7 @@ def _child_request(parent: RunRequest, molecule: Molecule, *, engine: str, metho
         profile_id="xtb-vtight-v1" if engine == "xtb" else "orca-mapping-v4.1",
         matrix_row_id=None, matrix_revision="topos-0.1.0-supported-profile-v1",
         budget_seconds=remaining, constraints=constraints or {}, search_algorithm="crest" if sampler else "jiggle-quench",
+        device="cpu",
         sampler_profile="crest-nci-v1" if sampler else "crest-imtdgc-v1", sampler_nci=sampler,
         energy_window_kcal_mol=12.0 if sampler else parent.energy_window_kcal_mol,
         metadata={"matrix_parent_row": parent.matrix_row_id, "matrix_scope": "recipe component; not independent full-row certification"},
@@ -258,6 +299,19 @@ def _append_child(parent: RunRecord, child: RunRecord, parent_dir: Path, child_d
 
 def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: float,
                    cancel_event: Event | None) -> None:
+    """Persist a terminal gate failure without manufacturing component results."""
+    try:
+        _execute_matrix(workflow, record, store, deadline, cancel_event)
+    except IntegrityError:
+        raise
+    except (ValueError, RuntimeError, OSError) as exc:
+        record.status = "unsupported" if not record.attempts else "partial"
+        record.metadata["termination_reason"] = str(exc)
+        store.commit(record)
+
+
+def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: float,
+                   cancel_event: Event | None) -> None:
     """Execute supported full recipes, preserving completed components across resume."""
     from .workflow import Workflow
 
@@ -268,23 +322,75 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
         row = resolve_row(request.matrix_row_id, product=getattr(request, "matrix_product", "A"))
         inputs = _input_data(request)
         per_geometry_cap = getattr(request, "per_geometry_budget_seconds", None)
-        if per_geometry_cap is not None and row.row_id in {"T1-1min", "T1-3h", "T1-12h"}:
+        if per_geometry_cap is not None and row.row_id in {"T1-1min", "T1-3h", "T1-12h", "T1-1d", "T1-1mo"}:
             raise ValueError("A per-geometry wall cap cannot currently be enforced inside native GOAT or CREST screening; use its explicit ensemble/workflow budget")
         if per_geometry_cap is not None and row.row_id.startswith("T2-"):
             existing = inputs.scan_options.per_point_budget_seconds
             inputs.scan_options.per_point_budget_seconds = min(per_geometry_cap, existing) if existing else per_geometry_cap
+        gpu = {}
+        if request.device == "gpu":
+            if inputs.ml_model is None or workflow.base_runtime is None:
+                raise ValueError("GPU matrix execution requires an explicit ML manifest and BASE hardware authority")
+            runtime = workflow.base_runtime
+            runtime.validate_resources(request.resources, engine=inputs.ml_model.backend,
+                                       gpu_index=inputs.ml_gpu_index, gpu_memory_mb=inputs.ml_gpu_memory_mb)
+            metrics = runtime.registry.hardware.gpu_compute_metrics
+            devices = getattr(metrics, "devices", [])
+            selected = [device for device in devices if device.device_index == inputs.ml_gpu_index]
+            if len(selected) == 1:
+                device = selected[0]
+                measured_mb = int(device.vram_bytes / 1024**2) if device.vram_bytes else int(device.vram_gb * 1024)
+                gpu_model = device.name
+            elif metrics.device_count == 1 and inputs.ml_gpu_index == 0:
+                measured_mb, gpu_model = int(metrics.vram_gb * 1024), metrics.gpu_profile
+            else:
+                raise ValueError("Multi-GPU planning requires per-device measured memory; aggregate VRAM cannot certify the selected GPU")
+            if not gpu_model or gpu_model == "None" or inputs.ml_gpu_memory_mb > measured_mb:
+                raise ValueError("Requested GPU allocation exceeds the individually measured BASE device")
+            gpu = {"gpu_model": gpu_model, "gpu_memory_mb": inputs.ml_gpu_memory_mb}
         limits = HardwareSpec(cpu_threads=request.threads, memory_mb=request.memory_mb,
                               threads_per_worker=request.threads, memory_per_worker_mb=request.memory_mb,
-                              fingerprint="execution-allocation; runtime calibration not supplied", device=request.device)
+                              fingerprint="execution-allocation; runtime calibration not supplied", device=request.device, **gpu)
         capabilities = inputs.backend_capabilities or runtime_recipe_capabilities()
+        if inputs.external_protocol is not None and not inputs.backend_capabilities:
+            external = inputs.external_protocol
+            capabilities.append(BackendCapability(engine=external.engine, engine_version=external.engine_version,
+                methods=["MP2", "CCSD(T)"] if row.row_id == "T3C-3d" else [external.method],
+                bases=["cc-pVDZ", "cc-pVTZ", "cc-pVQZ", "cc-pCVQZ", "jun-cc-pVTZ", "jun-cc-pVQZ", "cc-pwCVTZ"],
+                operations=[external.operation], verified=True,
+                evidence="explicit native protocol and parser contract; installed binary/GENBAS identities verified on execution",
+                supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True))
+        if inputs.energy_composite is not None and not inputs.backend_capabilities:
+            template = inputs.energy_composite.template
+            capabilities.extend([
+                BackendCapability(engine="cfour", engine_version=template.engine_version,
+                    methods=["CCSD(T)", "CCSDT"],
+                    operations=["cbs-energy", "core-valence-energy-increment", "full-triples-energy-increment"],
+                    verified=True, evidence="explicit CBS/CV/full-triples recipe, native GENBAS/output checked during execution",
+                    supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True),
+                BackendCapability(engine="topos", engine_version="0.1.0", methods=["CBS+CV+fT"],
+                    operations=["composite-energy"], verified=True, evidence="finite explicit native component arithmetic",
+                    supported_elements=list(set(request.molecule.symbols)), supported_multiplicities=[1], supports_ions=True)])
+        if inputs.ml_model is not None and not inputs.backend_capabilities:
+            manifest = inputs.ml_model
+            capabilities.append(BackendCapability(engine="mlff", engine_version=manifest.package_version,
+                methods=["manifest-bound"], operations=["dense-scan", "interaction-energy"],
+                verified=True, evidence="explicit manifest-bound adapter; checkpoint identity and BASE silo checked during execution",
+                supported_elements=manifest.supported_elements, supported_multiplicities=manifest.supported_multiplicities,
+                supports_ions=any(charge != 0 for charge in manifest.supported_charges),
+                model_sha256=digest_json(manifest.model_dump(mode="json")), precision=manifest.precision,
+                devices=["gpu"] if request.device == "gpu" else ["cpu"],
+                gpu_memory_required_mb=inputs.ml_gpu_memory_mb if request.device == "gpu" else None,
+                supports_rigid_fragments=True))
         plan = plan_route(row.row_id, hardware=limits, capabilities=capabilities,
                           available_inputs=_available_inputs(request, inputs),
                           symbols=request.molecule.symbols, charge=request.molecule.charge,
-                          multiplicity=request.molecule.multiplicity, product=row.product or "A")
+                          multiplicity=request.molecule.multiplicity, product=row.product or "A",
+                          source_resolution=inputs.source_resolution)
         record.metadata["matrix_plan"] = plan.model_dump(mode="json")
         if request.constraints and row.row_id != "T3O-1min":
             raise ValueError("This matrix recipe does not include the requested constraints; choose an explicit constrained protocol")
-        if row.row_id not in EXECUTABLE_ROWS:
+        if row.row_id not in EXECUTABLE_ROWS | IMPLEMENTED_BRANCH_ROWS:
             record.status = "unsupported"
             record.metadata["termination_reason"] = (
                 f"{row.row_id} requires additional {row.owner} recipe adapters. The complete plan and "
@@ -293,7 +399,7 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
             return
         if not plan.runnable:
             raise ValueError("; ".join(plan.blockers))
-        if row.row_id.startswith("T2-") and len(inputs.scan_coordinates) != (2 if row.row_id == "T2-1h" else 1):
+        if row.row_id in {"T2-10s", "T2-30min", "T2-1h"} and len(inputs.scan_coordinates) != (2 if row.row_id == "T2-1h" else 1):
             raise ValueError("The selected scan row requires exactly " + ("two" if row.row_id == "T2-1h" else "one") + " explicit scan coordinate(s)")
         if row.row_id == "T1-10s":
             _validate_ensemble(request.molecule, inputs.topology_seeds, minimum=3, maximum=9, distinct=True)
@@ -393,10 +499,45 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
         return result
 
     row_id = row.row_id
-    if row_id in {"T5-12h", "T5-1d", "T5-3d", "T3O-12h", "T3O-3d"}:
+    if row_id == "T5-1w":
+        from .energy_composite import execute_energy_composite
+
+        if not execute_energy_composite(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id in {"T3C-30min", "T3C-1h", "T3C-3h", "T3C-12h", "T3C-1d", "T3C-3d", "T5-1mo"}:
+        from .external_matrix_workflow import execute_external_recipe
+
+        if not execute_external_recipe(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id in {"T2-1min", "T5-1min"}:
+        from .ml_workflow import execute_ml_matrix
+
+        if row_id == "T5-1min" and not inputs.ml_no_energy_culling:
+            raise ValueError("T5-1min requires explicit ml_no_energy_culling=True until an independent G4 ranking audit authorizes pruning")
+        execute_ml_matrix(workflow, record, store, deadline, cancel_event, inputs)
+        if record.status != "completed":
+            return
+    elif row_id == "T1-1d":
+        from .matrix_entropy import execute_entropy_recipe
+
+        if not execute_entropy_recipe(workflow, record, store, inputs, deadline, cancel_event):
+            return
+    elif row_id == "T1-1mo":
+        from .matrix_diversity import execute_diversity_recipe
+
+        if not execute_diversity_recipe(workflow, record, store, inputs, child, deadline, cancel_event):
+            return
+    elif row_id in {"T5-12h", "T5-1d", "T5-3d", "T3O-12h", "T3O-3d", "T3O-1mo"}:
         from .correlated_workflow import execute_correlated_recipe
 
         if not execute_correlated_recipe(workflow, record, store, inputs, deadline, cancel_event):
+            return
+        if row_id in IMPLEMENTED_BRANCH_ROWS:
+            state["full_row_completed"] = False
+            state["implemented_branch_completed"] = True
+            state["completion_scope"] = "ORCA reference electronic energy on supplied geometry only; Molpro reference-geometry branch is unimplemented"
+            record.status, record.validation_status = "completed", "human-review"
+            store.commit(record)
             return
     elif row_id == "T1-3h":
         from .matrix_union import execute_union
@@ -695,7 +836,7 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
                 record.status = "partial"
                 record.metadata["termination_reason"] = "CREST completed but the explicit candidate cap omitted ensemble refinement; raw frames remain archived"
                 return
-    elif row_id == "T5-10s":
+    elif row_id in {"T5-10s", "T5-30min"}:
         from .fragments import split_fragments
 
         try:
@@ -703,7 +844,8 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
         except ValueError as exc:
             record.status, record.metadata["termination_reason"] = "unsupported", str(exc)
             return
-        complex_run = child("interaction-complex", request.molecule, engine="xtb", method="GFN2-xTB", purpose="energy")
+        interaction_engine, interaction_method = ("xtb", "GFN2-xTB") if row_id == "T5-10s" else ("orca", "r2SCAN-3c")
+        complex_run = child("interaction-complex", request.molecule, engine=interaction_engine, method=interaction_method, purpose="energy")
         if complex_run is None:
             return
         energy_candidates = [c for c in complex_run.candidates if c.status == "eligible" and c.energy_hartree is not None]
@@ -714,7 +856,7 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
         fragment_energies = []
         engine_identities = []
         for index, molecule in enumerate(fragments):
-            result = child(f"interaction-fragment-{index:04d}", molecule, engine="xtb", method="GFN2-xTB",
+            result = child(f"interaction-fragment-{index:04d}", molecule, engine=interaction_engine, method=interaction_method,
                            purpose="energy", include_candidates=False)
             if result is None:
                 return
@@ -732,7 +874,9 @@ def execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline: 
             "value_hartree": complex_energy - sum(fragment_energies),
             "definition": "E_complex - sum(E_fragment at the same complex geometry)",
             "complex_energy_hartree": complex_energy, "fragment_energies_hartree": fragment_energies,
-            "bsse_policy": "no selectable orbital basis; no counterpoise applied",
+            "bsse_policy": "no selectable orbital basis; no counterpoise applied" if row_id == "T5-10s" else
+                           "native r2SCAN-3c including native gCP in each leg; no additional gCP, CP or half-CP calculation",
+            "source_resolution": inputs.source_resolution,
             "geometry_state": "frozen-inc", "binding_energy_hartree": None,
             "gibbs_energy_hartree": None, "engine_version": engine_identities[0][0],
             "executable_sha256": engine_identities[0][1],

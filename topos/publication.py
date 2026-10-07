@@ -216,6 +216,86 @@ def _reproduction_products(record, ensemble, fields):
     return stream.getvalue().encode("utf-8"), "\n".join(svg).encode("utf-8")
 
 
+def reviewed_ensemble_sensitivity(
+    record: Mapping[str, Any], ensemble: Mapping[str, Any], options: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Evaluate only the reviewed, comparable observed members; never infer completeness."""
+    from .models import Candidate
+    from .thermochemistry import ensemble_sensitivity
+
+    options = dict(options or {})
+    allowed = {"quantity", "windows_kcal_mol", "missing_states", "missing_gap_kcal_mol"}
+    if set(options) - allowed:
+        raise IntegrityError("Unknown sampling sensitivity assumption")
+    if "missing_gap_kcal_mol" in options and "missing_states" not in options:
+        raise IntegrityError("A missing-state energy gap requires an explicitly declared missing-state count")
+    candidates_by_id = {candidate["candidate_id"]: candidate for candidate in record["candidates"]}
+    members = [candidates_by_id[key] for key in ensemble["member_ids"]]
+    for member in members:
+        validate_scientific_candidate(record, member)
+    quantity = options.get("quantity", "gibbs" if all(c.get("gibbs_hartree") is not None for c in members)
+                           else "electronic")
+    windows = options.get("windows_kcal_mol", sorted({1.0, 3.0, 6.0,
+                          float(record["request"].get("energy_window_kcal_mol", 6.0))}))
+    try:
+        temperature = float(record["request"].get("temperature_k", 298.15))
+        if quantity == "gibbs":
+            for member in members:
+                thermal = validate_scientific_candidate(record, member).get("metadata", {}).get("thermochemistry")
+                if thermal and thermal.get("temperature_k") != temperature:
+                    raise ValueError("member Gibbs temperature differs from requested ensemble temperature")
+        result = ensemble_sensitivity(
+            [Candidate.model_validate(candidate) for candidate in members], temperature_k=temperature,
+            quantity=quantity, windows_kcal_mol=tuple(windows),
+            missing_states=options.get("missing_states", 0),
+            missing_gap_kcal_mol=options.get("missing_gap_kcal_mol"),
+        )
+    except (TypeError, ValueError) as exc:
+        if "all ensemble members require valid" in str(exc):
+            return {"schema_version": "topos-sampling-sensitivity/0.1.0", "status": "unavailable",
+                    "reason": str(exc), "observed_member_ids": ensemble["member_ids"],
+                    "quantity": quantity, "temperature_k": temperature, "options": options,
+                    "ensemble": None, "windows": [], "missing_population_upper_bound": None,
+                    "completeness": "not-certified; required member scores are absent"}
+        raise IntegrityError(f"Invalid sampling sensitivity inputs: {exc}") from exc
+    declared = "missing_states" in options
+    if not declared:
+        result["missing_states_assumption"] = None
+        result["missing_degeneracy_assumption"] = None
+    elif options["missing_states"] == 0:
+        # This is an author's explicit completeness assumption, not a measured result.
+        result["missing_population_upper_bound"] = 0.0
+    return {"schema_version": "topos-sampling-sensitivity/0.1.0", "status": "completed",
+            "scope": "reviewed comparable observed conformers only; does not certify search completeness",
+            "observed_member_ids": ensemble["member_ids"], "quantity": quantity,
+            "temperature_k": temperature, "missing_state_assumptions_declared": declared,
+            "options": options, **result}
+
+
+def _sensitivity_script() -> bytes:
+    return b'''#!/usr/bin/env python3
+"""Recompute sensitivity with the archived TOPOS 0.1.0 environment; output must be new.
+Usage: python recompute-sensitivity.py OUTPUT_JSON
+"""
+from pathlib import Path
+import json
+import sys
+from topos.publication import reviewed_ensemble_sensitivity, verify_bundle
+
+root = Path(__file__).resolve().parent
+verify_bundle(root)
+if len(sys.argv) != 2:
+    raise SystemExit("Usage: python recompute-sensitivity.py OUTPUT_JSON")
+record = json.loads((root / "run.json").read_text())
+ensemble = json.loads((root / "ensemble.json").read_text())
+original = json.loads((root / "sampling-sensitivity.json").read_text())
+result = reviewed_ensemble_sensitivity(record, ensemble, original["options"])
+with Path(sys.argv[1]).open("x", encoding="utf-8") as handle:
+    json.dump(result, handle, sort_keys=True, indent=2, allow_nan=False)
+    handle.write("\\n")
+'''
+
+
 def _reproduction_script() -> bytes:
     """Regenerate into a separate directory after checking archived input digests."""
     script = '''#!/usr/bin/env python3
@@ -317,6 +397,12 @@ def _methods_text(
         "common comparison protocol; absent energies are omitted and counted explicitly. "
         "No sorting by HDF5 group names or filesystem "
         "globbing determines scientific membership.", "",
+        "`sampling-sensitivity.json` records observed-ensemble truncation at explicit energy windows, "
+        "temperature and score type. Electronic-energy weights are not Gibbs populations. "
+        "Missing-conformer counts and population bounds remain unknown unless the author explicitly "
+        "declares a count and minimum energy gap; such bounds are conditional assumptions. "
+        "Only reviewed, comparable members enter the calculation. Recompute with "
+        "`python recompute-sensitivity.py NEW_OUTPUT_JSON` in the archived TOPOS environment.", "",
         "## Citations and licenses", "",
     ])
     if references:
@@ -335,6 +421,7 @@ def export_bundle(
     run_dir: str | Path, destination: str | Path, *, ensemble_sha256: str | None = None,
     citations: Sequence[Mapping[str, Any]] | None = None,
     license_identifier: str | None = None,
+    sensitivity_options: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Freeze a reviewed current ensemble and every explicitly retained raw artifact.
 
@@ -357,6 +444,7 @@ def export_bundle(
             ensemble = get_ensemble_manifest(run_dir, digest=ensemble_sha256)
             decisions = list_decisions(run_dir)
             rows = _selected_rows(record, ensemble)
+            sensitivity = reviewed_ensemble_sensitivity(record, ensemble, sensitivity_options)
             provided = citations if citations is not None else record.get("metadata", {}).get("citations", [])
             references, citation_issues = _citation_records(record, ensemble, provided)
             json_bytes(references)  # Reject nonfinite/nonserializable citation payloads.
@@ -372,6 +460,8 @@ def export_bundle(
                 _write_json(staging / "review.json", decisions)
                 _write_json(staging / "citations.json", references)
                 _write_json(staging / "license.json", license_metadata)
+                _write_json(staging / "sampling-sensitivity.json", sensitivity)
+                _write_bytes(staging / "recompute-sensitivity.py", _sensitivity_script())
                 if license_metadata["orca_data_attempt_ids"]:
                     _write_bytes(staging / "ORCA-DATA-NOTICE.txt", ORCA_DATA_NOTICE.encode("utf-8"))
                 members = set(ensemble["member_ids"])
@@ -425,6 +515,10 @@ def export_bundle(
                     "table_recipe": {"file": "selected.csv", "columns": fields,
                                      "member_source": "ensemble.json:member_ids", "missing": "empty cell with reason",
                                      "script": "regenerate.py", "python_minimum": "3.10"},
+                    "sensitivity_recipe": {"file": "sampling-sensitivity.json",
+                                           "script": "recompute-sensitivity.py",
+                                           "requires": "CoChem-TOPOS 0.1.0 archived environment",
+                                           "scope": "reviewed observed members; missing states unknown unless declared"},
                     "figure_recipe": {"file": "relative-energy.svg", "script": "regenerate.py",
                                       "quantity": "relative electronic energy", "units": "hartree",
                                       "reference": "minimum reported selected electronic energy",
@@ -504,4 +598,8 @@ def verify_bundle(destination: str | Path) -> dict[str, Any]:
         _, figure = _reproduction_products(record, ensemble, manifest["table_recipe"]["columns"])
         if (root / "relative-energy.svg").read_bytes() != figure:
             raise IntegrityError("Scientific figure does not reproduce from reviewed records")
+    if "sensitivity_recipe" in manifest:
+        saved = read_json(root / "sampling-sensitivity.json")
+        if saved != reviewed_ensemble_sensitivity(record, ensemble, saved["options"]):
+            raise IntegrityError("Sampling sensitivity does not reproduce from reviewed records")
     return manifest

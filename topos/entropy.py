@@ -105,6 +105,8 @@ def parse_crest_entropy(text: str, temperature_k: float = 298.15) -> dict[str, A
     if not headers or abs(_number(headers[-1][1]) - temperature_k) > .0051:
         raise EngineParseError("CREST final entropy or requested temperature missing")
     block = text[headers[-1].end():]
+    if "(cal mol⁻¹ K⁻¹)" not in block or "(kcal mol⁻¹)" not in block:
+        raise EngineParseError("CREST native entropy/free-energy units are not established")
     fields = {
         "sconf_cal_mol_k": r"Sconf\s*=\s*(" + _FLOAT + ")",
         "delta_srrho_cal_mol_k": r"δSrrho\s*=\s*(" + _FLOAT + ")",
@@ -168,7 +170,7 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
         identities[name] = {"path": str(Path(binary).resolve()), "sha256": file_digest(Path(binary))} if binary else None
     protocol = {"schema": "topos-matched-native-entropy/0.1.0", "seeds": [m.model_dump(mode="json") for m in seeds],
                 "method": method.model_dump(mode="json"), "options": options.model_dump(mode="json"),
-                "resources": resources.model_dump(exclude={"budget_seconds"}), "executables": identities}
+                "resources": resources.model_dump(exclude={"budget_seconds"})}
     path = folder / "protocol.json"
     if path.exists():
         if json.loads(path.read_text()) != protocol:
@@ -177,6 +179,16 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
         raise IntegrityError("matched entropy folder contains unverified evidence")
     else:
         atomic_json(path, protocol)
+    # Provisioning a formerly missing licensed engine must not invalidate a
+    # completed independent CREST stage. Once established, each binary identity
+    # is immutable for this protocol, including its configured path.
+    resolved_path = folder / "resolved-executables.json"
+    if resolved_path.exists():
+        previous = json.loads(resolved_path.read_text())
+        for name, identity in previous.items():
+            if identity is not None and identity != identities.get(name):
+                raise IntegrityError("an established entropy executable identity changed")
+    atomic_json(resolved_path, identities)
     results = []
     for seed_index, seed in enumerate(seeds):
         for engine in ("goat", "crest"):
@@ -199,7 +211,7 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
                 remaining = resources.budget_seconds - (time.monotonic() - started)
                 if remaining <= 0 or cancel_event is not None and cancel_event.is_set():
                     return {"status": "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out",
-                            "results": results, "protocol": protocol, "artifacts": [a.model_dump(mode="json") for a in artifact_inventory(folder)]}
+                            "results": results, "protocol": protocol, "resolved_executables": identities, "artifacts": [a.model_dump(mode="json") for a in artifact_inventory(folder)]}
                 # Reserve an equal share for each remaining native job; failed
                 # jobs never borrow a future seed's entire allocation.
                 limits = resources.model_copy(update={"budget_seconds": remaining / (2 * len(seeds) - len(results))})
@@ -221,7 +233,7 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
             results.append({"seed_index": seed_index, "seed_geometry_sha256": geometry_digest(seed), "engine": engine,
                             "reused_completed": reused, "result": sampled.model_dump(mode="json")})
     return {"status": "completed" if all(row["result"]["status"] == "completed" for row in results) else "partial",
-            "results": results, "protocol": protocol, "artifacts": [a.model_dump(mode="json") for a in artifact_inventory(folder)],
+            "results": results, "protocol": protocol, "resolved_executables": identities, "artifacts": [a.model_dump(mode="json") for a in artifact_inventory(folder)],
             "provenance": {"seed_matching": "identical input geometries; native random streams are independent",
                            "comparison": "native definitions retained separately; no pooled entropy or inferred degeneracies",
                            "exhaustive": False}}

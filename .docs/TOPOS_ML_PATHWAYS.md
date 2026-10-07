@@ -1,0 +1,85 @@
+# Explicit molecular ML pathways
+
+TOPOS executes molecular model predictions through a separately audited CoChem-BASE
+Python silo. PyTorch and model packages are not loaded into the BASE UI process.
+Each request supplies a `ModelManifest`: backend and exact package version, ordered
+checkpoint paths and SHA-256 hashes, training-run identifiers, model family and
+training method, declared element/charge/spin domain, numerical precision, source,
+and license. A trained multihead MACE model additionally requires the explicit
+target `head`; the replay head must not be silently selected.
+
+The adapter independently checks actual checkpoint elements and supported spin
+handling. MACE-OFF is restricted to neutral closed-shell molecules here. The
+manifest's minimum-distance check is a collision guard, not a learned domain or
+accuracy certificate. Periodicity, embedding and solvent are not inferred.
+
+## Execution and quantities
+
+- `topos.ml.MLRunner` loads one model committee per finite batch. BASE authorizes
+  the actual interpreter, installed worker, package lock, CPU allocation and model
+  hashes. GPU requests additionally identify one measured device and a VRAM limit;
+  aggregate VRAM across several cards is not treated as a single-device allocation.
+- `T2-1min` accepts an explicit rigid frozen-isolated-fragment grid with at least
+  1000 points. It retains the exact Cartesian geometries, grid definition, model
+  energies and gradients in an HDF5 surface shard. These are boundary-exploration
+  observations, not quantitative well-depth validation.
+- `T5-1min` subtracts frozen fragment energies separately for each committee member
+  before calculating interaction-energy disagreement. This preserves covariance
+  between a member's complex and fragment predictions. At least two distinct,
+  independently trained members must be declared. One checkpoint produces no
+  uncertainty value. The implemented no-culling policy retains every structure;
+  it does not assert that the method-matrix G4 correlation audit has passed.
+- `topos.ml_extopt` provides the persistent ORCA external-potential bridge. It
+  records every callback geometry and member prediction, rejects point charges,
+  and returns energy in hartree and gradients in hartree/bohr. The model stays
+  loaded across callbacks. Generated structures still require the matrix's common
+  electronic-structure refinement and deduplication before reporting.
+- `topos.ml_training` requires authentic, immutable DFT energy/gradient evidence,
+  explicit group-disjoint training/validation/test partitions and local replay
+  data for multihead fine-tuning. A checkpoint and held-out errors are separate
+  outputs. A dataset of 100–500 structures is a requested experiment size, not an
+  accuracy guarantee. The complete T1-1w search recipe additionally requires every
+  specified post-training sampler; training alone does not complete that row.
+
+The force conversion is `gradient = -force_eV_per_angstrom × 0.529177210903 /
+27.211386245988`. Committee standard deviations use `ddof=1`. They quantify model
+disagreement, not calibrated prediction error, confidence intervals, or electronic
+structure convergence. Model energies are never renamed as executed DFT results.
+
+## Provisioning and licenses
+
+Use BASE's reviewed ML silo provisioner and the exact lock accompanying the
+installation. TOPOS never downloads weights during a calculation. Place the
+reviewed checkpoint outside the application source tree and pass its absolute
+path and independently recorded digest in the request manifest. The installed
+TOPOS wheel must also be present in the audited silo; an injected `PYTHONPATH`
+does not establish production authority.
+
+The actual CPU verification used `mace-torch==0.3.16` and `torch==2.8.0+cpu`.
+The previously supplied BASE pin `mace-torch==0.3.17` was unavailable on the package
+index and is corrected in the companion BASE change. A CPU Torch installation
+does not establish GPU or training readiness.
+
+MACE code is MIT licensed. MACE-OFF checkpoint weights have a separate Academic
+Software License; they are not bundled into TOPOS's Apache-2.0 wheel. Academic
+deployment and redistribution must follow that model license, including any
+fine-tuned derivatives. AIMNet model-family terms and citations must be retained
+with the selected artifact rather than inferred from a different family's name.
+
+One actual backend validation used the official MACE-OFF23 small checkpoint at
+repository commit `91a78c5a9c300d1104700d9352c8bfe449227737`, SHA-256
+`165cce4cfec5a34b9c64d4ebf95de15d71106bb584b7291c8470f0749977c46f`.
+For water, 21 genuine inference frames checked the analytical forces against
+central energy differences and rigid translations/rotations. Maximum derivative
+disagreement was `3.56e-9 hartree/bohr`; the energy change under the tested rigid
+transformations was zero at recorded precision. This is CPU model/units evidence,
+not BASE silo, AIMNet, GPU, committee, training, or combined ORCA acceptance.
+
+## Sources
+
+1. [Official MACE-OFF repository, model license and citation](https://github.com/ACEsuit/mace-off/tree/91a78c5a9c300d1104700d9352c8bfe449227737).
+2. Kovács et al., [MACE-OFF23: Transferable Machine Learning Force Fields for Organic Molecules](https://arxiv.org/abs/2312.15211).
+3. [Official MACE source and fine-tuning implementation](https://github.com/ACEsuit/mace/tree/v0.3.16).
+4. [Official AIMNet source and hash-pinned model registry](https://github.com/isayevlab/aimnetcentral/tree/718ffd62babf92d91b3b14cb909b01308e4c5b1d).
+5. [ORCA 6.1 external-method workflow](https://www.faccts.de/docs/orca/6.1/tutorials/workflows/extopt.html).
+6. [Supplied method matrix, Sections 10 and 13](../wiki/Method_Matrix.md).

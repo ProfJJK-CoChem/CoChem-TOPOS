@@ -236,6 +236,86 @@ class BaseRuntime:
         gpu_index: int | None = None, gpu_memory_mb: int | None = None,
         cancel_event: Event | None = None, log_prefix: str = "ml", output_limit_mb: int = 256,
     ) -> ProcessResult:
+        return self._run_ml_module(command, workdir, resources, engine=engine,
+                                   request_sha256=request_sha256, worker_sha256=worker_sha256,
+                                   model_files=model_files, gpu_index=gpu_index, gpu_memory_mb=gpu_memory_mb,
+                                   cancel_event=cancel_event, log_prefix=log_prefix, output_limit_mb=output_limit_mb,
+                                   worker_module="topos.ml_worker")
+
+    def run_mace_training_process(
+        self, command: list[str], workdir: str | Path, resources: ResourceLimits, *,
+        package_version: str, input_files: dict[str, str], gpu_index: int, gpu_memory_mb: int,
+        cancel_event: Event | None = None,
+    ) -> ProcessResult:
+        """Authorize a bounded official MACE fine-tuning CLI via an installed wrapper."""
+        from .storage import atomic_json, file_digest
+
+        if resources.device != "gpu":
+            raise BaseIntegrationError("MACE fine-tuning requires an explicitly audited CUDA allocation")
+        self.validate_resources(resources, engine="mace", gpu_index=gpu_index, gpu_memory_mb=gpu_memory_mb)
+        if package_version != "0.3.16" or self.registry.engines.mace is None or self.registry.engines.mace.version != package_version:
+            raise BaseIntegrationError("MACE fine-tuning requires the reviewed, actually audited 0.3.16 package")
+        folder = Path(workdir).resolve()
+        if folder.exists() and any(folder.iterdir()):
+            raise BaseIntegrationError("MACE fine-tuning requires a fresh native work directory")
+        if (len(command) < 4 or command[1:3] != ["-m", "mace.cli.run_train"]
+                or any(not isinstance(value, str) or "\x00" in value for value in command)):
+            raise BaseIntegrationError("Only the explicit official MACE training CLI is supported")
+        flags = {}
+        for argument in command[3:]:
+            if not argument.startswith("--"):
+                raise BaseIntegrationError("MACE training options require explicit named flags")
+            key, _, value = argument[2:].partition("=")
+            if key in flags:
+                raise BaseIntegrationError("Duplicate MACE training option")
+            flags[key] = value
+        fixed = {"device": "cuda", "default_dtype": "float64", "multiheads_finetuning": "True",
+                 "E0s": "foundation", "energy_key": "REF_energy", "forces_key": "REF_forces",
+                 "num_workers": "0", "plot": "False", "error_table": "PerAtomRMSE", "launcher": "none",
+                 "save_cpu": "", "keep_checkpoints": ""}
+        files = {"foundation_model", "train_file", "valid_file", "pt_train_file", "pt_valid_file"}
+        numeric = {"seed", "max_num_epochs", "batch_size", "valid_batch_size", "energy_weight", "forces_weight"}
+        directories = {"work_dir": folder, "model_dir": folder / "models", "checkpoints_dir": folder / "checkpoints",
+                       "results_dir": folder / "results", "log_dir": folder / "logs", "downloads_dir": folder / "downloads"}
+        required = set(fixed) | files | numeric | set(directories) | {"name"}
+        if set(flags) not in (required, required | {"foundation_head"}) or any(flags.get(k) != v for k, v in fixed.items()):
+            raise BaseIntegrationError("MACE training option set differs from the reviewed fine-tuning protocol")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", flags["name"]):
+            raise BaseIntegrationError("Invalid confined MACE model name")
+        if "foundation_head" in flags and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", flags["foundation_head"]):
+            raise BaseIntegrationError("Invalid foundation head")
+        for key in numeric:
+            try:
+                value = float(flags[key])
+            except ValueError as exc:
+                raise BaseIntegrationError("Invalid MACE numeric option") from exc
+            if not math.isfinite(value) or value < 0 or (key != "seed" and value == 0):
+                raise BaseIntegrationError("MACE numeric options must be finite and within the reviewed bounds")
+            if key in {"seed", "max_num_epochs", "batch_size", "valid_batch_size"} and (not value.is_integer() or value > 2**31 - 1):
+                raise BaseIntegrationError("MACE integer options are invalid")
+        if any(flags[key] not in input_files or not Path(flags[key]).is_absolute() for key in files):
+            raise BaseIntegrationError("Every native MACE input must have an explicit immutable file hash")
+        if any(Path(flags[key]).resolve() != expected for key, expected in directories.items()):
+            raise BaseIntegrationError("MACE outputs must remain in the fresh native attempt directory")
+        folder.mkdir(parents=True, exist_ok=True)
+        request = folder / "training-worker-request.json"
+        payload = {"schema_version": "topos-mace-training-worker/1", "command": command,
+                   "input_files": input_files, "gpu_memory_mb": gpu_memory_mb, "threads": resources.threads}
+        atomic_json(request, payload)
+        worker = Path(__file__).with_name("ml_training_worker.py")
+        wrapper = [command[0], "-m", "topos.ml_training_worker", "--request", str(request)]
+        return self._run_ml_module(wrapper, folder, resources, engine="mace", request_sha256=file_digest(request),
+                                   worker_sha256=file_digest(worker), model_files=input_files, gpu_index=gpu_index,
+                                   gpu_memory_mb=gpu_memory_mb, cancel_event=cancel_event, log_prefix="training",
+                                   output_limit_mb=1024, worker_module="topos.ml_training_worker")
+
+    def _run_ml_module(
+        self, command: list[str], workdir: str | Path, resources: ResourceLimits, *, engine: str,
+        request_sha256: str, worker_sha256: str, model_files: dict[str, str],
+        gpu_index: int | None = None, gpu_memory_mb: int | None = None,
+        cancel_event: Event | None = None, log_prefix: str = "ml", output_limit_mb: int = 256,
+        worker_module: str,
+    ) -> ProcessResult:
         """Run a hash-bound Python ML worker through actual BASE silo authority.
 
         Models/packages are never enrolled here. Missing Stage 0 micro-silo
@@ -248,7 +328,9 @@ class BaseRuntime:
         self.validate_resources(resources, engine=engine, gpu_index=gpu_index, gpu_memory_mb=gpu_memory_mb)
         if engine not in {"mace", "aimnet2"} or os.name != "posix":
             raise BaseIntegrationError("This BASE ML worker boundary requires a supported POSIX ML silo")
-        if (len(command) != 5 or command[1:4] != ["-m", "topos.ml_worker", "--request"]
+        if worker_module not in {"topos.ml_worker", "topos.ml_training_worker"}:
+            raise BaseIntegrationError("Unsupported installed ML worker")
+        if (len(command) != 5 or command[1:4] != ["-m", worker_module, "--request"]
                 or any(not isinstance(value, str) or "\x00" in value for value in command)):
             raise BaseIntegrationError("ML authority accepts only the explicit TOPOS module worker and request file")
         if not re.fullmatch(r"[A-Za-z0-9_-]+", log_prefix) or output_limit_mb < 1:
@@ -300,7 +382,7 @@ version = '.'.join(map(str, sys.version_info[:3]))
 assert version == expected['python_version'] or version.startswith(expected['python_version']+'.'), 'Python version drift'
 versions = {name: importlib.metadata.version(name) for name in expected['packages']}
 assert versions == expected['packages'], 'audited package version drift'
-spec = importlib.util.find_spec('topos.ml_worker')
+spec = importlib.util.find_spec(expected['worker_module'])
 assert spec and spec.origin, 'TOPOS worker is not installed in the audited silo'
 path = pathlib.Path(spec.origin)
 assert not path.is_symlink() and path.resolve().is_relative_to(pathlib.Path(sys.prefix).resolve()), 'worker is outside the isolated installed package'
@@ -316,7 +398,7 @@ if expected['gpu_memory_mb'] is not None:
  result['gpu'] = {'visible_device_count':1,'name':properties.name,'memory_mb':memory_mb}
 print(json.dumps(result,sort_keys=True))
 """
-        contract = {**silo, "worker_sha256": worker_sha256, "gpu_memory_mb": gpu_memory_mb}
+        contract = {**silo, "worker_sha256": worker_sha256, "worker_module": worker_module, "gpu_memory_mb": gpu_memory_mb}
         probe_command = [command[0], "-I", "-c", probe_code, json.dumps(contract, sort_keys=True)]
         probe = self._execute_authorized(probe_command, folder, remaining(), authority, engine=engine,
                                          cancel_event=cancel_event, log_prefix=log_prefix + "-authority",
@@ -328,7 +410,7 @@ print(json.dumps(result,sort_keys=True))
         observed = json.loads(Path(probe.stdout_path).read_text(encoding="utf-8"))
         binding = {"schema_version": "topos-base-ml-authority/0.1.0", "authority_kind": "audited-ML-micro-silo",
                    "engine": engine, "interpreter": command[0], "interpreter_sha256": authority.binary_sha256,
-                   "request_sha256": request_sha256, "worker_sha256": worker_sha256,
+                   "request_sha256": request_sha256, "worker_sha256": worker_sha256, "worker_module": worker_module,
                    "model_files": model_files, "resources": resources.model_dump(mode="json"),
                    "gpu_index": gpu_index, "gpu_memory_mb": gpu_memory_mb, "observed": observed,
                    "registry_sha256": file_digest(self.registry_path), "probe": probe.to_dict()}

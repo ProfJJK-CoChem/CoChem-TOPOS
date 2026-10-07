@@ -12,16 +12,19 @@ from .storage import IntegrityError, RunStore, atomic_json, digest_json, file_di
 
 
 def _protocol_for_row(row_id: str, supplied: CorrelatedMethod | None) -> CorrelatedMethod:
+    if row_id not in {"T5-12h", "T5-1d", "T5-3d", "T3O-3d", "T3O-1mo"}:
+        raise ValueError("This row has no compiled correlated single-protocol recipe; variants cannot be substituted")
     if supplied is None:
         raise ValueError("This correlated row requires an explicit correlated_protocol including orbital/auxiliary bases and frozen-core treatment")
     expected = {
         "T5-12h": ("DLPNO-CCSD(T1)", "cc-pVDZ-F12", "energy"),
         "T5-3d": ("CCSD(T)-F12D/RI", "cc-pVTZ-F12", "energy"),
         "T3O-3d": ("AUTOCI-CCSD(T)", "cc-pVTZ-F12", "optimize"),
+        "T3O-1mo": ("CCSD(T)-F12D/RI", "cc-pVTZ-F12", "energy"),
     }
     if row_id in expected and (supplied.method, supplied.orbital_basis, supplied.operation) != expected[row_id]:
         raise ValueError(f"{row_id} requires the exact method, orbital basis and operation {expected[row_id]}")
-    if row_id == "T5-3d" and supplied.cabs != "cc-pVTZ-F12-CABS":
+    if row_id in {"T5-3d", "T3O-1mo"} and supplied.cabs != "cc-pVTZ-F12-CABS":
         raise ValueError("T5-3d requires cc-pVTZ-F12-CABS, plus the explicitly supplied RI correlation fitting basis")
     if row_id == "T5-12h" and (supplied.tcutpno != 1e-7 or not supplied.local_energy_decomposition):
         raise ValueError("T5-12h requires TightPNO/TCutPNO=1e-7 and a complete native LED decomposition")
@@ -52,8 +55,9 @@ def _publish(record: RunRecord, store: RunStore, row_id: str, output: dict[str, 
                                       "scientific_definition": output["definition"],
                                       "basis_and_method_identity": output.get("protocols"),
                                       "output_kind": output["output_kind"]})
-        for key, units in (("interaction_energy_hartree", "hartree"), ("equilibrium_rotational_constants_mhz", "MHz")):
-            if key in output:
+        for key, units in (("interaction_energy_hartree", "hartree"), ("equilibrium_rotational_constants_mhz", "MHz"),
+                           ("electronic_energy_hartree", "hartree")):
+            if output.get(key) is not None:
                 aggregate.quantities.append(Quantity(name=key, value=output[key], units=units,
                                                      definition=output["definition"], attempt_id=identity,
                                                      method=output["recipe"], validity="validated-for-protocol"))
@@ -68,6 +72,20 @@ def execute_correlated_recipe(workflow: Any, record: RunRecord, store: RunStore,
         if row_id == "T3O-12h":
             return _junchs_geometry(workflow, record, store, inputs, deadline, cancel_event)
         protocol = _protocol_for_row(row_id, inputs.correlated_protocol)
+        if row_id == "T3O-1mo":
+            if inputs.source_resolution != "orca-f12-reference-singlepoint-v1":
+                raise ValueError("Reference-energy branch requires explicit orca-f12-reference-singlepoint-v1 resolution")
+            result = run_component(workflow, record, store, "reference-F12-singlepoint", record.request.molecule,
+                                   protocol, run_correlated, deadline, cancel_event)
+            if result is None:
+                return False
+            _publish(record, store, row_id, {"recipe": "ORCA-F12-reference-singlepoint", "output_kind": "reference-electronic-energy",
+                "definition": "Native CCSD(T)-F12D/RI electronic energy at the supplied, unoptimized geometry",
+                "electronic_energy_hartree": result.energy_hartree, "molecule": result.molecule.model_dump(mode="json"),
+                "protocols": [protocol.model_dump(mode="json")], "geometry_optimized": False,
+                "equilibrium_geometry_claim": False, "equilibrium_rotational_constants_mhz": None,
+                "full_geometry_row_completed": False, "accuracy_claim": None})
+            return True
         if row_id == "T3O-3d":
             if inputs.correlated_resolution != "autoci-conventional-transformation-v1":
                 raise ValueError("AUTOCI does not inherit MDCI AO-direct controls. Explicit correlated_resolution='autoci-conventional-transformation-v1' is required and the source's AO-direct requirement is not claimed")

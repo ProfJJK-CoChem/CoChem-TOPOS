@@ -84,6 +84,8 @@ class ExternalProtocol(Contract):
 
 
 def _physical_input(molecule: Molecule, resources: ResourceLimits) -> None:
+    Molecule.model_validate(molecule.model_dump())
+    ResourceLimits.model_validate(resources.model_dump())
     if molecule.multiplicity != 1:
         raise ValueError("The external profiles require closed-shell singlets; no open-shell substitution")
     if molecule.environment not in ({}, {"phase": "gas"}):
@@ -95,6 +97,7 @@ def _physical_input(molecule: Molecule, resources: ResourceLimits) -> None:
 def cfour_input(molecule: Molecule, protocol: ExternalProtocol, resources: ResourceLimits) -> str:
     """Native Cartesian ZMAT for one evaluation; optimization is an outer driver."""
     _physical_input(molecule, resources)
+    protocol = ExternalProtocol.model_validate(protocol.model_dump())
     if protocol.engine != "cfour":
         raise ValueError("CFOUR input requires a CFOUR protocol")
     gradient = protocol.operation in {"gradient", "optimize"}
@@ -165,6 +168,11 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         raise EngineParseError("The native core/reference treatment differs from the requested protocol")
     if control("CHARGE") != str(molecule.charge):
         raise EngineParseError("The native electronic charge differs from the requested molecule")
+    native_method = control("CALC_?LEVEL").upper()
+    accepted_methods = {"HF": {"HF", "SCF"}, "MP2": {"MP2", "MBPT(2)"},
+                        "CCSD": {"CCSD"}, "CCSD(T)": {"CCSD(T)", "CCSD[T]"}, "CCSDT": {"CCSDT"}}
+    if native_method not in accepted_methods[protocol.method]:
+        raise EngineParseError("Native CALC_LEVEL differs from the requested method; an intermediate energy is not the requested job")
     if len(re.findall(r"SCF has converged\.", raw)) != 1:
         raise EngineParseError("Expected one CFOUR Cartesian evaluation, not concatenated jobs/optimization cycles")
     qcvars, native, stdout_gradient, _, _, error = harvest_outfile_pass(raw)
@@ -212,6 +220,7 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
 def psi4_input(molecule: Molecule, protocol: ExternalProtocol, resources: ResourceLimits) -> str:
     """Generate a fixed API driver; caller text is data, never executable Python."""
     _physical_input(molecule, resources)
+    protocol = ExternalProtocol.model_validate(protocol.model_dump())
     if protocol.engine != "psi4":
         raise ValueError("Psi4 input requires a Psi4 protocol")
     monomers = split_fragments(molecule)
@@ -230,7 +239,7 @@ def psi4_input(molecule: Molecule, protocol: ExternalProtocol, resources: Resour
                "freeze_core": protocol.frozen_core, "e_convergence": 10**-protocol.scf_convergence,
                "d_convergence": 10**-protocol.scf_convergence, "sapt__nat_orbs_t2": False}
     geometry = "\n".join(lines)
-    return ("import json\nimport psi4\nfrom pathlib import Path\n"
+    return ("import hashlib\nimport json\nimport psi4\nfrom pathlib import Path\n"
             f"assert psi4.__version__ == {protocol.engine_version!r}, 'Exact Psi4 version mismatch'\n"
             f"psi4.set_memory({int(resources.memory_mb * 1024**2 * .75)})\n"
             f"psi4.set_num_threads({resources.threads})\n"
@@ -241,22 +250,29 @@ def psi4_input(molecule: Molecule, protocol: ExternalProtocol, resources: Resour
             "keys = ['SAPT ELST ENERGY', 'SAPT EXCH ENERGY', 'SAPT IND ENERGY', 'SAPT DISP ENERGY', 'SAPT TOTAL ENERGY']\n"
             "values = {key: float(psi4.variable(key)) for key in keys}\n"
             "result = {'engine_version': psi4.__version__, 'method': 'SAPT2+3', 'returned_interaction_hartree': float(energy), 'quantities_hartree': values}\n"
+            "with Path(psi4.core.__file__).open('rb') as native_library:\n"
+            "    result['native_core_sha256'] = hashlib.file_digest(native_library, 'sha256').hexdigest()\n"
             "Path('native-result.json').write_text(json.dumps(result, allow_nan=False))\n")
 
 
 def parse_psi4_result(raw: str, protocol: ExternalProtocol) -> dict[str, Any]:
     data = json.loads(raw)
+    if not isinstance(data, dict):
+        raise EngineParseError("Psi4 native result is not an object")
     if data.get("engine_version") != protocol.engine_version or data.get("method") != "SAPT2+3":
         raise EngineParseError("Psi4 version/method differs from the explicit SAPT protocol")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(data.get("native_core_sha256", ""))):
+        raise EngineParseError("Psi4 native compiled-core fingerprint is missing")
     values = data.get("quantities_hartree", {})
     keys = ["SAPT ELST ENERGY", "SAPT EXCH ENERGY", "SAPT IND ENERGY", "SAPT DISP ENERGY"]
-    if set(values) != set(keys + ["SAPT TOTAL ENERGY"]):
+    if not isinstance(values, dict) or set(values) != set(keys + ["SAPT TOTAL ENERGY"]):
         raise EngineParseError("SAPT native result lacks the complete four-term decomposition")
     terms = {key: _number(str(value)) for key, value in values.items()}
     total = _number(str(data["returned_interaction_hartree"]))
     if abs(sum(terms[key] for key in keys) - total) > 2e-8 or abs(terms["SAPT TOTAL ENERGY"] - total) > 2e-10:
         raise EngineParseError("SAPT terms do not sum to the native interaction energy")
     return {"interaction_energy_hartree": total, "sapt_components_hartree": terms,
+            "native_core_sha256": data["native_core_sha256"],
             "quantity_kind": "frozen-geometry SAPT interaction energy; not total electronic or association free energy"}
 
 
@@ -285,8 +301,10 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                           operation=protocol.operation,
                           metadata={"execution_kind": "not-executed", "adapter_validation": "conditional-not-live-validated",
                                     "requested_protocol": protocol.model_dump(mode="json"),
-                                    "protocol_sha256": digest_json(protocol.model_dump(mode="json")), "sources": SOURCES})
+                                    "protocol_sha256": digest_json(protocol.model_dump(mode="json")), "sources": SOURCES,
+                                    "base_broker_selected_by_adapter": process_runner is None})
     try:
+        protocol = ExternalProtocol.model_validate(protocol.model_dump())
         _physical_input(molecule, resources)
         if protocol.engine in {"molpro", "mpqc"}:
             raise ValueError("Molpro F12 requires a verified explicit F12 variant/gradient protocol; the MPQC source row conflicts with its ORCA track. Neither is an executable recipe yet")
@@ -339,14 +357,17 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
             result.metadata["native_result"] = native
             # SAPT is an interaction energy. Do not put it in electronic_energy.
             result.metadata["quantity_kind"] = "interaction-energy"
+            result.metadata["adapter_validation"] = "native-output-validated-for-this-execution"
             result.engine_version, result.molecule, result.converged = protocol.engine_version, molecule, True
+            limits()
             return result
 
         evaluated: dict[str, tuple[Molecule, dict[str, Any]]] = {}
 
         def evaluate(x: np.ndarray) -> tuple[float, np.ndarray]:
             limits()
-            current = Molecule.model_validate({**molecule.model_dump(), "coordinates": (x.reshape(-1, 3) * BOHR_ANGSTROM).tolist()})
+            current = (Molecule.model_validate({**molecule.model_dump(), "coordinates": (x.reshape(-1, 3) * BOHR_ANGSTROM).tolist()})
+                       if protocol.operation == "optimize" else molecule)
             key = digest_json(current.coordinates)
             if key not in evaluated:
                 evaluation = folder / f"evaluation-{len(evaluated):05d}"

@@ -1,0 +1,431 @@
+{
+  "schema_version": "topos-focused-acceptance/0.1.0",
+  "scope": "Publication/storage/release/setup contracts; analytical fixtures are not licensed chemistry evidence",
+  "test_cases": [
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[schema]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[checksum]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[geometry]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[review]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[missing]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_handoff_rejects_stale_corrupt_and_incomplete_content[request]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_binds_current_ensemble_and_member_geometry",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[member]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[consumer]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[version]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[status]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[timestamp]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[schema]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_external_receipt_rejects_partial_or_mismatched_declarations[extra]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_review_annotations_preserve_original_observation_and_supersession",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_export_table_and_figure_regenerate_without_topos_import",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_reproduction_fails_on_changed_source_data",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_figure_never_invents_missing_energy",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_unrecognized_license_identifiers_are_rejected[whatever]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_unrecognized_license_identifiers_are_rejected[CC BY]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_unrecognized_license_identifiers_are_rejected[<script>]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_unrecognized_license_identifiers_are_rejected[LicenseRef-]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_unrecognized_license_identifiers_are_rejected[CC-BY-4.0 OR anything]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_orca_data_restrictions_and_required_citation_are_execution_aware",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_actual_kernel_enospc_during_snapshot_write_preserves_committed_evidence",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_actual_kernel_enospc_during_export_never_publishes_partial_bundle",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_cli_handoff_and_external_receipt_round_trip",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_cli_matrix_uses_source_rows_and_explicit_hardware_capability_gates",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_base_receiver_cli_preserves_execution_status_and_passes_cancellation[completed-0]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_base_receiver_cli_preserves_execution_status_and_passes_cancellation[failed-3]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_base_receiver_cli_preserves_execution_status_and_passes_cancellation[cancelled-3]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_completion_io::test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_hdf5_roundtrip_explicit_artifacts_and_closed_handles",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_failed_next_commit_preserves_previous_snapshot",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_corruption_missing_artifact_and_membership_are_detected",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_schema_dimensions_and_run_identity_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_interrupted_stages_are_not_promoted_on_recovery",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_quota_failure_keeps_commit_unchanged",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_unavailable_initial_record_can_be_committed",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_independent_runs_and_concurrent_snapshot_readers",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_writer_lock_timeout_is_explicit",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_path_escape_and_symlink_artifacts_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_requires_explicit_supersession_and_preserves_audit",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_torq_requires_current_digest_and_compatible_schema",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_new_run_commit_invalidates_old_review",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_chain_corruption_detected",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_bundle_reproducibility_nulls_failures_and_exact_membership",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_cannot_promote_noneligible_calculation[status]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_cannot_promote_noneligible_calculation[validation]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_cannot_promote_noneligible_calculation[execution]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_cannot_promote_noneligible_calculation[version]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_review_cannot_promote_noneligible_calculation[output]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_bundle_corruption_and_unlisted_files_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_human_acceptance_cannot_certify_changed_scientific_payload[energy]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_human_acceptance_cannot_certify_changed_scientific_payload[geometry]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_human_acceptance_cannot_certify_changed_scientific_payload[protocol]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_human_acceptance_cannot_certify_changed_scientific_payload[rejected]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_human_acceptance_cannot_certify_changed_scientific_payload[duplicate]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_committed_attempts_and_candidate_science_are_immutable",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_explicit_derived_optimizer_uses_accepted_real_derivative",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_storage_publication::test_invalid_accepted_derivative_cannot_support_derived_result",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_candidate_sources_exclude_binaries_caches_and_base_frontend",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_candidate_rejects_symlinked_source_before_build",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_wheel_normalization_changes_metadata_not_payload_or_record",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_source_archive_normalization_is_repeatable_and_preserves_bytes",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_release_installation_verifies_all_local_wheels_and_ownership",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_release_installer_rejects_checksum_tampering_before_pip",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_clean_install_inventory_detects_identical_shared_files_too",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_release::test_source_identity_is_content_based_and_ignores_local_caches",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_layout_checks_expected_projects_without_creating_artifacts",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_missing_repository_is_rejected_before_any_provisioning[CoChem-BASE]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_missing_repository_is_rejected_before_any_provisioning[CoChem-TOPOS]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_missing_repository_is_rejected_before_any_provisioning[CoChem-TORQ]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_misnamed_checkout_cannot_supply_another_mandatory_component[CoChem-BASE]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_misnamed_checkout_cannot_supply_another_mandatory_component[CoChem-TOPOS]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_misnamed_checkout_cannot_supply_another_mandatory_component[CoChem-TORQ]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[False-CoChem-BASE]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[False-CoChem-TOPOS]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[False-CoChem-TORQ]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[True-CoChem-BASE]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[True-CoChem-TOPOS]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_pollute_any_source_checkout[True-CoChem-TORQ]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_artifacts_cannot_enclose_source_repositories",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_symlink_does_not_bypass_source_tree_separation",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_setup_entrypoints_must_exist",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_storage_floor_must_be_positive_finite[0]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_storage_floor_must_be_positive_finite[-1]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_storage_floor_must_be_positive_finite[nan]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_storage_floor_must_be_positive_finite[inf]",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_python_version_floor_is_explicit",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_mandatory_manifest_lists_all_three_installations",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_command_plan_refreshes_dependencies_and_complete_setup",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_environment_binds_manifest_registry_and_actual_base_xtb_path",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_probes_require_actual_authority_both_engine_versions_and_all_phases",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_atomic_manifest_write_contains_no_credentials",
+      "status": "passed"
+    },
+    {
+      "id": "tests.v010.test_setup_ecosystem::test_cli_rejects_missing_roots_without_network_or_artifacts",
+      "status": "passed"
+    }
+  ],
+  "tests": 102,
+  "failures": 0,
+  "skipped": 0,
+  "source_sha256_after": {
+    "topos/publication.py": "9a004557eaee60f7f39fb61849cbeb7ccda2a6d34456c84a935c3c7e924a9bf9",
+    "tests/v010/test_completion_io.py": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+    "tests/v010/test_storage_publication.py": "2486ea504ab5b1d563c234e7eb71fd8678752a0895c006fb48ebc81f83161017",
+    "tests/v010/test_release.py": "76977836e78cdfbfeddba00a336479e5a245866fd4c4975f238c1d73c426cd4e",
+    "tests/v010/test_setup_ecosystem.py": "f7c0c9572c1faf1f91c42e04b4b342b5e59856c7395126d23c12aed2d5a6f723",
+    "scripts/setup_ecosystem.py": "0d7451cef59516b40badc10d34a742cfc8a9b35f4118590c05b839d490eb1730",
+    "topos/release.py": "f80d534abc86721015a6baf6a483b024646725caa5364e44cf6c7bb3e84c65da"
+  },
+  "source_stability": "post-run identity; final whole-suite source-stability receipt still required",
+  "junit": {
+    "path": "/workspace/.cochem-setup/publication-release-acceptance.xml",
+    "sha256": "b9f6ae472ee88a6c8ad807f48bd1cbd93872e705b972de5ed9d9c350fcf1429d"
+  }
+}

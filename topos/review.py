@@ -170,6 +170,13 @@ def validate_scientific_candidate(
             raise
         except (KeyError, TypeError, ValueError) as exc:
             raise IntegrityError("Incomplete or invalid physical-Hessian provenance") from exc
+    if metadata.get("result_kind") == "native-analytic-hessian":
+        try:
+            _validate_native_hessian(record, candidate, attempt)
+        except IntegrityError:
+            raise
+        except (KeyError, TypeError, ValueError) as exc:
+            raise IntegrityError("Incomplete or invalid native analytic-Hessian provenance") from exc
     if metadata.get("result_kind") == "derived-association":
         try:
             _validate_association(record, candidate, attempt, attempts)
@@ -178,6 +185,72 @@ def validate_scientific_candidate(
         except (KeyError, TypeError, ValueError) as exc:
             raise IntegrityError("Incomplete or invalid balanced-association provenance") from exc
     return dict(attempt)
+
+
+def _validate_native_hessian(record, candidate, attempt) -> None:
+    """Require a physical native Hessian and a separate real stationarity job."""
+    import numpy as np
+
+    from .models import Molecule
+    from .science import harmonic_analysis, validate_derivatives
+    from .thermochemistry import rrho_thermochemistry
+
+    metadata = attempt["metadata"]
+    reference = metadata["reference_gradient_result"]
+    molecule = Molecule.model_validate(candidate["molecule"])
+    if (metadata.get("derivative_kind") != "native-analytic-SCF-Hessian"
+            or reference.get("status") != "completed" or reference.get("converged") is not True
+            or reference.get("operation") != "gradient" or not reference.get("command")
+            or reference.get("metadata", {}).get("execution_kind") != "real"
+            or reference.get("molecule") != candidate["molecule"]
+            or any(reference.get(key) != attempt.get(key) for key in ("engine", "method", "engine_version"))
+            or reference.get("energy_hartree") != candidate.get("energy_hartree")):
+        raise IntegrityError("Native Hessian lacks an authentic matching gradient/energy reference")
+    inventory = {a["sha256"] for a in attempt["artifacts"]}
+    if (not reference.get("artifacts") or any(a["sha256"] not in inventory for a in reference["artifacts"])
+            or not any(Path(a["path"]).suffix == ".hess" for a in attempt["artifacts"])):
+        raise IntegrityError("Native Hessian and reference raw artifacts must belong to the calculation")
+    protocol = metadata["protocol"]
+    if (protocol.get("molecule") != candidate["molecule"]
+            or protocol.get("executable_sha256") != metadata.get("executable_sha256")
+            or reference.get("metadata", {}).get("executable_sha256") != metadata.get("executable_sha256")):
+        raise IntegrityError("Native Hessian and reference require the same geometry and executable")
+    threshold = protocol.get("gradient_threshold")
+    if not isinstance(threshold, (int, float)) or not 0 < threshold <= 1e-5:
+        raise IntegrityError("Native minimum requires a declared strict stationarity threshold")
+    hessian = metadata["hessian_hartree_per_bohr2"]
+    gradient = reference["gradient_hartree_per_bohr"]
+    validate_derivatives(gradient, hessian, natoms=len(molecule.symbols))
+    reported = [q for q in attempt["quantities"] if q.get("name") == "cartesian_hessian"]
+    if (len(reported) != 1 or reported[0].get("units") != "hartree/bohr^2"
+            or reported[0].get("attempt_id") != attempt["attempt_id"]
+            or reported[0].get("validity") != "validated-for-protocol"
+            or not np.allclose(reported[0]["value"], hessian, rtol=1e-12, atol=1e-14)):
+        raise IntegrityError("Native Hessian quantity differs from the recorded physical derivative")
+    analysis = harmonic_analysis(molecule, hessian, gradient_hartree_per_bohr=gradient,
+                                 gradient_threshold=threshold)
+    stored = metadata["analysis"]
+    if (analysis["validity"] != "harmonic-minimum-within-thresholds"
+            or stored.get("validity") != analysis["validity"]
+            or not np.allclose(stored.get("frequencies_cm1", []), analysis["frequencies_cm1"], rtol=1e-9, atol=1e-7)):
+        raise IntegrityError("Native Hessian does not establish a reproducible harmonic minimum")
+    if candidate.get("gibbs_hartree") is not None:
+        thermal = metadata["thermochemistry"]
+        options = record["request"]["thermochemistry_options"]
+        recalculated = rrho_thermochemistry(
+            molecule, reference["energy_hartree"], analysis, temperature_k=record["request"]["temperature_k"],
+            pressure_pa=options["pressure_pa"], concentration_mol_l=options["concentration_mol_l"],
+            symmetry_number=thermal["symmetry_number"], frequency_scale=options["frequency_scale"],
+            low_frequency_policy=options["low_frequency_policy"], cutoff_cm1=options["cutoff_cm1"],
+        )
+        if not np.isclose(recalculated["gibbs_hartree"], candidate["gibbs_hartree"], rtol=0, atol=1e-12):
+            raise IntegrityError("Gibbs energy does not reproduce from the native Hessian")
+        for name in ("zpe_hartree", "thermal_enthalpy_correction_hartree", "entropy_hartree_per_k",
+                     "standard_state_correction_hartree", "gibbs_hartree"):
+            if not np.isclose(recalculated[name], thermal[name], rtol=0, atol=1e-12):
+                raise IntegrityError("Native-Hessian thermal components do not reproduce")
+        if candidate.get("metadata", {}).get("thermochemistry") != thermal:
+            raise IntegrityError("Candidate thermal components differ from the native Hessian attempt")
 
 
 def _validate_association(record, candidate, attempt, attempts) -> None:

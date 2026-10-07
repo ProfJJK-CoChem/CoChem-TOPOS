@@ -424,7 +424,9 @@ def _recipe(row: MatrixRow) -> tuple[list[ScientificStep], list[str]]:
         ], ["molecule", "coordinate_parameterization", "internal_coordinates"]
     if rid == "T5-1min":
         return [_step("interaction-energy", "mlff", "manifest-bound", derivative="energy",
-                      interpretation="broad-screen-only", committee_uncertainty=True)], ["molecule", "fragments", "fragment_states", "model_manifest", "ranking_audit"]
+                      interpretation="broad-screen-only", committee_uncertainty=True,
+                      energy_culling_authorized=False,
+                      ranking_audit_required_before_culling=True)], ["molecule", "fragments", "fragment_states", "model_manifest", "explicit_no_culling_policy"]
     if rid == "T5-30min":
         return [_step("interaction-energy", "orca", "r2SCAN-3c", derivative="energy",
                       frozen_monomer="frozen-inc", composite_native_gcp=True)], ["molecule", "fragments", "fragment_states"]
@@ -456,7 +458,8 @@ def _recipe(row: MatrixRow) -> tuple[list[ScientificStep], list[str]]:
 
 def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[BackendCapability],
                product: str = "A", available_inputs: list[str] | None = None,
-               symbols: list[str] | None = None, charge: int = 0, multiplicity: int = 1) -> ExecutionPlan:
+               symbols: list[str] | None = None, charge: int = 0, multiplicity: int = 1,
+               source_resolution: str | None = None) -> ExecutionPlan:
     row = resolve_row(row_id, product=product)
     steps, required = _recipe(row)
     inputs = set(available_inputs or [])
@@ -466,6 +469,21 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
         blockers.append("This matrix row is an explicit track gap; choose a listed alternative explicitly.")
     warnings = ["Nominal tier labels do not guarantee completion, sampling coverage or chemical accuracy.",
                 row.limitations]
+    if source_resolution is not None:
+        if row.row_id == "T3O-1mo" and source_resolution == "orca-f12-reference-singlepoint-v1":
+            steps = [_step("energy", "orca", "CCSD(T)-F12D/RI", "cc-pVTZ-F12", derivative="energy",
+                           geometry_optimized=False, source_resolution=source_resolution)]
+            required = ["molecule", "correlated_protocol"]
+            missing = sorted(set(required) - inputs)
+            warnings.append("Only the source's ORCA reference-energy branch is selected; no new reference geometry or B_e is computed")
+        elif row.row_id == "T5-30min" and source_resolution == "native-composite-rawinteraction-v1":
+            warnings.extend(blockers)
+            blockers = []
+            warnings.append("Explicit resolution: native r2SCAN-3c interaction including its native gCP; no separate CP or half-CP values are defined")
+            steps[0].options["source_resolution"] = source_resolution
+            steps[0].options["separate_counterpoise"] = False
+        else:
+            raise ValueError("No compiled scientific source-conflict resolution matches this row")
     if canonical_row_id(row_id) != row_id:
         warnings.append(f"Decision-card alias {row_id} resolves explicitly to {row.row_id}.")
     if product == "B" and "measured_parent_constants" not in inputs:

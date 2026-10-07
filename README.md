@@ -82,6 +82,10 @@ can also bind to compatible primitive matrix rows.
 
 ## Install the mandatory ecosystem
 
+For reviewed wheels, checksums, clean installation acceptance and upgrades, use
+the [installation and release guide](.docs/TOPOS_INSTALLATION.md). Candidate
+archives remain distinct from a passing full release certificate.
+
 Production setup requires Python 3.11 or newer and a Linux engine host. Check out
 all three repositories, then run TOPOS's ecosystem setup helper:
 
