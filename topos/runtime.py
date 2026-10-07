@@ -14,7 +14,7 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from threading import Event
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Iterator
 
 if TYPE_CHECKING:
     from .models import ResourceLimits
@@ -39,9 +39,8 @@ def available_cpu_count() -> int:
     return len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
 
 
-def _group_rss_bytes(pgid: int) -> int:
-    """Linux /proc process-group RSS; shared pages may be counted more than once."""
-    total = 0
+def _group_members(pgid: int) -> Iterator[tuple[Path, str]]:
+    """Read group identity and state together; vanished processes are harmless."""
     for entry in Path("/proc").iterdir():
         if not entry.name.isdecimal():
             continue
@@ -50,6 +49,16 @@ def _group_rss_bytes(pgid: int) -> int:
             fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
             if int(fields[2]) != pgid:
                 continue
+            yield entry, fields[0]
+        except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError, IndexError):
+            continue
+
+
+def _group_rss_bytes(pgid: int) -> int:
+    """Linux /proc process-group RSS; shared pages may be counted more than once."""
+    total = 0
+    for entry, _ in _group_members(pgid):
+        try:
             for line in (entry / "status").read_text().splitlines():
                 if line.startswith("VmRSS:"):
                     total += int(line.split()[1]) * 1024
@@ -59,21 +68,47 @@ def _group_rss_bytes(pgid: int) -> int:
     return total
 
 
-def _terminate_group(process: subprocess.Popen[bytes], grace_seconds: float = 0.5) -> None:
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        pass
-    try:
-        process.wait(timeout=grace_seconds)
-    except subprocess.TimeoutExpired:
-        pass
+def _terminate_group(process: subprocess.Popen[bytes], grace_seconds: float = 0.5,
+                     kill_wait_seconds: float = 2.0) -> None:
+    """Confirm all owned group members stopped, including orphaned descendants.
+
+    Reaping the leader alone does not establish descendant termination: a
+    delivered SIGKILL can still be pending on a runnable child. Zombies are
+    already terminated and may await the hosted runner's init process to reap
+    them. A non-quiescent group raises after a bounded cleanup interval rather
+    than allowing a calculation result to claim that cleanup finished.
+    """
+    live_members = any(state != "Z" for _, state in _group_members(process.pid))
+    if live_members:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    grace_deadline = time.monotonic() + grace_seconds
+    while live_members:
+        process.poll()
+        remaining = grace_deadline - time.monotonic()
+        if remaining <= 0:
+            break
+        time.sleep(min(0.01, remaining))
+        live_members = any(state != "Z" for _, state in _group_members(process.pid))
     # Descendants may survive after their parent exits. Kill only this owned group.
+    if live_members:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    kill_deadline = time.monotonic() + kill_wait_seconds
+    while any(state != "Z" for _, state in _group_members(process.pid)):
+        process.poll()
+        remaining = kill_deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("Owned process-group termination could not be confirmed within the cleanup deadline")
+        time.sleep(min(0.01, remaining))
     try:
-        os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    process.wait()
+        process.wait(timeout=max(0.01, kill_deadline - time.monotonic()))
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError("Owned process-group leader could not be reaped within the cleanup deadline") from exc
 
 
 def run_process(
@@ -129,6 +164,7 @@ def run_process(
         if cancel_event is not None and cancel_event.is_set():
             return ProcessResult(command, "cancelled", None, 0.0, 0.0,
                                  str(stdout_path), str(stderr_path), "cancelled before launch")
+        group_cleanup_attempted = False
         try:
             process = subprocess.Popen(launcher, cwd=folder, env=env,
                                        stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
@@ -148,13 +184,15 @@ def run_process(
                 else:
                     time.sleep(0.02)
                     continue
+                group_cleanup_attempted = True
                 _terminate_group(process)
                 break
             returncode = process.wait()
             if returncode != 0 and status == "completed":
                 status, reason = "failed", f"engine process exited with code {returncode}"
         finally:
-            _terminate_group(process)
+            if not group_cleanup_attempted:
+                _terminate_group(process)
     return ProcessResult(command, status, returncode, time.monotonic() - start,
                          peak / 1024**2, str(stdout_path), str(stderr_path), reason)
 
