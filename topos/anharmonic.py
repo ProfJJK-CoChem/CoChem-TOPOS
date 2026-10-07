@@ -56,7 +56,8 @@ def orca_vpt2_input(molecule: Molecule, method: MethodSpec, resources: ResourceL
     lines[0] = lines[0].removesuffix(' Freq') + ' VPT2'
     start = next(i for i, line in enumerate(lines) if line.startswith('* xyz'))
     lines[start:start] = ['%vpt2', '  VPT2 On', f'  AnharmDisp {displacement:.12g}',
-                          '  HessianCutoff 1e-12', '  PrintLevel 4', '  MinimiseOrcaPrint False', 'end']
+                          '  HessianCutoff 1e-12', '  PrintLevel 4', '  MinimiseOrcaPrint False', 'end',
+                          '%output', '  Pickettname "pickett.txt"', 'end']
     return '\n'.join(lines) + '\n'
 
 
@@ -228,6 +229,10 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         result.metadata['vpt2'] = parse_orca_vpt2(raw, vibrational_modes=3 * len(molecule.symbols) - 6)
         result.metadata['native_masses_amu'] = parsed_hessian['native_masses_amu']
         result.metadata['native_force_field'] = str(force_field)
+        pickett = native / 'pickett.txt'
+        if not pickett.is_file() or pickett.stat().st_size == 0:
+            raise EngineParseError('Requested native Pickett spectroscopy template missing')
+        result.metadata['native_pickett_template'] = str(pickett)
         result.converged = True
         result.elapsed_seconds = time.monotonic() - started
         atomic_json(folder / 'completed.json', {'result': result.model_dump(mode='json')})
