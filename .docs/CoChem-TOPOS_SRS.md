@@ -131,6 +131,8 @@ The mapping specifies `TolE 1e-7 Eh`, `TolMaxG 1e-5 Eh/bohr`, `TolRMSG 3e-6 Eh/b
 
 **TOPOS-010-017.** Record the resolved convergence/grid profile and verify all criteria, including free-coordinate convergence under constraints. Ambiguity blocks production execution. Coarse-to-fine protocols must recompute/reconverge on the final grid. Syntax and derivative support require engine-version-specific validation.
 
+For ORCA, request its documented `EnforceStrictConvergence` optimizer policy and retain the separate final-gradient check. A missing first-cycle energy-change row remains `NOT_EVALUATED` as a native printed diagnostic. The numerical energy-change condition may instead be established from an unambiguous pair of actual initial/final native energy evaluations for that single step, using the unchanged requested tolerance and a conservative bound for printed precision. Archive this as a separately identified computed condition, including source energies and output references; absence alone never passes a condition. The [native optimizer policy](TOPOS_ORCA_OPTIMIZER_POLICY.md) documents observed failures, the official manual and the execution/import validation contract.
+
 **TOPOS-010-018.** Preserve the restriction against an initial full ab initio Hessian solely for routine optimization preconditioning. Use supported XTB2/Lindh/restart approximations. Later Hessians for minima classification, frequencies, thermochemistry, or a supported TS task have different purposes. A quasi-Newton approximation is not a frequency Hessian. Reject unsupported input rather than silently stripping it. Speedup claims require benchmarks.
 
 ### 5.4 Dimensional corrections

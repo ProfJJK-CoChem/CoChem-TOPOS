@@ -23,7 +23,6 @@ from .engines import (
     EngineResult,
     _engine_version,
     _number,
-    _orca_convergence,
     _orca_input,
     artifact_inventory,
     parse_orca_engrad,
@@ -31,6 +30,7 @@ from .engines import (
 )
 from .ml import BOHR_ANGSTROM, HARTREE_EV, MLRunner, ModelManifest, molecule_system_identity
 from .models import Artifact, Attempt, Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
+from .orca_geometry_evidence import convergence_evidence
 from .storage import IntegrityError, RunStore, atomic_json, confined_file, digest_json, file_digest
 
 MACE_VERSION = "0.3.16"
@@ -196,7 +196,7 @@ def _optimization_refinement_contract(attempt: Attempt, initial: Molecule, molec
             or stages[-1]["resources"] != resources.model_dump(mode="json")
             or stages[-1].get("final_gradient_verification") != attempt.metadata.get("final_gradient_verification")
             or any(stages[-1].get(key) != attempt.diagnostics.get(key) for key in (
-                "process", "convergence", "native_optimizer_reported_converged", "independent_stationarity"))):
+                "process", "convergence", "energy_change_evidence", "native_optimizer_reported_converged", "independent_stationarity"))):
         raise IntegrityError("DFT optimized result does not identify the final accepted native stage")
     return stages
 
@@ -229,7 +229,7 @@ def _optimization_stage_receipt(snapshot: Path, attempt: Attempt, index: int,
             or native.converged is not stage["converged"] or native.molecule is None
             or native.molecule.model_dump(mode="json") != stage["output_molecule"]
             or any(native.diagnostics.get(key) != stage.get(key) for key in (
-                "process", "convergence", "native_optimizer_reported_converged", "independent_stationarity"))
+                "process", "convergence", "energy_change_evidence", "native_optimizer_reported_converged", "independent_stationarity"))
             or gradient != stage.get("final_gradient_verification")):
         raise IntegrityError("DFT refinement history differs from its retained native stage receipt")
     return path, native
@@ -255,9 +255,11 @@ def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: 
         if files["job.inp"].read_text() != _orca_input(initial, method, allocation, "optimize"):
             raise IntegrityError("DFT refinement native input changed its recorded method or geometry")
         stdout, optimizer_energy = _dft_output_energy(files["engine.stdout"])
-        criteria = _orca_convergence(stdout)
+        tolerance = 1e-10 if method.profile_id == "orca-vpt2-reference-v1" else 1e-7
+        criteria, energy_evidence = convergence_evidence(stdout, energy_tolerance=tolerance)
         if ("THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5
                 or criteria != stage.get("convergence")
+                or energy_evidence != stage.get("energy_change_evidence")
                 or native.energy_hartree != optimizer_energy
                 or read_xyz(files["job.xyz"], initial) != output):
             raise IntegrityError("DFT refinement lacks a genuine native optimizer endpoint")
@@ -371,9 +373,12 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
     retained.update({(Path(selected_stage or "") / name).as_posix(): native_file(name)
                      for name in ("job.inp", "engine.stdout")})
     if operation == "optimize":
-        criteria = _orca_convergence(stdout)
+        tolerance = 1e-10 if method.profile_id == "orca-vpt2-reference-v1" else 1e-7
+        criteria, energy_evidence = convergence_evidence(stdout, energy_tolerance=tolerance)
         if "THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5 or not all(criteria.values()):
             raise IntegrityError("DFT optimization raw output does not establish all five geometry gates")
+        if energy_evidence != attempt.diagnostics.get("energy_change_evidence"):
+            raise IntegrityError("DFT optimization energy-change evidence differs from its native energies")
         if read_xyz(native_file("job.xyz"), stage_initial).coordinates != molecule.coordinates:
             raise IntegrityError("DFT stored output geometry differs from its native XYZ")
         retained[(Path(selected_stage) / "job.xyz").as_posix()] = native_file("job.xyz")

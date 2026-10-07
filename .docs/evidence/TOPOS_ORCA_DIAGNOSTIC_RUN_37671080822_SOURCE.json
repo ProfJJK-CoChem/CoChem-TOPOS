@@ -1,0 +1,15 @@
+{
+  "scope": "diagnostic: unchanged all-five TOPOS baseline only; not full scientific or release acceptance",
+  "parent_base_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "diagnostic_base_commit": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+  "branch": "codex/topos-baseline-diagnostic-65af1e0",
+  "workflow_sha256": "e8a83fc1a8e28072b31db6fa20c0ed1857f57590944e6c3899883227b2714c6d",
+  "changed_files": [
+    ".github/workflows/orca_acceptance.yml"
+  ],
+  "shared_checkout_HEAD_unchanged": true,
+  "src_tree_unchanged": true,
+  "scripts_tree_unchanged": true,
+  "concurrency_key_includes_ref": true,
+  "cancel_in_progress": false
+}

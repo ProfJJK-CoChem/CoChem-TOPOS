@@ -1,0 +1,231 @@
+{
+  "scope": "diagnostic: unchanged all-five TOPOS baseline only; not full scientific or release acceptance",
+  "run_id": "37671080822",
+  "source_commits": {
+    "base": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+    "topos": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "source_inventory_verified": true,
+  "acceptance_script_sha256_verified": "6310f2cf8a1851b0976116cc29936eb4dba930605199d311e4d827f8e279d5c8",
+  "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/acceptance.json",
+  "receipt_sha256": "d1f217470894b602ee3f3dbc6c6bc590b286a76bc1ed8f93d0b8e0dedaaf7ef7",
+  "status": "failed",
+  "cases": {
+    "counterpoise": {
+      "status": "passed",
+      "elapsed_seconds": 10.500927933000185
+    },
+    "goat-refinement": {
+      "status": "failed",
+      "reason": "Requested calculation did not complete: failed",
+      "elapsed_seconds": 18.38941558800002
+    },
+    "hf3c-energy-gradient": {
+      "status": "passed",
+      "elapsed_seconds": 45.4181410770002
+    },
+    "r2scan3c-optimization-thermochemistry": {
+      "status": "failed",
+      "reason": "Requested calculation did not complete: Frequency reference optimization did not complete",
+      "elapsed_seconds": 18.897340028000144
+    },
+    "wb97xv-optimization": {
+      "status": "failed",
+      "reason": "Requested calculation did not complete: failed",
+      "elapsed_seconds": 70.26087677100008
+    }
+  },
+  "failed_native_runs": [
+    {
+      "label": "r2scan3c-optimization-and-hessian",
+      "run_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213",
+      "status": "partial",
+      "stages": [
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213/attempts/attempt_631cc1b86f5f4f61bb9a454447b770bc/optimization-stage-0.json",
+          "receipt_sha256": "5673f7f0dd0334810d0bfe46c6cf2d492ee16e240c62fc781b4c02c42ba541d7",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "energy_change": false,
+            "max_gradient": false,
+            "max_step": true,
+            "rms_gradient": false,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213/attempts/attempt_631cc1b86f5f4f61bb9a454447b770bc/engine.stdout",
+          "stdout_sha256": "1ed5662e0587f1b8ce9f455ecc92d5de732ea9433393fbe25d0d84f8fa7c46d1",
+          "final_native_table": {
+            "line": 2935,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          Energy change      -0.0000003609            0.0000001000      NO\n          RMS gradient        0.0000067357            0.0000030000      NO\n          MAX gradient        0.0000116148            0.0000100000      NO\n          RMS step            0.0000126910            0.0000500000      YES\n          MAX step            0.0000217723            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [
+            {
+              "line": 2949,
+              "text": "       The step convergence is overachieved with "
+            },
+            {
+              "line": 2951,
+              "text": "       Convergence will therefore be signaled now"
+            }
+          ],
+          "artifact_hashes_verified": 21
+        },
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213/attempts/attempt_631cc1b86f5f4f61bb9a454447b770bc/optimization-stage-1.json",
+          "receipt_sha256": "83b96fff6a454c860ac538f6b01d90f7044abeecaac9db4424a872677ddc47cb",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "max_gradient": true,
+            "max_step": true,
+            "rms_gradient": true,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213/attempts/attempt_631cc1b86f5f4f61bb9a454447b770bc/optimization-refinement-1/engine.stdout",
+          "stdout_sha256": "be8ea356cec4b3fbda9b62815dfab464f7382eb928b1fe619a1adbe1363bd99d",
+          "final_native_table": {
+            "line": 951,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          RMS gradient        0.0000002070            0.0000030000      YES\n          MAX gradient        0.0000003475            0.0000100000      YES\n          RMS step            0.0000003210            0.0000500000      YES\n          MAX step            0.0000004988            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [],
+          "artifact_hashes_verified": 21
+        }
+      ]
+    },
+    {
+      "label": "wb97xv-def2tzvpp-optimization",
+      "run_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134",
+      "status": "failed",
+      "stages": [
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134/attempts/attempt_7aad08507efd4fa899c32dc99b6f830f/optimization-stage-0.json",
+          "receipt_sha256": "0541dd69127915c1958e147a075019947bf85c37133b18f51f7836fcdaa7b339",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "energy_change": false,
+            "max_gradient": true,
+            "max_step": true,
+            "rms_gradient": true,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134/attempts/attempt_7aad08507efd4fa899c32dc99b6f830f/engine.stdout",
+          "stdout_sha256": "b91eb4c04aaa05cdb2cfc506de763ad229b6c9f79fefdc0f81709511868c3ef6",
+          "final_native_table": {
+            "line": 3784,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          Energy change      -0.0000057804            0.0000001000      NO\n          RMS gradient        0.0000011125            0.0000030000      YES\n          MAX gradient        0.0000015977            0.0000100000      YES\n          RMS step            0.0000038658            0.0000500000      YES\n          MAX step            0.0000045249            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [
+            {
+              "line": 3798,
+              "text": "       Everything but the energy has converged. However, the energy"
+            },
+            {
+              "line": 3801,
+              "text": "       Convergence will therefore be signaled now"
+            }
+          ],
+          "artifact_hashes_verified": 21
+        },
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134/attempts/attempt_7aad08507efd4fa899c32dc99b6f830f/optimization-stage-1.json",
+          "receipt_sha256": "12929e952695dc2f8c18fe4c6cdec3628c5a4d2f795da60db8e01b1b0ea79ef1",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "max_gradient": true,
+            "max_step": true,
+            "rms_gradient": true,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134/attempts/attempt_7aad08507efd4fa899c32dc99b6f830f/optimization-refinement-1/engine.stdout",
+          "stdout_sha256": "15255deae01218bb92fa53456972414f4c1ab9a0d35104bb70f57770f23a05fd",
+          "final_native_table": {
+            "line": 1016,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          RMS gradient        0.0000002553            0.0000030000      YES\n          MAX gradient        0.0000003916            0.0000100000      YES\n          RMS step            0.0000003665            0.0000500000      YES\n          MAX step            0.0000005584            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [],
+          "artifact_hashes_verified": 21
+        }
+      ]
+    },
+    {
+      "label": "goat-seed-r2scan3c-optimization",
+      "run_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa",
+      "status": "failed",
+      "stages": [
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa/attempts/attempt_70f507297d4c434e8db80299c27020bc/optimization-stage-0.json",
+          "receipt_sha256": "87a963df692276e6607fbb333adbaf525a1b46b0c8986182fb6db23081021506",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "energy_change": false,
+            "max_gradient": false,
+            "max_step": true,
+            "rms_gradient": false,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa/attempts/attempt_70f507297d4c434e8db80299c27020bc/engine.stdout",
+          "stdout_sha256": "b5f644258030959ca7d2c974d8fd361f067faaceed4947e0b4eb4dd460ccc82d",
+          "final_native_table": {
+            "line": 2934,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          Energy change      -0.0000003609            0.0000001000      NO\n          RMS gradient        0.0000067357            0.0000030000      NO\n          MAX gradient        0.0000116148            0.0000100000      NO\n          RMS step            0.0000126910            0.0000500000      YES\n          MAX step            0.0000217723            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [
+            {
+              "line": 2948,
+              "text": "       The step convergence is overachieved with "
+            },
+            {
+              "line": 2950,
+              "text": "       Convergence will therefore be signaled now"
+            }
+          ],
+          "artifact_hashes_verified": 21
+        },
+        {
+          "receipt_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa/attempts/attempt_70f507297d4c434e8db80299c27020bc/optimization-stage-1.json",
+          "receipt_sha256": "37355f2849cb90617790739ee50463c625e01fe01d0812c1ebeb868fbc72ba53",
+          "status": "partial",
+          "converged": false,
+          "diagnostic_reason": "requested optimization convergence was not established",
+          "convergence": {
+            "max_gradient": true,
+            "max_step": true,
+            "rms_gradient": true,
+            "rms_step": true
+          },
+          "native_optimizer_reported_converged": true,
+          "returncode": 0,
+          "stdout_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa/attempts/attempt_70f507297d4c434e8db80299c27020bc/optimization-refinement-1/engine.stdout",
+          "stdout_sha256": "57219f5c45de0481d4b16972c7e761ee037264d6b76ae9bfb0881f0c81a4dfc0",
+          "final_native_table": {
+            "line": 951,
+            "text": "          ----------------------|Geometry convergence|-------------------------\n          Item                value                   Tolerance       Converged\n          ---------------------------------------------------------------------\n          RMS gradient        0.0000002070            0.0000030000      YES\n          MAX gradient        0.0000003475            0.0000100000      YES\n          RMS step            0.0000003210            0.0000500000      YES\n          MAX step            0.0000004988            0.0001000000      YES\n          -------------------------------------------------------------------------"
+          },
+          "native_early_stop": [],
+          "artifact_hashes_verified": 21
+        }
+      ]
+    }
+  ],
+  "diagnosis": "Initial native optimization uses early-stop exceptions despite failed declared criteria; each refinement terminates in its first cycle with four YES rows but no Energy change row, so strict five-criterion convergence remains unestablished."
+}

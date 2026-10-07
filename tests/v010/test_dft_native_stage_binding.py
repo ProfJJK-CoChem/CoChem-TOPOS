@@ -297,7 +297,7 @@ def test_genuine_partial_stage_receipt_remains_bound_and_partial(tmp_path):
 
 
 @pytest.mark.parametrize("damage", ["changed-bytes", "renamed", "missing-artifact", "duplicate", "receipt-hash",
-                                  "process", "geometry", "convergence", "method", "gradient", "elapsed-budget"])
+                                  "process", "geometry", "convergence", "energy-change", "method", "gradient", "elapsed-budget"])
 def test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory(tmp_path, damage):
     attempt, stage, path = retained_partial_receipt(tmp_path)
     if damage == "changed-bytes":
@@ -316,6 +316,8 @@ def test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory(tmp_p
         stage["output_molecule"]["coordinates"][0][0] += .1
     elif damage == "convergence":
         stage["convergence"] = {"rms_gradient": True}
+    elif damage == "energy-change":
+        stage["energy_change_evidence"] = {"source": "unbound invented energy difference", "passed": True}
     elif damage == "method":
         stage["method"]["method"] = "B3LYP"
     elif damage == "elapsed-budget":

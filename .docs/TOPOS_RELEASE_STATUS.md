@@ -113,10 +113,39 @@ diagnostic evidence for fixes and a new hosted run. A successful component does
 not complete a failed composite; this run supplies neither current-source native
 certification nor a passing supplement for the two local licensed skips.
 
-The fresh [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
-targets the current `65af1e0` source. Its native results remain pending; dispatch
-and engine provisioning alone do not establish scientific acceptance. The current
-fixes retain separate optimizer/final-gradient validation, native Hessian frame
+The full [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
+targets `65af1e0`. Its baseline stage has failed and its extended stage is still
+running at this update; completed artifacts remain pending. Dispatch and engine
+provisioning alone do not establish scientific acceptance.
+
+The separate [baseline diagnostic run 37671080822](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822)
+has completed and its artifacts have been retrieved. It tested TOPOS
+`65af1e05ce505cac5911b1bfe8f985a26dd87864` and TORQ
+`79fbb111125e50627a1a2c129888a45496f368d4` through diagnostic BASE
+`0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b`. Only the workflow differs from
+pinned BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1`; the `src` and `scripts`
+Git trees are identical. The
+[portable evidence index](evidence/TOPOS_ORCA_RUN_37671080822_EVIDENCE_INDEX.json)
+records exact hashes for the unchanged
+[acceptance receipt](evidence/TOPOS_ORCA_BASELINE_RUN_37671080822.json),
+[verified diagnostic summary](evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json),
+[26-snapshot audit](evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SNAPSHOTS.json)
+and dispatch/source/hosted-status provenance.
+
+**Two of five baseline cases passed:** HF-3c energy/gradient validation and native
+five-leg counterpoise. r2SCAN-3c thermochemistry, wB97X-V optimization and GOAT
+refinement failed at their reference or seed optimizations. Native early-stop
+rules signaled convergence despite unmet declared criteria; subsequent one-cycle
+restarts reported four passing gradient/step rows but omitted `Energy change`.
+TOPOS therefore did not establish all five requested convergence criteria. The
+baseline-only diagnostic intentionally ran neither extended acceptance nor
+licensed pytest, so it does not cover the two local licensed skips or certify
+the full release.
+
+The `EnforceStrictConvergence` change and a narrow actual-energy evidence helper
+for the one-cycle energy difference are under development, retain the requested
+`TolE`, and remain unvalidated on new hosted source. The existing source also
+retains separate optimizer/final-gradient validation, native Hessian frame
 alignment and explicit orbital-basis mappings. No historical failure is relabeled
 as a pass.
 

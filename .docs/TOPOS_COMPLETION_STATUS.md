@@ -1,95 +1,104 @@
 # TOPOS 0.1.0 implementation status — 7 October 2026
 
-The current implementation passes its local verification suite: **907 tests,
-zero failures, errors or skips**. The mandatory BASE/TOPOS/TORQ installation and
-TOPOS's supported xTB/CREST workflows have real execution evidence. **Full SRS
-acceptance remains incomplete:** additional matrix recipes need implementation,
-and the licensed TOPOS workflows need their own live ORCA/Actions evidence.
+TOPOS has implemented all 42 available recipe entry points and passed the
+source-bound local regression and fresh BASE/TOPOS/TORQ installation checks.
+**Full SRS acceptance and scientific release certification remain incomplete.**
+The [50-requirement acceptance ledger](TOPOS_SRS_ACCEPTANCE.json) records
+**33 verified supported-profile requirements and 17 awaiting acceptance**.
+The [release status](TOPOS_RELEASE_STATUS.md) provides the detailed evidence,
+scientific conditions and remaining release gates.
 
-The [chapter-by-chapter checklist](TOPOS_COMPLETION_CHECKLIST.md) covers all 50
-SRS requirements. The [validation receipt](TOPOS_COMPLETION_VALIDATION.json)
-records exact source hashes, commands, dependencies, outcomes and limitations.
-Historical receipts remain unchanged.
+## Verified source and installation
 
-## Implemented in this pass
+The executable snapshot covered by the current regression receipts is
+`65af1e05ce505cac5911b1bfe8f985a26dd87864`; the documentation snapshot before this
+refresh is `0a2ced2`. Later source changes require their own validation.
 
-- Production execution through BASE's checked registry and process broker,
-  mandatory package setup, and a registered BASE handoff receiver that validates
-  and preserves the original scientific request.
-- Real jiggle–quench, CREST sampling and union workflows; common-method refinement;
-  isotope-aware symmetry, deduplication, review and publication exports.
-- Constrained optimization/scans, physical gradient-derived Hessians, RRHO
-  thermochemistry, monomer-first association and balanced fragment energies.
-- Nested workflow/ensemble/geometry deadlines and verified recovery of completed,
-  partial and orphaned child jobs. Completed calculation evidence is retained.
-- ORCA/GOAT and five-leg counterpoise adapters, native basis-export provenance,
-  correlated Actions dispatch/retrieval/cancellation, and a dedicated licensed
-  acceptance workflow. Their code and contract tests do not establish live ORCA
-  success.
+- [Local validation](evidence/TOPOS_VALIDATION_20261007T183854Z.json):
+  **1,774 passed and two licensed ORCA tests skipped**, with unchanged source
+  inventory before and after execution. The
+  [JUnit artifact](evidence/TOPOS_CURRENT_SUITE_20261007T183854Z.xml) preserves
+  individual outcomes.
+- [Ordinary CI run 37666928361](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37666928361):
+  **1,681 passed and 42 skipped on each of Python 3.11 and 3.12**. Its
+  [receipt](evidence/TOPOS_ORDINARY_CI_37666928361.json) binds the merge checkout
+  to the frozen executable source by identical Git trees. Ordinary CI does not
+  replace licensed native acceptance.
+- [Candidate10 clean installation](evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json)
+  and [installed acceptance](evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json):
+  real noneditable BASE/TOPOS/TORQ packages, CLI/provider/UI checks, genuine
+  BASE-authorized xTB 6.7.1 water optimization, human review and scientific-bundle
+  verification passed. These receipts identify the actual built wheel and
+  dependencies.
+- [External TORQ consumption](evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json):
+  the installed companion importer accepted the reviewed native xTB result and
+  returned a durable acknowledgment. Its state is `imported-awaiting-calculation`;
+  no TORQ transition-state, spectrum, rate or dynamics calculation is established.
 
-The retired production code that fabricated missing-engine results is replaced
-by the typed `topos` package. Missing engines and unsupported scientific routes
-return explicit outcomes. The [implementation record](TOPOS_0.1.0_IMPLEMENTATION.md)
-preserves the retirement inventory and its original source references.
+Genuine xTB/CREST workflows, MACE and AIMNet2 CPU execution, and BASE-authorized
+ABCluster sampling have retained evidence linked from the release status and
+[installation evidence index](evidence/TOPOS_CURRENT_INSTALLATION_EVIDENCE_INDEX.json).
+CPU model calculations, parser fixtures and contract checks do not establish
+physical GPU execution, DFT accuracy or exhaustive sampling.
 
 ## Method-matrix coverage
 
 | Coverage | Rows | Meaning |
 | --- | ---: | --- |
-| Registered TOPOS recipes | 15 | Complete orchestration adapters; actual execution still requires their engines, inputs and scientific validation. |
-| Additional TOPOS recipes | 27 | Plans are cataloged, but complete execution adapters are absent. |
-| Explicit TOPOS track gaps | 2 | `T3C-10s` and `T3C-1min` have no recipe in the supplied matrix. |
+| Compiled TOPOS recipes | 42 | Implemented entry points; each still requires its engines, inputs, protocol conditions and native scientific acceptance. |
+| Intentionally unavailable TOPOS rows | 2 | Source-backed CFOUR time tiers `T3C-10s` and `T3C-1min`; no invented replacement recipe. |
 | TORQ-owned rows | 96 | Outside TOPOS's scientific implementation ownership. |
 | Full catalog | 140 | Source-hashed Version 4 matrix, including conflicts and hardware requirements. |
 
-Run `cochem-topos matrix support` for the exact row lists and restrictions.
-The conditional `T1-3h` route requires verified native source ensembles and an
-explicit numerical-Hessian resolution. It does not claim the matrix's literal
-native analytic `Freq`. Native CREST screening loses individual search origins;
-TOPOS preserves input evidence and reports combined-union provenance afterward.
+Run `cochem-topos matrix support` for exact rows, prerequisites, partial branches
+and source conflicts. The reviewed compiler covers all available TOPOS recipes;
+the former 27-adapter implementation gap is closed. Compilation does not certify
+a complete native matrix campaign or the source papers' accuracy claims.
+User-authorized ORCA alternatives and approximate composite protocols retain
+explicit provenance and limitations in the release status.
 
-The remaining recipes include ML/GPU, entropy, higher-level composite, CFOUR,
-F12/coupled-cluster and SAPT pathways. Some source protocols also conflict.
-They remain unavailable; a successful lower-cost calculation cannot fulfill them.
+## Native acceptance and remaining work
 
-## Verification and limits
+The full [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
+targets executable source `65af1e0`. At this status update, its baseline stage has
+failed and its extended stage is still running; its completed artifacts remain
+pending. Dispatch and engine provisioning do not establish acceptance.
 
-The complete suite ran in Python 3.12.14 with genuine xTB 6.7.1 and CREST 3.0.2
-required, plus the actual installed BASE package and Stage 0 registry. It includes
-analytical and parser fixtures, transport/failure tests, UI interactions and real
-engine integration tests. Fixture passes are not licensed calculations or
-experimental accuracy benchmarks.
+The separate [baseline diagnostic run 37671080822](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822)
+has completed with **two of five cases passing**: HF-3c energy/gradient validation
+and native five-leg counterpoise. Its
+[portable evidence index](evidence/TOPOS_ORCA_RUN_37671080822_EVIDENCE_INDEX.json)
+retains the original acceptance receipt, verified diagnostic summary, 26-snapshot
+audit and dispatch/source provenance. It tested the same TOPOS `65af1e0` through
+BASE `0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b`, a workflow-only diagnostic
+revision whose `src` and `scripts` trees are identical to pinned BASE `705b9d5`,
+with TORQ `79fbb11`.
 
-Ruff, dependency consistency, actionlint for all five workflows, source/wheel
-builds and an independent wheel import passed. The wheel loads the full catalog,
-current request schema and BASE provider and excludes the retired legacy packages.
-All checked code/test/workflow hashes remained unchanged during verification.
-Retained BASE calculation snapshots and their raw artifact hashes were also
-reverified. Generated packaging metadata was cleaned up; installed package
-discovery and BASE authority still pass afterward.
+r2SCAN-3c thermochemistry, wB97X-V optimization and GOAT seed optimization failed:
+native early-stop rules signaled convergence with declared criteria unmet, then
+one-cycle restarts omitted the `Energy change` row. Strict five-criterion
+convergence was therefore not established. This baseline-only diagnostic ran
+neither extended acceptance nor licensed pytest. The `EnforceStrictConvergence`
+and narrowly scoped actual-energy evidence changes under development retain the
+requested `TolE`; they are not covered by the regression receipts above and
+remain unvalidated on new hosted source.
 
-BASE's eleven-phase setup completed with `DEGRADED_OPERATIONAL` status, with all
-three repositories selected. This status retains absent optional/licensed engines
-and TORQ's unfinished consumer as explicit limitations.
+Earlier hosted native runs contain real component successes and overall failures.
+Their unchanged receipts, including the
+[run 37650295795 evidence index](evidence/TOPOS_ORCA_RUN_37650295795_EVIDENCE_INDEX.json),
+remain historical evidence for their exact source revisions. They do not certify
+the current source or cover its two local licensed skips.
 
-## Remaining acceptance work
+Remaining acceptance requires:
 
-1. Implement and validate the 27 additional TOPOS matrix recipes where their
-   scientific protocols and required engine/model installations are established.
-2. Run [TOPOS licensed acceptance](../.github/workflows/topos_orca_acceptance.yml)
-   using BASE's ORCA distribution and the configured private controller. Local
-   preflight correctly failed because ORCA is absent here. No live TOPOS Actions
-   dispatch or ORCA calculation is claimed by this receipt.
-3. Obtain an actual external TORQ consumption receipt when TORQ implements the
-   [producer/consumer contract](TOPOS_TORQ_HANDOFF.md). Installation and TOPOS's
-   receipt-validation tests do not complete TORQ's solver.
+1. Retrieve and diagnose the full hosted results, validate subsequent fixes,
+   and obtain passing same-source native ORCA evidence for every required case.
+2. Complete the 17 pending SRS assessments, including native CFOUR, physical GPU,
+   full matrix campaigns and deployed queue/run correlation where required.
+3. Run the release gate with source-matched physical, licensing and acceptance
+   evidence. Candidate archives remain unsigned, unpublished and uncertified.
 
-Remote queue-inclusive deadlines and non-Linux execution remain unsupported.
-The declared numerical profile does not certify exhaustive sampling or universal
-chemical accuracy.
-
-Changes are present in the working tree and have not been committed or pushed.
-Reusable cloud installation/startup instructions and repository configuration
-were saved as a draft. Review and save that draft in environment settings, then
-publish the environment to activate it; fresh-task restoration has not been
-verified.
+The [installation guide](TOPOS_INSTALLATION.md) documents build, installation,
+upgrade, rollback and gate commands. The earlier
+[907-test receipt](evidence/TOPOS_VALIDATION_20261007_113240.json) and other
+historical receipts remain unchanged; current evidence is linked separately.

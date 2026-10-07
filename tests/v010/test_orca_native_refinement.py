@@ -44,6 +44,31 @@ def test_actual_native_overachieved_stop_remains_scientifically_partial():
     assert not engines._orca_refinement_needed(result)
 
 
+@pytest.mark.parametrize('profile', ['orca-mapping-v4.1', 'orca-vpt2-reference-v1'])
+def test_native_optimizer_requires_strict_policy_without_changing_tolerances(profile):
+    historical = historical_partial()
+    method = MethodSpec.model_validate(historical.metadata['requested_method']).model_copy(
+        update={'profile_id': profile})
+    if profile == 'orca-vpt2-reference-v1':
+        method = MethodSpec(engine='orca', method='B3LYP', basis='def2-TZVPP',
+                            dispersion='D4', profile_id=profile)
+    deck = engines._orca_input(historical.molecule, method, ResourceLimits(), 'optimize')
+    assert '  EnforceStrictConvergence true\n' in deck
+    strict = profile == 'orca-vpt2-reference-v1'
+    expected = {'TolE': '1e-10' if strict else '1e-7',
+                'TolMaxG': '1e-7' if strict else '1e-5',
+                'TolRMSG': '3e-8' if strict else '3e-6',
+                'TolRMSD': '5e-7' if strict else '5e-5',
+                'TolMaxD': '1e-6' if strict else '1e-4'}
+    for keyword, value in expected.items():
+        assert f'  {keyword} {value}\n' in deck
+    for operation in ['energy', 'gradient']:
+        assert 'EnforceStrictConvergence' not in engines._orca_input(
+            historical.molecule, method, ResourceLimits(), operation)
+    # Input policy does not reinterpret the preserved native failure as a pass.
+    assert not all(_orca_convergence((FIXTURES/'incomplete-r2scan-optimization.stdout').read_text()).values())
+
+
 def test_genuine_hosted_centered_hessian_reconstructs_stationary_native_water():
     provenance=json.loads((FIXTURES/'provenance.json').read_text())
     for source in provenance['sources']:
