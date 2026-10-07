@@ -59,7 +59,7 @@ def capability_report() -> dict[str, Any]:
             }
             for name, methods in {
                 "xtb": ["GFN2-xTB"],
-                "orca": ["HF-3c", "r2SCAN-3c", "HF", "wB97X-V", "wB97M-V"],
+                "orca": ["HF-3c", "r2SCAN-3c", "HF", "wB97X-V", "wB97M-V", "B3LYP-D4"],
             }.items()
         },
         "supported_operations": ["energy", "gradient", "optimize", "search", "frequency", "thermochemistry", "association", "matrix"],
@@ -73,7 +73,25 @@ def capability_report() -> dict[str, Any]:
                 "nci": "explicit confinement for declared multifragment inputs; common-level unconfined refinement",
                 "seed": "engine-controlled; no numeric seed support",
                 "isotope_labelled_dynamics": "unsupported",
-            }
+            },
+            "goat": {
+                "version": "ORCA 6.1.1",
+                "interface": "explicit matrix recipes",
+                "potential": "native r2SCAN-3c or externally audited xTB; explicit ExtOpt model manifest where selected",
+                "refinement": "search ensembles require common-level refinement and TOPOS deduplication",
+                "availability": "requires BASE-authorized ORCA and every selected potential backend",
+            },
+        },
+        "conditional_adapters": {
+            "ML": {"backends": ["mace", "aimnet2"], "devices": ["cpu", "gpu"],
+                   "requirements": "explicit checkpoint hashes/domain/head, audited isolated BASE interpreter, actual device and VRAM",
+                   "evidence_scope": "model inference; uncalibrated committee spread is not DFT accuracy"},
+            "CFOUR": {"interface": "typed external_protocol in matrix requests",
+                      "requirements": "licensed exact native version, GENBAS hash and BASE executable authority"},
+            "Psi4": {"method": "SAPT2+3", "requirements": "explicit orbital/fitting bases, actual BASE-audited native installation"},
+            "native_analytic_Hessian": {"engine": "ORCA 6.1.1", "requirements": "supported SCF method, physical .hess and separate stationarity gradient"},
+            "native_VPT2": {"engine": "ORCA 6.1.1", "interface": "topos.anharmonic",
+                            "requirements": "unconstrained nonlinear semirigid minimum; not a frozen-monomer R2 force field"},
         },
         "execution_environment": {
             "local": "Linux through the verified BASE registry and subprocess broker",
@@ -93,11 +111,14 @@ def capability_report() -> dict[str, Any]:
         "unavailable": [
             "native Windows/macOS engine execution",
             "HPC scheduler transport",
-            "ML potentials/GPU",
-            "GOAT/ABCluster",
-            "VPT2/DVR",
+            "ABCluster native adapter",
+            "Molpro F12 and MPQC native adapters",
+            "frozen-monomer R2 VPT2 force field",
             "automatic kinetic grouping",
             "automatic journal or repository deposition",
+        ],
+        "separate_module_requirements": [
+            "DVR and other TORQ-owned matrix algorithms require implemented TORQ consumers",
         ],
         "scientific_limits": [
             "Finite search does not establish completeness.",
@@ -129,7 +150,10 @@ def validate_route(request: RunRequest, config: SystemConfig) -> tuple[str, str]
             "unsupported",
             "Bounded local engine execution requires Linux; portable data tools remain available.",
         )
-    if request.device != "cpu":
+    ml_gpu_request = (request.device == "gpu" and request.purpose == "matrix"
+                      and request.matrix_row_id in {"T1-30min", "T1-1w", "T2-1min", "T5-1min"}
+                      and isinstance(request.matrix_inputs.get("ml_model"), dict))
+    if request.device != "cpu" and not ml_gpu_request:
         return (
             "unsupported",
             "These engine adapters support CPU execution; GPU presence does not enable a different Hamiltonian.",

@@ -26,6 +26,7 @@ CREST_PROFILES = {
     "crest-imtdgc-v1": [],
     "crest-mquick-v1": ["--mquick"],
     "crest-entropy-v1": ["--entropy"],
+    "crest-v4-v1": ["--v4"],
     # The method matrix's independent NCI search. These are requested settings,
     # never a recovery switch after an iMTD-GC failure.
     "crest-nci-v1": ["--nocross", "--noreftopo"],
@@ -132,6 +133,7 @@ def run_crest(
     execute_process = process_runner or run_process
     result = SamplingResult(status="unsupported", method=method.method,
                             algorithm={"crest-mquick-v1": "CREST-mquick",
+                                       "crest-v4-v1": "iMTD-sMTD",
                                        "crest-nci-v1": "iMTD-NCI (no genetic crossing)"}.get(profile, "iMTD-GC"),
                             metadata={"execution_kind": "not-executed", "profile": profile,
                                       "requested_seed": seed, "effective_seed": None,
@@ -147,7 +149,7 @@ def run_crest(
                                       "sampling_schedule": "native CREST 3.0.2 schedule; see archived logs",
                                       "disabled_native_stages": (
                                           ["normal MD", "genetic crossing"] if profile == "crest-mquick-v1"
-                                          else ["genetic crossing"] if profile == "crest-nci-v1" else []),
+                                          else ["genetic crossing"] if profile in {"crest-nci-v1", "crest-v4-v1"} else []),
                                       "initial_topology_check": profile != "crest-nci-v1",
                                       "topology_check_semantics": "noreftopo disables initial native checking only; later TOPOS chemistry validation is required",
                                       "reduced_search": profile == "crest-mquick-v1"})
@@ -307,6 +309,8 @@ def run_crest(
             raise EngineParseError("native log does not establish the requested NCI confinement wall")
         if profile == "crest-nci-v1" and "--nocross  : skipping GC part." not in raw:
             raise EngineParseError("native log does not establish the requested disabled genetic crossing")
+        if profile == "crest-v4-v1" and not re.search(r"--?v4\s*:\s*iMTD-sMTD", raw):
+            raise EngineParseError("native log does not establish the requested iMTD-sMTD (--v4) algorithm")
         result.converged = True
         if entropy_options is not None:
             from .entropy import parse_crest_entropy
@@ -338,7 +342,7 @@ def run_crest(
     finally:
         result.elapsed_seconds = time.monotonic() - start
         try:
-            if profile == "crest-entropy-v1":
+            if profile in {"crest-entropy-v1", "crest-v4-v1"}:
                 # Native sMTD scratch links the bias XYZ back into its own
                 # parent job. Archive the exact target bytes, recording this
                 # representation change; external/dangling links stay errors.

@@ -336,3 +336,52 @@ def test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence(tmp_p
     atomic_json(bundle / "manifest.json", manifest)
     with pytest.raises(IntegrityError, match="original committed scientific evidence"):
         verify_bundle(bundle)
+
+
+def test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states(tmp_path):
+    run_dir = tmp_path / 'run'
+    record = make_record(run_dir)
+    # An unselected observation cannot contribute to the reported ensemble.
+    excluded = record.candidates[0].model_copy(deep=True)
+    excluded.candidate_id = 'unreviewed_observation'
+    excluded.energy_hartree = -100.0
+    record.candidates.append(excluded)
+    reviewed(run_dir, record)
+    bundle = tmp_path / 'bundle'
+    export_bundle(run_dir, bundle)
+    report = json.loads((bundle / 'sampling-sensitivity.json').read_text())
+    assert report['observed_member_ids'] == ['candidate_selected']
+    assert report['ensemble']['populations'] == {'candidate_selected': 1.0}
+    assert report['ensemble']['weight_kind'] == 'electronic-energy-weights-not-Gibbs-populations'
+    assert report['missing_states_assumption'] is None
+    assert report['missing_population_upper_bound'] is None
+    assert not report['missing_state_assumptions_declared']
+    assert [window['window_kcal_mol'] for window in report['windows']] == [1.0, 3.0, 6.0]
+    destination = tmp_path / 'recomputed.json'
+    process = subprocess.run([sys.executable, str(bundle / 'recompute-sensitivity.py'), str(destination)],
+                             capture_output=True, text=True, timeout=30)
+    assert process.returncode == 0, process.stderr
+    assert json.loads(destination.read_text()) == report
+    verify_bundle(bundle)
+
+
+def test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions(tmp_path):
+    run_dir = tmp_path / 'run'
+    reviewed(run_dir)
+    bundle = tmp_path / 'bundle'
+    export_bundle(run_dir, bundle, sensitivity_options={
+        'windows_kcal_mol': [2.0, 4.0], 'missing_states': 3, 'missing_gap_kcal_mol': 0.0,
+    })
+    report = json.loads((bundle / 'sampling-sensitivity.json').read_text())
+    # One observed state of degeneracy one, three declared absent states at or above E_min.
+    assert report['missing_population_upper_bound'] == pytest.approx(0.75)
+    assert report['missing_state_assumptions_declared']
+    assert report['temperature_k'] == 298.15
+    with pytest.raises(IntegrityError, match='explicitly declared'):
+        export_bundle(run_dir, tmp_path / 'invalid', sensitivity_options={'missing_gap_kcal_mol': 1.0})
+    export_bundle(run_dir, tmp_path / 'missing-gibbs', sensitivity_options={'quantity': 'gibbs'})
+    missing = json.loads((tmp_path / 'missing-gibbs' / 'sampling-sensitivity.json').read_text())
+    assert missing['status'] == 'unavailable'
+    assert missing['ensemble'] is None
+    assert missing['missing_population_upper_bound'] is None
+    assert 'valid gibbs_hartree' in missing['reason']

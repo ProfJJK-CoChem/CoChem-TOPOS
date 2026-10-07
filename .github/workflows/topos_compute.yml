@@ -19,6 +19,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: topos-compute-${{ inputs.dispatch_id }}
@@ -93,6 +94,8 @@ jobs:
             --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
             --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
       - name: Execute the correlated TOPOS request through BASE
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m topos.actions.compute_worker \
             --output-root "$RUNNER_TEMP/topos-runs" --evidence-root "$RUNNER_TEMP/topos-evidence"

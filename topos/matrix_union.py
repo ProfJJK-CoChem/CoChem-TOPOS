@@ -1,8 +1,7 @@
 """Verified native ensemble union, common refinement, Hessian and CREGEN stages.
 
-The matrix's literal analytic ``Freq`` is not silently substituted. This recipe
-requires the caller's explicit finite-difference derivative resolution, retained
-with its numerical protocol. Native CREST screening cannot attribute its output
+The matrix's literal analytic ``Freq`` is the default. A central-gradient
+derivative is available only under an explicit recorded resolution. Native CREST screening cannot attribute its output
 frames to individual input searches; input evidence and that limitation survive.
 """
 from __future__ import annotations
@@ -31,13 +30,17 @@ def _stop(record: RunRecord, deadline: float, cancel_event: Event | None) -> boo
 
 def native_stage(workflow: Any, record: RunRecord, store: RunStore, frames: list[SampledConformer],
                  operation: str, deadline: float, cancel_event: Event | None,
-                 *, comparison_protocol: str | None = None) -> list[SampledConformer] | None:
+                 *, comparison_protocol: str | None = None,
+                 energy_window_kcal_mol: float = 12.0,
+                 energy_threshold_kcal_mol: float = .05,
+                 rotational_threshold: float = .001) -> list[SampledConformer] | None:
     """Checkpoint one genuine native operation; reuse only identical retained inputs."""
     if operation not in {"screen", "cregen"}:
         raise ValueError("Only compiled native screen/CREGEN operations are supported")
     identity = digest_json({"operation": operation, "frames": [f.model_dump(mode="json") for f in frames],
-                            "comparison_protocol": comparison_protocol, "ewin": 12.0,
-                            "ethr": .05, "rthr": .125, "bthr": .001 if operation == "cregen" else .01})
+                            "comparison_protocol": comparison_protocol, "ewin": energy_window_kcal_mol,
+                            "ethr": energy_threshold_kcal_mol, "rthr": .125,
+                            "bthr": rotational_threshold if operation == "cregen" else .01})
     cached = [a for a in record.attempts if a.metadata.get("matrix_native_identity") == identity
               and a.status == "completed" and a.validation_status == "validated-for-protocol"]
     if cached:
@@ -67,11 +70,12 @@ def native_stage(workflow: Any, record: RunRecord, store: RunStore, frames: list
     directory = store.run_dir / "attempts" / attempt.attempt_id
     if operation == "screen":
         result = run_crest_screen(frames, resources, directory, executable=crest, xtb_executable=xtb,
-                                  process_runner=runner, cancel_event=cancel_event, energy_window_kcal_mol=12.0)
+                                  process_runner=runner, cancel_event=cancel_event, energy_window_kcal_mol=energy_window_kcal_mol)
     else:
         result = run_cregen(frames, resources, directory, executable=crest, comparison_protocol=comparison_protocol,
-                            process_runner=runner, cancel_event=cancel_event, energy_window_kcal_mol=12.0,
-                            energy_threshold_kcal_mol=.05, rotational_threshold=.001, rmsd_threshold_angstrom=.125)
+                            process_runner=runner, cancel_event=cancel_event, energy_window_kcal_mol=energy_window_kcal_mol,
+                            energy_threshold_kcal_mol=energy_threshold_kcal_mol,
+                            rotational_threshold=rotational_threshold, rmsd_threshold_angstrom=.125)
     attempt.status, attempt.converged = result.status, result.converged
     attempt.finished_at = utc_now()
     attempt.command, attempt.engine_version, attempt.diagnostics = result.command, result.engine_version, result.diagnostics

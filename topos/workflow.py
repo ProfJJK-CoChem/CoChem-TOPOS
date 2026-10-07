@@ -262,7 +262,17 @@ class Workflow:
 
             try:
                 self.base_runtime = BaseRuntime(registry_path=self.config.base_registry_path)
-                self.base_runtime.validate_resources(request.resources)
+                if request.device == "gpu" and request.purpose == "matrix":
+                    from .ml import ModelManifest
+
+                    manifest = ModelManifest.model_validate(request.matrix_inputs["ml_model"])
+                    self.base_runtime.validate_resources(
+                        request.resources, engine=manifest.backend,
+                        gpu_index=request.matrix_inputs.get("ml_gpu_index"),
+                        gpu_memory_mb=request.matrix_inputs.get("ml_gpu_memory_mb"),
+                    )
+                else:
+                    self.base_runtime.validate_resources(request.resources)
                 engines = set() if request.purpose == "matrix" else {request.engine}
                 if request.search_algorithm in {"crest", "union"}:
                     engines.update({"crest", "xtb"})

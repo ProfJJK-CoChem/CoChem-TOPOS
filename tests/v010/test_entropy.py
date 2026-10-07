@@ -141,3 +141,26 @@ def test_authentic_completed_crest_entropy_reused_when_partner_unavailable(tmp_p
     artifact.write_bytes(artifact.read_bytes() + b'\ntampered evidence\n')
     with pytest.raises(IntegrityError, match='artifact changed'):
         run_matched_entropy([molecule], method, ResourceLimits(budget_seconds=30, threads=2, memory_mb=2048), tmp_path, **kwargs)
+
+
+def test_later_engine_provisioning_preserves_protocol_without_executing_marker(tmp_path):
+    from threading import Event
+
+    from topos.storage import IntegrityError
+
+    molecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0,0,0],[.9584,0,0],[-.239,.927,0]])
+    method = MethodSpec(engine='xtb', method='GFN2-xTB', profile_id='xtb-vtight-v1')
+    cancelled = Event()
+    cancelled.set()
+    binary = tmp_path / 'infrastructure-marker-never-executed'
+    kwargs = {'orca_executable': binary, 'crest_executable': '/missing-crest', 'xtb_executable': '/missing-xtb', 'cancel_event': cancelled}
+    first = run_matched_entropy([molecule], method, ResourceLimits(), tmp_path / 'run', **kwargs)
+    assert first['status'] == 'cancelled' and first['resolved_executables']['orca'] is None
+    binary.write_text('infrastructure identity marker only; cancellation forbids execution')
+    binary.chmod(0o700)
+    second = run_matched_entropy([molecule], method, ResourceLimits(), tmp_path / 'run', **kwargs)
+    assert second['status'] == 'cancelled' and second['resolved_executables']['orca']['sha256']
+    assert second['protocol'] == first['protocol']
+    binary.write_text('changed infrastructure marker')
+    with pytest.raises(IntegrityError, match='identity changed'):
+        run_matched_entropy([molecule], method, ResourceLimits(), tmp_path / 'run', **kwargs)

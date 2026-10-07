@@ -96,11 +96,12 @@ def test_native_stage_cancellation_before_execution_retains_no_fabricated_result
     assert result is None and record.status == "cancelled" and not record.attempts
 
 
-def test_literal_analytic_hessian_cannot_be_silently_replaced(tmp_path):
+def test_default_native_analytic_hessian_still_requires_verified_sources(tmp_path):
     result = Workflow(tmp_path, config=SystemConfig(execution_backend="development")).run(union_request())
     assert result.status == "unsupported" and not result.attempts
-    assert "derivative_resolution" in result.metadata["termination_reason"]
-    assert "analytic" in result.metadata["termination_reason"]
+    assert "goat_ensemble" in result.metadata["termination_reason"]
+    assert "crest_ensemble" in result.metadata["termination_reason"]
+    assert "derivative_resolution" not in result.metadata["termination_reason"]
 
 
 def test_explicit_resolution_still_requires_both_native_source_records(tmp_path):

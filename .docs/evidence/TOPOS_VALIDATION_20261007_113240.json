@@ -1,0 +1,838 @@
+{
+  "schema_version": "topos-completion-validation/0.1.0",
+  "generated_at": "2026-10-07T11:41:56Z",
+  "disposition": "Current supported implementation verified locally; full method-matrix and hosted licensed acceptance remain incomplete",
+  "all_srs_acceptance_complete": false,
+  "all_matrix_recipes_implemented": false,
+  "committed_or_pushed": false,
+  "source_base_commits": {
+    "CoChem-BASE": "3761e8af4e80f65ab82eb7b1666d131556a8f976",
+    "CoChem-TOPOS": "6a01b0f2adb7cff02edda6e339facf3d6f93904d",
+    "CoChem-TORQ": "d7a4739a5f7d6f22ed659b32eeb4706bef16225e"
+  },
+  "working_tree_identity": "Uncommitted replacement source; exact checked file hashes below supersede base HEAD as validation identity",
+  "requirements_documents": {
+    ".docs/CoChem-TOPOS_SRS.md": "8e1c34348601be4eb25ee01c38a754998e1295ee5e32e6cfb6b133f9c8fe462d",
+    ".docs/method_matrix.md": "b23174c5de547b6842e9e55e0bad3b078b80032d18bdef91c5f44615e9476b4e",
+    "wiki/Method_Matrix.md": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+    ".docs/TOPOS_0.1.0_REFERENCES.md": "1015173e33fb1ba425f8a4b928223c1193f16256ebab8aa230c797b181aa773c",
+    ".docs/TOPOS_0.1.0_RECOMMENDATIONS.md": "9cdef1f343b7e9d410ed5717316cdf93e9cf0e7f67d2bce775c975694b7e09f4",
+    "README.md": "b0c7e97c2b907006f18e16563ef1f05ead2cb72b11c2d1be2a81ee4a573b8402"
+  },
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "logical_cpu_count": 5,
+    "available_cpu_affinity": 5,
+    "packages": {
+      "cochem-topos": "0.1.0",
+      "CoChem-BASE": "0.1.0",
+      "CoChem-TORQ": "0.1.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "pydantic": "2.13.5",
+      "h5py": "3.16.0",
+      "mendeleev": "1.3.0",
+      "MolSym": "1.2.0",
+      "pytest": "9.1.1",
+      "streamlit": "1.65.0"
+    }
+  },
+  "engines": {
+    "xtb": {
+      "version": "6.7.1",
+      "path": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+      "sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+      "evidence": "Genuine engines required by collection and executed by integration tests"
+    },
+    "crest": {
+      "version": "3.0.2",
+      "path": "/workspace/.tools/crest-3.0.2/crest/crest",
+      "sha256": "201db7940796c4af3652245ba7c8e1a4234767f4e19223772fbd83098d5f2142",
+      "evidence": "Genuine engines required by collection and executed by integration tests"
+    }
+  },
+  "verification": {
+    "started_at": "2026-10-07T11:32:40Z",
+    "interpreter": "/workspace/.cochem-base-runtime/ui-env/bin/python",
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "test_environment_overrides": {
+      "COCHEM_CONFIG": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+      "COCHEM_BASE_ROOT": "/workspace/CoChem-BASE",
+      "COCHEM_TORQ_ROOT": "/workspace/CoChem-TORQ",
+      "TOPOS_EXECUTION_BACKEND": "development",
+      "TOPOS_REQUIRE_BASE": "1",
+      "TOPOS_REQUIRE_REAL_ENGINES": "1",
+      "TOPOS_XTB_EXECUTABLE": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+      "TOPOS_CREST_EXECUTABLE": "/workspace/.tools/crest-3.0.2/crest/crest",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "source_sha256": {
+      ".github/workflows/cochem_topos_ci.yml": "a352417847cef67a16598aee4086248e3049786621fe0b95238cd4a1f614a53c",
+      ".github/workflows/orca_hosted.yml": "92ce6e53a5c077f31ac60d13efd300c85d3b68d3059bda8cce86bd31446b6cb7",
+      ".github/workflows/topos_base_ci.yml": "d22c31fbb809cac3fe24b68870fff22284435a4c5104c833f5359947247408f7",
+      ".github/workflows/topos_compute.yml": "dc3d2ec9beae55c04efa08e304f4afe3e639fde084e10ba4d2ebebbe7651074c",
+      ".github/workflows/topos_orca_acceptance.yml": "a95a6238feeac5fa45f0373e70c6418d5a8d7a71341ac9c196c8e5f6b2e3d96a",
+      "cochem_topos_web.py": "7d7d992fb4450dee0dc4d2836d27af9b1bd082c3df2e1c94b995169136391779",
+      "frontend/__init__.py": "b7db24d877e15173b7b8ff441530e26a981a3f040c2cb764b282557e00be132b",
+      "frontend/cochem_topos_preflight.py": "c44194f2151294b4dab80a854e357b250f25a2c7ee6c65d2cb51fd4450ca532c",
+      "frontend/cochem_topos_ui.py": "25e4c67e5ef641a18f8360731c453aba19220787671cc7696085a66e74dbd748",
+      "pyproject.toml": "3dbd1d9d5b4c9eb0f03a1769a39c0850fea0dd32c8567d51e380ad065d45c368",
+      "requirements.txt": "0cac0e472eba3359aa79e9674ff11a5fd0484b9c465fc1cb774c30938edcc5d7",
+      "scripts/accept_orca_topos.py": "a3b604d6d0424d8193281783451ce2629a0da63ac3c365e5ffd729a3331108c0",
+      "scripts/install_crest.py": "d779062c6fc85c8648ec88db5c636322603f84cd56ef0d07c468bbc06534aa4d",
+      "scripts/install_orca.py": "e12298ba9454ebe82112ceaa0c50bb6cd58c2c45f7792706596255dd71ebb813",
+      "scripts/install_xtb.py": "3ae8e7bed1385b9600965203e7a0ae7fdb6587d46ec725998e313ebc1290c722",
+      "scripts/setup_ecosystem.py": "d4f40cd3872af05bf9eddaddfa1802e40153314731d46f80701cb582f54dfae7",
+      "setup.py": "0c5b8b675a5a216afaf168db7128f39046a89cded9ff284b1886da804924dade",
+      "tests/v010/conftest.py": "f6a7e0cb0d331801ebd5d83d2a4ad00102366cc30142ee978861c573dcd48d79",
+      "tests/v010/test_base_integration.py": "7baac19c9ee8f932a634d290c061a776d7564a4408064f0a2649fec90a8bf240",
+      "tests/v010/test_base_provider.py": "5fdfb7af8d0b702c584c74eeffe683bfe7c81e8699caf0cc5cc3d830b87d988b",
+      "tests/v010/test_budget.py": "b10e49b365bf579de79e9b7e41b24dfa63f6a0492964dd808bc383f2a781a662",
+      "tests/v010/test_completion_io.py": "f8f64268c588187fd62b71d5501fe977c793b90b985f2164f4a67f73030dcd91",
+      "tests/v010/test_compute_worker.py": "573466ce39d71d463791147a7c70c65abf52e91d9aa79df49f96da2350483987",
+      "tests/v010/test_constraints.py": "9afd22009c7b7fea0ccfb02f70c7b5d167ac92b8472d5e7dceb1949e4557b447",
+      "tests/v010/test_counterpoise.py": "65226f69ec02008ddf2be01ead7908c328038359c44f7641182f5f02b161edf0",
+      "tests/v010/test_dipoles.py": "8eda8700abd65ec450e546c73da0d1f6c00660213d040efb2692b41b86a7754d",
+      "tests/v010/test_engines.py": "6dcd19399fadef4a2ed24a7043993e3a1466943e51c91df7df283c27f307f7b5",
+      "tests/v010/test_ensemble_tools.py": "265da4f97eed566560a567648a6b5ad72ccaec6cafc6784f401714ed3a890a3c",
+      "tests/v010/test_fragments.py": "4b8f2973c75db76fcee6d6d635dfe2d7cbceb13b6a1573d2be58ee9ab1022119",
+      "tests/v010/test_goat.py": "07b2d3e0964bd9e2e1be62c276d65ed4353c9424e79d109cd1a2642fb361fade",
+      "tests/v010/test_hosted_worker.py": "c32bb712f90d29a031153961126ab8fe666d6bb470a68d26a91eeb43f8cb6197",
+      "tests/v010/test_interfaces.py": "b91b209e830c1a0a5fd9794007069bcf64deaf1e78b04bf35105046055822d0c",
+      "tests/v010/test_matrix_sources.py": "d193ce1bab6f571a413f47df0b64ec73fa4cbd59d7952fe4f1aff61f47f755a1",
+      "tests/v010/test_matrix_union.py": "209506469f605354cdb5876a5d7f53557e1a6f29eb31fe6193835f00e565d717",
+      "tests/v010/test_matrix_workflow.py": "e34325c47e3c35ab05156ccae238784867d2157fe0173c446c0853f3d95820e6",
+      "tests/v010/test_method_matrix.py": "27ec852da33de8f72c3417ee62eae6369116fbe5d0fefa43d6eb2e060f4b32bc",
+      "tests/v010/test_nolicense_acceptance.py": "c0863c0e263d1e458f6207476263f0c8c3c156a53dbf11b1a9caa35fce5782a3",
+      "tests/v010/test_orca_install.py": "7879ba4198b7cc385a00660bf5ac33551dfa4f68815ed5393fcb0d1a1f9ca84d",
+      "tests/v010/test_remote_dispatch.py": "d46639e35f2f19af6ae9cf4c3e96be9b1a4b774e90de95f3cd88000ce46a945f",
+      "tests/v010/test_reporting.py": "0ae59b04268e65e8b5e3b4891584c1fa5bf36c8b374bc9161e444e81cfc6f0e6",
+      "tests/v010/test_runtime_allocations.py": "93ea443d4f43d3c3cba9e2764adb2c4467255791bf1a4890f10a3bbd0efa0930",
+      "tests/v010/test_sampling.py": "086e6cc336b8188641d633f8076cbb516fb5a8f57e4c0a0f6aec66ee098287bf",
+      "tests/v010/test_scans.py": "bd79afced75efcbb7c74eafddb62f0b2f1dac710064d0a5f75a8c6832eeb68d8",
+      "tests/v010/test_schema_evolution.py": "a1f4ec9d77ec26100bc57ad2c0c5fbbe4ff43e3157ea3d7867256174ef137765",
+      "tests/v010/test_science.py": "3ee02318980ed0d8f6f30047d108ef193aa020dfbf1efdcc043437833de10796",
+      "tests/v010/test_search_control.py": "e17b1501d0dfca11b9dc5e4e2407c9ce4dd77b9583736baaa41b1b387305210c",
+      "tests/v010/test_setup_ecosystem.py": "f7c0c9572c1faf1f91c42e04b4b342b5e59856c7395126d23c12aed2d5a6f723",
+      "tests/v010/test_storage_publication.py": "2486ea504ab5b1d563c234e7eb71fd8678752a0895c006fb48ebc81f83161017",
+      "tests/v010/test_symmetry.py": "548d691a9d884a4915695c264dcc3704d9a750eef0bc8cab18b489abb22a3067",
+      "tests/v010/test_thermochemistry.py": "1141aa35f41630ac059d46d708c000c184892769462e41eae75ad46822c1aea7",
+      "tests/v010/test_workflow.py": "e5a762aad48093e57e66bccb28158c21139cba36cf15936d936f71a2e1af8be7",
+      "tests/v010/test_workflow_constraints.py": "d36b3b25f5527a5e6761cbdc00cdf4f31c23478d5a5fd0bf640c45fcf242b620",
+      "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+      "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+      "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+      "topos/actions/compute_worker.py": "b9c8824ad5d6d8b021c2f8ff8f3402225d2779ac9a61c13884cecfe89ca5111b",
+      "topos/actions/dispatch.py": "2b7c362c2ebdcb6e1de96eae34205c58479f0e8a583ae63bd6b90b17dc6513ac",
+      "topos/actions/hosted_requirements.py": "afcfd6d9f1d85eec7eafcd39731b7bf64abaf16bc738f4bc6f5985e334ba6044",
+      "topos/actions/hosted_worker.py": "79ae49a8f932e6918ae7295289b0d8a4dc2160f0571519ac844c5fff9c3cd094",
+      "topos/advanced_workflow.py": "2d81ddff5a0b36e365d69602dad675dc12869a09861a659859173f172ba8b7a6",
+      "topos/base_integration.py": "bc5699d92fc3f84ca702623bc5cc247e02ed4dac80de45ccf5197c53e1fd988f",
+      "topos/base_provider.py": "6d6e1c603cd415115dbb69f9ed22479f4c7ba913c3060aa7db4b6c907f9aafd2",
+      "topos/budget.py": "a4671c6e66b7397a5fc2e7db2491f9b2d7c1bb116059fdd66fe33c49f85fb3dc",
+      "topos/capabilities.py": "a86f9d12a9b785e0e6bdbf45c46b07b7dbc8122d6a7c76adbc985328fd5b187a",
+      "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+      "topos/cli/__init__.py": "080da26b531296876d7fae443ba454f6e2d6588a243b2bc26a9a6525bda325b2",
+      "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+      "topos/config.py": "9e6813edea8652fbb5f9b87861266f5d629dbe0aebc3b5453590ff53cba95f74",
+      "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+      "topos/counterpoise.py": "6c5667844e8673714c328bcb519d805eb489eee497f0548bdf8b2bb7fed5e4c9",
+      "topos/data/__init__.py": "f0125cb306990c6f037cadb6ea8beeb0683824a077b3ed5cc3959745e66a1227",
+      "topos/data/method_matrix_v4.py": "c6dda9afa3f93bb0b0dd96c198d412ac335b2e55d63be735ee98a3657af4683d",
+      "topos/data/runtime_recipes.py": "b62398a753f729df203eb34856fc6bb7a07bc005513a34a682b8381c2042fe30",
+      "topos/engines.py": "5d18e84bbb2c637cb2bca855e8dc7bdd1cfb77978a5e0f79dfcabdca2bd37e82",
+      "topos/ensemble_tools.py": "4607ed54f230f0605e629db267c13d129800ba8b04416d2313a02e284409573a",
+      "topos/fragments.py": "20d41623cb624320efb8c705aeee4a4e15ca84a248777fe720d9dab3b28a661b",
+      "topos/goat.py": "c2393c41a93cf8356bb41d74081e87f9cec36eeff1bc44f82c51d3cb3cb331c9",
+      "topos/matrix_sources.py": "e2a74f1a2aa6c5b8b43e22741801939bf087ba4fe8ff32ff224fffae03f4ce64",
+      "topos/matrix_union.py": "1b4d92f086d91b7ca9996d38f9a057756954b3d57e29b418744b03d55e8f0a55",
+      "topos/matrix_workflow.py": "75c98189c24df15f7e0aa42441456cc792a3fd05dceabc6173b8730782b64425",
+      "topos/method_matrix.py": "f7d89757a4e1fd83bef488ee696416c0f7ae0fcd1ed4559baf46725dd717209f",
+      "topos/models.py": "429557d99687232b04ba31c43bab827fefb7353f90f9a0191a2d63b3fa2b4bf9",
+      "topos/publication.py": "4628469290e97b0bb13cef5f87cc309348f0232f7d405b50f83cdec8df4c23e4",
+      "topos/references.py": "9c0a620c0f3a4bf5f8c461e5dc8df45f76308bce5fde7cb413b3cdd843b20bc9",
+      "topos/remote_workflow.py": "c0a25d86a0640b8492b7b090276a25df7d7d5b82f6a368f4f62eac408eafc7e0",
+      "topos/reporting.py": "e8116f7bab85682c9770a5a63f1022c1d429cbfb89aa28fca0a3ca1c5466d86b",
+      "topos/review.py": "a345721f533eda2fb9aa689de833735440b95f3279d90eb3dc9b59d692ba8585",
+      "topos/runtime.py": "9dadf17248d8ac3cf506c93c90a6364bb9fdf749c8c342126583c9e48795c3e0",
+      "topos/sampling.py": "3119b478852fa2ce873204e91e23e5ed80b74308840e1323d54e42b51ea6e651",
+      "topos/scans.py": "92216f8a75496e1d6fb84b2fb0170c60cf119323cbd8aa4b695864756804e01f",
+      "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+      "topos/storage.py": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732",
+      "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+      "topos/symmetry.py": "9a5db0424a0d4a0cd93ffe3328f0fd94bffe0d29010a9077dabb9b316e5e3fd7",
+      "topos/thermochemistry.py": "4b1b5a7907407b024d779b9d827703e5c8ef8fff347d2ffb23ce4ba0178060d1",
+      "topos/ui.py": "153e592341b909acbe305a854990d2cbce41df9ff96226e837b05b685ec060e5",
+      "topos/workflow.py": "244e312fd69fedda48333eb4fe9b4723fd5c68761887a3c406ca6737875c88cd"
+    },
+    "checks": [
+      {
+        "check": "pytest",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "pytest",
+          "tests/v010",
+          "-q",
+          "--junitxml=/workspace/.cochem-setup/topos-final.xml"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 238.1858468299979,
+        "log_path": "/workspace/.cochem-setup/topos-final-pytest.log",
+        "log_sha256": "658164fb5be14d7f35d712be779dbac948c6c3f5ca1e3e7c9e7f51cf9596ec94",
+        "junit": {
+          "tests": 907,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 907
+        },
+        "junit_sha256": "b2069398fbc02d2c03458af587d9a7c4cbf093cc90accc180b35d0e831764aac"
+      },
+      {
+        "check": "ruff",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "topos",
+          "frontend",
+          "scripts",
+          "tests",
+          "setup.py",
+          "cochem_topos_web.py"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.037796984004671685,
+        "log_path": "/workspace/.cochem-setup/topos-final-ruff.log",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "check": "pip-check",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "pip",
+          "check"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.36758879000262823,
+        "log_path": "/workspace/.cochem-setup/topos-final-pip-check.log",
+        "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+      },
+      {
+        "check": "actionlint",
+        "command": [
+          "/tmp/topos-actionlint",
+          ".github/workflows/cochem_topos_ci.yml",
+          ".github/workflows/orca_hosted.yml",
+          ".github/workflows/topos_base_ci.yml",
+          ".github/workflows/topos_compute.yml",
+          ".github/workflows/topos_orca_acceptance.yml"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.0035550579996197484,
+        "log_path": "/workspace/.cochem-setup/topos-final-actionlint.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "check": "build",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "build",
+          "--outdir",
+          "/workspace/.cochem-setup/topos-final-dist"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 7.930375174000801,
+        "log_path": "/workspace/.cochem-setup/topos-final-build.log",
+        "log_sha256": "ce47d13b6843c17aed3b2516f2ddfd91bf0b9a8e5d2ed58fa746a95ad77a9ed3"
+      },
+      {
+        "check": "wheel-smoke",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-c",
+          "import glob,json,sys,zipfile; wheel=glob.glob('/workspace/.cochem-setup/topos-final-dist/*.whl'); assert len(wheel)==1; sys.path.insert(0,wheel[0]); import topos; assert topos.__file__.startswith(wheel[0]); from topos.method_matrix import load_catalog; from topos.models import RunRequest; from topos.base_provider import metadata; from topos.matrix_workflow import execution_support_report; assert len(load_catalog().rows)==140; assert RunRequest.model_json_schema(); assert metadata()['integration_contract']=='cochem.module-handoff/1'; names=zipfile.ZipFile(wheel[0]).namelist(); assert not any(n.startswith(('mechanics/','cascade_engine/','core_engine/','escalation/','topology/')) for n in names); print(json.dumps({'wheel':wheel[0],'catalog_rows':140,'compiled_recipes':execution_support_report()['compiled_recipe_count'],'legacy_packages_present':False}))"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.8371650430053705,
+        "log_path": "/workspace/.cochem-setup/topos-final-wheel-smoke.log",
+        "log_sha256": "2a9de06fcdf833907ea5a03d10bf6d7908e7079998692d9305edb25f59c4b0dc"
+      },
+      {
+        "check": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.02428676200361224,
+        "log_path": "/workspace/.cochem-setup/topos-final-diff-check.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "finished_at": "2026-10-07T11:36:47Z",
+    "sources_unchanged": true,
+    "status": "passed"
+  },
+  "evidence_classification": {
+    "regression": "Analytical/math references, parser and transport fixtures, infrastructure failures, UI AppTest and genuine engine integration cases; passing fixtures are not live ORCA calculations",
+    "numerical_backend": "Explicit development runner for isolated numerical tests; actual BASE cases enforce installed Stage 0 and use the native broker",
+    "strict_requirements": "Both real engines and actual BASE package/registry are required, with zero skipped tests",
+    "chemistry_accuracy": "No experimental accuracy, exhaustive conformer coverage, general chemical-domain validation or release certification claimed"
+  },
+  "mandatory_setup": {
+    "receipt": {
+      "path": "/workspace/.cochem-base-runtime/setup-receipt.json",
+      "sha256": "ca6176e98727ae9ebb5918857ba3cd9c1f864042a4e6abfc6808bb80486b701d"
+    },
+    "status": "completed",
+    "scope": "mandatory package installation and BASE execution authority; no licensed ORCA installation or calculation",
+    "validation": {
+      "status": "verified",
+      "base_registry_status": "DEGRADED_OPERATIONAL",
+      "phases": [
+        {
+          "phase_number": 1,
+          "status": "PASSED",
+          "sha256": "f40c41549aa740b14744be21e1965ca8524fc15227e67ad24404683277edfa85"
+        },
+        {
+          "phase_number": 2,
+          "status": "DEGRADED",
+          "sha256": "7c70450fe9226f1491c4dfc44645a9824c54bfd82fa3bff4a2d6ff21f602df6f"
+        },
+        {
+          "phase_number": 3,
+          "status": "DEGRADED",
+          "sha256": "21808a088a1eee37c39689372942cca0ac396afa1eac230144346ef6546021e8"
+        },
+        {
+          "phase_number": 4,
+          "status": "PASSED",
+          "sha256": "83a1a5a53df604b36d180bfd7fa0645d559b0de56d564f51f898e08adf434a23"
+        },
+        {
+          "phase_number": 5,
+          "status": "PASSED",
+          "sha256": "107e84062d7230b3947cc68d678e79e379dd08504f95177b44adbb358c3299a2"
+        },
+        {
+          "phase_number": 6,
+          "status": "PASSED",
+          "sha256": "64961517dae88b0b7dd66f046386df18355d1977895ab971de7c04c2d56f15ad"
+        },
+        {
+          "phase_number": 7,
+          "status": "PASSED",
+          "sha256": "86c6539ab26cc4c1cec02ffcfbcd1fd8e79dfea175086523d0c285945722c331"
+        },
+        {
+          "phase_number": 8,
+          "status": "PASSED",
+          "sha256": "f10eb0ec666b9834fe4077133182fd424bfab0040f0000c338fef096a262f382"
+        },
+        {
+          "phase_number": 9,
+          "status": "DEGRADED",
+          "sha256": "c8ceeac9b8d1c7ee9ae97b61f07662a23be4ebf9387ea2415366fe02ba6df846"
+        },
+        {
+          "phase_number": 10,
+          "status": "PASSED",
+          "sha256": "7e5aeb5b07e157189bd65095b8703e9ae563f8ba8c3f06a3c8442add5efbde00"
+        },
+        {
+          "phase_number": 11,
+          "status": "PASSED",
+          "sha256": "de06b70b3461c9124e36e3b5447e5e94a905f4f7a3481b58dba8b331bc4db570"
+        }
+      ],
+      "selected_repositories": [
+        "CoChem-BASE",
+        "CoChem-TOPOS",
+        "CoChem-TORQ"
+      ],
+      "manifest_sha256": "2b2eb10b630d5b8faaf962d631a56ac593eabf7f63d9d671f5fdf3b7de88f15b",
+      "runtime": {
+        "backend": "cochem-base",
+        "ecosystem": {
+          "available": true,
+          "components": {
+            "CoChem-BASE": {
+              "available": true,
+              "kind": "explicit-source",
+              "path": "/workspace/CoChem-BASE/src"
+            },
+            "CoChem-TOPOS": {
+              "available": true,
+              "kind": "explicit-source",
+              "path": "/workspace/CoChem-TOPOS"
+            },
+            "CoChem-TORQ": {
+              "available": true,
+              "kind": "installed",
+              "version": "0.1.0",
+              "path": "/workspace/CoChem-BASE/src/cochem_torq/__init__.py",
+              "installed": true,
+              "distribution_path": "/workspace/CoChem-TORQ",
+              "import_path": "/workspace/CoChem-BASE/src/cochem_torq/__init__.py",
+              "import_shadowed": true,
+              "consumer_ready": false
+            }
+          },
+          "problems": []
+        },
+        "registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+        "registry_sha256": "4ce42d46ef099ae3d475c0443a83d93ab710574ed2b5963253c855ce37970104",
+        "registry_checksum": "127daec4931ed044d6fdf9cd023ad8e3cee316e3484cc597ba5b5b2cffb49d49"
+      },
+      "engines": {
+        "xtb": {
+          "executable": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+          "version": "6.7.1",
+          "sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+          "probe": "--version",
+          "execution_kind": "real-version-probe"
+        },
+        "crest": {
+          "executable": "/workspace/.tools/crest-3.0.2/crest/crest",
+          "version": "3.0.2",
+          "sha256": "201db7940796c4af3652245ba7c8e1a4234767f4e19223772fbd83098d5f2142",
+          "probe": "--version",
+          "execution_kind": "real-version-probe"
+        }
+      },
+      "distributions": {
+        "CoChem-BASE": "0.1.0",
+        "cochem-topos": "0.1.0",
+        "CoChem-TORQ": "0.1.0"
+      },
+      "torq_consumer_readiness": "not certified by installation; TORQ remains a separate implementation workstream"
+    }
+  },
+  "production_base_calculations": [
+    {
+      "run_dir": "/workspace/.cochem-setup/topos-base-acceptance/run_59ce103432b84836b67879f7de66a2be",
+      "run_id": "run_59ce103432b84836b67879f7de66a2be",
+      "status": "completed",
+      "purpose": "search",
+      "search_algorithm": "crest",
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "record_sha256": "bd96a83ded54d0ac575ce64c211eac8cab07a9a7b40af92e41cc087069871da3",
+      "attempt_count": 3,
+      "attempt_engines": [
+        [
+          "crest",
+          "3.0.2"
+        ],
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "snapshot_and_artifact_verification": "passed",
+      "evidence_scope": "Earlier production BASE-backed calculation in this completion pass; final regression separately validates current source"
+    },
+    {
+      "run_dir": "/workspace/.cochem-setup/topos-base-acceptance/run_78895427043a4b2f88f91a3fb7e9c343",
+      "run_id": "run_78895427043a4b2f88f91a3fb7e9c343",
+      "status": "completed",
+      "purpose": "search",
+      "search_algorithm": "jiggle-quench",
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "record_sha256": "0fea7a8424558f60286355bcec01854320ef05842efc96636c27db62a2c06f43",
+      "attempt_count": 3,
+      "attempt_engines": [
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "snapshot_and_artifact_verification": "passed",
+      "evidence_scope": "Earlier production BASE-backed calculation in this completion pass; final regression separately validates current source"
+    },
+    {
+      "run_dir": "/workspace/.cochem-setup/topos-base-acceptance/run_84028d83bddc42f189afb53f21ccef9e",
+      "run_id": "run_84028d83bddc42f189afb53f21ccef9e",
+      "status": "completed",
+      "purpose": "search",
+      "search_algorithm": "union",
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "record_sha256": "c3379858b295a501f92a2b8c89155cb036f4031cb8957105f63926d4fd805cf2",
+      "attempt_count": 4,
+      "attempt_engines": [
+        [
+          "crest",
+          "3.0.2"
+        ],
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "snapshot_and_artifact_verification": "passed",
+      "evidence_scope": "Earlier production BASE-backed calculation in this completion pass; final regression separately validates current source"
+    },
+    {
+      "run_dir": "/workspace/.cochem-setup/topos-base-acceptance/run_d412ce0278064188a6a032e120a8cd6d",
+      "run_id": "run_d412ce0278064188a6a032e120a8cd6d",
+      "status": "completed",
+      "purpose": "optimize",
+      "search_algorithm": "jiggle-quench",
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "record_sha256": "8f57fd67326ac8c11f7901659ce65f3affbfd176e83e741f42e0456f53caf5a2",
+      "attempt_count": 19,
+      "attempt_engines": [
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "snapshot_and_artifact_verification": "passed",
+      "evidence_scope": "Earlier production BASE-backed calculation in this completion pass; final regression separately validates current source"
+    },
+    {
+      "run_dir": "/workspace/.cochem-setup/topos-base-advanced/run_14a7f63ac277410596a082101da287b4",
+      "run_id": "run_14a7f63ac277410596a082101da287b4",
+      "status": "completed",
+      "purpose": "thermochemistry",
+      "search_algorithm": "jiggle-quench",
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "record_sha256": "2e3fecb6dcd01c96cafd063cf8575b7bb19bf20156b7fd9b66c4aecaa0c7b7d4",
+      "attempt_count": 21,
+      "attempt_engines": [
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "snapshot_and_artifact_verification": "passed",
+      "evidence_scope": "Earlier production BASE-backed calculation in this completion pass; final regression separately validates current source"
+    }
+  ],
+  "licensed_orca": {
+    "live_calculations_executed_here": false,
+    "preflight_receipt": {
+      "path": "/workspace/.cochem-setup/orca-topos-final-no-license-preflight/acceptance.json",
+      "sha256": "033be5cfef27b88f401e9177bece6b576c7bc69269e6fa504a0371c78057b3b7"
+    },
+    "preflight_status": "failed",
+    "failure": "Execution authority denied by /workspace/.cochem-base-runtime/Registry/cochem_system_config.json: Engine 'orca' is not available in the Golden Registry",
+    "scope": "Acceptance code and private Actions workflow prepared; absent ORCA fails preflight without substituting chemistry"
+  },
+  "github_actions": {
+    "topos_live_dispatch_executed_here": false,
+    "scope": "Local contract/worker tests and actionlint only; BASE standalone hosted success does not validate TOPOS"
+  },
+  "torq": {
+    "mandatory_package_installed": true,
+    "actual_downstream_consumption_verified": false,
+    "scope": "TOPOS producer and external-receipt validator implemented; unfinished TORQ solver remains external"
+  },
+  "matrix_support": {
+    "catalog_revision": "method-matrix-v4-2026-08-09",
+    "catalog_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+    "catalog_rows": 140,
+    "topos_owned_rows": 44,
+    "topos_track_gaps": [
+      "T3C-10s",
+      "T3C-1min"
+    ],
+    "compiled_complete_recipes": [
+      "T1-10s",
+      "T1-12h",
+      "T1-1h",
+      "T1-1min",
+      "T1-3d",
+      "T1-3h",
+      "T2-10s",
+      "T2-1h",
+      "T2-30min",
+      "T3O-10s",
+      "T3O-1h",
+      "T3O-1min",
+      "T3O-30min",
+      "T5-10s",
+      "T5-1h"
+    ],
+    "compiled_recipe_count": 15,
+    "conditional_recipe_resolutions": {
+      "T1-3h": {
+        "required_explicit_resolution": "physical-central-gradient-hessian-v1",
+        "source_literal": "ORCA Freq (native analytic Hessian)",
+        "implemented_derivative": "central finite differences of actual analytic gradients at the same r2SCAN-3c potential",
+        "source_attribution_limit": "Native CREST --screen disables origin tracking; only input counts/exact input overlap and combined-union final provenance are established"
+      }
+    },
+    "additional_adapter_recipes": [
+      {
+        "row_id": "T1-30min",
+        "purpose": "search",
+        "method": "`! GOAT-EXPLORE ExtOpt` + `oet_server aimnet2 -d cuda` \u2014 ORCA + AIMNet2",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T1-1d",
+        "purpose": "search",
+        "method": "`! GOAT-ENTROPY XTB2` + `crest --entropy` on the same seeds \u2014 ORCA + CREST",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T1-1w",
+        "purpose": "search",
+        "method": "fine-tune MACE or AIMNet2 on 100\u2013500 system-specific DFT points, re-run GOAT + CREST \u2014 MACE + ORCA",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T1-1mo",
+        "purpose": "search",
+        "method": "exhaustive union: all seeds \u00d7 both engines \u00d7 `--v4` / `GOAT-DIVERSITY`, then coupled-cluster re-ranking",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T2-1min",
+        "purpose": "potential-surface",
+        "method": "dense MLFF scan, 10\u00b3 points, to bound the well \u2014 MACE/AIMNet2",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-3h",
+        "purpose": "equilibrium-geometry",
+        "method": "**recipe R2**: frozen CCSD(T)-class monomers + \u03c9B97M-V/def2-QZVPP intermolecular + 3-leg counterpoise + VPT2 \u2014 ORCA",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-12h",
+        "purpose": "equilibrium-geometry",
+        "method": "**recipe R4: junChS (jun-cc-pVnZ CBS+CV composite)** \u2014 ORCA compound scripts",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-1d",
+        "purpose": "equilibrium-geometry",
+        "method": "MPQC CCSD(T)-F12 numerical-gradient optimisation \u2014 ORCA",
+        "source_conflicts": [
+          "Source mixes MPQC with ORCA/DLPNO syntax and numerical gradients, while section 9.0 restricts MPQC to single points. A corrected engine-specific protocol must be approved before execution."
+        ],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-3d",
+        "purpose": "equilibrium-geometry",
+        "method": "canonical CCSD(T)/cc-pVTZ-F12 (paired with CABS: OptRI [Yousaf & Peterson, J. Chem. Phys. 129, 184108 (2008)], JKFIT, MP2FIT), AUTOCI analytic gradients \u2014 ORCA (Setup 3)",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-1w",
+        "purpose": "equilibrium-geometry",
+        "method": "composite CCSD(T)/CBS + \u0394core + \u0394T + \u0394Q (the ChS/HEAT family) \u2014 ORCA compound scripts or CFOUR",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3O-1mo",
+        "purpose": "equilibrium-geometry",
+        "method": "explicitly correlated reference single points; F12 geometry **requires Molpro**",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-30min",
+        "purpose": "equilibrium-geometry",
+        "method": "MP2/cc-pVDZ optimisation, `COORDINATES=INTERNAL` with `*` on the variables",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-1h",
+        "purpose": "equilibrium-geometry",
+        "method": "CCSD(T)/cc-pVTZ single point with `PROPS=FIRST_ORDER`",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-3h",
+        "purpose": "equilibrium-geometry",
+        "method": "CCSD(T)/cc-pVTZ geometry optimisation, analytic gradients",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-12h",
+        "purpose": "equilibrium-geometry",
+        "method": "CCSD(T)/cc-pVQZ optimisation",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-1d",
+        "purpose": "equilibrium-geometry",
+        "method": "all-electron CCSD(T)/cc-pCVQZ optimisation",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-3d",
+        "purpose": "equilibrium-geometry",
+        "method": "ChS composite in CFOUR: fc-CCSD(T)/TZ + \u0394MP2/CBS + \u0394MP2/CV",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-1w",
+        "purpose": "equilibrium-geometry",
+        "method": "CBS+CV+fT+fQ composite",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T3C-1mo",
+        "purpose": "equilibrium-geometry",
+        "method": "the above plus relativistic (`RELATIVISTIC=DPT2` or `X2C1E`) and the diagonal Born\u2013Oppenheimer correction (`DBOC=ON`)",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-1min",
+        "purpose": "interaction-energy",
+        "method": "MLFF interaction energy \u2014 MACE/AIMNet2",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-30min",
+        "purpose": "interaction-energy",
+        "method": "r\u00b2SCAN-3c with the built-in D4 + gCP",
+        "source_conflicts": [
+          "Main row uses native r2SCAN-3c/gCP; expansion promises raw/CP/half-CP. Separate counterpoise on this composite is not specified consistently."
+        ],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-3h",
+        "purpose": "interaction-energy",
+        "method": "**junChS-F12 composite energy** \u2014 ORCA F12 single points",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-12h",
+        "purpose": "interaction-energy",
+        "method": "DLPNO-CCSD(T1)/TightPNO/cc-pVDZ-F12 (paired with CABS) with local energy decomposition",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-1d",
+        "purpose": "interaction-energy",
+        "method": "PNO-space extrapolation CPS(6/7)",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-3d",
+        "purpose": "interaction-energy",
+        "method": "canonical CCSD(T)-F12D/RI single point",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-1w",
+        "purpose": "interaction-energy",
+        "method": "CCSD(T)/CBS + \u0394core + \u0394T increments",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      },
+      {
+        "row_id": "T5-1mo",
+        "purpose": "interaction-energy",
+        "method": "SAPT(DFT) or SAPT2+3 decomposition \u2014 Psi4 or autoPES",
+        "source_conflicts": [],
+        "reason": "A complete registered recipe adapter is required; the typed plan is available."
+      }
+    ],
+    "torq_owned_rows": 96,
+    "validation_scope": "Catalog/compiled orchestration coverage only. Each execution must verify its real engines and scientific outputs."
+  },
+  "packaging_after_documentation_update": {
+    "reason": "README completion evidence added after the integrated source checks; rebuild distribution metadata",
+    "started_at": "2026-10-07T11:41:07Z",
+    "checks": [
+      {
+        "check": "build",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "build",
+          "--outdir",
+          "/workspace/.cochem-setup/topos-final-dist"
+        ],
+        "exit_code": 0,
+        "log_path": "/workspace/.cochem-setup/topos-doc-final-build.log",
+        "log_sha256": "8e06026b15a802078ec31adf784a80a1d4e57b3b441478e5c39070dd24cf51c2"
+      },
+      {
+        "check": "wheel-smoke",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-c",
+          "import glob,json,sys,zipfile; wheel=glob.glob('/workspace/.cochem-setup/topos-final-dist/*.whl'); assert len(wheel)==1; sys.path.insert(0,wheel[0]); import topos; assert topos.__file__.startswith(wheel[0]); from topos.method_matrix import load_catalog; from topos.models import RunRequest; from topos.base_provider import metadata; from topos.matrix_workflow import execution_support_report; assert len(load_catalog().rows)==140; assert RunRequest.model_json_schema(); assert metadata()['integration_contract']=='cochem.module-handoff/1'; names=zipfile.ZipFile(wheel[0]).namelist(); assert not any(n.startswith(('mechanics/','cascade_engine/','core_engine/','escalation/','topology/')) for n in names); print(json.dumps({'wheel':wheel[0],'catalog_rows':140,'compiled_recipes':execution_support_report()['compiled_recipe_count'],'legacy_packages_present':False}))"
+        ],
+        "exit_code": 0,
+        "log_path": "/workspace/.cochem-setup/topos-doc-final-wheel-smoke.log",
+        "log_sha256": "2a9de06fcdf833907ea5a03d10bf6d7908e7079998692d9305edb25f59c4b0dc"
+      }
+    ]
+  },
+  "post_cleanup_installation": {
+    "receipt": {
+      "path": "/workspace/.cochem-setup/topos-after-cleanup.json",
+      "sha256": "c37649b60dde44e5a472314f8f17b9018cbbd1a15f2647a5537b9758c60f6f07"
+    },
+    "scope": "Generated metadata cleanup preserves actual installed BASE/TOPOS/TORQ discovery and BASE authority"
+  },
+  "built_distributions": [
+    {
+      "path": "/workspace/.cochem-setup/topos-final-dist/cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "c44000f62c460fc886f7c9d7f73587e7b6da63fe07246bcea04084e5309a7ce3"
+    },
+    {
+      "path": "/workspace/.cochem-setup/topos-final-dist/cochem_topos-0.1.0.tar.gz",
+      "sha256": "1d7cdc545168ee8bfe9d0d6b39265c68097a374b6b874eafbe8b8749851008d9"
+    }
+  ],
+  "verification_driver": {
+    "path": "/workspace/.cochem-setup/validate_topos_completion.py",
+    "sha256": "abf37ab630ba06be431c1df9f7ee401712eee55512ae0b21000ce40fe9856946"
+  },
+  "remaining_boundaries": [
+    "Additional TOPOS-owned matrix recipe adapters listed in matrix_support remain unimplemented; catalog entries do not fulfill them",
+    "T1-3h is conditional on the recorded numerical-derivative resolution and verified native source ensembles; complete licensed execution remains untested",
+    "Actual TOPOS ORCA/GOAT/counterpoise/remote calculations require licensed protected execution and current correlated scientific evidence",
+    "ML/GPU, CFOUR, Molpro, MPQC, Psi4, advanced composite and anharmonic models require their own complete adapters and validation",
+    "Source contradictions remain explicit; no unapproved Hamiltonian or basis substitutions",
+    "Remote queue-inclusive deadlines and non-Linux execution remain unsupported",
+    "No fresh-task environment restoration or configuration publication was verified"
+  ]
+}

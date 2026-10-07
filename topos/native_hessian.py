@@ -127,6 +127,7 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
     started = time.monotonic()
     result = EngineResult(status="unsupported", engine="orca", method=method.method, operation="hessian",
                           metadata={"execution_kind": "not-executed", "manual": FREQUENCY_MANUAL,
+                                    "requested_method": method.model_dump(mode="json"),
                                     "derivative_kind": "native-analytic-SCF-Hessian",
                                     "analytic_restart_policy": "reuse completed hashed stages; restart interrupted Freq in fresh scratch"})
     try:

@@ -126,3 +126,36 @@ def test_free_matrix_worker_does_not_require_orca_license(tmp_path, monkeypatch)
     receipt, code = run_compute_worker(encoded, digest, dispatch_id, temporary / "runs", temporary / "evidence")
     assert code != 0 and receipt["context_verified"]
     assert "BASE setup registry" in receipt["failure"]["message"]
+
+
+def test_expired_queue_budget_commits_no_attempt_without_constructing_workflow(tmp_path, monkeypatch):
+    from topos.actions.dispatch import _GitHubTransport
+    from topos.storage import RunStore
+
+    _, temporary, _ = setup_context(tmp_path, monkeypatch)
+    _, encoded, digest = encoded_request(include_queue_in_budget=True, budget_seconds=1,
+                                         engine="xtb", engine_version="6.7.1", method="GFN2-xTB", profile_id="screening-v1")
+    dispatch_id = "topos_" + "f" * 32
+    event_path = Path(os.environ["GITHUB_EVENT_PATH"])
+    event = json.loads(event_path.read_text())
+    event["inputs"] = {"dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": digest}
+    event_path.write_text(json.dumps(event))
+    registry = temporary / "unread-registry.json"
+    registry.write_text("{}")
+    monkeypatch.setenv("COCHEM_CONFIG", str(registry))
+    monkeypatch.setenv("GITHUB_TOKEN", "infrastructure-test-only")
+    server_run = {"id": 1234, "head_sha": os.environ["GITHUB_SHA"], "event": "workflow_dispatch",
+                  "display_title": dispatch_id, "path": ".github/workflows/topos_compute.yml",
+                  "created_at": "2000-01-01T00:00:00Z"}
+    monkeypatch.setattr(_GitHubTransport, "request", lambda self, method, path: server_run)
+    def no_workflow(*args, **kwargs):
+        pytest.fail("Expired queue budget must not instantiate a scientific workflow")
+    monkeypatch.setattr("topos.actions.compute_worker.Workflow", no_workflow)
+    receipt, code = run_compute_worker(encoded, digest, dispatch_id, temporary / "runs", temporary / "evidence")
+    assert code == 3 and receipt["status"] == "timed-out"
+    assert receipt["budget_accounting"]["remaining_execution_seconds"] == 0
+    record = RunStore(temporary / "evidence/run").load()
+    assert record["attempts"] == [] and record["candidates"] == []
+    assert record["metadata"]["execution_kind"] == "no-execution"
+    assert record["metadata"]["budget_accounting"] == receipt["budget_accounting"]
+    verify_evidence(temporary / "evidence")

@@ -46,8 +46,8 @@ def native_fixture(method="MP2"):
     # this tests GRD decoding, not a claim that upstream supplied a GRD file.
     numbers = [8, 1, 1]
     rows = [str(len(numbers))]
-    rows += [f"{z} " + " ".join(f"{x:.12f}" for x in row) for z, row in zip(numbers, native.geometry)]
-    rows += [f"{z} " + " ".join(f"{x:.12f}" for x in row) for z, row in zip(numbers, gradient)]
+    rows += [f"{z} " + " ".join(f"{x:.12f}" for x in row) for z, row in zip(numbers, native.geometry, strict=True)]
+    rows += [f"{z} " + " ".join(f"{x:.12f}" for x in row) for z, row in zip(numbers, gradient, strict=True)]
     return text, molecule, "\n".join(rows) + "\n"
 
 
@@ -105,6 +105,13 @@ def test_gradient_artifacts_must_agree():
         parse_cfour_output(text, molecule, protocol(operation="gradient"))
     with pytest.raises(EngineParseError, match="same indexed result"):
         parse_cfour_output(text, molecule, protocol(operation="gradient"), grd=grd.replace("-0.000916441700", "-0.100916441700"))
+
+
+def test_higher_level_job_cannot_impersonate_its_mp2_intermediate():
+    text, molecule, _ = native_fixture("CCSD(T)")
+    selected = protocol().model_copy(update={"orbital_basis": "dzp"})
+    with pytest.raises(EngineParseError, match="CALC_LEVEL"):
+        parse_cfour_output(text, molecule, selected)
 
 
 def test_geometry_or_reflection_cannot_be_laundered_as_same_result():
@@ -177,7 +184,7 @@ def test_psi4_driver_is_valid_fixed_python_with_explicit_method_and_states():
 
 def test_sapt_sum_arithmetic_is_interaction_not_electronic_energy():
     # Analytical arithmetic fixture only, not a claimed quantum-chemistry result.
-    data = {"engine_version": "1.9.1", "method": "SAPT2+3", "returned_interaction_hartree": -.001,
+    data = {"engine_version": "1.9.1", "method": "SAPT2+3", "returned_interaction_hartree": -.001, "native_core_sha256": "0" * 64,
             "quantities_hartree": {"SAPT ELST ENERGY": -.002, "SAPT EXCH ENERGY": .004,
                                    "SAPT IND ENERGY": -.001, "SAPT DISP ENERGY": -.002,
                                    "SAPT TOTAL ENERGY": -.001}}
@@ -225,3 +232,54 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path):
     result = run_external(molecule, p, ResourceLimits(budget_seconds=20), tmp_path / "attempt",
                           executable=binary, process_runner=infrastructure_timeout)
     assert result.status == "timed-out" and result.energy_hartree is None and result.artifacts
+
+
+@pytest.mark.parametrize("termination", ["converged", "deadline", "cancelled"])
+def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_path, monkeypatch, termination):
+    """Analytical harmonic-function fixture; explicitly not a CFOUR calculation."""
+    from threading import Event
+
+    import topos.external_engines as adapter
+
+    binary = tmp_path / "installation" / "bin" / "xcfour"
+    binary.parent.mkdir(parents=True)
+    binary.write_text("#!/bin/sh\nexit 1\n")
+    binary.chmod(0o700)
+    genbas = binary.parent / "GENBAS"
+    genbas.write_text("H:PVTZ\nanalytical test basis placeholder\n")
+    p = protocol(operation="optimize", genbas_path=str(genbas), genbas_sha256=hashlib.sha256(genbas.read_bytes()).hexdigest())
+    molecule = Molecule(symbols=["H", "H"], coordinates=[[0, 0, 0], [0, 0, 1.2]])
+    event, calls, clock = Event(), [], [1000.]
+    monkeypatch.setattr(adapter.time, "monotonic", lambda: clock[0])
+
+    def callback_fixture(raw, current, selected, **kwargs):
+        xyz = np.asarray(current.coordinates) / BOHR_ANGSTROM
+        vector = xyz[1] - xyz[0]
+        distance = np.linalg.norm(vector)
+        derivative = (distance - 1.5) * vector / distance
+        return {"energy_hartree": .5 * (distance - 1.5)**2,
+                "gradient_hartree_per_bohr": [(-derivative).tolist(), derivative.tolist()], "engine_version": "1.2"}
+
+    monkeypatch.setattr(adapter, "parse_cfour_output", callback_fixture)
+
+    def native_fixture_runner(command, folder, resources, **kwargs):
+        calls.append(resources.budget_seconds)
+        clock[0] += 5. if termination == "deadline" else .1
+        if termination == "cancelled":
+            event.set()
+        out, err = folder / "engine.stdout", folder / "engine.stderr"
+        out.write_text("analytical derivative callback fixture, not native quantum chemistry\n")
+        err.write_text("")
+        return ProcessResult(command, "completed", 0, .1, 0, str(out), str(err))
+
+    result = run_external(molecule, p, ResourceLimits(budget_seconds=2), tmp_path / "run", executable=binary,
+                          process_runner=native_fixture_runner, cancel_event=event)
+    if termination == "converged":
+        assert result.status == "completed" and result.converged and len(calls) >= 2
+        assert result.energy_hartree == pytest.approx(0, abs=1e-14)
+        assert np.linalg.norm(np.asarray(result.molecule.coordinates)[1] - result.molecule.coordinates[0]) == pytest.approx(1.5 * BOHR_ANGSTROM)
+        assert result.diagnostics["optimization"]["native_cfour_optimizer"] is False
+        assert all(a > b for a, b in zip(calls, calls[1:], strict=False))
+    else:
+        assert result.status == {"deadline": "timed-out", "cancelled": "cancelled"}[termination]
+        assert len(calls) == 1 and result.converged is not True

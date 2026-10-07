@@ -58,6 +58,7 @@ class DispatchResult:
     details: str = REMOTE_UNAVAILABLE
     request_sha256: str | None = None
     commit_sha: str | None = None
+    github_created_at: str | None = None
     artifact_path: str | None = None
     record: dict[str, Any] | None = None
 
@@ -239,8 +240,6 @@ class ActionDispatchClient:
             raise ValueError("Request exceeds GitHub Actions input size limit")
         receipt = DispatchResult(f"topos_{uuid4().hex}", WORKFLOW, self.target_repo, validated, ref,
                                  request_sha256=hashlib.sha256(data).hexdigest())
-        if validated.get("include_queue_in_budget"):
-            return replace(receipt, details="This hosted profile does not enforce queue-inclusive deadlines; choose an execution-only budget explicitly")
         try:
             connection = self._connection()
             repository = connection.request("GET", f"/repos/{self.target_repo}")
@@ -312,8 +311,17 @@ class ActionDispatchClient:
                 except RemoteExecutionError as exc:
                     detail = f"Cancellation could not be submitted: {exc}"
             raise RemoteExecutionError(f"Owned GitHub run {run_id} used an unexpected controller revision. {detail}")
+        created_at = run.get("created_at")
+        if receipt.inputs.get("include_queue_in_budget"):
+            from .queue_budget import utc_timestamp
+            try:
+                utc_timestamp(created_at)
+            except ValueError as exc:
+                raise RemoteExecutionError("GitHub run lacks a valid server creation timestamp") from exc
+            if receipt.github_created_at is not None and receipt.github_created_at != created_at:
+                raise RemoteExecutionError("GitHub workflow creation timestamp changed")
         status = "awaiting-retrieval" if run.get("status") == "completed" else "running"
-        return replace(receipt, remote_job_id=run_id, status=status,
+        return replace(receipt, remote_job_id=run_id, github_created_at=created_at, status=status,
                        details=f"GitHub workflow {run.get('status')}; conclusion {run.get('conclusion')}; result not yet verified")
 
     def cancel(self, receipt: DispatchResult) -> DispatchResult:
@@ -381,8 +389,9 @@ class ActionDispatchClient:
             if worker.get("status") != record.get("status"):
                 raise RemoteExecutionError("Worker receipt and immutable run status disagree")
             actual_request = dict(record["request"])
-            expected_request = dict(updated.inputs)
-            expected_request["calculation_environment"] = "local"
+            from .queue_budget import verify_queue_record
+            expected_request = verify_queue_record(updated.inputs, record, worker.get("budget_accounting"),
+                                                   updated.github_created_at)
             if actual_request != expected_request:
                 raise RemoteExecutionError("Retrieved scientific run used a different request")
             if worker.get("local_request_sha256") != hashlib.sha256(_canonical(actual_request)).hexdigest():

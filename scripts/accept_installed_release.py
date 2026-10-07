@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 import venv
 import zipfile
 from pathlib import Path
@@ -52,6 +53,8 @@ def accept(wheelhouse: Path, registry: Path, output: Path, *, constraints: Path 
     if not set(extras.split(",")) <= {"ui", "external", ""}:
         raise ValueError("Supported installation extras are ui and external")
     wheels, collisions = wheel_inventory(wheelhouse)
+    if collisions:
+        raise ValueError("Mandatory wheel files overlap; resolve package ownership before installation acceptance")
     output.mkdir(parents=True)
     receipt = {"schema_version": "topos-clean-install/0.1.0", "status": "running", "published": False,
                "wheels": {name: {"path": str(path), "sha256": digest(path)} for name, path in wheels.items()},
@@ -82,6 +85,19 @@ def accept(wheelhouse: Path, registry: Path, output: Path, *, constraints: Path 
         command.extend([str(wheels["cochem-base"]), str(wheels["cochem-torq"]),
                         str(wheels["cochem-topos"]) + (f"[{extras}]" if extras else "")])
         run("install", command)
+        package_probe = (
+            "from pathlib import Path; import importlib.metadata as m; "
+            "import cochem_base.core_engine.execution_authority; import Libraries.cochem_torq_dvr as d; "
+            "import topos; from topos.base_provider import metadata; "
+            "assert metadata()['integration_contract']=='cochem.module-handoff/1'; "
+            "assert Path(d.__file__).is_relative_to(Path(__import__('sys').prefix)); "
+            "assert m.version('CoChem-BASE')=='1.0.0' and m.version('CoChem-TORQ')=='0.1.0'"
+        )
+        for number, order in enumerate((("cochem-base", "cochem-torq"), ("cochem-torq", "cochem-base")), start=1):
+            for name in order:
+                run(f"ownership-order-{number}-{name}", [str(python), "-I", "-m", "pip", "install", "--no-deps",
+                                                           "--force-reinstall", str(wheels[name])])
+            run(f"ownership-order-{number}-probe", [str(python), "-I", "-c", package_probe])
         run("installed-check", [str(python), "-I", "-m", "topos.release", "installed-check", "--wheel", str(wheels["cochem-topos"]),
                                  "--registry", str(registry), "--output", str(output / "acceptance")])
         tested = json.loads((output / "acceptance" / "installed-acceptance.json").read_text())
@@ -105,7 +121,11 @@ def main() -> int:
     parser.add_argument("--constraints", type=Path)
     parser.add_argument("--extras", default="ui")
     args = parser.parse_args()
-    result = accept(args.wheelhouse, args.registry, args.output, constraints=args.constraints, extras=args.extras)
+    try:
+        result = accept(args.wheelhouse, args.registry, args.output, constraints=args.constraints, extras=args.extras)
+    except (ValueError, OSError) as exc:
+        print(json.dumps({"status": "invalid", "error": str(exc), "published": False}), file=sys.stderr)
+        return 2
     print(json.dumps({"status": result["status"], "output": str(args.output), "published": False}))
     return 0 if result["status"] == "passed" else 3
 

@@ -233,6 +233,22 @@ def installed_acceptance(wheel: Path, registry: Path, output: Path) -> dict[str,
                                      "stdout": completed.stdout, "stderr": completed.stderr})
             if completed.returncode:
                 raise RuntimeError("Installed command failed: " + " ".join(arguments))
+        executable_folder = Path(sys.executable).parent
+        for name, argument in (("cochem-topos", "--version"), ("cochem-topos-release", "--help"), ("topos-ui", "--help")):
+            command = [str(executable_folder / name), argument]
+            completed = subprocess.run(command, text=True, capture_output=True, check=False, timeout=120)
+            result["checks"].append({"command": command, "returncode": completed.returncode,
+                                     "stdout": completed.stdout, "stderr": completed.stderr})
+            if completed.returncode:
+                raise RuntimeError(f"Installed console entry point failed: {name}")
+        from streamlit.testing.v1 import AppTest
+
+        app = AppTest.from_file(str(Path(topos.__file__).parent / "streamlit_app.py")).run(timeout=30)
+        if app.exception or not app.selectbox or not app.button:
+            raise RuntimeError("Installed browser app failed to render its scientific controls")
+        result["browser"] = {"status": "passed", "source": str(Path(topos.__file__).parent / "streamlit_app.py"),
+                               "selectboxes": len(app.selectbox), "buttons": len(app.button),
+                               "scope": "real installed Streamlit application render; native computation checked separately"}
         runtime = BaseRuntime(registry)
         result["base"] = runtime.provenance()
         result["registry_sha256"] = sha256(registry)
@@ -258,6 +274,10 @@ def installed_acceptance(wheel: Path, registry: Path, output: Path) -> dict[str,
                                  "engine_version": attempt.engine_version, "energy_hartree": candidate.energy_hartree,
                                  "snapshot": RunStore(folder).verify(), "bundle": verified}
         result["dependencies"] = dependency_inventory()
+        constraints = output / "requirements-installed.txt"
+        constraints.write_text("".join(f"{item['name']}=={item['version']}\n" for item in result["dependencies"]
+                                        if item["name"].lower().replace("_", "-") not in {"cochem-base", "cochem-topos", "cochem-torq"}))
+        result["dependency_constraints"] = {"path": constraints.name, "sha256": sha256(constraints)}
         result["torq_consumer_ready"] = False
         result["status"] = "passed"
     except Exception as exc:
