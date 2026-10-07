@@ -388,7 +388,28 @@ path = pathlib.Path(spec.origin)
 assert not path.is_symlink() and path.resolve().is_relative_to(pathlib.Path(sys.prefix).resolve()), 'worker is outside the isolated installed package'
 digest = hashlib.sha256(path.read_bytes()).hexdigest()
 assert digest == expected['worker_sha256'], 'installed worker identity differs from reviewed source'
-result = {'worker_path':str(path),'worker_sha256':digest,'packages':versions,'python_version':version,'gpu':None}
+distribution = importlib.metadata.distribution('cochem-topos-ml-worker')
+try:
+ importlib.metadata.distribution('cochem-topos')
+ raise AssertionError('controller and worker namespace ownership overlap')
+except importlib.metadata.PackageNotFoundError:
+ pass
+manifest_path = pathlib.Path(distribution.locate_file('topos/data/ml_worker_distribution.json')).resolve()
+assert manifest_path.is_relative_to(pathlib.Path(sys.prefix).resolve()), 'worker distribution manifest outside silo'
+manifest = json.loads(manifest_path.read_text())
+assert manifest['schema_version'] == 'topos-ml-worker-distribution/0.1.0', 'unknown worker distribution'
+assert manifest['version'] == distribution.version == expected['topos_version'], 'worker distribution version drift'
+assert manifest['source_sha256'] == expected['source_sha256'], 'worker dependency source differs from controller revision'
+for name, expected_sha in expected['source_sha256'].items():
+ installed = pathlib.Path(distribution.locate_file(name)).resolve()
+ assert installed.is_relative_to(pathlib.Path(sys.prefix).resolve()), 'worker source outside silo'
+ assert hashlib.sha256(installed.read_bytes()).hexdigest() == expected_sha, 'installed worker dependency source changed'
+for name, package_version in manifest['dependencies'].items():
+ assert importlib.metadata.version(name) == package_version, 'worker dependency version drift'
+result = {'worker_path':str(path),'worker_sha256':digest,'packages':versions,'python_version':version,'gpu':None,
+ 'worker_distribution':distribution.version,'source_sha256':expected['source_sha256'],
+ 'distribution_manifest_path':str(manifest_path),'distribution_manifest_sha256':hashlib.sha256(manifest_path.read_bytes()).hexdigest()}
+
 if expected['gpu_memory_mb'] is not None:
  import torch
  assert torch.cuda.is_available() and torch.cuda.device_count() == 1, 'selected GPU is unavailable'
@@ -398,7 +419,14 @@ if expected['gpu_memory_mb'] is not None:
  result['gpu'] = {'visible_device_count':1,'name':properties.name,'memory_mb':memory_mb}
 print(json.dumps(result,sort_keys=True))
 """
-        contract = {**silo, "worker_sha256": worker_sha256, "worker_module": worker_module, "gpu_memory_mb": gpu_memory_mb}
+        from . import __version__
+        source_root = Path(__file__).resolve().parent.parent
+        source_files = {path.relative_to(source_root).as_posix(): file_digest(path)
+                        for path in sorted((source_root / "topos").rglob("*"))
+                        if path.is_file() and path.suffix in {".py", ".json"} and "__pycache__" not in path.parts
+                        and path.name != "ml_worker_distribution.json"}
+        contract = {**silo, "worker_sha256": worker_sha256, "worker_module": worker_module, "gpu_memory_mb": gpu_memory_mb,
+                    "source_sha256": source_files, "topos_version": __version__}
         probe_command = [command[0], "-I", "-c", probe_code, json.dumps(contract, sort_keys=True)]
         probe = self._execute_authorized(probe_command, folder, remaining(), authority, engine=engine,
                                          cancel_event=cancel_event, log_prefix=log_prefix + "-authority",
@@ -423,6 +451,11 @@ print(json.dumps(result,sort_keys=True))
             raise BaseIntegrationError("The immutable ML request or model members changed during execution")
         if file_digest(Path(observed["worker_path"])) != worker_sha256 or file_digest(self.registry_path) != binding["registry_sha256"]:
             raise BaseIntegrationError("ML worker or BASE authority changed during execution")
+        if file_digest(Path(observed["distribution_manifest_path"])) != observed["distribution_manifest_sha256"]:
+            raise BaseIntegrationError("The installed worker source manifest changed during execution")
+        installed_root = Path(observed["distribution_manifest_path"]).parents[2]
+        if any(file_digest(installed_root / name) != expected for name, expected in source_files.items()):
+            raise BaseIntegrationError("An installed worker dependency changed during execution")
         return result
 
     def _orca_distribution_utility(self) -> tuple[Path, Any, dict[str, Any]]:
@@ -443,7 +476,13 @@ print(json.dumps(result,sort_keys=True))
             source = _source_root("COCHEM_BASE_ROOT", "CoChem-BASE", "cochem_base")
             if source is None:
                 spec = importlib.util.find_spec("cochem_base")
-                source = Path(spec.origin).resolve().parent.parent if spec and spec.origin else None
+                # BASE is a PEP 420 namespace package: origin is intentionally
+                # None for a genuine editable installation. Resolve its actual
+                # package search location before looking for the installer pin.
+                locations = list(spec.submodule_search_locations or ()) if spec else []
+                package_path = (Path(spec.origin).resolve().parent if spec and spec.origin else
+                                Path(locations[0]).resolve() if locations else None)
+                source = package_path.parent if package_path is not None else None
             manifests = [] if source is None else [source / "scripts/orca-distribution.json",
                                                    source.parent / "scripts/orca-distribution.json"]
             manifest_path = next((path for path in manifests if path.is_file()), None)
@@ -627,6 +666,18 @@ print(json.dumps(result,sort_keys=True))
         if isolated_python:
             supplied.update(PYTHONSAFEPATH="1", PYTHONNOUSERSITE="1")
         if engine == "orca":
+            # The BASE installer deliberately does not alter the controller
+            # PATH. ORCA launches mpirun by name, so resolve and re-authorize
+            # its actual registered executable before exposing that directory.
+            paths = [str(Path(authorization.executable).resolve().parent)]
+            if resources.threads > 1:
+                try:
+                    mpi = self._authorize("mpirun", registry_path=self.registry_path,
+                                          cores=resources.threads, maxcore_mb=1)
+                except Exception as exc:
+                    raise BaseIntegrationError(f"Audited ORCA MPI launcher is unavailable: {exc}") from exc
+                paths.append(str(Path(mpi.executable).resolve().parent))
+            supplied["PATH"] = os.pathsep.join([*paths, supplied.get("PATH", os.defpath)])
             runtime_libraries = os.environ.get("COCHEM_ORCA_LD_LIBRARY_PATH")
             if runtime_libraries:
                 supplied["LD_LIBRARY_PATH"] = runtime_libraries

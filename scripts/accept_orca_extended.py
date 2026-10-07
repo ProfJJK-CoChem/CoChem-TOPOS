@@ -6,6 +6,7 @@ fixtures cannot pass. Small water cases check implementation, not matrix accurac
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import time
 from pathlib import Path
@@ -118,6 +119,7 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
             report["cases"][case].update(status="failed", reason=str(exc), exception=type(exc).__name__)
         report["cases"][case]["finished_at"] = utc_now()
         atomic_json(receipt, report)
+        print(json.dumps({"case": case, **report["cases"][case]}), flush=True)
     report["status"] = "passed" if all(item["status"] == "passed" for item in report["cases"].values()) else "failed"
     report["finished_at"] = utc_now()
     atomic_json(receipt, report)
@@ -136,6 +138,8 @@ def main():
     report, code = run_acceptance(args.registry, args.output, cases=args.case or CASES,
         threads=args.threads, memory_mb=args.memory_mb, budget_seconds=args.budget_seconds)
     print(f"{report['status']}: {args.output / 'acceptance.json'}")
+    if report.get("reason"):
+        print(json.dumps({"status": report["status"], "reason": report["reason"]}), flush=True)
     return code
 
 

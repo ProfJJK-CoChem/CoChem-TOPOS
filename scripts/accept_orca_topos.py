@@ -321,6 +321,7 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
                 report["cases"][name] = {"status": "failed", "reason": str(exc), "exception_type": type(exc).__name__}
             report["cases"][name]["elapsed_seconds"] = time.monotonic() - case_start
             atomic_json(receipt_path, report)
+            print(json.dumps({"case": name, **report["cases"][name]}), flush=True)
         require(file_digest(Path(binary)) == identity, "ORCA executable changed during acceptance")
         require(file_digest(registry) == report["registry_sha256"], "BASE registry changed during acceptance")
         require(software_provenance()["source_files"] == report["source"]["source_files"], "TOPOS source changed during acceptance")

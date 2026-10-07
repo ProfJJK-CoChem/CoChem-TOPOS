@@ -389,3 +389,53 @@ def test_actual_stage0_and_mandatory_ecosystem_workflow(tmp_path):
     assert result.attempts and result.attempts[0].engine == "xtb"
     assert result.candidates and -6 < result.candidates[0].energy_hartree < -4
     assert RunStore(result.metadata["run_dir"]).load()["status"] == "completed"
+
+
+def test_training_cannot_silently_fall_back_to_cpu(runtime, tmp_path):
+    from topos.models import ResourceLimits
+
+    with pytest.raises(BaseIntegrationError, match="fine-tuning requires.*CUDA"):
+        runtime.run_mace_training_process(
+            ["unused-python", "-m", "mace.cli.run_train"], tmp_path,
+            ResourceLimits(device="cpu", threads=1, memory_mb=512, budget_seconds=1),
+            package_version="0.3.16", input_files={}, gpu_index=0, gpu_memory_mb=128,
+        )
+
+
+def test_export_manifest_is_found_for_actual_base_namespace_package(utility_distribution, monkeypatch):
+    runtime, install, _ = utility_distribution
+    monkeypatch.delenv("COCHEM_BASE_ROOT", raising=False)
+    assert runtime._orca_distribution_utility()[0] == install / "orca_exportbasis"
+
+
+def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime, tmp_path, monkeypatch):
+    """Real Python/true probe validates launch environment, not ORCA chemistry."""
+    import shutil
+
+    from cochem_base.cochem_core_registry_schema import CoChemSystemConfig
+    from cochem_base.core.cochem_core_registry_manager import save_system_config
+
+    mpi = tmp_path / "isolated-mpi" / "mpirun"
+    mpi.parent.mkdir()
+    shutil.copyfile("/usr/bin/true", mpi)
+    mpi.chmod(0o700)
+    config = runtime.registry.model_dump(mode="json")
+    config["hardware"].update(cpu_physical_cores=2, allocatable_compute_cores=2)
+    config["engines"]["mpirun"] = {"status": "found", "path": str(mpi),
+                                     "hash": hashlib.sha256(mpi.read_bytes()).hexdigest()}
+    save_system_config(CoChemSystemConfig.model_validate(config), runtime.registry_path)
+    runtime = BaseRuntime(runtime.registry_path, require_torq=False)
+    monkeypatch.setenv("PATH", "/usr/bin:/bin")
+    authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
+                                   cores=2, maxcore_mb=64)
+    command = [str(Path(sys.executable).absolute()), "-c",
+               "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS'])"]
+    resources = ResourceLimits(threads=2, memory_mb=256, budget_seconds=10)
+    result = runtime._execute_authorized(command, tmp_path / "mpi-path-probe", resources,
+                                         authority, engine="orca")
+    assert result.status == "completed", result
+    assert Path(result.stdout_path).read_text().splitlines() == [str(mpi), "1"]
+    mpi.write_bytes(b"altered infrastructure executable")
+    with pytest.raises(BaseIntegrationError, match="MPI launcher"):
+        runtime._execute_authorized(command, tmp_path / "changed-mpi", resources,
+                                    authority, engine="orca")

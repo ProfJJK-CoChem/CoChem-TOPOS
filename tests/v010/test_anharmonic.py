@@ -51,6 +51,7 @@ def test_vpt2_input_enforces_documented_precision_and_actual_d4():
     assert '! B3LYP ExtremeSCF DEFGRID3 D4 def2-TZVPP RIJCOSX def2/J VPT2' in deck
     for setting in ['Z_Tol 1e-14', 'HessianCutoff 1e-12', 'AnharmDisp 0.05', 'PrintLevel 4']:
         assert setting in deck
+    assert 'Pickettname "pickett.txt"' in deck
     assert ' Freq' not in deck and 'Engrad' not in deck
     opt = _orca_input(water(), method(), ResourceLimits(), 'optimize')
     assert 'TolMaxG 1e-7' in opt and 'TolRMSG 3e-8' in opt
