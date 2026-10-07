@@ -1,0 +1,266 @@
+{
+  "github_run_id": "37666938546",
+  "overall_status": "failed",
+  "reports": {
+    "baseline": {
+      "cases": {
+        "counterpoise": {
+          "reason": null,
+          "status": "passed"
+        },
+        "goat-refinement": {
+          "reason": "Requested calculation did not complete: failed",
+          "status": "failed"
+        },
+        "hf3c-energy-gradient": {
+          "reason": null,
+          "status": "passed"
+        },
+        "r2scan3c-optimization-thermochemistry": {
+          "reason": "Requested calculation did not complete: Frequency reference optimization did not complete",
+          "status": "failed"
+        },
+        "wb97xv-optimization": {
+          "reason": "Requested calculation did not complete: failed",
+          "status": "failed"
+        }
+      },
+      "receipt_sha256": "0f086072b113affdb53a5e10efb3cd4333bf8384d1190fc8002b98d8df10edf0",
+      "source_commit_verified": true,
+      "status": "failed"
+    },
+    "extended": {
+      "cases": {
+        "AUTOCI-CCSD(T)": {
+          "reason": null,
+          "status": "passed"
+        },
+        "CCSD(T)": {
+          "reason": null,
+          "status": "passed"
+        },
+        "CCSD(T)-F12D/RI": {
+          "reason": null,
+          "status": "passed"
+        },
+        "DLPNO-CCSD(T1)": {
+          "reason": null,
+          "status": "passed"
+        },
+        "DLPNO-counterpoise": {
+          "reason": "Native correlated counterpoise did not complete: failed; Matrix component r2-cp-complex-in-complex-basis: BASE broker exit code 55",
+          "status": "failed"
+        },
+        "F12-MP2": {
+          "reason": null,
+          "status": "passed"
+        },
+        "F12-RI-MP2": {
+          "reason": null,
+          "status": "passed"
+        },
+        "F12-composite": {
+          "reason": "Native F12 composite did not complete: failed; Matrix component orca-F12D-composite-fragment-1-base: Correlated output lacks versioned normal termination and SCF convergence",
+          "status": "failed"
+        },
+        "MP2": {
+          "reason": null,
+          "status": "passed"
+        },
+        "MP2-optimization": {
+          "reason": null,
+          "status": "passed"
+        },
+        "R2-composite": {
+          "reason": "Reviewed R2 did not complete its exact approximate scope: failed; Matrix component r2-cp-complex-in-complex-basis: BASE broker exit code 55",
+          "status": "failed"
+        },
+        "native-hessian": {
+          "reason": "optimization did not establish a genuine completed native result: partial; {'version_probe_process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca', 'version.inp'], 'status': 'completed', 'returncode': 0, 'elapsed_seconds': 0.30164282399982767, 'peak_rss_mb': 147.1484375, 'stdout_path': '/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/version.stdout', 'stderr_path': '/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/version.stderr', 'reason': None}, 'observed_probe_version': '6.1.1', 'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca', 'job.inp'], 'status': 'completed', 'returncode': 0, 'elapsed_seconds': 5.4004609169999185, 'peak_rss_mb': 284.3671875, 'stdout_path': '/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/engine.stdout', 'stderr_path': '/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/engine.stderr', 'reason': None}, 'convergence': {'rms_gradient': True, 'max_gradient': True, 'rms_step': True, 'max_step': True}, 'native_optimizer_reported_converged': True, 'reason': 'requested optimization convergence was not established'}",
+          "status": "failed"
+        },
+        "native-vpt2": {
+          "reason": "native did not establish a genuine completed native result: timed-out; {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca', 'anharmonic.inp'], 'status': 'timed-out', 'returncode': -124, 'elapsed_seconds': 1151.8581183160002, 'peak_rss_mb': 256.97265625, 'stdout_path': '/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stdout', 'stderr_path': '/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stderr', 'reason': 'BASE broker exit code -124'}, 'reason': 'BASE broker exit code -124'}",
+          "status": "failed"
+        }
+      },
+      "receipt_sha256": "3dc06556e57310ae51b75d20df911501f9e936601870babe2841e81e75d1877a",
+      "source_commit_verified": true,
+      "status": "failed"
+    },
+    "pytest": {
+      "counts": {
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0,
+        "tests": 27
+      },
+      "failed_cases": [
+        "test_authentic_orca_native_hessian_and_verified_recovery",
+        "test_authentic_orca_vpt2_water_and_completed_recovery"
+      ],
+      "junit_sha256": "04212b60ef17a308faf4439811afadbfafa355e48619b77879e635ac34dafc4d",
+      "receipt_sha256": "92d5d9c35e6b2048215dbac8be6bc76c1b962c8d3949bf1865b6e04d953723e1",
+      "source_commit_verified": true,
+      "status": "failed"
+    }
+  },
+  "scope": "Retained actual native cases; no physical accuracy or exhaustive-search certification",
+  "source_commits": {
+    "base": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "topos": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "verified_snapshots": [
+    {
+      "path": "topos-orca-evidence/counterpoise-native",
+      "record_sha256": "a3ebdbde0c3340a82a6d1c5f92ce3d7dcf37a81901942f198f51aca87aff214c",
+      "snapshot_id": "8504b93e3f8f1c8f38822fab5c49100c0d94c52f53e9fa32ea8ec0ad85d88fb9"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_02b7bace9a8c44f79481eb709146c9c2",
+      "record_sha256": "f1a3ada46c6c0db0dc4b7a705d0f08b253e53ffb9dcee90cc18d7c29456fe779",
+      "snapshot_id": "cd8b7640248d10646057000f425ffc1dfb4235cdbb094a7e1b1833fd45f055ea"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_18a1979b13fa4b5896a133c38eacb62e",
+      "record_sha256": "9406e19f7137d8bcef882ba6703b7072d11611ebb5d8a73d3eb4f09ef8a945f6",
+      "snapshot_id": "cb16499174571c8543bdc086cc812c4efe05b11881a9d4b8dcb7ac5862ebf366"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_1bef120bafaf48a8885ec7cd5c466750",
+      "record_sha256": "0f82a76dc1d421e61acf37bab8648e21aa8689c68b31957bdd6caeed68e9ba1f",
+      "snapshot_id": "c1c0a6c167d3e61788385406aafeefd7d8628c675fd63d31347a5658655d8fa1"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_27d630e2892943f9b1aa82618e3b1631",
+      "record_sha256": "442cb1d3ddf7192dff6613b58372ad2c765b17a272903d75a9dbdd64f33a20af",
+      "snapshot_id": "9f5d72e192dd826f6a5d5de6c5231e4f585fc8a4787cd0775bf0e210b8153d11"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_345b03bd1f0b46388f6118caf4a4d9fc",
+      "record_sha256": "bca28a36beab5affe691ae28fc4bafd0e7dd23f6feff75e20b70de49c8eb4d35",
+      "snapshot_id": "ff835e81d35e192791073e10c4ea9d0c075546105f8708ff38dbe8b0ec95508e"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_3fc990166ea948109d174b8dc936b552",
+      "record_sha256": "6255227befc3cb2c601acf7f1c55da495d8203972bde9647a03cda5ad586cb5a",
+      "snapshot_id": "ef873281b9d276b6d3d81e80626df612d05e2832495c37d0df223b860f2ca7db"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_54b5f5e4dd1a4cf8856725af049b50a7",
+      "record_sha256": "c9a1b5bf6091c176dc0279d40ffa3d67cdf07b87c883158cdea96271e56daa87",
+      "snapshot_id": "d1e40ad523dd0d38e92c3a42d7bdeb92ae9e2432d09135ab379c8c060ec28985"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_619f9fbdd12b43ad8ac50cee9e14ef47",
+      "record_sha256": "453b326304d3ce3009c3bf2bc961c3ce6a1d85834a821d8a0203d4e22d74d207",
+      "snapshot_id": "1af94f78c045ce1eed54065127633ef5183aa7a568cb2d1c836b52af8e402c5e"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_67a6fcc6aaab41b7897ff70779c8910b",
+      "record_sha256": "76529af825519020351cb0e8e2e13f2c9ccfc5d0c05614ef33fd4f4cd9d3505f",
+      "snapshot_id": "80047fbab1721c3faf48374637fabd2917e9ab1dec23e9d035c9bcf7fdaf4469"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_7435c7fd8e4e4ee297109ac66a339b46",
+      "record_sha256": "bd221accf0a9ca399a634bee523f7041d7b2f66cf9f26c89e54523b58d46b471",
+      "snapshot_id": "dcc22f9928aca358a9aa4dfa45dec88bd736edda89492b11bbafd7526f6a5dc0"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_7aa3c69a48ee44a28abc7049142bb46c",
+      "record_sha256": "889c5b62527bb24fdd6e7c244bae94b04c646afad528da33d230e1764c4765c1",
+      "snapshot_id": "c4fc30ca8595494dc22bdb72e50353c6a59397e47332c3c6c435099a60fb1640"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_7f55f26a3680451791d0decf4b345fef",
+      "record_sha256": "a9654f1ebfae2583d7c01e261328dab5bee9e782585d10440f3740f4771245c3",
+      "snapshot_id": "b65b9cc6cc9d6e29df545aa24b47d5278b25cd8f6ac9a482f78aff8493319d4f"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_9833840d231645c3bd9add744422e94b",
+      "record_sha256": "cf41fa51d6c1ae86cae6fc936acffd3be6fee16ec74beeee6d0ca614d50fd182",
+      "snapshot_id": "8e678e3bcbfbdf6f7a2a6905309e65801805374ef0db1f63ce3d32aaa89eca07"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_a1d887632ced479691cc293b293ec866",
+      "record_sha256": "e6f57f2b80ac9a5d85dc47ffed035dfa0a71e6a517990f81866f9573d9f47a56",
+      "snapshot_id": "d8bfb885202fb1266f7450c71fbdb966b0f1f7fe184530f819dcfbd832ed3f50"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_a7dd08857ca2444e87d9d143f7dee24b",
+      "record_sha256": "a450f16faa33f6ca0919db9277420a3631c98e77221f2706bc08501a3b6f94d0",
+      "snapshot_id": "2f00c308708cd21b9dc31319a640a8f513a4a8e590dc2bbed02d02ae1230f08e"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_ad19d4f3be294d4ca7a068428ca5b7d5",
+      "record_sha256": "52ec5c9ec1cf96585e1b32c9b2c0f42289d71f2a3771508eba1f5679226bbfad",
+      "snapshot_id": "bd83b40b2411a625be14924e62fa2444cdbf0f7c78c38f5268cf280798787b26"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_b6c9c23d5ef240dfab910e28f40a925c",
+      "record_sha256": "525a6f99c1e2f622ac93aca34c4fb14fe3d4b84ee5bc17406b59a1d8ae8278bd",
+      "snapshot_id": "faf6f8ceeaa10a25be993955b09931a9678215e1013c247023e6819edfd3e720"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_bfa752e8c9ad46d5bcccbf26b858267a",
+      "record_sha256": "94e3f1b04af2938649333b229212ea06920d4361ff9f528866ac53fd11a315ee",
+      "snapshot_id": "5c18a639f6243c160c732a13a3b0157da6b4b8c30a7cb8493d46d40bcd228cb5"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_c6731cf9935a4f219766ddb99a6eac9f",
+      "record_sha256": "c2e31b4467e336bcafe1311f5f205fec2feeac324860691a935caaefcab68388",
+      "snapshot_id": "acd82ab5761d7f880855f6b09239e1592278e39d5d623f68966893fd102e9558"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_d38877964d374a7fb2bd0bb1cf88ada9",
+      "record_sha256": "99faf3aeea5d9273cd909b3910fdc2cfd5b9898c670b6db652534113647f6a8f",
+      "snapshot_id": "dc769706a0d34867a10810f46c65458100037c2c543de59de365a45fa1c16260"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_da4c700dc2df416fa3afea68b83b7f0a",
+      "record_sha256": "7bcbd4cb993c96039d78c417601fbb7cc65d31ece59cff0022a988e5ca79661b",
+      "snapshot_id": "c59f1b1b2d73b6998eca188183968b841f98ff06ccde5b35a71c725797084d8a"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_e7bce961682c4659b986a8e03555e025",
+      "record_sha256": "00f1b7f72a97883e8e4c810bd40e754adee165a5a91495525a356f2434432ad5",
+      "snapshot_id": "c8ea661c1bb1c7086710f864452be7791b33c8ae1169d6317cca907205988b8b"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_f3f6787424c6465c9f86e5bd47495acf",
+      "record_sha256": "63524ecdf2878857828e74f1d077710cc4acecf14cc53006e7ff93c4d33b2cd8",
+      "snapshot_id": "fc96deb39f871cb3b3c94dbbea74c114fc610d7b20c8e2e10d842ca34ad6cd70"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_f698d10c69244837abf389e3c22151e3",
+      "record_sha256": "775a0d4b17af2cfb98bd35ca4d2a9e7be624a2d90c2c0844bfb3e87c6c37a3df",
+      "snapshot_id": "0c57d2019005713106711a4f0745f417e7319e2195e6d9dd08593a132d9ba107"
+    },
+    {
+      "path": "topos-orca-evidence/runs/run_f897bc839be14f87a76204214e6a1966",
+      "record_sha256": "248a3e3ea0c4551ae4d1346ccf9feefc8ea06500a44e6ff2d7d7c2f0f8a5f8e2",
+      "snapshot_id": "3c4c5633291cfd242509d887b0f3a1af2303bef2dfd0d837601f8d2a003003ec"
+    },
+    {
+      "path": "topos-orca-extended/DLPNO-counterpoise/run",
+      "record_sha256": "46ee24fa7179ea6074b6f3f1b3dd96881eb235033630a0a6f6c6c084d8342251",
+      "snapshot_id": "05af91fa4bdab51c5be26765d974f61cba8dd0b7e03528e43513568aa139add5"
+    },
+    {
+      "path": "topos-orca-extended/F12-composite/run",
+      "record_sha256": "9d10caebed39c82e2e76619257c1ae226806444ba647220328d02f172f8be8eb",
+      "snapshot_id": "33f9228d0915814dd9d989d4a426efc28187c3c79ca9da8d2444f3714b6eae10"
+    },
+    {
+      "path": "topos-orca-extended/R2-composite/runs/run_9733f4d740c143568921d85e7239c5e7",
+      "record_sha256": "e638ad1b7773d0c278d91e160d0f25513726aa8a11bf7c2922a08ce88852044a",
+      "snapshot_id": "165187f663eee7f788398c024c6555072c1b933c63c6952956dec8c17f00dec8"
+    },
+    {
+      "path": "topos-orca-extended/R2-composite/runs/run_9733f4d740c143568921d85e7239c5e7/matrix-children/R2-frozen-QZ-geometry/run_8f6455d1ae234a1699c1a598162d42df",
+      "record_sha256": "a3be78a6534fb129f17fdb22fcba517a33583d78c95f7491241ad7c7e51b5c4d",
+      "snapshot_id": "30cf5641fda5a121b09a43cc12e66ca0f9d09c8d588a70c7f42b3e66d1c501a3"
+    }
+  ]
+}

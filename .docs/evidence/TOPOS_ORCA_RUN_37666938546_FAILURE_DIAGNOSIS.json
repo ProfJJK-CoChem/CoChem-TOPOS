@@ -1,0 +1,122 @@
+{
+  "run_id": "37666938546",
+  "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "source_inventory_and_scripts_verified": true,
+  "verification_summary": {
+    "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-native-summary.json",
+    "sha256": "bf7be572adf8b094fee6a222e9cbb56085d1f349c5d808ab35c5a96999487c40"
+  },
+  "baseline_counts": {
+    "passed": 2,
+    "failed": 3
+  },
+  "extended_counts": {
+    "passed": 8,
+    "failed": 5
+  },
+  "licensed_pytest_counts": {
+    "passed": 25,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "failures": {
+    "DLPNO-counterpoise": {
+      "cause": "ORCA startup rejects missing AuxJ basis",
+      "line": 1,
+      "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/DLPNO-counterpoise/run/attempts/attempt_76daf37ae58c411ebfe2dc8575951b1f/engine.stderr",
+      "sha256": "858d06e54d5c1bac9334d70867eccff786dd4dc2d621ad78f6e69342fb831247",
+      "excerpt": "[file orca_startup/startup_io.cpp, line 544]: ERROR: no AuxJ basis set in ORCA_GTOInt!"
+    },
+    "R2-composite": {
+      "cause": "ORCA startup rejects missing AuxJ basis",
+      "line": 1,
+      "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/R2-composite/runs/run_9733f4d740c143568921d85e7239c5e7/attempts/attempt_d8a3fb5f9c8d473bb7eca18c25785b60/engine.stderr",
+      "sha256": "858d06e54d5c1bac9334d70867eccff786dd4dc2d621ad78f6e69342fb831247",
+      "excerpt": "[file orca_startup/startup_io.cpp, line 544]: ERROR: no AuxJ basis set in ORCA_GTOInt!"
+    },
+    "F12-composite": {
+      "cause": "H2 fragment has one electron pair; requested two MPI processes exceed ORCA MDCI pair count",
+      "line": 861,
+      "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/F12-composite/run/attempts/attempt_16169a144f234815a4989a57f869bc7f/engine.stdout",
+      "sha256": "e16b794eb2fd2449f6d420967b3d8b5fb7b1936a1a5b4135c3ac7da7527a75e6",
+      "excerpt": "Error (ORCA_MDCI): Number of processes (2) in parallel calculation exceeds number of pairs (1)"
+    },
+    "native-hessian": {
+      "cause": "Reference optimizer refinement prints four YES criteria but no energy-change row; strict requested convergence is unestablished",
+      "receipt": {
+        "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-hessian/optimization-result.json",
+        "sha256": "00e69e4fed94b8bb6a8fda098930f891d7007c7404dbd5eb27226afa88b3bd97"
+      },
+      "status": "partial",
+      "diagnostics": {
+        "convergence": {
+          "max_gradient": true,
+          "max_step": true,
+          "rms_gradient": true,
+          "rms_step": true
+        },
+        "native_optimizer_reported_converged": true,
+        "observed_probe_version": "6.1.1",
+        "process": {
+          "command": [
+            "/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "job.inp"
+          ],
+          "elapsed_seconds": 5.4004609169999185,
+          "peak_rss_mb": 284.3671875,
+          "reason": null,
+          "returncode": 0,
+          "status": "completed",
+          "stderr_path": "/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/engine.stderr",
+          "stdout_path": "/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/engine.stdout"
+        },
+        "reason": "requested optimization convergence was not established",
+        "version_probe_process": {
+          "command": [
+            "/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "version.inp"
+          ],
+          "elapsed_seconds": 0.30164282399982767,
+          "peak_rss_mb": 147.1484375,
+          "reason": null,
+          "returncode": 0,
+          "status": "completed",
+          "stderr_path": "/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/version.stderr",
+          "stdout_path": "/home/runner/work/_temp/topos-orca-extended/native-hessian/optimization/optimization-refinement-1/version.stdout"
+        }
+      },
+      "artifact_hashes_verified": 44
+    },
+    "native-vpt2": {
+      "cause": "Native anharmonic process exhausts allotted wall-clock budget, return code -124 after 1151.858 seconds; reference frequency completed",
+      "receipt": {
+        "path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native-result.json",
+        "sha256": "46106a5328a03d9475a327ccf4ce23edf694802f6a11e1d0c962399e1d763943"
+      },
+      "status": "timed-out",
+      "diagnostics": {
+        "process": {
+          "command": [
+            "/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "anharmonic.inp"
+          ],
+          "elapsed_seconds": 1151.8581183160002,
+          "peak_rss_mb": 256.97265625,
+          "reason": "BASE broker exit code -124",
+          "returncode": -124,
+          "status": "timed-out",
+          "stderr_path": "/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stderr",
+          "stdout_path": "/home/runner/work/_temp/topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stdout"
+        },
+        "reason": "BASE broker exit code -124"
+      },
+      "artifact_hashes_verified": 87
+    }
+  },
+  "pytest_failure_causes": {
+    "test_authentic_orca_native_hessian_and_verified_recovery": "Missing optimizer energy-change convergence criterion",
+    "test_authentic_orca_vpt2_water_and_completed_recovery": "600-second test budget exhausted; native process timed out at552.318 seconds after prior reference work"
+  },
+  "scope": "Observed failures of old source65af1e0; no claim about newer strict source until its artifacts finish"
+}

@@ -191,9 +191,15 @@ def calculate_rotational_transfer(target: Molecule, reference: Molecule, native_
 def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
                                   options: RotationalTransferOptions) -> dict[str, Any]:
     """Require immutable native evidence before evaluating the transfer."""
+    import json
     from pathlib import Path
 
-    from .anharmonic import orca_vpt2_input, parse_orca_vpt2, parse_orca_vpt2_geometry
+    from .anharmonic import (
+        orca_vpt2_input,
+        parse_orca_vpt2,
+        parse_orca_vpt2_geometry,
+        vpt2_execution_policy,
+    )
     from .engines import _engine_version, _orca_input, parse_orca_engrad
     from .models import MethodSpec, ResourceLimits
     from .native_hessian import orca_frequency_input, parse_orca_hessian
@@ -243,10 +249,33 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
         if str(path.resolve()) not in paths:
             raise ValueError('native stationary reference raw derivatives are not inventoried')
     protocol = md.get('protocol', {})
-    if protocol.get('method') != method or protocol.get('molecule') != result.molecule.model_dump(mode='json'):
+    protocol_path = stdout.parent.parent / 'vpt2-protocol.json'
+    if str(protocol_path.resolve()) not in paths or json.loads(protocol_path.read_text()) != protocol:
+        raise ValueError('native VPT2 recovery protocol differs from immutable artifact evidence')
+    if (protocol.get('schema') != 'topos-native-orca-vpt2/0.1.0'
+            or protocol.get('method') != method or protocol.get('molecule') != result.molecule.model_dump(mode='json')):
         raise ValueError('native VPT2 protocol does not bind reference method and molecule')
     spec = MethodSpec.model_validate(method)
     resources = ResourceLimits.model_validate(protocol['resources'])
+    expected_policy = vpt2_execution_policy(resources)
+    effective_resources = resources.model_copy(update={'threads': 1}).model_dump(exclude={'budget_seconds'})
+    if (protocol.get('execution_policy') != expected_policy
+            or md.get('execution_policy') != expected_policy
+            or protocol.get('effective_resources') != effective_resources):
+        raise ValueError('native VPT2 execution policy differs from its requested and effective resources')
+    native_allocation = md.get('native_execution_resources')
+    if not isinstance(native_allocation, dict) or set(native_allocation) != set(resources.model_dump()):
+        raise ValueError('native VPT2 process allocation evidence missing or incomplete')
+    native_resources = ResourceLimits.model_validate(native_allocation)
+    if native_resources.model_dump(exclude={'budget_seconds'}) != effective_resources:
+        raise ValueError('native VPT2 process allocation differs from its declared serial policy')
+    requested_allocation = md.get('requested_resources')
+    if not isinstance(requested_allocation, dict) or set(requested_allocation) != set(resources.model_dump()):
+        raise ValueError('native VPT2 requested resource evidence missing or incomplete')
+    requested_resources = ResourceLimits.model_validate(requested_allocation)
+    if (requested_resources.model_dump(exclude={'budget_seconds'}) != protocol['resources']
+            or native_resources.budget_seconds > requested_resources.budget_seconds):
+        raise ValueError('native VPT2 allocation exceeds or differs from its original request')
     decks = {stdout.parent / 'anharmonic.inp': orca_vpt2_input(result.molecule, spec, resources,
                                                               displacement=protocol['displacement']),
              reference_stdout.parent / 'frequency.inp': orca_frequency_input(result.molecule, spec, resources),

@@ -29,7 +29,18 @@ def required_native_engines(request: dict[str, Any]) -> set[str]:
         if row.row_id in IMPLEMENTED_BRANCH_ROWS and source_resolution is None:
             raise ValueError("Hosted partial matrix branch requires an explicit compiled source resolution")
         steps, _ = resolved_recipe(row, source_resolution)
-        engines = {step.engine for step in steps} - {"topos"}
+        engines: set[str] = set()
+        for step in steps:
+            if step.engine == "topos":
+                continue
+            if step.engine == "orca+crest":
+                # The reviewed union/diversity recipe invokes these existing
+                # native installations; this catalog label is not a binary.
+                # Do not split arbitrary compound labels: ML-backed variants
+                # still need their own provisioner and must remain rejected.
+                engines.update({"orca", "crest", "xtb"})
+            else:
+                engines.add(step.engine)
         if not engines or not engines <= {"xtb", "crest", "orca"}:
             raise ValueError("Matrix recipe requires an unsupported hosted engine installation")
         if "crest" in engines or any(step.engine == "orca" and step.method == "GFN2-xTB" for step in steps):

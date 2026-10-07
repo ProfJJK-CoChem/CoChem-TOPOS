@@ -26,7 +26,7 @@ from .engines import (
     _number,
     artifact_inventory,
 )
-from .models import MethodSpec, Molecule, ResourceLimits
+from .models import Artifact, MethodSpec, Molecule, ResourceLimits
 from .native_hessian import (
     _read_completed,
     orca_frequency_input,
@@ -35,11 +35,39 @@ from .native_hessian import (
 )
 from .runtime import run_process
 from .science import HARTREE_J, rotational_constants
-from .storage import IntegrityError, atomic_json, digest_json
+from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
 VPT2_MANUAL = 'https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html'
 PARSER_SOURCE = 'https://github.com/physicien/parser_vpt2/blob/main/data/VPT2_furan_vpt2.out'
 _FLOAT = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?'
+
+
+def vpt2_execution_policy(resources: ResourceLimits) -> dict[str, Any]:
+    """Declare the pinned VPT2 serial policy before any native execution.
+
+    Two retained ORCA 6.1.1 MPI water runs stopped while producing the requested
+    Pickett template: one printed a property-writer error, one stalled until
+    its deadline. Serial execution is a compatibility choice awaiting native
+    acceptance, not a change of method.
+    Preserve the original per-worker MaxCore so the audited per-core memory
+    allocation is never inflated when the native VPT2 worker count is reduced.
+    The total hard RAM ceiling, wall-clock budget and all scientific settings
+    remain the caller's. The preceding reference derivatives use the original
+    requested allocation.
+    """
+    return {
+        'schema': 'topos-orca-vpt2-execution-policy/0.1.0',
+        'policy_id': 'orca-6.1.1-vpt2-serial-preserve-maxcore-v1',
+        'requested_workers': resources.threads, 'effective_workers': 1,
+        'native_maxcore_mb': max(16, int(resources.memory_mb * .75 / resources.threads)),
+        'total_memory_ceiling_mb': resources.memory_mb,
+        'reference_resources': 'requested allocation; unchanged',
+        'scientific_settings': 'unchanged method, basis, dispersion, thresholds and displacements',
+        'deadline_policy': 'original shared wall-clock budget; no automatic extension',
+        'reason': 'ORCA 6.1.1 MPI runs errored or stalled before VPT2 displacements while writing Pickett output',
+        'native_acceptance': 'serial policy requires its own completed native evidence',
+        'manual': VPT2_MANUAL,
+    }
 
 
 def orca_vpt2_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
@@ -54,6 +82,11 @@ def orca_vpt2_input(molecule: Molecule, method: MethodSpec, resources: ResourceL
         raise ValueError('native VPT2 isotope-specific force-field/reanalysis input is not validated')
     lines = orca_frequency_input(molecule, method, resources).splitlines()
     lines[0] = lines[0].removesuffix(' Freq') + ' VPT2'
+    # Keep MaxCore from the caller's original per-worker allocation. BASE
+    # authorizes this actual input allocation, independently of the total RAM
+    # hard ceiling retained by the serial process launcher.
+    pal = next(i for i, line in enumerate(lines) if line.startswith('%pal '))
+    lines[pal] = '%pal nprocs 1 end'
     start = next(i for i, line in enumerate(lines) if line.startswith('* xyz'))
     lines[start:start] = ['%vpt2', '  VPT2 On', f'  AnharmDisp {displacement:.12g}',
                           '  HessianCutoff 1e-12', '  PrintLevel 4', '  MinimiseOrcaPrint False', 'end',
@@ -178,7 +211,9 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
                                     'requested_method': method.model_dump(mode='json'),
                                     'derivative_kind': 'native-VPT2-analytic-Hessian-differences',
                                     'partial_restart_policy': 'completed stages reused; incomplete VPT2 starts fresh',
-                                    'semirigid_declared': semirigid_modes, 'low_mode_threshold_cm1': 50.0})
+                                    'semirigid_declared': semirigid_modes, 'low_mode_threshold_cm1': 50.0,
+                                    'requested_resources': resources.model_dump(mode='json'),
+                                    'execution_policy': vpt2_execution_policy(resources)})
     try:
         deck = orca_vpt2_input(molecule, method, resources, displacement=displacement)
         if semirigid_modes is not True:
@@ -188,8 +223,12 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         return result
     folder = Path(workdir).resolve()
     folder.mkdir(parents=True, exist_ok=True)
-    protocol = {'molecule': molecule.model_dump(mode='json'), 'method': method.model_dump(mode='json'),
+    effective_resources = resources.model_copy(update={'threads': 1})
+    protocol = {'schema': 'topos-native-orca-vpt2/0.1.0',
+                'molecule': molecule.model_dump(mode='json'), 'method': method.model_dump(mode='json'),
                 'resources': resources.model_dump(exclude={'budget_seconds'}), 'displacement': displacement,
+                'effective_resources': effective_resources.model_dump(exclude={'budget_seconds'}),
+                'execution_policy': vpt2_execution_policy(resources),
                 'semirigid_modes': semirigid_modes, 'deck_sha256': digest_json(deck)}
     manifest = folder / 'vpt2-protocol.json'
     if manifest.exists():
@@ -214,6 +253,8 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
                                      process_runner=process_runner, cancel_event=cancel_event, gradient_threshold=1e-7)
         result.metadata['reference_hessian_result'] = reference.model_dump(mode='json')
         result.artifacts = reference.artifacts.copy()
+        result.artifacts.append(Artifact(path=str(manifest), sha256=file_digest(manifest),
+                                         size_bytes=manifest.stat().st_size, role='recovery-protocol'))
         if reference.status != 'completed':
             result.status = reference.status
             result.diagnostics['reason'] = 'VPT2 reference Hessian did not complete'
@@ -224,6 +265,9 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
             return result
         cached = _read_completed(folder / 'completed.json', folder)
         if cached is not None:
+            if (cached.metadata.get('protocol') != protocol
+                    or cached.metadata.get('execution_policy') != protocol['execution_policy']):
+                raise IntegrityError('completed VPT2 execution policy differs from its recovery protocol')
             cached.metadata['reused_completed_vpt2'] = True
             return cached
         result.energy_hartree = reference.energy_hartree
@@ -237,7 +281,9 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         result.metadata.update(execution_kind='real', executable=binary,
                                executable_sha256=reference.metadata['executable_sha256'],
                                output_molecule=molecule.model_dump(mode='json'), protocol=protocol)
-        process = execute(result.command, native, remaining(), cancel_event=cancel_event,
+        native_resources = remaining().model_copy(update={'threads': 1})
+        result.metadata['native_execution_resources'] = native_resources.model_dump(mode='json')
+        process = execute(result.command, native, native_resources, cancel_event=cancel_event,
                           log_prefix='anharmonic', threads_per_process=1)
         result.status = process.status
         result.diagnostics['process'] = process.to_dict()

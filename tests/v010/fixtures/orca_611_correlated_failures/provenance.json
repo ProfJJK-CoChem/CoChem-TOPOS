@@ -1,0 +1,165 @@
+{
+  "schema_version": "topos-authentic-native-failure-fixtures/0.1.0",
+  "scope": "Unchanged failed native ORCA 6.1.1 input/protocol/stdout; parser and generated-input regressions only, not new licensed execution or acceptance.",
+  "github_actions_run_id": 37666938546,
+  "github_actions_run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546",
+  "topos_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "base_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "files": {
+    "f12-pair-cap": {
+      "native_result_status": "failed",
+      "resources": {
+        "budget_seconds": 2009.9519192440002,
+        "device": "cpu",
+        "memory_mb": 4096,
+        "threads": 2
+      },
+      "files": {
+        "engine.stdout": {
+          "file": "f12-pair-cap.stdout",
+          "sha256": "e16b794eb2fd2449f6d420967b3d8b5fb7b1936a1a5b4135c3ac7da7527a75e6",
+          "size_bytes": 43402,
+          "source_relative_path": "F12-composite/run/attempts/attempt_16169a144f234815a4989a57f869bc7f/engine.stdout"
+        },
+        "job.inp": {
+          "file": "f12-pair-cap.inp",
+          "sha256": "08acf96bdeafc9ebc361d245e43813015716b7eeea033b02261f96a6961e46e4",
+          "size_bytes": 159,
+          "source_relative_path": "F12-composite/run/attempts/attempt_16169a144f234815a4989a57f869bc7f/job.inp"
+        },
+        "protocol.json": {
+          "file": "f12-pair-cap.protocol.json",
+          "sha256": "7df33f387e54c8bdfed59f64fffb3c55ce5acbf835334bcbb794144cf50281b6",
+          "size_bytes": 395,
+          "source_relative_path": "F12-composite/run/attempts/attempt_16169a144f234815a4989a57f869bc7f/protocol.json"
+        }
+      }
+    },
+    "rijk-auxj-slot": {
+      "native_result_status": "failed",
+      "resources": {
+        "budget_seconds": 1198.74112792,
+        "device": "cpu",
+        "memory_mb": 4096,
+        "threads": 2
+      },
+      "files": {
+        "engine.stdout": {
+          "file": "rijk-auxj-slot.stdout",
+          "sha256": "b233d094bcae00eceff210657335def7a2ff4ceb289e9d635a74a465df5263bf",
+          "size_bytes": 18575,
+          "source_relative_path": "DLPNO-counterpoise/run/attempts/attempt_76daf37ae58c411ebfe2dc8575951b1f/engine.stdout"
+        },
+        "job.inp": {
+          "file": "rijk-auxj-slot.inp",
+          "sha256": "88572792101a2f981a6a92e33dfbc94e7a3e17a38faaf51d353a017c269d473a",
+          "size_bytes": 315,
+          "source_relative_path": "DLPNO-counterpoise/run/attempts/attempt_76daf37ae58c411ebfe2dc8575951b1f/job.inp"
+        },
+        "protocol.json": {
+          "file": "rijk-auxj-slot.protocol.json",
+          "sha256": "d47954cfe9a630ec2ae9ba02f4596995e8490105644857435967234b138786f5",
+          "size_bytes": 11494,
+          "source_relative_path": "DLPNO-counterpoise/run/attempts/attempt_76daf37ae58c411ebfe2dc8575951b1f/protocol.json"
+        }
+      },
+      "physical_molecule": {
+        "atom_ids": [
+          "atom-0",
+          "atom-1",
+          "atom-2",
+          "atom-3",
+          "atom-4",
+          "atom-5"
+        ],
+        "bonds": [],
+        "charge": 0,
+        "coordinate_units": "angstrom",
+        "coordinates": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.96,
+            0.0,
+            0.0
+          ],
+          [
+            -0.24,
+            0.93,
+            0.0
+          ],
+          [
+            3.0,
+            0.0,
+            0.0
+          ],
+          [
+            3.96,
+            0.0,
+            0.0
+          ],
+          [
+            2.76,
+            0.93,
+            0.0
+          ]
+        ],
+        "environment": {},
+        "fragment_states": [
+          {
+            "atom_indices": [
+              0,
+              1,
+              2
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          },
+          {
+            "atom_indices": [
+              3,
+              4,
+              5
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          }
+        ],
+        "fragments": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            3,
+            4,
+            5
+          ]
+        ],
+        "isotopes": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "multiplicity": 1,
+        "name": null,
+        "stereochemistry": {},
+        "symbols": [
+          "O",
+          "H",
+          "H",
+          "O",
+          "H",
+          "H"
+        ]
+      }
+    }
+  }
+}

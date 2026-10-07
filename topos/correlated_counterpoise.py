@@ -112,11 +112,27 @@ def correlated_ghost_input(physical: Molecule, leg: CorrelatedGhostLeg, resource
     for kind, keyword in (("orbital", "GTOName"), ("correlation", "GTOAuxCName"), ("jk", "GTOAuxJKName")):
         if kind in names:
             prefix.append(f'  {keyword} "{kind}.bas"')
+    if "jk" in names:
+        # A file-backed AuxJK assignment does not populate ORCA's separate
+        # AuxJ slot. Use the same explicitly selected, exported JK basis bytes
+        # for Coulomb fitting; this introduces no second fitting protocol.
+        prefix.append('  GTOAuxJName "jk.bas"')
     prefix.extend(["end", f"* xyz {physical.charge} {physical.multiplicity}"])
     selected = set(indices)
     for index, (symbol, xyz) in enumerate(zip(centers.symbols, centers.coordinates, strict=True)):
         prefix.append(f"{symbol}{'' if index in selected else ':'} " + " ".join(format(x, ".16g") for x in xyz))
     return "\n".join([*prefix, "*", ""])
+
+
+def _basis_slot_bindings(leg: CorrelatedGhostLeg) -> dict[str, dict[str, str]]:
+    """Retain every native basis-slot assignment and its exact exported bytes."""
+    names = CorrelatedCounterpoiseProtocol(native=leg.native_protocol(), source_resolution=R2_ENERGY_RESOLUTION).basis_names()
+    assignments = {"orbital": "orbital", "AuxC": "correlation"}
+    if "jk" in names:
+        assignments.update(AuxJK="jk", AuxJ="jk")
+    return {slot: {"export_role": kind, "basis": names[kind], "file": f"{kind}.bas",
+                   "sha256": leg.basis_exports[kind]["output_sha256"]}
+            for slot, kind in assignments.items()}
 
 
 def _verify_exports(leg: CorrelatedGhostLeg, engine_identity=None):
@@ -149,6 +165,7 @@ def run_correlated_ghost(physical: Molecule, leg: CorrelatedGhostLeg, resources:
     try:
         deck = correlated_ghost_input(physical, leg, resources)
         _verify_exports(leg)
+        result.metadata["native_basis_slot_bindings"] = _basis_slot_bindings(leg)
         if process_runner is None:
             from .base_integration import BaseRuntime
 
@@ -239,6 +256,8 @@ def _verify_native_leg(result: EngineResult, physical: Molecule, leg: Correlated
         raise IntegrityError("Correlated CP lacks its retained native deck and output")
     if deck.read_text() != correlated_ghost_input(physical, leg, ResourceLimits.model_validate(result.metadata["resources"])):
         raise IntegrityError("Native ghost deck differs from its physical state, basis inventory or method")
+    if result.metadata.get("native_basis_slot_bindings") != _basis_slot_bindings(leg):
+        raise IntegrityError("Native ghost basis-slot provenance differs from the exact shared exports")
     observation = parse_correlated_output(stdout.read_text(errors="replace"), leg.native_protocol())
     if abs(observation["energy_hartree"] - result.energy_hartree) > 1e-10:
         raise IntegrityError("Native correlated energy differs from its retained result")

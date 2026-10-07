@@ -249,10 +249,20 @@ class ActionDispatchClient:
             sha = commit.get("sha", "")
             if not re.fullmatch(r"[a-f0-9]{40}", sha):
                 raise RemoteExecutionError("Controller commit identity is invalid")
-            connection.request("POST", f"/repos/{self.target_repo}/actions/workflows/{WORKFLOW}/dispatches", {
-                "ref": ref, "inputs": {"dispatch_id": receipt.dispatch_id,
-                    "request_b64": base64.b64encode(data).decode("ascii"), "request_sha256": receipt.request_sha256},
-            })
+            # Persistable ownership must survive an ambiguous POST response:
+            # GitHub may have accepted the uniquely correlated job before the
+            # transport timed out. Poll this receipt rather than dispatching a
+            # second scientific calculation.
+            receipt = replace(receipt, commit_sha=sha, auth_source="configured-github-credential")
+            try:
+                connection.request("POST", f"/repos/{self.target_repo}/actions/workflows/{WORKFLOW}/dispatches", {
+                    "ref": ref, "inputs": {"dispatch_id": receipt.dispatch_id,
+                        "request_b64": base64.b64encode(data).decode("ascii"), "request_sha256": receipt.request_sha256},
+                })
+            except RemoteExecutionError as exc:
+                return replace(receipt, status="submission-unconfirmed",
+                               details="Workflow submission response could not be confirmed; no acceptance or calculation completion is claimed. "
+                               "Recover only the same correlation identifier. " + str(exc))
             return replace(receipt, status="submitted", auth_source="configured-github-credential",
                            commit_sha=sha, details="Workflow accepted; calculation completion is not yet established")
         except RemoteExecutionError as exc:

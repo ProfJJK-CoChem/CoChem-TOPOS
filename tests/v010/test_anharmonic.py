@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from scipy import constants
 
-from topos.anharmonic import orca_vpt2_input, parse_orca_vpt2, run_orca_vpt2
+from topos.anharmonic import orca_vpt2_input, parse_orca_vpt2, run_orca_vpt2, vpt2_execution_policy
 from topos.engines import EngineParseError, _method_problem, _orca_input
 from topos.models import MethodSpec, Molecule, ResourceLimits
 
@@ -57,6 +57,78 @@ def test_vpt2_input_enforces_documented_precision_and_actual_d4():
     assert 'TolMaxG 1e-7' in opt and 'TolRMSG 3e-8' in opt
     assert _method_problem(method(), ResourceLimits(), 'gradient') is None
     assert _method_problem(method().model_copy(update={'method': 'HF'}), ResourceLimits(), 'gradient')
+
+
+@pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])
+def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):
+    from topos.base_integration import _orca_deck_allocation
+
+    resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
+    policy = vpt2_execution_policy(resources)
+    deck = orca_vpt2_input(water(), method(), resources)
+    expected_maxcore = int(memory * .75 / threads)
+    assert '%pal nprocs 1 end' in deck
+    assert f'%maxcore {expected_maxcore}\n' in deck
+    assert policy['requested_workers'] == threads and policy['effective_workers'] == 1
+    assert policy['native_maxcore_mb'] == expected_maxcore
+    assert policy['total_memory_ceiling_mb'] == memory
+    (tmp_path / 'anharmonic.inp').write_text(deck)
+    effective = resources.model_copy(update={'threads': 1})
+    # This is the actual native-deck authority path used by BaseRuntime.
+    assert _orca_deck_allocation(['orca', 'anharmonic.inp'], tmp_path, effective) == expected_maxcore
+    assert effective.memory_mb == resources.memory_mb and effective.budget_seconds == resources.budget_seconds
+    assert f'%pal nprocs {threads} end' in _orca_input(water(), method(), resources, 'gradient')
+
+
+def test_vpt2_policy_does_not_turn_a_requested_gpu_into_cpu():
+    with pytest.raises(ValueError, match='requested GPU'):
+        orca_vpt2_input(water(), method(), ResourceLimits(device='gpu', threads=2, memory_mb=4096))
+
+
+def test_vpt2_recovery_rejects_policy_change_before_native_execution(tmp_path):
+    import json
+
+    from topos.storage import IntegrityError
+
+    resources = ResourceLimits(threads=2, memory_mb=4096)
+    workdir = tmp_path / 'protocol'
+    unavailable = run_orca_vpt2(water(), method(), resources, workdir,
+                               executable='/missing-native-orca', semirigid_modes=True)
+    assert unavailable.status == 'unavailable'
+    manifest = workdir / 'vpt2-protocol.json'
+    protocol = json.loads(manifest.read_text())
+    assert protocol['resources']['threads'] == 2
+    assert protocol['effective_resources']['threads'] == 1
+    assert protocol['execution_policy']['native_maxcore_mb'] == 1536
+    protocol['execution_policy']['native_maxcore_mb'] = 3072
+    manifest.write_text(json.dumps(protocol))
+    with pytest.raises(IntegrityError, match='recovery protocol changed'):
+        run_orca_vpt2(water(), method(), resources, workdir,
+                      executable='/missing-native-orca', semirigid_modes=True)
+
+
+@pytest.mark.parametrize('case', ['extended', 'licensed_pytest'])
+def test_retained_mpi_pickett_failures_cannot_be_read_as_anharmonic_science(case):
+    import hashlib
+    import json
+
+    folder = Path(__file__).parent / 'fixtures' / 'orca_vpt2_mpi_property_failure'
+    provenance = json.loads((folder / 'provenance.json').read_text())
+    for artifact in provenance['artifacts']:
+        payload = (folder / artifact['path']).read_bytes()
+        assert hashlib.sha256(payload).hexdigest() == artifact['sha256']
+        assert len(payload) == artifact['bytes']
+    raw = (folder / f'{case}.stdout').read_text()
+    assert 'writing data to file in Pickett format' in raw
+    if case == 'extended':
+        assert 'ORCA finished by error termination in PROPERTIES' in raw
+        assert 'mpirun -np 2' in raw and 'orca_prop_mpi' in raw
+    else:
+        assert raw.rstrip().endswith('writing data to file in Pickett format ...')
+    assert '%pal nprocs 2 end' in (folder / f'{case}.inp').read_text()
+    assert 'ORCA TERMINATED NORMALLY' not in raw
+    with pytest.raises(EngineParseError, match='analysis header missing'):
+        parse_orca_vpt2(raw, vibrational_modes=3)
 
 
 @pytest.mark.parametrize('change', [{'profile_id':'orca-mapping-v4.1'}, {'constraints':{'frozen_atoms':[0]}},
@@ -134,6 +206,11 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
                            executable=binary, semirigid_modes=True, process_runner=process_runner)
     assert result.status == 'completed', result.diagnostics
     assert result.metadata['execution_kind'] == 'real'
+    assert result.metadata['requested_resources']['threads'] == 2
+    assert result.metadata['native_execution_resources']['threads'] == 1
+    assert result.metadata['native_execution_resources']['memory_mb'] == resources.memory_mb
+    assert result.metadata['execution_policy']['native_maxcore_mb'] == 1536
+    assert result.metadata['reference_hessian_result']['metadata']['requested_method'] == method().model_dump(mode='json')
     native = result.metadata['vpt2']
     assert len(native['fundamental_transitions']) == 3
     assert native['zero_point_energy']['total_cm1'] > 0
@@ -150,6 +227,16 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     altered.metadata['reference_hessian_result']['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
     with pytest.raises(ValueError, match='raw derivatives'):
         transfer_rotational_correction(optimized.molecule, altered, RotationalTransferOptions(semirigid_same_basin=True))
+    changed_policy = result.model_copy(deep=True)
+    changed_policy.metadata['execution_policy']['effective_workers'] = 2
+    with pytest.raises(ValueError, match='execution policy'):
+        transfer_rotational_correction(optimized.molecule, changed_policy,
+                                       RotationalTransferOptions(semirigid_same_basin=True))
+    changed_allocation = result.model_copy(deep=True)
+    changed_allocation.metadata['native_execution_resources']['threads'] = 2
+    with pytest.raises(ValueError, match='process allocation'):
+        transfer_rotational_correction(optimized.molecule, changed_allocation,
+                                       RotationalTransferOptions(semirigid_same_basin=True))
     replay = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
                            executable=binary, semirigid_modes=True, process_runner=process_runner)
     assert replay.metadata['reused_completed_vpt2']

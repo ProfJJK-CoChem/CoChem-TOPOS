@@ -12,6 +12,7 @@ from topos.correlated_counterpoise import (
     R2_ENERGY_RESOLUTION,
     CorrelatedCounterpoiseProtocol,
     CorrelatedGhostLeg,
+    _basis_slot_bindings,
     _verify_exports,
     correlated_counterpoise_plan,
     correlated_ghost_input,
@@ -133,6 +134,8 @@ def test_missing_orca_cannot_produce_any_correlated_cp_energy(tmp_path):
         process_runner=lambda *a, **kw: pytest.fail("No native executable exists"))
     assert result.status == "unavailable" and result.energy_hartree is None
     assert result.metadata["execution_kind"] == "not-executed" and result.molecule is None
+    assert result.metadata["native_basis_slot_bindings"] == _basis_slot_bindings(spec)
+    assert "AuxJ" not in result.metadata["native_basis_slot_bindings"]
 
 
 @pytest.mark.parametrize("cancelled", [True, False])
