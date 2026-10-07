@@ -6,6 +6,7 @@ import importlib.util
 import io
 import json
 import os
+import subprocess
 import sys
 import tarfile
 import zipfile
@@ -84,6 +85,59 @@ def test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt(tmp
     fixture.write_text(fixture.read_text() + "altered native observation\n")
     assert source_inventory(tmp_path) != before
     assert "recursive-include tests *.py *.txt *.json *.stdout *.out" in (ROOT / "MANIFEST.in").read_text()
+
+
+def test_tracked_native_fixtures_survive_candidate_staging_and_source_archive(tmp_path):
+    """Native parser regressions remain runnable after extracting the source archive."""
+    module = script("build_release")
+    if (ROOT / ".git").exists():
+        tracked = subprocess.run(
+            ["git", "ls-files", "-z", "tests/fixtures", "tests/v010/fixtures"],
+            cwd=ROOT, capture_output=True, check=True,
+        ).stdout
+        fixtures = {ROOT / os.fsdecode(name) for name in tracked.split(b"\0") if name}
+    else:
+        # The extracted distribution has no Git index; exercise its retained fixtures.
+        fixtures = {path for folder in ("tests/fixtures", "tests/v010/fixtures")
+                    for path in (ROOT / folder).rglob("*")
+                    if path.is_file() and "__pycache__" not in path.parts}
+    assert fixtures
+    stage = tmp_path / "source"
+    stage.mkdir()
+    # Exercise the production staging filter and actual MANIFEST.in rules together.
+    for path in module.release_files(ROOT):
+        if path not in fixtures | {ROOT / "MANIFEST.in"}:
+            continue
+        target = stage / path.relative_to(ROOT)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())
+    (stage / "setup.py").write_text(
+        "from setuptools import setup\n"
+        "setup(name='topos-fixture-distribution-test', version='0.0.0', packages=[])\n"
+    )
+    built = subprocess.run(
+        [sys.executable, "setup.py", "sdist", "--dist-dir", str(tmp_path / "dist")],
+        cwd=stage, capture_output=True, text=True, check=False,
+    )
+    assert built.returncode == 0, built.stdout + built.stderr
+    with tarfile.open(next((tmp_path / "dist").glob("*.tar.gz"))) as archive:
+        payloads = {Path(member.name).relative_to(Path(member.name).parts[0]).as_posix():
+                    hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+                    for member in archive.getmembers() if member.isfile()}
+    for fixture in fixtures:
+        name = fixture.relative_to(ROOT).as_posix()
+        assert payloads.get(name) == hashlib.sha256(fixture.read_bytes()).hexdigest(), name
+
+
+@pytest.mark.parametrize("suffix", [".hess", ".engrad", ".inp"])
+def test_native_fixture_mutation_invalidates_source_receipt(tmp_path, suffix):
+    fixture = tmp_path / "tests/v010/fixtures" / ("native" + suffix)
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("inert artifact identity example\n")
+    before = source_inventory(tmp_path)
+    assert before[str(fixture.relative_to(tmp_path))] == hashlib.sha256(fixture.read_bytes()).hexdigest()
+    fixture.write_text("changed native artifact identity example\n")
+    assert source_inventory(tmp_path) != before
 
 
 def test_wheel_normalization_changes_metadata_not_payload_or_record(tmp_path):
