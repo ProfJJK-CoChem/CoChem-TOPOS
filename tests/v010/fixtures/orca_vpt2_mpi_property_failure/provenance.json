@@ -1,0 +1,46 @@
+{
+  "schema": "topos-native-failure-parser-fixtures/0.1.0",
+  "run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546",
+  "topos_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "engine": "ORCA 6.1.1",
+  "purpose": "Unchanged failed native inputs/stdout/stderr; this is failure evidence and does not establish completed VPT2 or serial acceptance.",
+  "failure": "Initial SCF Pickett output in nprocs=2 runs: extended prints an explicit PROPERTIES/orca_prop_mpi error; licensed pytest stdout stalls at the writer and the process reaches its deadline. Neither contains the VPT2 analysis/displacement sequence.",
+  "artifacts": [
+    {
+      "path": "extended.inp",
+      "original_artifact_path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.inp",
+      "sha256": "5e87569de23cf1c6bfd370f93b1bb1f80295644a79b4cfccd0059335bc70569d",
+      "bytes": 389
+    },
+    {
+      "path": "extended.stdout",
+      "original_artifact_path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stdout",
+      "sha256": "7d2886ad5dd3899a29989627bb02a13431e98574b64995f91099262423de8b33",
+      "bytes": 37063
+    },
+    {
+      "path": "extended.stderr.txt",
+      "original_artifact_path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stderr",
+      "sha256": "da4722628c538e0b0cd856697a95596b88eef3e496296daf7cea85dc72951537",
+      "bytes": 65
+    },
+    {
+      "path": "licensed_pytest.inp",
+      "original_artifact_path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.inp",
+      "sha256": "284204cd1d0cc7f62fc5e0e004a1abbd0d5277a0b32681f5d30e84011efb3eaf",
+      "bytes": 390
+    },
+    {
+      "path": "licensed_pytest.stdout",
+      "original_artifact_path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.stdout",
+      "sha256": "c68c125b3ce92c6e5681a0ba5b7107bbce55a0038495ef43e284743e0f4861cf",
+      "bytes": 36814
+    },
+    {
+      "path": "licensed_pytest.stderr.txt",
+      "original_artifact_path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

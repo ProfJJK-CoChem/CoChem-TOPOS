@@ -89,7 +89,24 @@ def test_licensed_matrix_recipe_derives_orca_from_native_plan(row):
     assert decode_request(encoded, digest)[0] == original
 
 
-@pytest.mark.parametrize("row", ["T1-30min", "T4O-1h", "T999-10s", None])
+def test_diversity_union_derives_all_native_installations_from_compound_label():
+    # T1-1mo combines the actual GOAT/CREST samplers and xTB refinement with
+    # native ORCA reranking. Preflight establishes installation needs only;
+    # it does not establish completed sampling or validate campaign inputs.
+    from topos.method_matrix import resolve_row, resolved_recipe
+
+    steps, _ = resolved_recipe(resolve_row("T1-1mo"), None)
+    assert "orca+crest" in {step.engine for step in steps}
+    original, encoded, digest = encoded_request(
+        engine="xtb", purpose="matrix", matrix_row_id="T1-1mo",
+    )
+    assert required_native_engines(original) == {"orca", "crest", "xtb"}
+    assert validate_submission(encoded, digest, "topos_" + "c" * 32)["requires_orca"] is True
+    assert decode_request(encoded, digest)[0] == original
+
+
+@pytest.mark.parametrize("row", ["T1-30min", "T1-1w", "T2-1min", "T5-1min",
+                                 "T3C-30min", "T5-1mo", "T4O-1h", "T999-10s", None])
 def test_unknown_or_unsupported_hosted_matrix_row_cannot_reach_provisioning(row):
     # Registered ML recipes still need an installer the hosted worker supports;
     # TORQ-owned and unknown rows cannot use the TOPOS native-engine provisioner.

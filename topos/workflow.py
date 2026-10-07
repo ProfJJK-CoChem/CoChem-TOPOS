@@ -189,14 +189,20 @@ class Workflow:
         with FileLock(str(store.run_dir / ".execution.lock"), timeout=0):
             stored = store.recover()
             record = RunRecord.model_validate(stored)
+            if record.request.calculation_environment in {"github-actions", "github-actions-hosted"}:
+                from .remote_workflow import resume_remote
+
+                return resume_remote(self, record, store, cancel_event=cancel_event,
+                                     invocation_budget_seconds=invocation_budget_seconds,
+                                     original_request=stored["request"])
             if (
                 digest_json(stored["request"])
-                != record.metadata["request_sha256"]
+                != record.metadata.get("request_sha256")
             ):
                 raise IntegrityError("Saved request differs from immutable request identity")
             if (
                 digest_json(record.request.molecule.model_dump(mode="json"))
-                != record.metadata["input_sha256"]
+                != record.metadata.get("input_sha256")
             ):
                 raise IntegrityError("Saved molecule differs from immutable input identity")
             if record.status == "completed":

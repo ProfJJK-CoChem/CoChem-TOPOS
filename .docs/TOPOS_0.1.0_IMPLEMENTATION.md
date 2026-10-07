@@ -2,11 +2,11 @@
 
 **Status: the current TOPOS implementation includes mandatory BASE execution, matrix planning and registered recipes, search/refinement, symmetry/reporting, thermochemistry, review and publication contracts. Supported implementation, actual execution, and scientific validation are distinct claims; conditional capabilities and remaining limits are recorded below.**
 
-This document tracks the [0.1.0 SRS](CoChem-TOPOS_SRS.md), replacement of obsolete implementation paths, current contracts and their evidence. The [completion checklist](TOPOS_COMPLETION_CHECKLIST.md) records the current acceptance state. Historical receipts retain their original source hashes and counts and do not validate subsequent changes.
+This document tracks the [0.1.0 SRS](CoChem-TOPOS_SRS.md), replacement of obsolete implementation paths, and the historical rebuild baseline. The [completion checklist](TOPOS_COMPLETION_CHECKLIST.md) and [source-bound acceptance ledger](TOPOS_SRS_ACCEPTANCE.json) record the current chapter-by-chapter implementation and acceptance state. The historical tables below are preserved as earlier assessments, not current capability claims. Historical receipts retain their original source hashes and counts and do not validate subsequent changes.
 
 ## Current implementation scope
 
-- **Mandatory package:** [BASE integration](TOPOS_BASE_INTEGRATION.md) requires CoChem-BASE, TOPOS and TORQ together. Production execution uses BASE's checked registry and subprocess broker. The [setup helper](../scripts/setup_ecosystem.py) installs dependencies and pinned CREST, runs BASE setup, and publishes all eleven phases for the three-repository deployment. A real local setup completed with BASE status `DEGRADED_OPERATIONAL`; this status does not imply that optional licensed/GPU engines or TORQ's unfinished consumer are available.
+- **Mandatory package:** [BASE integration](TOPOS_BASE_INTEGRATION.md) requires CoChem-BASE, TOPOS and TORQ together. Production execution uses BASE's checked registry and subprocess broker. The [setup helper](../scripts/setup_ecosystem.py) installs dependencies and pinned CREST, runs BASE setup, and publishes all eleven phases for the three-repository deployment. A real local setup completed with BASE status `DEGRADED_OPERATIONAL`; this status does not imply that optional licensed/GPU engines are available. The installed TORQ importer now acknowledges exact reviewed TOPOS manifests; its `imported-awaiting-calculation` state does not claim TORQ scientific computation.
 - **Methods and execution:** the full matrix is a source-hashed typed catalog with purpose, time tier, hardware, inputs and capability constraints. [Compiled recipes](../topos/matrix_workflow.py) execute only registered complete routes; `cochem-topos matrix support` exposes unsupported routes rather than treating every catalog row as executable. CPU xTB/CREST paths have real local evidence. ORCA provisioning belongs to BASE; the user's successful BASE Actions integration does not by itself establish execution of every TOPOS ORCA recipe.
 - **Scientific workflows:** monomer-first association, bounded scans, derivative-based Hessians and RRHO thermochemistry join search and frozen-fragment refinement. [Symmetry](../topos/symmetry.py) records isotope convention, verified operations and tolerance uncertainty. [Reporting](../topos/reporting.py) implements the matrix's tighter QM reporting comparisons, explicit sampled-enantiomer bookkeeping, and actual signed dipole annotations. Missing properties and unsupported physical models remain explicit.
 - **Interfaces and evidence:** [remote orchestration](../topos/actions/dispatch.py) implements request/commit/job correlation, polling, cancellation and verified artifact retrieval through the BASE-backed worker. Transport tests are not a live TOPOS Actions receipt. Typed TORQ acceptance, methods/reference exports and failure recovery are implemented; downstream TORQ calculations and public deposition require their own evidence.
@@ -119,9 +119,11 @@ The following additional paths were retired because the notebooks execute/import
 - `notebooks/True_Research_CoChem-TOPOS.ipynb`
 - `ci_tools/mendeleev_ast_linter.py`
 
-## Requirement implementation and evidence
+## Historical requirement implementation and evidence
 
-The status applies to declared TOPOS 0.1.0 profiles. **Implemented** means an executable contract exists within the stated domain. **Partial** identifies an absent part of a requirement; **Conditional** identifies implemented code that needs separate engine/platform or scientific evidence. An explicitly rejected unsupported route is not a completed calculation.
+The following chapter and requirement tables preserve the earlier rebuild assessment. Later work added ABCluster, hash-bound MACE/AIMNet2 workers, native Hessian/VPT2 and correlated adapters, traceable native continuations, and actual TORQ import acknowledgment. Accordingly, historical statements that those capabilities are absent do not describe the current implementation. Use the [completion checklist](TOPOS_COMPLETION_CHECKLIST.md), [acceptance ledger](TOPOS_SRS_ACCEPTANCE.json), and [release status](TOPOS_RELEASE_STATUS.md) for current contracts, exact evidence and outstanding requirements.
+
+In these historical tables, **Implemented** means an executable contract existed within the stated domain. **Partial** identifies a then-absent part of a requirement; **Conditional** identifies code needing separate engine/platform or scientific evidence. An explicitly rejected unsupported route is not a completed calculation.
 
 ### Chapter coverage
 
@@ -142,7 +144,7 @@ The status applies to declared TOPOS 0.1.0 profiles. **Implemented** means an ex
 
 ### Requirement traceability
 
-Each row covers exactly one current `TOPOS-010-*` ID. The legacy source-qualified IDs and all 108 original proposals remain mapped in the [recommendations](TOPOS_0.1.0_RECOMMENDATIONS.md); the table does not silently redefine them.
+Each historical row covers exactly one `TOPOS-010-*` ID. The legacy source-qualified IDs and all 108 original proposals remain mapped in the [recommendations](TOPOS_0.1.0_RECOMMENDATIONS.md); the table does not silently redefine them.
 
 | Requirement | Status | Implementation and executable evidence | Remaining limit / interpretation |
 | --- | --- | --- | --- |
@@ -231,7 +233,9 @@ Genuine CREST reduced `mquick` water sampling and `mquick --nci` water-dimer sam
 
 Analytical numerical test functions and the explicitly named `analytical-test` storage fixture verify mathematical/infrastructure behavior. They are not substituted xTB/ORCA production outputs. Tests that expect a genuine engine failure to remain a failure are successful negative tests, not successful chemical calculations. No external Actions, HPC, TORQ calculation or public deposition is certified by this suite.
 
-## Current scientific and operational limits
+## Historical scientific and operational limits
+
+This section retains the baseline's limits and describes neither the current adapter inventory nor current acceptance. For example, ABCluster and ML adapters now have genuine CPU evidence, native ORCA methods have separate execution gates, and snapshot quotas are implemented. The [current release status](TOPOS_RELEASE_STATUS.md) distinguishes implemented behavior from still-pending physical validation and full campaign acceptance.
 
 The supported scientific profile includes real gas-phase xTB/CREST workflows, explicit rigid-fragment refinement, balanced association, derivative/Hessian and harmonic thermal workflows, source-qualified method-matrix recipes, conservative structural comparison, reporting annotations, review and immutable export. It does not certify exhaustive sampling, global minima, experimental accuracy, automatic absolute stereochemistry, or every advanced method appearing in the matrix.
 

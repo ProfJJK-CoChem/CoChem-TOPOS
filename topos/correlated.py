@@ -18,6 +18,7 @@ from typing import Any, Callable, Literal
 from pydantic import Field, model_validator
 
 from .base_integration import BaseRuntime
+from .chemistry import atomic_number
 from .engines import (
     EngineParseError,
     EngineResult,
@@ -110,6 +111,43 @@ def correlated_basis_support(molecule: Molecule, protocol: CorrelatedMethod) -> 
                                ("auxiliary_jk", protocol.auxiliary_jk), ("cabs", protocol.cabs)) if name}
 
 
+def correlated_resource_allocation(molecule: Molecule, protocol: CorrelatedMethod,
+                                   resources: ResourceLimits) -> tuple[ResourceLimits, dict[str, Any]]:
+    """Bound F12 MPI ranks by a demonstrable occupied-pair space.
+
+    ORCA's MDCI distributes occupied pairs, including diagonal pairs. Frozen
+    cores for heavier atoms are native method choices; do not guess them from
+    atomic numbers. H/He have no core orbitals, while an explicit all-electron
+    NoFrozenCore reference establishes zero frozen orbitals through Kr.
+    """
+    numbers = [atomic_number(symbol) for symbol in molecule.symbols]
+    electrons = sum(numbers) - molecule.charge
+    receipt = {"requested_threads": resources.threads, "effective_threads": resources.threads,
+               "policy": "requested-allocation", "proven_occupied_pair_count": None,
+               "requested_maxcore_mb": int(resources.memory_mb * .75 / resources.threads),
+               "effective_maxcore_mb": int(resources.memory_mb * .75 / resources.threads),
+               "maxcore_policy": "preserve requested per-rank bound when reducing MPI ranks",
+               "source": MDCI_SOURCE}
+    if protocol.method not in {"CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2"}:
+        return resources, receipt
+    zero_core_scope = ("H/He have no core orbitals" if all(number <= 2 for number in numbers)
+                       else "explicit all-electron NoFrozenCore through Kr"
+                       if not protocol.frozen_core and all(number <= 36 for number in numbers) else None)
+    if zero_core_scope is None:
+        receipt["policy"] = "requested-allocation; native frozen-core pair count not established"
+        return resources, receipt
+    if molecule.multiplicity != 1 or electrons <= 0 or electrons % 2:
+        raise ValueError("F12 pair allocation requires occupied closed-shell physical electrons")
+    occupied = electrons // 2
+    pairs = occupied * (occupied + 1) // 2
+    threads = min(resources.threads, pairs)
+    receipt.update(policy="F12 occupied-pair MPI bound", effective_threads=threads,
+                   physical_electrons=electrons, proven_frozen_core_orbitals=0,
+                   core_count_evidence=zero_core_scope, occupied_orbitals=occupied,
+                   proven_occupied_pair_count=pairs, pair_count_formula="nocc * (nocc + 1) // 2")
+    return resources.model_copy(update={"threads": threads}), receipt
+
+
 def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: ResourceLimits) -> str:
     if molecule.multiplicity != 1:
         raise ValueError("This correlated profile requires closed-shell RHF; open-shell reference semantics must be specified separately")
@@ -119,6 +157,8 @@ def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: 
         raise ValueError("Correlated ORCA requires a valid CPU allocation; no GPU substitution")
     if resources.memory_mb * .75 < 16 * resources.threads:
         raise ValueError("Insufficient memory for explicit per-rank MaxCore and driver reserve")
+    maxcore_mb = int(resources.memory_mb * .75 / resources.threads)
+    resources, _ = correlated_resource_allocation(molecule, protocol, resources)
     basis = resolve_orca_orbital_basis(molecule, protocol.orbital_basis)
     correlated_basis_support(molecule, protocol)
     keywords = ["RHF", protocol.method, basis["native_basis"], protocol.scf_convergence,
@@ -134,7 +174,7 @@ def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: 
     elif protocol.operation == "gradient":
         keywords.append("Engrad")
     lines = ["! " + " ".join(keywords), f"%pal nprocs {resources.threads} end",
-             f"%maxcore {int(resources.memory_mb * .75 / resources.threads)}"]
+             f"%maxcore {maxcore_mb}"]
     if protocol.operation == "optimize":
         lines.extend(["%geom", f"  MaxIter {protocol.max_iterations}", "  TolE 1e-7", "  TolMaxG 1e-5",
                       "  TolRMSG 3e-6", "  TolRMSD 5e-5", "  TolMaxD 1e-4", "  InHess Lindh", "end"])
@@ -261,6 +301,9 @@ def run_correlated(molecule: Molecule, protocol: CorrelatedMethod, resources: Re
     folder = Path(workdir).resolve()
     try:
         deck = correlated_input(molecule, protocol, resources)
+        effective_resources, allocation = correlated_resource_allocation(molecule, protocol, resources)
+        result.metadata["effective_resources"] = effective_resources.model_dump(mode="json")
+        result.metadata["resource_allocation"] = allocation
         result.metadata["orbital_basis_resolution"] = resolve_orca_orbital_basis(molecule, protocol.orbital_basis)
         result.metadata["basis_support_receipts"] = correlated_basis_support(molecule, protocol)
         runtime = None
@@ -285,8 +328,8 @@ def run_correlated(molecule: Molecule, protocol: CorrelatedMethod, resources: Re
             remaining = resources.budget_seconds - (time.monotonic() - started)
             if remaining <= 0:
                 raise TimeoutError("Correlated attempt deadline reached")
-            return resources.model_copy(update={"budget_seconds": min(10.0, remaining) if diagnostic else remaining,
-                                                 "threads": 1 if diagnostic else resources.threads})
+            return effective_resources.model_copy(update={"budget_seconds": min(10.0, remaining) if diagnostic else remaining,
+                                                          "threads": 1 if diagnostic else effective_resources.threads})
 
         probe = process_runner([binary, "version.inp"], folder, limits(diagnostic=True),
                                log_prefix="version", cancel_event=cancel_event, threads_per_process=1)
