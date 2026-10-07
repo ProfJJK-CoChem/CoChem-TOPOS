@@ -1,0 +1,47 @@
+{
+  "schema_version": "topos-historical-ordinary-ci-milestone-index/1",
+  "milestone_label": "48f2a05 ordinary CI",
+  "run_id": 37699227832,
+  "head_sha": "48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2",
+  "actual_merge_checkout": "c4e63f8449dc503c0bf2cae91283630e8bd5894f",
+  "actual_checkout_tree": "18e4de0261704b714966449b9100a3e99cd4fa49",
+  "actual_companion_pins": [
+    "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "79fbb111125e50627a1a2c129888a45496f368d4"
+  ],
+  "scope": "Authentic ordinary CI for exact48f2a05 source. Historical if later source changes; not final source or release certification.44 skips per Python version remain unverified capabilities.",
+  "release_certified": false,
+  "files": {
+    "run-api.json": "8f7ee6c7c8a6c7c9e8006d7f0a68e1bfbe34e953c0c7eaa6fe84d9dbdf8a196a",
+    "artifacts-api.json": "9e5887fd15e76a49ee02ed30ab4469244beed62f01d2243f3b330e82195a7a8d",
+    "jobs-api.json": "55370426af1625fd68101fc490c4cd6682e374d4929ed1361e03df2825161e59",
+    "checkout-commit-api.json": "66dec7da2fe3fa5dbfbc57bc716ca95b85f1b1b13feffc726ede45ab26e7050c",
+    "run-original-logs.zip": "3ce4e71acdf1b97ce3c95a1007a487c735fef247ad30ef9159960d680d1eba6a",
+    "verification.json": "6d3bf0d583ec3b7e22a08fee691cf073aedf09229c98dbd3f0cee4d1cd768ee0",
+    "independent-job-source-verification.json": "ef4b50208d33a72aff0e150c8780515c87d2e660ba4578bd01c88fe06f74270c",
+    "verification-python-3.11-original.zip": "19076ab1816701da1c6e03f2a884d56199fa5d55a3f964aebcd78b109467b520",
+    "verification-python-3.11/verification.xml": "9373aad2106b9aa30c2a7fb136cbffd814f63c2435fafaf69dc0f7fc58a1212b",
+    "verification-python-3.12-original.zip": "eaac8754f9fad2bcee768c0f34753aa17c26ec203154c848edb4525ab067c034",
+    "verification-python-3.12/verification.xml": "207d77d3149cf818301df9ca1c640126b115471915acae543ff260e8f3bd126a"
+  },
+  "outcomes": [
+    {
+      "python": "3.11",
+      "api_digest_verified": true,
+      "total_testcases": 2054,
+      "passed": 2010,
+      "skipped": 44,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "python": "3.12",
+      "api_digest_verified": true,
+      "total_testcases": 2054,
+      "passed": 2010,
+      "skipped": 44,
+      "failures": 0,
+      "errors": 0
+    }
+  ]
+}

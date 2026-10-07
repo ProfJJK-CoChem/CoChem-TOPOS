@@ -1,0 +1,8 @@
+Warp 1.18.0 initialized:
+   CUDA Toolkit 13.4, CUDA driver not available (NVRTC compilation available)
+   Devices:
+     "cpu"      : "CPU"
+   Kernel cache:
+     /home/agent/.cache/warp/1.18.0
+Module naive_scalar 7072217 load on device 'cpu' took 2.03 ms  (cached)
+Module nvalchemiops.interactions.dispersion._dftd3 98ffb82 load on device 'cpu' took 0.40 ms  (cached)

@@ -1,0 +1,61 @@
+"""Actual BASE-authorized persistent MACE callbacks, without native ORCA."""
+import argparse
+from dataclasses import asdict
+import json
+import subprocess
+from pathlib import Path
+
+import numpy as np
+
+from topos.base_integration import BaseRuntime
+from topos.ml import ModelManifest
+from topos.ml_extopt import PersistentMLServer
+from topos.models import Molecule, ResourceLimits
+from topos.storage import atomic_json, file_digest
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', required=True, type=Path)
+args = parser.parse_args()
+if args.output.exists():
+    raise ValueError('Use a new evidence directory')
+args.output.mkdir(parents=True)
+raw_path = Path('/workspace/.cochem-setup/ml-mace-scientific-raw.json')
+raw = json.loads(raw_path.read_text())
+manifest = ModelManifest.model_validate(raw['request']['manifest'])
+molecules = [Molecule.model_validate(m) for m in raw['request']['molecules'][:3]]
+runtime = BaseRuntime(Path('/workspace/.cochem-base-runtime/Registry/cochem_system_config.json'))
+resources = ResourceLimits(threads=1, memory_mb=4096, budget_seconds=120)
+errors = []
+server = PersistentMLServer(runtime, manifest, molecules[0], resources, args.output / 'server', max_requests=3)
+with server:
+    for index, molecule in enumerate(molecules):
+        native = args.output / f'callback-{index}'
+        native.mkdir()
+        wrapper = server.make_client(native, native / 'fixed-client')
+        xyz = native / 'ORCA_EXT.xyz'
+        xyz.write_text(f'{len(molecule.symbols)}\nExplicit external-file contract; actual MACE inference\n' + '\n'.join(
+            f'{s} {r[0]:.17g} {r[1]:.17g} {r[2]:.17g}' for s, r in zip(molecule.symbols, molecule.coordinates, strict=True)) + '\n')
+        inp = native / 'ORCA_EXT.extinp.tmp'
+        inp.write_text('ORCA_EXT.xyz\n0\n1\n1\n1\n')
+        process = subprocess.run([str(wrapper), str(inp)], cwd=native, capture_output=True, check=False, timeout=45)
+        (native / 'client.stdout').write_bytes(process.stdout)
+        (native / 'client.stderr').write_bytes(process.stderr)
+        assert process.returncode == 0, process.stderr.decode()
+        rows = [line for line in (native / 'ORCA_EXT.engrad').read_text().splitlines() if line and not line.startswith('#')]
+        assert int(rows[0]) == len(molecule.symbols)
+        actual_energy = float(rows[1])
+        actual_gradient = np.asarray(list(map(float, rows[2:]))).reshape((-1, 3))
+        reference = raw['result']['frames'][index]
+        e_error = abs(actual_energy-reference['energy_hartree'])
+        g_error = float(np.max(np.abs(actual_gradient-reference['gradient_hartree_per_bohr'])))
+        assert e_error < 1e-12 and g_error < 1e-12
+        errors.append({'energy_hartree':e_error, 'gradient_hartree_per_bohr':g_error})
+assert server.process.status == 'completed', server.process
+assert server.summary['successful_requests'] == 3, server.summary
+receipt = {'status':'passed', 'schema_version':'topos-base-persistent-mace-acceptance/1',
+    'scope':'Three actual MACE callbacks through strict BASE persistent worker and installed isolated client; no native ORCA computation',
+    'verification_script_sha256':file_digest(Path(__file__)), 'device':'cpu', 'callbacks':3, 'transport_errors':errors,
+    'prior_evidence_sha256':file_digest(raw_path), 'binding':server.binding,
+    'summary':server.summary, 'process':asdict(server.process)}
+atomic_json(args.output / 'acceptance.json', receipt)
+print(json.dumps({'status':'passed', 'callbacks':3, 'device':'cpu'}))

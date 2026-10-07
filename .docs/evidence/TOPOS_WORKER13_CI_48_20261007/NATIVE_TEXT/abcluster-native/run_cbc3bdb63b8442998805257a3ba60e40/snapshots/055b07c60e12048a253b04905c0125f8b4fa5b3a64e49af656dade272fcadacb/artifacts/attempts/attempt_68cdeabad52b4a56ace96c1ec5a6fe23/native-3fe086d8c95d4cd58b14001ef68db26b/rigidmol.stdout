@@ -1,0 +1,101 @@
+                                                      
+       * * * * * * * * * * * * * * * * * *            
+      *       ____   _____ _           _   *          
+     *  /\   |  _ \ / ____| |         | |  * * * * *  
+    *  /  \  | |_) | |    | |_   _ ___| |_ ___ _ __  *
+   *  / /\ \ |  _ <| |    | | | | / __| __/ _ \ '__| *
+  *  / ____ \| |_) | |____| | |_| \__ \ ||  __/ |  *  
+  * /_/    \_\____/ \_____|_|\__,_|___/\__\___|_|  *  
+  *                                                *  
+  * * * * * * * * * * * * * * * * * * * * * * * * *   
+                                                      
+
+rigidmol 3.4
+Specific flag:  official version
+Platform:       LINUX/UNIX
+Compiled by:    zhangjun@SZBL-Precision-7920-Tower
+Compiling date: Jan  6 2026 16:59:25
+C++ compiler:   g++ (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0
+C++ options:    -O2 -Os -fno-exceptions --std=c++11 -fopenmp 
+
+Contributors:
+Jun Zhang(Shenzhen Bay Laboratory): Design and coding.
+
+For any suggestions, comments, and questions on the theory and
+implementation of rigidmol, please feel free to contact:
+
+Dr. Jun Zhang, zhangjun@szbl.ac.cn
+
+If you used this program in your work, please cite these references:
+
+[1] Zhang, J.; Dolg, M.; ABCluster: The Artificial Bee Colony Algorithm for
+    Cluster Global Optimization. Phys. Chem. Chem. Phys. 2015, 17, 24173-24181.
+[2] Zhang, J.; Dolg, M.; Global Optimization of Clusters of Rigid Molecules by the
+    Artificial Bee Colony Algorithm. Phys. Chem. Chem. Phys. 2016, 18, 3003-3010.
+
+Program starts at Wed Oct  7 23:01:20 2026.
+Command line: " /workspace/.tools/abcluster-3.4/abcluster-Release/rigidmol packing.inp "
+Process ID:   695272
+Run by:       agent@361c03bd419d
+Available CPU cores:    5
+Read "OMP_NUM_THREADS": 2
+
+Random number testing (integers): 903295894...1635972702
+Random number testing (fractals): 0.19594341...0.07884780
+
+ -- Input/Output Parameters --
+Input file name:      packing.inp
+Cluster file name:    packing.cluster
+Result file name:     packing.(cluster/xyz/gjf)
+Temporary file name:  abclusteragent361c03bd419d695272-OPT
+# of saved LMs:       4
+LMs are stored in:    packing-LM
+
+ -- ABC Control Parameters --
+Population size:                    8
+Maximal generation:                 8
+Scout limit:                        3
+Amplitude:                 4.00000000
+
+ -- Cluster Components: from [ packing.cluster ] --
+ -----------------------------------------------------------
+   Source                                       #
+ -----------------------------------------------------------
+   fragment-0000.xyz                            1
+   fragment-0001.xyz                            1
+ -----------------------------------------------------------
+   External electric field:        0.000000 Volt/Angstrom
+ -----------------------------------------------------------
+
+Artificial Bee Colony Optimization Starts!
+----------------------------------------------------------------------------------
+ * Population: 8; Maximal cycles: 8
+ * EM = Employed Bee; Trigonometric mutation
+ * OL = Onlooker Bee; ABC/best/2(0.5)+ABC/current/2(0.5);
+        Tournament selection from 5 nectars.
+ * SC = Scout Bee; Random nectar; Limit = 3
+----------------------------------------------------------------------------------
+    #       Diversity            maxE            minE    byEM    byOL    bySC
+----------------------------------------------------------------------------------
+    1      0.00000000     -0.18480000     -0.18480000       0       0       0
+    2      0.00000000     -0.18480000     -0.18480000       0       0       0
+    3      0.00000000     -0.18480000     -0.18480000       0       0       0
+    4      0.00000000     -0.18480000     -0.18480000       0       0       0
+    5      0.00000000     -0.18480000     -0.18480000       0       0       8
+    6      0.00000000     -0.18480000     -0.18480000       0       0       0
+    7      0.00000000     -0.18480000     -0.18480000       0       0       0
+    8      0.00000000     -0.18480000     -0.18480000       0       0       0
+----------------------------------------------------------------------------------
+Artificial Bee Colony Optimization Finished!
+
+ -- Results Report --
+ * 1 LMs will be saved in [ packing-LM ].
+      #          Energy      Match-RMSD
+      0     -0.18480000      0.00000000
+
+ * Final Global Minimal Energy:     -0.18480000
+ * The Global Minimum is saved as: [ packing-OPT.(cluster/xyz/gjf) ]
+
+===== (^ _ ^) =====
+Normal termination at Wed Oct  7 23:01:20 2026.
+Total run time: 0 seconds = 0 days 0 hours 0 minutes 0 seconds.
