@@ -246,12 +246,13 @@ def artifact_inventory(folder: Path) -> list[Artifact]:
     return result
 
 
-def _method_problem(method: MethodSpec, resources: ResourceLimits, operation: str) -> str | None:
+def _method_problem(method: MethodSpec, resources: ResourceLimits, operation: str,
+                    *, check_cpu_affinity: bool = True) -> str | None:
     if operation not in {"energy", "gradient", "optimize"}:
         return f"operation {operation!r} has no validated adapter"
     if resources.device != "cpu":
         return "native xTB/ORCA adapter supports CPU; requested GPU cannot be silently substituted"
-    if resources.threads > available_cpu_count():
+    if check_cpu_affinity and resources.threads > available_cpu_count():
         return "requested total worker count exceeds available CPU affinity"
     if method.constraints:
         return "native constraints not supported; use explicit TOPOS constrained-gradient protocol"

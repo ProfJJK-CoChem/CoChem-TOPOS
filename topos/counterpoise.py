@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import time
+from datetime import datetime
 from pathlib import Path
 from threading import Event
 from typing import Any, Callable
@@ -17,13 +18,31 @@ from typing import Any, Callable
 from .chemistry import atomic_number
 from .engines import EngineResult, _engine_version, _orca_input, run_engine
 from .fragments import _matching_fragment, split_fragments
-from .models import MethodSpec, Molecule, ResourceLimits
+from .models import MethodSpec, Molecule, ResourceLimits, utc_now
 from .science import counterpoise_interaction, geometry_digest
 from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
 CP_SCHEMA = "topos-counterpoise/0.1.0"
 ORCA_GHOST_SOURCE = "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/counterpoise.html"
 ORCA_BASIS_SOURCE = "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html#reading-basis-sets-from-a-file"
+EXECUTION_TIMING_SCOPE = "UTC wall clock measured around the actual energy adapter invocation, including version probe and evidence parsing"
+
+
+def _leg_execution_timing(calculation: EngineResult) -> tuple[str | None, str | None]:
+    """Validate recorded call boundaries; never assign import times to old evidence."""
+    timing = calculation.metadata.get("execution_timing")
+    if timing is None:
+        return None, None
+    try:
+        start, finish = timing["started_at"], timing["finished_at"]
+        first, last = datetime.fromisoformat(start), datetime.fromisoformat(finish)
+        if (set(timing) != {"started_at", "finished_at", "scope"}
+                or timing["scope"] != EXECUTION_TIMING_SCOPE or first.utcoffset() is None
+                or last.utcoffset() is None or last < first):
+            raise ValueError("Invalid wall-clock boundary")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise IntegrityError("Counterpoise leg has invalid recorded execution wall-clock timing") from exc
+    return start, finish
 
 
 def _verify_artifacts(artifacts, folder):
@@ -39,6 +58,7 @@ def _validate_completed_leg(entry, job, basis, method, folder):
     if entry.get("result_sha256") != digest_json(entry.get("result")):
         raise IntegrityError("Counterpoise leg result digest changed")
     calculation = EngineResult.model_validate(entry["result"])
+    _leg_execution_timing(calculation)
     if (entry.get("role") != job["role"] or calculation.status != "completed"
             or calculation.converged is not True or calculation.energy_hartree is None
             or calculation.engine != "orca" or calculation.operation != "energy"
@@ -228,6 +248,7 @@ def execute_counterpoise(
                        "basis_manual": ORCA_BASIS_SOURCE, "wavefunction_reuse": "none across legs",
                        "basis_policy": "identical exported orbital/auxiliary bytes for all legs",
                        "energy_definition": "electronic interaction at a fixed complex geometry; negative is attractive",
+                       "execution_timing_policy": "New adapter invocations retain hashed UTC wall-clock boundaries; historical cached legs without them remain undated and cannot satisfy predeclared fresh-calculation acceptance",
                        "limitations": ["No ZPE, thermal or solvation correction", "CP is not a complete-basis or accuracy guarantee",
                                        "Optional isolated reference minima must be established separately"]},
     }
@@ -329,6 +350,7 @@ def execute_counterpoise(
             retries = sum(entry["role"] == job["role"] for entry in result["jobs"])
             while (folder / f"leg-{index}-attempt-{retries}").exists():
                 retries += 1
+            leg_started_at = utc_now()
             calculation = run_engine(
                 Molecule.model_validate(job["molecule"]), method,
                 resources.model_copy(update={"budget_seconds": remaining}), folder / f"leg-{index}-attempt-{retries}",
@@ -337,6 +359,8 @@ def execute_counterpoise(
                 ghost_electronic_state=tuple(job["ghost_electronic_state"]) if job["ghost_electronic_state"] else None,
                 orbital_basis_file=basis_paths["orbital"], auxiliary_basis_file=basis_paths.get("auxiliary"),
             )
+            calculation.metadata["execution_timing"] = {
+                "started_at": leg_started_at, "finished_at": utc_now(), "scope": EXECUTION_TIMING_SCOPE}
             payload = calculation.model_dump(mode="json")
             entry = {"role": job["role"], "result": payload, "result_sha256": digest_json(payload)}
             result["jobs"].append(entry)

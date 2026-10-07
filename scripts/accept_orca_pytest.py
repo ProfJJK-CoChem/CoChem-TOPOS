@@ -45,7 +45,9 @@ def main() -> int:
         environment = dict(os.environ, TOPOS_ORCA_EXECUTABLE=binary, TOPOS_REQUIRE_BASE='1',
                            COCHEM_CONFIG=str(args.registry.resolve()), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
         command = [sys.executable, '-m', 'pytest', 'tests/v010/test_native_hessian.py',
-                   'tests/v010/test_anharmonic.py', '-q', f'--junitxml={junit}',
+                   'tests/v010/test_anharmonic.py',
+                   'tests/v010/test_reference_thermal.py::test_actual_licensed_orca_ordinary_thermal_reference_import',
+                   '-q', f'--junitxml={junit}',
                    '--basetemp', str(output / 'native-pytest-work')]
         with log.open('x') as stream:
             result = subprocess.run(command, cwd=ROOT, env=environment, stdout=stream,

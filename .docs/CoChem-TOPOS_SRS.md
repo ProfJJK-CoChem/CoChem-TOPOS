@@ -290,6 +290,10 @@ Flow: validate → freeze manifest → regenerate methods/tables → verify arch
 
 Suffixes refer to `TOPOS-010-`. Scientific limits come from resolved profiles/domain benchmarks, not universal arbitrary values. Water/formic-acid dimers and a chiral organic case are candidate fixtures. He2 can test dispatch honesty; alone it cannot validate xTB/DFT accuracy or experimental binding. Potential minima, quantum-averaged separations, and thermal means are different observables.
 
+Reference campaign plans shall be frozen before the measured calculations, retaining cited data bytes and hashes, independently selected tolerances and their rationale, reference uncertainties or their explicit absence, chemical domain, charge/spin/isotopes, geometry role, observable definition, units, reference protocol and conditions. The calculated method and the reference method remain separately identified when assessing an approximation against a higher-level benchmark. Repeating a prior native calculation is a reproducibility calibration; it does not establish independent scientific accuracy. A comparison report shall reverify the immutable calculation history and the actual source/derivative evidence rather than accept top-level pass flags. The versioned [S66/S22 reference review](TOPOS_0.1.0_REFERENCES.md#s14) identifies available fixed-geometry electronic points and their limits; it supplies neither universal tolerances nor completed acceptance.
+
+Reviewed-matrix campaign acceptance shall require a completed authentic full-row RunStore for each available TOPOS row, bound to its predeclared input, reviewed protocol and current source. Partial compatibility branches and compiled recipes cannot substitute for those calculations. The inventory shall retain the two source-defined unavailable CFOUR time tiers and exclude the 96 TORQ-owned rows explicitly. This campaign establishes execution coverage for its declared cases; it does not establish exhaustive sampling, universal chemical-domain accuracy or completion of TORQ.
+
 ## 14. Legacy traceability and implementation tasks
 
 | Original chapter | Revised coverage |

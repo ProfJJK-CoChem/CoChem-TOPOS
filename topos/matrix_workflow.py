@@ -819,8 +819,8 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         if not execute_union(workflow, record, store, inputs, child, deadline, cancel_event):
             return
     elif row_id == "T5-1h":
-        from .counterpoise import execute_counterpoise
-        from .models import MethodSpec
+        from .counterpoise import _leg_execution_timing, execute_counterpoise
+        from .models import MethodSpec, utc_now
 
         runtime = workflow.base_runtime
         if runtime is None:
@@ -879,11 +879,13 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
             from .engines import EngineResult
 
             engine_result = EngineResult.model_validate(job["result"])
+            leg_started_at, leg_finished_at = _leg_execution_timing(engine_result)
             identifier = "attempt_cp_" + job["result_sha256"][:24]
             if any(a.attempt_id == identifier for a in record.attempts):
                 continue
             attempt = Attempt(attempt_id=identifier, run_id=record.run_id, engine="orca", method=method.method,
                               status=engine_result.status, converged=engine_result.converged,
+                              started_at=leg_started_at, finished_at=leg_finished_at,
                               validation_status="validated-for-protocol" if engine_result.status == "completed" else "not-evaluated",
                               command=engine_result.command, engine_version=engine_result.engine_version,
                               diagnostics=engine_result.diagnostics, metadata={**engine_result.metadata, "counterpoise_role": job["role"]},
@@ -918,11 +920,13 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
             aggregate = Attempt(
                 attempt_id=aggregate_id, run_id=record.run_id, engine="orca", method=method.method,
                 status="completed", converged=True, validation_status="validated-for-protocol", engine_version="6.1.1",
+                started_at=utc_now(),
                 command=["topos-internal", "boys-bernardi-counterpoise"], artifacts=[result_artifact.model_copy()],
                 metadata={"execution_kind": "real", "result_kind": "derived-counterpoise",
                           "component_attempt_ids": [a.attempt_id for a in last_legs.values()],
                           "comparison_protocol": result["comparison_protocol"],
                           "basis_identity": result["basis_identity"],
+                          "execution_timing_scope": "counterpoise aggregate attribution creation; genuine component invocation boundaries are retained on their own attempts",
                           "geometry_state": "frozen-inc", "binding_or_thermal_claim": False},
             )
             for key, definition in (
@@ -935,6 +939,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                                                      units="hartree", definition=definition,
                                                      attempt_id=aggregate_id, method=method.method,
                                                      validity="validated-for-protocol"))
+            aggregate.finished_at = utc_now()
             record.attempts.append(aggregate)
     elif row_id in {"T1-1min", "T1-12h"}:
         from .goat import run_goat

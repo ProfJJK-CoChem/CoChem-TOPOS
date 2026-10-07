@@ -105,8 +105,11 @@ def parse_orca_hessian(path: str | Path, molecule: Molecule) -> dict[str, Any]:
             "mass_policy": "native masses retained; TOPOS isotope masses used for independent mode analysis"}
 
 
-def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits) -> str:
-    problem = _method_problem(method, resources, "gradient")
+def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
+                         *, check_cpu_affinity: bool = True) -> str:
+    # Read-only verification renders the recorded allocation on any controller;
+    # native execution retains the current machine's affinity check by default.
+    problem = _method_problem(method, resources, "gradient", check_cpu_affinity=check_cpu_affinity)
     if problem or method.engine != "orca" or method.constraints:
         raise ValueError(problem or "native analytic frequencies require unconstrained ORCA HF/DFT")
     if method.method in {"wB97X-V", "wB97M-V"}:

@@ -111,7 +111,9 @@ def release_gate(root: Path, *, validation: Path | None = None, installation: Pa
                  distribution_manifest: Path | None = None,
                  supplemental_validations: list[Path] | None = None,
                  hosted_extended: Path | None = None, hosted_repository: str | None = None,
-                 hosted_run_id: str | None = None, hosted_run_attempt: str | None = None) -> dict[str, Any]:
+                 hosted_run_id: str | None = None, hosted_run_attempt: str | None = None,
+                 scientific_reference_campaign: Path | None = None,
+                 reviewed_matrix_campaign: Path | None = None) -> dict[str, Any]:
     """Require current, correlated evidence for a full TOPOS release certification.
 
     Receipts are local evidence supplied by the responsible maintainer; hashes
@@ -134,6 +136,8 @@ def release_gate(root: Path, *, validation: Path | None = None, installation: Pa
             value = json.loads(path.read_text())
             if not isinstance(value, dict):
                 raise ValueError("receipt must be an object")
+            if not value:
+                raise ValueError("receipt must contain evidence; an empty object cannot satisfy acceptance")
         except (ValueError, OSError) as exc:
             blockers.append(f"{label}: invalid receipt ({exc})")
             return {}
@@ -291,6 +295,28 @@ def release_gate(root: Path, *, validation: Path | None = None, installation: Pa
             if (supplement.get("schema_version") == "topos-native-pytest/1"
                     and any(str(supplement.get(key) or "") != value for key, value in hosted_identity.items())):
                 blockers.append(f"Hosted ORCA: supplemental pytest {index + 1} differs from selected native run identity")
+    # Integration success and recipe compilation cannot establish scientific
+    # reference agreement or execution of every reviewed matrix pathway.
+    campaigns = [
+        (scientific_reference_campaign, "Scientific reference campaign", "scientific_references"),
+        (reviewed_matrix_campaign, "Reviewed matrix campaign", "matrix_campaign"),
+    ]
+    for path, label, module_name in campaigns:
+        claimed = load(path, label)
+        if not claimed:
+            continue
+        try:
+            if module_name == "scientific_references":
+                from .scientific_references import verify_report
+            else:
+                from .matrix_campaign import verify_report
+            actual = verify_report(path, root)
+            if actual.get("status") != "passed" or actual.get("source_sha256") != current:
+                raise ValueError("completed current-source campaign acceptance is required")
+            if module_name == "scientific_references" and actual.get("release_eligible") is not True:
+                raise ValueError("reproducibility calibration cannot replace independent scientific reference acceptance")
+        except (ValueError, OSError, TypeError, KeyError, RuntimeError) as exc:
+            blockers.append(f"{label}: {exc}")
     return {"schema_version": "topos-release-gate/0.1.0", "status": "blocked" if blockers else "passed",
             "release_certified": not blockers, "published": False, "source_sha256": current,
             "matrix_support": support, "evidence": evidence, "testcase_coverage": coverage, "blockers": blockers,
@@ -431,7 +457,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     gate = sub.add_parser("gate", help="Check evidence; never creates a tag or publishes")
     gate.add_argument("--source-root", required=True, type=Path)
-    for name in ("validation", "installation", "hosted", "hosted-extended", "srs-acceptance", "distribution-manifest"):
+    for name in ("validation", "installation", "hosted", "hosted-extended", "srs-acceptance", "distribution-manifest",
+                 "scientific-reference-campaign", "reviewed-matrix-campaign"):
         gate.add_argument("--" + name, type=Path)
     for name in ("hosted-repository", "hosted-run-id", "hosted-run-attempt"):
         gate.add_argument("--" + name, help="Require the hosted receipt to match the explicitly selected artifact run")
@@ -451,7 +478,9 @@ def main(argv: list[str] | None = None) -> int:
                               distribution_manifest=args.distribution_manifest,
                               supplemental_validations=args.supplemental_validation,
                               hosted_extended=args.hosted_extended, hosted_repository=args.hosted_repository,
-                              hosted_run_id=args.hosted_run_id, hosted_run_attempt=args.hosted_run_attempt)
+                              hosted_run_id=args.hosted_run_id, hosted_run_attempt=args.hosted_run_attempt,
+                              scientific_reference_campaign=args.scientific_reference_campaign,
+                              reviewed_matrix_campaign=args.reviewed_matrix_campaign)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps({"status": result["status"], "output": str(args.output), "published": False}))

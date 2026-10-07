@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import signal
 import sys
@@ -24,6 +25,13 @@ def _parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("capabilities", help="Inspect available engines, supported chemistry, and limitations")
     sub.add_parser("request-schema", help="Print the shared request JSON schema")
+    for name, help_text in (
+        ("scientific-references", "Freeze and verify cited scientific reference campaigns"),
+        ("matrix-campaign", "Verify actual execution of the reviewed TOPOS matrix rows"),
+        ("release", "Verify installation and scientific release evidence"),
+    ):
+        command = sub.add_parser(name, help=help_text)
+        command.add_argument("arguments", nargs=argparse.REMAINDER)
     doctor = sub.add_parser("doctor", help="Check the mandatory BASE/TOPOS/TORQ installation")
     doctor.add_argument("--verify-runtime", action="store_true", help="Also verify BASE Stage 0 registry authority")
     doctor.add_argument("--registry", type=Path, help="Explicit BASE system registry")
@@ -128,7 +136,12 @@ def _run_file(request_file: Path, output_root: Path) -> Any:
 
 def main(argv: list[str] | None = None) -> int:
     """Return 0 for a completed action, 2 for invalid input, or 3 for incomplete execution."""
-    args = _parser().parse_args(argv)
+    arguments = sys.argv[1:] if argv is None else argv
+    delegated = {"scientific-references": "scientific_references",
+                 "matrix-campaign": "matrix_campaign", "release": "release"}
+    if arguments and arguments[0] in delegated:
+        return importlib.import_module("topos." + delegated[arguments[0]]).main(arguments[1:])
+    args = _parser().parse_args(arguments)
     try:
         if args.command == "capabilities":
             from topos.capabilities import capability_report
