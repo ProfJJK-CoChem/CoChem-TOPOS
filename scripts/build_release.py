@@ -8,6 +8,7 @@ import importlib.metadata
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -16,7 +17,7 @@ import tempfile
 import time
 import tomllib
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SOURCE_ROOT))
@@ -28,6 +29,114 @@ from topos.release import (  # noqa: E402
 
 BUILD_TOOLS = {"setuptools": "80.9.0", "wheel": "0.45.1", "build": "1.3.0", "packaging": "25.0"}
 DEFAULT_EPOCH = 1767225600  # 2026-01-01 UTC: archive metadata, never an execution timestamp.
+EVIDENCE_TEXT_SUFFIXES = {".txt", ".inp", ".log", ".stdout", ".stderr", ".out", ".hess", ".engrad", ".xyz"}
+
+
+def _retained_path(base: Path, name: str, evidence: Path) -> Path:
+    """Only scoped portable member names, never original machine/archive paths."""
+    if (not isinstance(name, str) or not name or "\\" in name or ":" in name or "\0" in name
+            or PurePosixPath(name).is_absolute() or ".." in PurePosixPath(name).parts
+            or PurePosixPath(name).as_posix() != name):
+        raise ValueError("Unsafe retained evidence member path")
+    path = base / name
+    if not path.is_relative_to(evidence):
+        raise ValueError("Retained evidence member escapes its source evidence directory")
+    for ancestor in (path, *path.parents):
+        if ancestor.is_symlink():
+            raise ValueError("Retained evidence sources must not be symlinks")
+        if ancestor == evidence:
+            break
+    if not path.resolve().is_relative_to(evidence.resolve()):
+        raise ValueError("Retained evidence member escapes its source evidence directory")
+    return path
+
+
+def verify_evidence_indices(root: Path, files: set[Path]) -> dict[str, dict[str, str]]:
+    """Verify explicit retained members only; origin/provenance fields stay inert.
+
+    Index hashes already belong to included_source_sha256. Members cannot index
+    their own index, so no circular archive/index checksum is required.
+    """
+    evidence = root / ".docs/evidence"
+    if (evidence.is_symlink() or (root / ".docs").is_symlink()
+            or not evidence.resolve().is_relative_to(root.resolve())):
+        raise ValueError("Retained evidence sources must not be symlinks")
+    result = {}
+    for index in sorted(evidence.rglob("*INDEX.json")):
+        if index not in files or index.is_symlink():
+            raise ValueError("Retained evidence index is absent from selected source files")
+        payload = json.loads(index.read_text())
+        if not isinstance(payload, dict):
+            raise ValueError("Retained evidence index must be an object")
+        rows = []
+        for collection in ("files", "receipts", "all_retained_members"):
+            if collection not in payload:
+                continue
+            entries = payload[collection]
+            if isinstance(entries, dict) and collection == "files":
+                base = _retained_path(index.parent, payload.get("directory"), evidence)
+                rows.extend((base, name, entry) for name, entry in entries.items())
+            elif isinstance(entries, list):
+                for entry in entries:
+                    if not isinstance(entry, dict):
+                        raise ValueError("Retained evidence member record must be an object")
+                    rows.append((index.parent, entry.get("retained_path", entry.get("path")), entry))
+            else:
+                raise ValueError("Unsupported retained evidence membership collection")
+        if not rows:
+            raise ValueError("Retained evidence index requires explicit nonempty scoped members")
+        selected = {}
+        for base, name, entry in rows:
+            path = _retained_path(base, name, evidence)
+            if (not isinstance(entry, dict) or not isinstance(entry.get("sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", entry["sha256"])):
+                raise ValueError("Retained evidence member requires its exact SHA256")
+            if path == index:
+                raise ValueError("Retained evidence index cannot contain its own circular checksum")
+            if path not in files or not path.is_file():
+                raise ValueError("Indexed retained evidence member is missing or excluded from source archive")
+            data = path.read_bytes()
+            try:
+                data.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise ValueError("Retained source evidence must be UTF8 text, not binary artifacts") from exc
+            if b"\0" in data:
+                raise ValueError("Retained source evidence must be text, not binary artifacts")
+            if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+                raise ValueError("Retained evidence member checksum differs from its index")
+            for size_key in ("bytes", "size_bytes"):
+                if size_key in entry and (type(entry[size_key]) is not int or len(data) != entry[size_key]):
+                    raise ValueError("Retained evidence member size differs from its index")
+            relative = path.relative_to(root).as_posix()
+            if relative in selected:
+                raise ValueError("Duplicate retained evidence member in one index")
+            selected[relative] = entry["sha256"]
+        result[index.relative_to(root).as_posix()] = selected
+    return result
+
+
+def verify_archived_evidence(path: Path, indices: dict[str, dict[str, str]], hashes: dict[str, str]) -> None:
+    """Reparse each built sdist and compare all indexed member/index bytes."""
+    with tarfile.open(path, "r:gz") as archive:
+        members = archive.getmembers()
+        roots = {PurePosixPath(member.name).parts[0] for member in members if member.name}
+        if len(roots) != 1:
+            raise ValueError("Source archive must have one extraction root")
+        prefix = roots.pop()
+        expected = {name: hashes[name] for name in indices}
+        for collection in indices.values():
+            expected.update(collection)
+        names = [member.name for member in members]
+        for name, digest in expected.items():
+            archived = prefix + "/" + name
+            if names.count(archived) != 1:
+                raise ValueError("Indexed retained evidence is missing or duplicated in built source archive")
+            member = archive.getmember(archived)
+            if not member.isfile():
+                raise ValueError("Archived retained evidence must be a regular file")
+            stream = archive.extractfile(member)
+            if stream is None or hashlib.sha256(stream.read()).hexdigest() != digest:
+                raise ValueError("Built source archive changed indexed retained evidence bytes")
 
 
 def release_files(root: Path) -> list[Path]:
@@ -39,6 +148,8 @@ def release_files(root: Path) -> list[Path]:
                             ".docs": {".md", ".json", ".patch", ".xml"}, "wiki": {".md"},
                             ".github/workflows": {".yml"}}.items():
         selected.update(path for path in (root / folder).rglob("*") if path.suffix in suffixes)
+    selected.update(path for path in (root / ".docs/evidence").rglob("*")
+                    if path.suffix in EVIDENCE_TEXT_SUFFIXES)
     result = []
     for path in sorted(selected):
         if "__pycache__" in path.parts:
@@ -47,7 +158,13 @@ def release_files(root: Path) -> list[Path]:
             raise ValueError(f"Release sources must not be symlinks: {path}")
         if path.is_file():
             result.append(path)
-    return result
+    indices = verify_evidence_indices(root, set(result))
+    scoped = {name for members in indices.values() for name in members}
+    # New raw evidence formats require explicit index membership. This avoids
+    # sweeping unrelated logs, native outputs or environment files into sources.
+    return [path for path in result if not (
+        path.is_relative_to(root / ".docs/evidence") and path.suffix in EVIDENCE_TEXT_SUFFIXES
+        and path.relative_to(root).as_posix() not in scoped)]
 
 
 def normalize_archive(path: Path, epoch: int) -> None:
@@ -93,6 +210,7 @@ def build_candidate(root: Path, output: Path, *, epoch: int = DEFAULT_EPOCH) -> 
         raise RuntimeError("Install the exact scripts/release-build-requirements.txt before building")
     files = release_files(root)
     file_hashes = {str(path.relative_to(root)): sha256(path) for path in files}
+    evidence_indices = verify_evidence_indices(root, set(files))
     executable_identity = source_inventory(root)
     output.mkdir(parents=True)
     env = os.environ.copy()
@@ -110,6 +228,7 @@ def build_candidate(root: Path, output: Path, *, epoch: int = DEFAULT_EPOCH) -> 
                 target.write_bytes(path.read_bytes())
                 target.chmod(0o644)
                 os.utime(target, (epoch, epoch))
+            verify_evidence_indices(stage, {stage / path.relative_to(root) for path in files})
             dist = scratch / f"dist-{number}"
             log = output / f"build-{number}.log"
             with log.open("wb") as stream:
@@ -122,6 +241,8 @@ def build_candidate(root: Path, output: Path, *, epoch: int = DEFAULT_EPOCH) -> 
                 raise RuntimeError("Expected exactly one wheel and one source distribution")
             for path in artifacts:
                 normalize_archive(path, epoch)
+                if path.name.endswith(".tar.gz"):
+                    verify_archived_evidence(path, evidence_indices, file_hashes)
             comparisons.append({path.name: sha256(path) for path in artifacts})
             if number == 1:
                 for path in artifacts:
@@ -143,6 +264,7 @@ def build_candidate(root: Path, output: Path, *, epoch: int = DEFAULT_EPOCH) -> 
                 "source_date_epoch": epoch, "archive_metadata_scope": "normalized container timestamps/owners; retained file contents",
                 "reproducible_archives": True, "repeated_build_sha256": comparisons,
                 "source_sha256": executable_identity, "included_source_sha256": file_hashes,
+                "retained_evidence_indices": evidence_indices,
                 "build_tools": actual, "python": sys.version, "wheel_metadata_sha256": metadata_hash,
                 "requirements": project.get("dependencies", []), "optional_dependencies": project.get("optional-dependencies", {}),
                 "build_environment_dependencies": dependency_inventory(),
