@@ -22,6 +22,7 @@ from pydantic import Field
 
 from .models import Artifact, Contract, ExecutionStatus, MethodSpec, Molecule, ResourceLimits
 from .runtime import available_cpu_count, run_process
+from .storage import digest_json
 
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 XTB_PROFILES = {
@@ -477,7 +478,6 @@ def run_engine(
                 "format": "GAMESS-US", "source": "explicit supplied ORCA-exported basis; raw bytes retained",
             }
         if basis_files:
-            from .storage import digest_json
             result.metadata["basis_identity_status"] = "user-supplied-unverified"
             result.metadata["basis_comparison_protocol"] = digest_json({
                 "method": method.model_dump(mode="json"),
@@ -660,6 +660,13 @@ def run_engine(
                         "execution_kind": "real", "method": method.model_dump(mode="json"),
                         "directory": "final-gradient", "energy_hartree": final.energy_hartree,
                         "energy_difference_hartree": final.energy_hartree - energy,
+                        "engine": final.engine, "engine_version": final.engine_version,
+                        "executable_sha256": final.metadata["executable_sha256"],
+                        "command": final.command, "resources": final.metadata["resources"],
+                        "input_molecule_sha256": digest_json(output_molecule.model_dump(mode="json")),
+                        "native_files_sha256": {
+                            name: hashlib.sha256((folder / "final-gradient" / name).read_bytes()).hexdigest()
+                            for name in ("job.inp", "engine.stdout", "job.engrad")},
                         "budget_scope": "remaining original attempt wall budget"}
             else:
                 result.converged = True

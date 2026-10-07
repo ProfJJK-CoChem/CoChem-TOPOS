@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DEPENDENCIES = {
     "numpy": "2.5.3", "scipy": "1.18.1", "networkx": "3.6.1", "pydantic": "2.13.5",
     "h5py": "3.16.0", "mendeleev": "1.3.0", "filelock": "3.32.3", "psutil": "7.2.2", "MolSym": "1.2.0",
+    "ase": "3.29.0",
 }
 
 

@@ -389,7 +389,12 @@ class PersistentMLServer:
                             send_json(connection, {"schema_version": SOCKET_SCHEMA, "action": "stop", "manifest_sha256": self.binding["manifest_sha256"]})
                             receive_json(connection)
                     except (ValueError, OSError, TimeoutError):
-                        self._cancel.set()
+                        # A request/receipt limit can close the socket before
+                        # BASE finishes collecting the clean worker exit. The
+                        # bounded future wait below distinguishes that normal
+                        # shutdown from an unresponsive process; only its
+                        # timeout requests cancellation.
+                        pass
                 else:
                     self._cancel.set()
             if self._future is not None:

@@ -1,9 +1,9 @@
 """Conditional HF DBOC under an explicit, unmodified native mass convention.
 
 Only default masses selected internally by public CFOUR 2.1 are requested.
-No ISOMASS syntax or nuclear masses are invented. The default-mass stdout does
-not attest numeric masses, so resulting coordinates cannot certify isotope-
-consistent rotor constants or completion of the original month-tier row.
+No ISOMASS syntax or nuclear masses are invented. Numeric atomic rotor masses
+are accepted only when printed by every completed native ON evaluation and
+strictly bound to atom order, geometry, version and immutable raw artifacts.
 """
 from __future__ import annotations
 
@@ -96,6 +96,174 @@ def _rounding_bound(value: str) -> float:
     return float(Decimal(5).scaleb(exponent - 1))
 
 
+def parse_cfour_rotor_mass_table(raw: str, molecule: Molecule) -> dict[str, Any]:
+    """Parse observed vibrational atomic masses, never assert native completion.
+
+    CFOUR's Cartesian Z-matrix table fixes indexed atom order. The printed
+    vibrational mass vector is tied to that same order; molecular identities
+    and geometry must independently agree. No nuclear mass is inferred.
+    """
+    import hashlib
+
+    from .chemistry import atomic_number, resolved_masses
+    from .external_engines import _proper_rotation
+
+    molecule = Molecule.model_validate(molecule.model_dump(mode='json'))
+    if any(i is not None for i in molecule.isotopes):
+        raise EngineParseError('Default-mass observation cannot validate an explicitly requested isotope')
+    if re.search(r'SIGSEGV|segmentation fault|forrtl:\s*severe|fatal error', raw, re.I):
+        raise EngineParseError('CFOUR mass observation contains native fatal error')
+    lines = raw.splitlines()
+    n = len(molecule.symbols)
+    tables = []
+    for index, line in enumerate(lines):
+        if not re.fullmatch(r'\s*masses used \(in AMU\) in vibrational analysis:\s*', line):
+            continue
+        printed, last = [], index
+        for position in range(index+1, len(lines)):
+            text = lines[position].strip()
+            if not text:
+                if printed:
+                    break
+                continue
+            fields = text.split()
+            if not all(re.fullmatch(_FLOAT, field) for field in fields):
+                break
+            printed.extend(fields)
+            last = position
+        if len(printed) != n:
+            raise EngineParseError('Native vibrational mass vector is incomplete or has extra atoms')
+        values = [_number(value) for value in printed]
+        bounds = [_rounding_bound(value) for value in printed]
+        if min(values) <= 0 or max(bounds) > 5.01e-7:
+            raise EngineParseError('Native atomic masses must be positive and printed to at least six decimals')
+        tables.append({'masses_amu': values, 'rounding_half_width_amu': bounds,
+                       'printed_values': printed, 'source_lines': [index+1, last+1]})
+    if not tables:
+        raise EngineParseError('Native vibrational atomic mass vector is absent')
+    if any((table['masses_amu'], table['rounding_half_width_amu']) !=
+           (tables[0]['masses_amu'], tables[0]['rounding_half_width_amu']) for table in tables[1:]):
+        raise EngineParseError('Repeated native atomic mass vectors or precision differ')
+    masses = tables[0]['masses_amu']
+    # Identity-only rejection screen. These independent atomic data never
+    # replace the native values or attest CFOUR's internal DBOC nuclear masses.
+    expected, isotopes = resolved_masses(molecule)
+    if not np.allclose(masses, expected, atol=1e-4, rtol=0):
+        raise EngineParseError('Native mass vector does not follow the expected atomic isotope order')
+    pattern = (r'Z-matrix\s+Atomic\s+Coordinates \(in bohr\)\s*\n'
+               r'\s*Symbol\s+Number\s+X\s+Y\s+Z\s*\n\s*-+\s*\n(.*?)\n\s*-+')
+    geometries = []
+    for match in re.finditer(pattern, raw, re.S):
+        rows = [row.split() for row in match[1].splitlines() if row.strip()]
+        if (len(rows) != n or any(len(row) != 5 for row in rows)
+                or [row[0].capitalize() for row in rows] != molecule.symbols
+                or [row[1] for row in rows] != [str(atomic_number(s)) for s in molecule.symbols]):
+            raise EngineParseError('Native Cartesian mass/geometry atom inventory differs')
+        xyz = np.asarray([[_number(v) for v in row[2:]] for row in rows]) * BOHR_ANGSTROM
+        rotation = _proper_rotation(xyz, np.asarray(molecule.coordinates))
+        geometries.append({'coordinates_angstrom': xyz.tolist(), 'native_coordinate_units': 'bohr',
+                           'source_lines': [raw.count('\n', 0, match.start())+1, raw.count('\n', 0, match.end())+1],
+                           'proper_rotation_to_requested': rotation.tolist()})
+    if not geometries and n == 1:
+        # Authentic monatomic output omits its trivial Cartesian table. Bind
+        # the observed Z-matrix entry and element/Z, without inventing positions.
+        matches = list(re.finditer(r'(?m)^\s*1\s+([A-Z][a-z]?)\s+(\d+)\s+(' + _FLOAT + r')\s*$', raw))
+        if len(matches) != 1 or matches[0][1] != molecule.symbols[0] or int(matches[0][2]) != atomic_number(molecule.symbols[0]):
+            raise EngineParseError('Native monatomic Z-matrix inventory is absent or ambiguous')
+        geometries.append({'coordinates_angstrom': None, 'native_coordinate_units': None,
+                           'source_lines': [raw.count('\n', 0, matches[0].start())+1, raw.count('\n', 0, matches[0].end())+1],
+                           'geometry_scope': 'single atom; no orientation or internal geometry'})
+    if not geometries:
+        raise EngineParseError('Native mass vector lacks its indexed Cartesian geometry')
+    return {'schema': 'topos-cfour-observed-atomic-masses/1', 'atom_ids': molecule.atom_ids,
+            'symbols': molecule.symbols, 'masses_amu': masses,
+            'rounding_half_width_amu': tables[0]['rounding_half_width_amu'],
+            'atoms': [{'atom_id': atom_id, 'native_index': i+1, 'symbol': symbol, 'mass_amu': masses[i],
+                       'rounding_half_width_amu': tables[0]['rounding_half_width_amu'][i]}
+                      for i, (atom_id, symbol) in enumerate(zip(molecule.atom_ids, molecule.symbols, strict=True))],
+            'mass_table_observations': tables, 'native_geometries': geometries,
+            'requested_molecule': molecule.model_dump(mode='json'),
+            'requested_geometry_sha256': digest_json(molecule.model_dump(mode='json')),
+            'source_text_sha256': hashlib.sha256(raw.encode('utf-8')).hexdigest(),
+            'mass_role': 'atomic masses used in native vibrational analysis and selected for rigid-rotor inertia',
+            'mass_source': 'masses used (in AMU) in vibrational analysis',
+            'isotope_sanity_check': isotopes, 'mass_values_substituted': False,
+            'internal_dboc_nuclear_masses_numerically_verified': False,
+            'nuclear_mass_scope': 'native DBOC default convention; no nuclear vector printed here or inferred by electron subtraction',
+            'native_execution_verified': False, 'arbitrary_isotopes_supported': False}
+
+
+def _bind_rotor_mass_execution(observation, molecule, identity, stdout):
+    """Attach actual native identity only after parse_dboc_output succeeds."""
+    if identity[0] != '2.1' or any(not isinstance(v, str) or not v for v in identity):
+        raise IntegrityError('Observed atomic masses require the exact native 2.1 identity')
+    result = dict(observation)
+    result.update(native_engine_identity=list(identity), native_execution_verified=True,
+                  source_artifact={'path': str(Path(stdout).resolve()), 'sha256': file_digest(Path(stdout)),
+                                   'size_bytes': Path(stdout).stat().st_size},
+                  requested_geometry_sha256=digest_json(molecule.model_dump(mode='json')))
+    return result
+
+
+def _collect_rotor_mass_attestation(record, store, molecule, protocol, native_identity):
+    """Reopen every matching completed ON component and reparse native evidence."""
+    from .matrix_components import _verified_component
+
+    expected_identity = molecule.model_dump(mode='json', exclude={'coordinates', 'name'})
+    observations = []
+    protocol_data = protocol.model_dump(mode='json')
+    for attempt in record.attempts:
+        if attempt.status != 'completed' or not str(attempt.metadata.get('component_key', '')).startswith('default-dboc-True-'):
+            continue
+        if attempt.metadata.get('requested_protocol') != protocol_data:
+            raise IntegrityError('Completed DBOC ON components mixed protocols')
+        current = Molecule.model_validate(attempt.metadata['input_molecule'])
+        if current.model_dump(mode='json', exclude={'coordinates', 'name'}) != expected_identity:
+            raise IntegrityError('Completed DBOC mass observations changed molecular identity')
+        key = 'default-dboc-True-' + digest_json(current.coordinates)
+        identity = digest_json({'component_key': key, 'molecule': current.model_dump(mode='json'), 'protocol': protocol_data})
+        if key != attempt.metadata['component_key']:
+            raise IntegrityError('DBOC mass observation is not bound to its exact evaluated geometry')
+        native = _verified_component(attempt, store, current, protocol_data, identity)
+        actual_identity = [native.engine_version, native.metadata.get('executable_sha256'), native.metadata.get('basis_library', {}).get('sha256')]
+        if actual_identity != list(native_identity):
+            raise IntegrityError('DBOC atomic mass observations mixed native engines or basis libraries')
+        stdout = Path(native.diagnostics['process']['stdout_path'])
+        if str(stdout.resolve()) not in {str(Path(a.path).resolve()) for a in native.artifacts}:
+            raise IntegrityError('DBOC mass observation stdout is not inventoried')
+        parsed = parse_dboc_output(stdout.read_text(), current, protocol)
+        bound = _bind_rotor_mass_execution(parsed['rotor_mass_attestation'], current, actual_identity, stdout)
+        if bound != native.metadata.get('native_result', {}).get('rotor_mass_attestation'):
+            raise IntegrityError('Native atomic mass metadata differs from raw evidence')
+        observations.append({'attempt_id': attempt.attempt_id, **bound})
+    if not observations:
+        raise IntegrityError('No completed native DBOC ON atomic mass observations exist')
+    first = observations[0]
+    for item in observations[1:]:
+        if any(item[key] != first[key] for key in ('atom_ids', 'symbols', 'masses_amu', 'rounding_half_width_amu')):
+            raise IntegrityError('Native DBOC campaign atomic mass vectors or precision differ')
+    return {'schema': 'topos-cfour-campaign-atomic-masses/1',
+            **{key: first[key] for key in ('atom_ids', 'symbols', 'masses_amu', 'rounding_half_width_amu', 'atoms',
+                                         'mass_role', 'mass_source', 'native_engine_identity', 'nuclear_mass_scope')},
+            'observation_count': len(observations), 'observations': observations,
+            'native_execution_verified': True, 'every_completed_dboc_on_evaluation_checked': True,
+            'mass_values_substituted': False, 'arbitrary_isotopes_supported': False,
+            'internal_dboc_nuclear_masses_numerically_verified': False,
+            'dboc_off_reference': 'electronic BO surface; no vibrational mass attestation required'}
+
+
+def validate_rotor_mass_attestation(report, record, store, molecule, native_identity):
+    """Reject an injected aggregate by reconstructing every native observation."""
+    protocol = DefaultMassDBOCProtocol.model_validate(report['native_optimizations']['hf_plus_dboc']['protocol'])
+    requested = record.request.matrix_inputs.get('month_corrections', {}).get('dboc')
+    if requested is not None and DefaultMassDBOCProtocol.model_validate(requested) != protocol:
+        raise IntegrityError('Mass report differs from the immutable requested DBOC protocol')
+    rebuilt = _collect_rotor_mass_attestation(record, store, molecule, protocol, native_identity)
+    if rebuilt != report.get('rotor_mass_attestation'):
+        raise IntegrityError('Aggregate rotor mass attestation differs from native component evidence')
+    return rebuilt
+
+
 def parse_default_mass_dboc_section(raw: str) -> dict[str, Any]:
     """Read authentic section grammar only; caller must establish method/version.
 
@@ -140,6 +308,8 @@ def parse_dboc_output(raw: str, molecule: Molecule, protocol: DefaultMassDBOCPro
     potential = math.fsum([native["energy_hartree"], correction["dboc_energy_hartree"]])
     if not math.isfinite(potential):
         raise EngineParseError("HF plus DBOC potential arithmetic is nonfinite")
+    if protocol.dboc:
+        correction['rotor_mass_attestation'] = parse_cfour_rotor_mass_table(raw, molecule)
     native.update(correction, dboc_requested=protocol.dboc, potential_energy_hartree=potential,
         potential_definition="E_HF + native-default-mass DBOC" if protocol.dboc else "E_HF, DBOC explicitly OFF",
         potential_rounding_bound_hartree=electronic_rounding + correction["dboc_print_rounding_bound_hartree"] + abs(float(np.spacing(potential))),
@@ -205,7 +375,7 @@ def run_default_mass_dboc(molecule: Molecule, protocol: DefaultMassDBOCProtocol,
         if file_digest(folder / "GENBAS") != protocol.genbas_sha256:
             raise IntegrityError("GENBAS changed during staging")
         atomic_json(folder / "protocol.json", protocol.model_dump(mode="json"))
-        immutable = {str(path): file_digest(path) for path in (folder / "ZMAT", folder / "GENBAS", folder / "protocol.json")}
+        immutable = {str(path): file_digest(path) for path in (folder / "ZMAT", folder / "GENBAS", folder / "protocol.json", binary, genbas)}
         result.metadata.update(executable=str(binary), executable_sha256=file_digest(binary),
             protocol_sha256=digest_json(protocol.model_dump(mode="json")),
             basis_library={"path": str(genbas), "sha256": protocol.genbas_sha256, "contraction": protocol.contraction})
@@ -225,8 +395,14 @@ def run_default_mass_dboc(molecule: Molecule, protocol: DefaultMassDBOCProtocol,
         if (folder / "ISOMASS").exists() or any(Path(path).is_symlink() or file_digest(Path(path)) != sha for path, sha in immutable.items()):
             raise IntegrityError("Native-default DBOC input changed or custom ISOMASS appeared")
         native = parse_dboc_output(Path(process.stdout_path).read_text(errors="replace"), molecule, protocol)
+        if protocol.dboc:
+            native['rotor_mass_attestation'] = _bind_rotor_mass_execution(native['rotor_mass_attestation'], molecule,
+                [native['engine_version'], result.metadata['executable_sha256'], protocol.genbas_sha256], process.stdout_path)
+            native['mass_convention'].update(native_numeric_masses_verified=True, rotor_mass_attestation_available=True,
+                numeric_mass_scope='observed atomic rotor masses only; internal DBOC nuclear vector not numerically attested')
         atomic_json(folder / "native-result.json", native)
-        result.metadata.update(native_result=native, adapter_validation="native-output-validated-for-this-execution")
+        result.metadata.update(native_result=native, mass_convention=native["mass_convention"],
+                               adapter_validation="native-output-validated-for-this-execution")
         result.energy_hartree, result.engine_version = native["energy_hartree"], native["engine_version"]
         result.molecule, result.converged = molecule, True
         return result
@@ -348,5 +524,12 @@ def calculate_default_mass_dboc_geometry(workflow, record, store, base: Molecule
     report = apply_dboc_geometry_increment(base, geometries["hf_plus_dboc"], geometries["hf_born_oppenheimer"], chart)
     report.update(native_optimizations=evaluations, native_engine_identity=list(next(iter(identities))),
                   recovery="restart outer optimizer; reuse verified native components at matching geometries")
-    report["claims"].update(native_execution_verified=True, dboc_geometry_computed=True)
+    report['rotor_mass_attestation'] = _collect_rotor_mass_attestation(record, store, base, protocol,
+                                                                    report['native_engine_identity'])
+    report['mass_convention'].update(native_numeric_masses_verified=True, rotor_mass_attestation_available=True,
+        numeric_mass_scope='observed atomic rotor masses only; internal DBOC nuclear vector not numerically attested')
+    report['assumptions'] = [item for item in report['assumptions'] if not item.startswith('Native numeric masses')]
+    report['assumptions'].append('Native atomic rotor masses observed per atom; internal DBOC nuclear masses not numerically attested; no arbitrary isotopes')
+    report["claims"].update(native_execution_verified=True, dboc_geometry_computed=True,
+                           rotor_constants_publishable=True)
     return report

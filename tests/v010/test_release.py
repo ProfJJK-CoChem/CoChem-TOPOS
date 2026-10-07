@@ -150,11 +150,13 @@ def test_clean_install_inventory_detects_identical_shared_files_too(tmp_path):
     assert conflicts[0]["same_bytes"]  # pip uninstall ownership is unsafe even with identical bytes
 
 
-def test_gate_refuses_missing_evidence_and_current_unimplemented_matrix():
+def test_gate_refuses_missing_evidence_without_inventing_matrix_gaps():
     result = release_gate(ROOT)
     assert result["status"] == "blocked" and not result["release_certified"] and not result["published"]
     assert any("current evidence file is missing" in reason for reason in result["blockers"])
-    assert any("Method matrix" in reason for reason in result["blockers"])
+    # Every available TOPOS row now has a complete explicitly selected recipe;
+    # scientific/native evidence remains a separate release requirement.
+    assert not any(reason.startswith("Method matrix") for reason in result["blockers"])
 
 
 def test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence(tmp_path):

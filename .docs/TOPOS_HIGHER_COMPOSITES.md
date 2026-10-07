@@ -89,8 +89,9 @@ or a transferable `0.04%` accuracy claim. No native `FCMFINAL` is invented.
 
 `T3O-1w` additionally requests a **counterpoise-bracketed geometry**. A frozen
 interaction-energy CP correction or an unbracketed CFOUR geometry is not that
-deliverable. This adapter refuses that row until the genuine bracketed
-geometry calculation is available.
+deliverable. The separate [conditional CFOUR CP adapter](TOPOS_CFOUR_COUNTERPOISE_REVIEW.md)
+implements both relaxed-total surfaces and their complete geometry increments;
+native correlated CFOUR 2.1 acceptance remains required.
 
 `T3C-1mo` additionally requests relativistic and DBOC geometry increments.
 The presence of `RELATIVISTIC=DPT2`/`X2C1E` and `DBOC=ON` keywords alone does not
@@ -98,8 +99,12 @@ specify compatible increment methods, bases, nuclear masses, or geometry
 derivatives. Native DBOC is an energy correction: it cannot be added directly
 to a geometry or rotational constant. The matrix's broader HF/MP1/MP2/CCSD
 statement also exceeds the cited option documentation and requires explicit
-version-specific resolution. The current adapter refuses this row; it does
-not substitute zero corrections or claim those quantities were computed.
+version-specific resolution. The separately selected
+[observed-mass month composite](TOPOS_MONTH_GEOMETRY_BRANCH.md) implements the
+scalar and HF DBOC geometry increments and Product A equilibrium rotors using
+raw-bound native atomic masses. The general higher-composite adapter alone does
+not provide these increments. Arbitrary isotope campaigns remain a distinct
+scope; no zero corrections or successful native calculations are inferred.
 
 There is a concrete acceptance trap in the immutable [historical carbon-13
 DBOC output](https://github.com/HPQC-LABS/AI_ENERGIES/blob/3098f558135589f5acf52474428ba020a561d58d/C/DBOC/aug-cc-pCVDZ-NR/CFOUR_13C.txt):

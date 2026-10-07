@@ -559,7 +559,8 @@ def resolved_recipe(row: MatrixRow, source_resolution: str | None = None) -> tup
             steps[-1].operation = 'counterpoise-bracketed-composite-geometries'
             steps[-1].options.update(midpoint_geometry=False, composite_stationarity_verified=False)
             return steps, ['molecule', 'fragments', 'fragment_states', 'cfour_counterpoise']
-        if definition.get('kind') == 'conditional-month-geometry':
+        if definition.get('kind') in {'conditional-month-geometry', 'observed-mass-month-geometry'}:
+            observed = definition['kind'] == 'observed-mass-month-geometry'
             steps, required = _recipe(resolve_row('T3C-1w'))
             steps.extend([
                 _step('scalar-HF-geometry-increment', 'cfour', 'HF', derivative='gradient',
@@ -567,9 +568,11 @@ def resolved_recipe(row: MatrixRow, source_resolution: str | None = None) -> tup
                       paired_hamiltonians=['OFF', 'X2C1E'], contraction='UNCONTRACTED'),
                 _step('default-mass-HF-dboc-geometry-increment', 'cfour', 'HF', derivative='gradient',
                       derivative_mechanism='checked h/h2 native HF+DBOC energy differences with print precision bound',
-                      numeric_masses_verified=False, rotor_constants_withheld=True),
-                _step('conditional-corrected-geometry', 'topos', 'CBS+CV+fT+fQ+HF-corrections',
-                      full_matrix_row_completed=False, rotor_constants_withheld=True),
+                      numeric_masses_required=observed, rotor_constants_withheld=not observed,
+                      mass_evidence="every actual DBOC-enabled native output, mapped atom order and print precision" if observed else "not published"),
+                _step('observed-default-mass-corrected-rotors' if observed else 'conditional-corrected-geometry', 'topos', 'CBS+CV+fT+fQ+HF-corrections',
+                      full_matrix_row_completed=observed, rotor_constants_withheld=not observed,
+                      native_mass_attestation_required=observed, mass_kind='atomic masses for rigid rotor; nuclear DBOC masses remain native internal convention'),
             ])
             return steps, [*required, 'month_corrections', 'native_default_mass_domain']
         if definition.get('kind') == 'composite-interaction':

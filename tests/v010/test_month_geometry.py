@@ -12,6 +12,7 @@ from topos.matrix_workflow import MatrixInputs, execution_support_report
 from topos.method_matrix import MATRIX_REVISION, resolve_row, resolved_recipe, reviewed_revision
 from topos.models import Molecule, RunRecord, RunRequest
 from topos.month_geometry import (
+    OBSERVED_MASS_RESOLUTION,
     SOURCE_RESOLUTION,
     MonthCorrectionProtocol,
     execute_month_geometry,
@@ -79,7 +80,8 @@ def test_plan_and_release_report_preserve_partial_mass_scope():
     assert steps[-1].options['rotor_constants_withheld'] is True
     report = execution_support_report()
     assert 'T3C-1mo' in report['implemented_partial_branches']
-    assert 'T3C-1mo' not in report['compiled_complete_recipes']
+    assert 'T3C-1mo' in report['compiled_complete_recipes']
+    assert 'geometry-only' in report['conditional_recipe_resolutions']['T3C-1mo']['compatibility_branch']
     revision = reviewed_revision(SOURCE_RESOLUTION)
     assert 'isotope-mass substitution' in revision['user_decision']
     assert report['unresolved_track_gaps'] == []
@@ -183,3 +185,50 @@ def test_archival_recipe_cannot_fall_through_to_one_primitive_step(tmp_path, row
     assert result.status == 'unsupported'
     assert 'explicit compiled scientific source_resolution' in result.metadata['termination_reason']
     assert not result.attempts
+
+
+def test_native_observed_mass_policy_requires_separate_explicit_resolution():
+    supplied = inputs()
+    supplied.month_corrections.rotor_policy = 'native-observed-atomic-mass-rotors'
+    with pytest.raises(ValueError, match='source resolution and explicit rotor policy'):
+        validate_month_inputs(record(), supplied)
+    supplied.source_resolution = OBSERVED_MASS_RESOLUTION
+    _, protocol = validate_month_inputs(record(), supplied)
+    assert protocol.rotor_policy == 'native-observed-atomic-mass-rotors'
+    supplied.month_corrections.rotor_policy = 'withhold-unverified-native-default-mass-rotors'
+    with pytest.raises(ValueError, match='source resolution and explicit rotor policy'):
+        validate_month_inputs(record(), supplied)
+
+
+def test_observed_mass_plan_requires_actual_per_evaluation_evidence_and_product_a_scope():
+    steps, required = resolved_recipe(resolve_row('T3C-1mo'), OBSERVED_MASS_RESOLUTION)
+    assert 'native_default_mass_domain' in required
+    assert steps[-1].operation == 'observed-default-mass-corrected-rotors'
+    assert steps[-1].options['native_mass_attestation_required'] is True
+    assert steps[-1].options['full_matrix_row_completed'] is True
+    assert steps[-2].options['numeric_masses_required'] is True
+    assert steps[-2].options['rotor_constants_withheld'] is False
+    revision = reviewed_revision(OBSERVED_MASS_RESOLUTION)
+    assert revision['definition']['row_id'] == 'T3C-1mo'
+    assert 'Product A' in revision['definition']['delivers'][1]
+    assert 'T4C' in revision['user_decision']
+    assert revision['archived_source_sha256'] == resolve_row('T3C-1mo').source.sha256
+
+
+def test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages(tmp_path):
+    supplied = inputs()
+    supplied.source_resolution = OBSERVED_MASS_RESOLUTION
+    supplied.month_corrections.rotor_policy = 'native-observed-atomic-mass-rotors'
+    run = record(isotopes=[1, 2])
+    store = RunStore(tmp_path/run.run_id)
+    assert not execute_month_geometry(None, run, store, supplied, time.monotonic()+30, None)
+    assert not run.attempts and run.status == 'unsupported'
+    assert 'explicit isotope' in run.metadata['termination_reason']
+
+
+@pytest.mark.parametrize('product', ['B', 'C'])
+def test_month_direct_adapter_does_not_relabel_another_requested_product(product):
+    run = record()
+    run.request.matrix_product = product
+    with pytest.raises(ValueError, match='Product A only'):
+        validate_month_inputs(run, inputs())

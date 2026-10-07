@@ -54,9 +54,15 @@ the current source or the complete release.
 The full source catalog has 140 rows: 44 owned by TOPOS and 96 by TORQ. Inspect
 `cochem-topos matrix support` for the current compiled recipe inventory, partial
 branches, prerequisites and exact source conflicts; the count changes while
-coding continues. The matrix's two intentionally unavailable CFOUR time tiers are preserved rather
+coding continues. The reviewed compiler currently has 42 complete TOPOS recipes;
+the remaining two TOPOS rows are intentionally unavailable CFOUR time tiers and are preserved rather
 than filled with an invented method. Recipe compilation is distinct from native
-acceptance and from the source papers' experimental accuracy claims.
+acceptance and from the source papers' experimental accuracy claims. The
+[month Product A route](TOPOS_MONTH_GEOMETRY_BRANCH.md) uses directly observed
+native atomic masses for its scalar/DBOC-corrected equilibrium rotors. Historical
+native output does contain numeric mass tables; earlier absence claims were
+incorrect. General isotope campaigns are distinct from this default-isotopologue
+deliverable. Its current native CFOUR 2.1 calculations remain unverified.
 
 The user authorized explicitly named ORCA alternatives for the conflicting
 MPQC/Molpro and F12b/F12D rows. A separately reviewed overlay preserves the

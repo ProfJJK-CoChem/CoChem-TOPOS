@@ -17,6 +17,7 @@ EXECUTABLE_ROWS = {
     "T5-3h",
     "T3O-1w",
     "T3O-3h",
+    "T3C-1mo",
 }
 
 # Native reference-energy branch is useful, but does not implement the row's

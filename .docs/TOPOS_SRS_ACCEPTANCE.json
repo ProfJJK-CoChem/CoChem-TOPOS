@@ -900,8 +900,8 @@
     "TOPOS-010-012": {
       "chapter": "5. Method matrix, purpose, and hardware",
       "requirement_source": "**TOPOS-010-012.** Bind each route to a versioned matrix row specifying purpose, chemical domain, engine/version, method, orbital/auxiliary basis or composite, dispersion, solvent, derivatives, convergence, resources, device, outputs, and alternatives. Validate combinations and archive engine inputs. Presets shall not silently change chemistry state, constraints, method, or reference state.",
-      "status": "partial",
-      "assessment": "The immutable original matrix has 140 rows, including 44 TOPOS-owned rows. The reviewed ORCA overlay adds explicitly named F12D/RI numerical geometries and a distinct F12D/CBS/CV interaction composite without relabeling them MPQC, Molpro or F12b. The conditional CFOUR raw/relaxed-CP high-order geometry adapter is now coded; its native correlated2.1 execution remains unverified. The current compiler has 41 complete recipes, including the explicitly selected B3LYP-D4 VPT2 rotational-correction R2 approximation. The full original isotope-resolved month row remains incomplete; its narrower branch and two intentionally unavailable CFOUR time tiers are recorded separately. Native acceptance and literature accuracy are separate from compilation.",
+      "status": "verification-pending",
+      "assessment": "The immutable original matrix has 140 rows, including 44 TOPOS-owned rows. All 42 available TOPOS rows now have complete explicitly selected compiled recipes; two CFOUR time tiers are source-backed unavailable-by-design. Reviewed ORCA alternatives retain distinct F12D/RI and B3LYP-D4 VPT2-transfer conventions without claiming MPQC, Molpro, F12b or inherited benchmark accuracy. The CFOUR month Product A route implements scalar/DBOC geometry corrections and equilibrium rotors using observed native atomic masses; arbitrary isotope campaigns are separate T4C products, not a prerequisite for this row. Partial compatibility branches remain explicitly labeled. Compilation is separate from complete native/GPU execution acceptance.",
       "implementation": [
         {
           "path": "topos/method_matrix.py",
@@ -936,10 +936,6 @@
           "sha256": "8f3ad3f66342822372b1e51d883ce476f9c177cc907d0566bca8e557d2994e0f"
         },
         {
-          "path": "topos/cfour_corrections.py",
-          "sha256": "efc38dbb61e2c55fc0e00d8176bc8c9aab1dd675d39eadc3e7f5dfcb034df09c"
-        },
-        {
           "path": "topos/matrix_ml_search.py",
           "sha256": "5da93348b3142324cd07e8d152f090dde46ca9e344c68b7b59e272de5532c6d2"
         },
@@ -962,6 +958,18 @@
         {
           "path": "topos/anharmonic.py",
           "sha256": "7a4de95b9ef667f7758f29fb6561d6de731056eb244511743a766e8ae51f2835"
+        },
+        {
+          "path": "topos/cfour_dboc.py",
+          "sha256": "81a72c058b483f68fd4b736b93a6a4458d79d6bfc630678eaa9ec0653a9c9054"
+        },
+        {
+          "path": "topos/cfour_corrections.py",
+          "sha256": "cfd70c6d7258da6d51b75502e51b9e10550007c28b711951530a835cc967f32d"
+        },
+        {
+          "path": "topos/month_geometry.py",
+          "sha256": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92"
         }
       ],
       "acceptance_tests": [
@@ -1173,11 +1181,56 @@
             "test_reviewed_r2_missing_transfer_protocol_rejected_before_geometry",
             "test_public_reviewed_r2_checks_base_export_authority_before_expensive_geometry"
           ]
+        },
+        {
+          "path": "tests/v010/test_cfour_dboc.py",
+          "sha256": "4c451dc613c8bda7c3456d4621e3a0de4dfc1940a38c60ecc4747bb2a115079c",
+          "test_functions": [
+            "test_explicit_mass_convention_basis_and_contraction_are_required",
+            "test_uncertified_methods_mass_conventions_and_derivatives_are_rejected",
+            "test_dboc_compiler_does_not_disable_required_native_response_machinery",
+            "test_every_explicit_isotope_is_rejected_including_common_primary_isotopes",
+            "test_default_mass_domain_does_not_extend_to_unsupported_elements_or_spin",
+            "test_genuine_historical_default_mass_grammar_accepts_consistent_repeated_totals_only",
+            "test_real_mass_path_crash_and_premature_default_total_do_not_certify_dboc",
+            "test_truncated_default_output_before_mass_path_check_is_insufficient",
+            "test_finer_derivative_includes_known_print_quantization_even_when_steps_agree",
+            "test_invalid_precision_cannot_be_reported_as_zero_error",
+            "test_default_mass_coordinate_increment_does_not_publish_mass_bound_rotor_constants",
+            "test_stopped_dboc_campaign_retains_ledger_without_starting_native_jobs",
+            "test_missing_native_engine_never_yields_a_zero_dboc_substitute",
+            "test_existing_custom_mass_file_is_rejected_before_engine_lookup",
+            "test_authentic_atomic_mass_observations_do_not_claim_current_native_execution",
+            "test_authentic_multiatom_mass_order_and_proper_rotated_reference_geometry",
+            "test_mutated_historical_mass_geometry_grammar_cannot_certify_rotors",
+            "test_wrapped_vectors_keep_native_values_and_conflicting_repetitions_fail",
+            "test_injected_mass_aggregate_without_any_native_components_cannot_close_month"
+          ]
+        },
+        {
+          "path": "tests/v010/test_month_geometry.py",
+          "sha256": "c09cd2d25b7da361b3657339c0bde7d73f2d49a0c41068792a1c90e7339f5647",
+          "test_functions": [
+            "test_all_native_library_and_mass_choices_preflight_before_cost",
+            "test_explicit_isotopes_cannot_enter_native_default_month_branch",
+            "test_requested_increment_cannot_be_disabled",
+            "test_plan_and_release_report_preserve_partial_mass_scope",
+            "test_cancel_or_expired_budget_never_launches_native_calculations",
+            "test_unsupported_mass_rejected_before_high_level_component",
+            "test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors",
+            "test_matrix_request_rejects_mass_domain_before_engine_discovery",
+            "test_public_unavailable_tier_is_not_misreported_as_missing_adapter",
+            "test_cfour_counterpoise_plan_names_native_energy_derivatives_and_separate_branches",
+            "test_cfour_cp_row_requires_the_explicit_protocol_before_launch",
+            "test_archival_recipe_cannot_fall_through_to_one_primitive_step",
+            "test_native_observed_mass_policy_requires_separate_explicit_resolution",
+            "test_observed_mass_plan_requires_actual_per_evaluation_evidence_and_product_a_scope",
+            "test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages",
+            "test_month_direct_adapter_does_not_relabel_another_requested_product"
+          ]
         }
       ],
-      "coding_gaps": [
-        "Full original T3C-1mo mass-bound isotopic rotor scope remains incomplete; the explicitly narrower native-default-mass contribution is not full-row completion."
-      ],
+      "coding_gaps": [],
       "additional_acceptance_conditions": [
         "all_matrix_recipes",
         "hosted_orca",
@@ -2839,7 +2892,7 @@
       "chapter": "7. Deduplication, chirality, and spectroscopy",
       "requirement_source": "**TOPOS-010-029.** Distinguish equilibrium `Ae,Be,Ce` from averaged `A0,B0,C0`; record units, isotopes, geometry level, correction model, uncertainty. The semi-rigid expression `B0=Be\u2212\u00bd\u03a3r \u03b1rB` has different mode/validity assumptions for linear, constrained, and large-amplitude systems. Uncorrected `Be` is not experimental `B0`; empirical scaling needs independent validation.",
       "status": "verification-pending",
-      "assessment": "Equilibrium rotational constants remain distinct from native ORCA VPT2 vibration-rotation corrections and explicitly supplied corrections. Literal native analytic Hessian/VPT2 adapters are implemented with method and stationarity restrictions; licensed current-source acceptance remains separate. TORQ-owned DVR/large-amplitude spectroscopy is not claimed. The conditional CFOUR raw/CP geometry bracket preserves two derived structures and their separate equilibrium rotational constants; it does not infer a confidence interval or a single composite-potential minimum. The reviewed R2 B3LYP-D4/def2-TZVPP VPT2 correction transfer is implemented with two retained geometries, native-mass inertia checks, proper-axis alignment, basin/topology guards and explicit approximate-composite labeling; its full native campaign remains unverified.",
+      "assessment": "Equilibrium rotational constants remain distinct from native ORCA VPT2 vibration-rotation corrections and explicitly supplied corrections. Literal native analytic Hessian/VPT2 adapters are implemented with method and stationarity restrictions; licensed current-source acceptance remains separate. TORQ-owned DVR/large-amplitude spectroscopy is not claimed. The conditional CFOUR raw/CP geometry bracket preserves two derived structures and their separate equilibrium rotational constants; it does not infer a confidence interval or a single composite-potential minimum. The reviewed R2 B3LYP-D4/def2-TZVPP VPT2 correction transfer is implemented with two retained geometries, native-mass inertia checks, proper-axis alignment, basin/topology guards and explicit approximate-composite labeling; its full native campaign remains unverified. The observed-native-mass month Product A route now computes equilibrium rotors from its corrected geometry with every mass observation bound to genuine native outputs; decimal-rounding intervals remain distinct from scientific model uncertainty. Native CFOUR 2.1 acceptance is pending.",
       "implementation": [
         {
           "path": "topos/symmetry.py",
@@ -2860,6 +2913,18 @@
         {
           "path": "topos/anharmonic.py",
           "sha256": "7a4de95b9ef667f7758f29fb6561d6de731056eb244511743a766e8ae51f2835"
+        },
+        {
+          "path": "topos/cfour_dboc.py",
+          "sha256": "81a72c058b483f68fd4b736b93a6a4458d79d6bfc630678eaa9ec0653a9c9054"
+        },
+        {
+          "path": "topos/cfour_corrections.py",
+          "sha256": "cfd70c6d7258da6d51b75502e51b9e10550007c28b711951530a835cc967f32d"
+        },
+        {
+          "path": "topos/month_geometry.py",
+          "sha256": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92"
         }
       ],
       "acceptance_tests": [
@@ -2952,6 +3017,53 @@
             "test_reviewed_r2_missing_transfer_protocol_rejected_before_geometry",
             "test_public_reviewed_r2_checks_base_export_authority_before_expensive_geometry"
           ]
+        },
+        {
+          "path": "tests/v010/test_cfour_dboc.py",
+          "sha256": "4c451dc613c8bda7c3456d4621e3a0de4dfc1940a38c60ecc4747bb2a115079c",
+          "test_functions": [
+            "test_explicit_mass_convention_basis_and_contraction_are_required",
+            "test_uncertified_methods_mass_conventions_and_derivatives_are_rejected",
+            "test_dboc_compiler_does_not_disable_required_native_response_machinery",
+            "test_every_explicit_isotope_is_rejected_including_common_primary_isotopes",
+            "test_default_mass_domain_does_not_extend_to_unsupported_elements_or_spin",
+            "test_genuine_historical_default_mass_grammar_accepts_consistent_repeated_totals_only",
+            "test_real_mass_path_crash_and_premature_default_total_do_not_certify_dboc",
+            "test_truncated_default_output_before_mass_path_check_is_insufficient",
+            "test_finer_derivative_includes_known_print_quantization_even_when_steps_agree",
+            "test_invalid_precision_cannot_be_reported_as_zero_error",
+            "test_default_mass_coordinate_increment_does_not_publish_mass_bound_rotor_constants",
+            "test_stopped_dboc_campaign_retains_ledger_without_starting_native_jobs",
+            "test_missing_native_engine_never_yields_a_zero_dboc_substitute",
+            "test_existing_custom_mass_file_is_rejected_before_engine_lookup",
+            "test_authentic_atomic_mass_observations_do_not_claim_current_native_execution",
+            "test_authentic_multiatom_mass_order_and_proper_rotated_reference_geometry",
+            "test_mutated_historical_mass_geometry_grammar_cannot_certify_rotors",
+            "test_wrapped_vectors_keep_native_values_and_conflicting_repetitions_fail",
+            "test_injected_mass_aggregate_without_any_native_components_cannot_close_month"
+          ]
+        },
+        {
+          "path": "tests/v010/test_month_geometry.py",
+          "sha256": "c09cd2d25b7da361b3657339c0bde7d73f2d49a0c41068792a1c90e7339f5647",
+          "test_functions": [
+            "test_all_native_library_and_mass_choices_preflight_before_cost",
+            "test_explicit_isotopes_cannot_enter_native_default_month_branch",
+            "test_requested_increment_cannot_be_disabled",
+            "test_plan_and_release_report_preserve_partial_mass_scope",
+            "test_cancel_or_expired_budget_never_launches_native_calculations",
+            "test_unsupported_mass_rejected_before_high_level_component",
+            "test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors",
+            "test_matrix_request_rejects_mass_domain_before_engine_discovery",
+            "test_public_unavailable_tier_is_not_misreported_as_missing_adapter",
+            "test_cfour_counterpoise_plan_names_native_energy_derivatives_and_separate_branches",
+            "test_cfour_cp_row_requires_the_explicit_protocol_before_launch",
+            "test_archival_recipe_cannot_fall_through_to_one_primitive_step",
+            "test_native_observed_mass_policy_requires_separate_explicit_resolution",
+            "test_observed_mass_plan_requires_actual_per_evaluation_evidence_and_product_a_scope",
+            "test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages",
+            "test_month_direct_adapter_does_not_relabel_another_requested_product"
+          ]
         }
       ],
       "coding_gaps": [],
@@ -2993,6 +3105,18 @@
         {
           "path": "topos/cfour_counterpoise.py",
           "sha256": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143"
+        },
+        {
+          "path": "topos/cfour_dboc.py",
+          "sha256": "81a72c058b483f68fd4b736b93a6a4458d79d6bfc630678eaa9ec0653a9c9054"
+        },
+        {
+          "path": "topos/cfour_corrections.py",
+          "sha256": "cfd70c6d7258da6d51b75502e51b9e10550007c28b711951530a835cc967f32d"
+        },
+        {
+          "path": "topos/month_geometry.py",
+          "sha256": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92"
         }
       ],
       "acceptance_tests": [
@@ -3096,6 +3220,53 @@
             "test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo",
             "test_real_process_boundary_rejects_input_or_executable_mutation",
             "test_reviewed_counterpoise_resolution_is_required_before_any_engine"
+          ]
+        },
+        {
+          "path": "tests/v010/test_cfour_dboc.py",
+          "sha256": "4c451dc613c8bda7c3456d4621e3a0de4dfc1940a38c60ecc4747bb2a115079c",
+          "test_functions": [
+            "test_explicit_mass_convention_basis_and_contraction_are_required",
+            "test_uncertified_methods_mass_conventions_and_derivatives_are_rejected",
+            "test_dboc_compiler_does_not_disable_required_native_response_machinery",
+            "test_every_explicit_isotope_is_rejected_including_common_primary_isotopes",
+            "test_default_mass_domain_does_not_extend_to_unsupported_elements_or_spin",
+            "test_genuine_historical_default_mass_grammar_accepts_consistent_repeated_totals_only",
+            "test_real_mass_path_crash_and_premature_default_total_do_not_certify_dboc",
+            "test_truncated_default_output_before_mass_path_check_is_insufficient",
+            "test_finer_derivative_includes_known_print_quantization_even_when_steps_agree",
+            "test_invalid_precision_cannot_be_reported_as_zero_error",
+            "test_default_mass_coordinate_increment_does_not_publish_mass_bound_rotor_constants",
+            "test_stopped_dboc_campaign_retains_ledger_without_starting_native_jobs",
+            "test_missing_native_engine_never_yields_a_zero_dboc_substitute",
+            "test_existing_custom_mass_file_is_rejected_before_engine_lookup",
+            "test_authentic_atomic_mass_observations_do_not_claim_current_native_execution",
+            "test_authentic_multiatom_mass_order_and_proper_rotated_reference_geometry",
+            "test_mutated_historical_mass_geometry_grammar_cannot_certify_rotors",
+            "test_wrapped_vectors_keep_native_values_and_conflicting_repetitions_fail",
+            "test_injected_mass_aggregate_without_any_native_components_cannot_close_month"
+          ]
+        },
+        {
+          "path": "tests/v010/test_month_geometry.py",
+          "sha256": "c09cd2d25b7da361b3657339c0bde7d73f2d49a0c41068792a1c90e7339f5647",
+          "test_functions": [
+            "test_all_native_library_and_mass_choices_preflight_before_cost",
+            "test_explicit_isotopes_cannot_enter_native_default_month_branch",
+            "test_requested_increment_cannot_be_disabled",
+            "test_plan_and_release_report_preserve_partial_mass_scope",
+            "test_cancel_or_expired_budget_never_launches_native_calculations",
+            "test_unsupported_mass_rejected_before_high_level_component",
+            "test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors",
+            "test_matrix_request_rejects_mass_domain_before_engine_discovery",
+            "test_public_unavailable_tier_is_not_misreported_as_missing_adapter",
+            "test_cfour_counterpoise_plan_names_native_energy_derivatives_and_separate_branches",
+            "test_cfour_cp_row_requires_the_explicit_protocol_before_launch",
+            "test_archival_recipe_cannot_fall_through_to_one_primitive_step",
+            "test_native_observed_mass_policy_requires_separate_explicit_resolution",
+            "test_observed_mass_plan_requires_actual_per_evaluation_evidence_and_product_a_scope",
+            "test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages",
+            "test_month_direct_adapter_does_not_relabel_another_requested_product"
           ]
         }
       ],
@@ -3293,7 +3464,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-033.** Specify whole-method BSSE policy, fragments/states, observable, and sign. For two fragments at complex geometry:",
       "status": "verification-pending",
-      "assessment": "Five-leg Boys\u2013Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H\u2013Ne atoms. Native correlated CFOUR2.1 validation remains outstanding.",
+      "assessment": "Five-leg Boys\u2013Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H\u2013Ne atoms. Native correlated CFOUR 2.1 validation remains outstanding.",
       "implementation": [
         {
           "path": "topos/counterpoise.py",
@@ -4786,7 +4957,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
+          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -4796,7 +4967,7 @@
             "test_release_installation_verifies_all_local_wheels_and_ownership",
             "test_release_installer_rejects_checksum_tampering_before_pip",
             "test_clean_install_inventory_detects_identical_shared_files_too",
-            "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
+            "test_gate_refuses_missing_evidence_without_inventing_matrix_gaps",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
             "test_source_identity_is_content_based_and_ignores_local_caches",
             "test_worker_source_inventory_rejects_namespace_symlinks",
@@ -4924,7 +5095,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
+          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -4934,7 +5105,7 @@
             "test_release_installation_verifies_all_local_wheels_and_ownership",
             "test_release_installer_rejects_checksum_tampering_before_pip",
             "test_clean_install_inventory_detects_identical_shared_files_too",
-            "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
+            "test_gate_refuses_missing_evidence_without_inventing_matrix_gaps",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
             "test_source_identity_is_content_based_and_ignores_local_caches",
             "test_worker_source_inventory_rejects_namespace_symlinks",
@@ -4989,7 +5160,7 @@
       "acceptance_tests": [
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
+          "sha256": "dbe5385928273d0fecc109d68ea2f31ad2ec9bb9ed6358fe6aabd1b418b37be1",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -4999,7 +5170,7 @@
             "test_release_installation_verifies_all_local_wheels_and_ownership",
             "test_release_installer_rejects_checksum_tampering_before_pip",
             "test_clean_install_inventory_detects_identical_shared_files_too",
-            "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
+            "test_gate_refuses_missing_evidence_without_inventing_matrix_gaps",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
             "test_source_identity_is_content_based_and_ignores_local_caches",
             "test_worker_source_inventory_rejects_namespace_symlinks",

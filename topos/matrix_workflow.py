@@ -58,9 +58,7 @@ def execution_support_report() -> dict[str, Any]:
 
     catalog = load_catalog()
     topos_rows = [r for r in catalog.rows if r.owner == "TOPOS"]
-    unresolved = {
-        "T3C-1mo": "Conditional explicit HF X2C/native-default HF DBOC corrected geometry is implemented for H/C/N/O/F without explicit isotopes. Numeric native masses are not attested, so all rotor constants and full original-row completion remain withheld.",
-    }
+    unresolved = {}
     return {
         "catalog_revision": catalog.revision,
         "catalog_source_sha256": catalog.source_sha256,
@@ -119,9 +117,10 @@ def execution_support_report() -> dict[str, Any]:
             "T3O-3h": {"required_explicit_resolution": "r2-b3lyp-d4-vpt2-transfer-v1",
                        "implemented_variant": "frozen QZ target plus ordinary DLPNO CP; independently relaxed strict B3LYP-D4/TZVPP native VPT2 reference and explicit axis/mass matched correction transfer",
                        "validation_limit": "Approximate composite with explicitly changed reference functional; archived wB97X-V/VV10 native VPT2 remains unsupported, no automatic fallback or experimental accuracy claim"},
-            "T3C-1mo": {"required_explicit_resolution": "cfour-native-default-mass-corrected-geometry-v1",
-                        "implemented_variant": "conditional higher composite plus paired HF X2C and native-default HF DBOC geometry increments",
-                        "completion_limit": "All rotor constants withheld because numeric native masses are unattested; never certifies the full original row"},
+            "T3C-1mo": {"required_explicit_resolution": "cfour-observed-default-mass-small-correction-v1",
+                        "implemented_variant": "higher composite plus paired HF X2C/native-default HF DBOC increments and Product A rotors using raw-bound observed native atomic masses",
+                        "completion_limit": "Every actual DBOC-enabled evaluation must attest the same complete mass vector and print precision; H/C/N/O/F with no explicit isotope requests, no B0 or generic isotope campaign",
+                        "compatibility_branch": "cfour-native-default-mass-corrected-geometry-v1 remains geometry-only and does not complete Product A"},
             "T1-30min": {"required_input": "explicit AIMNet2 checkpoint manifest and concurrent ML/ORCA resource allocation",
                          "implemented_variant": "native GOAT-EXPLORE ExtOpt followed by actual common r2SCAN-3c refinement and Stage-A native CREGEN; ML energies remain raw enumeration observations"},
             "T1-1w": {"required_input": "100–500 provenance-verified DFT configurations, group-disjoint data partitions, explicit GPU training/model/allocation, and hash-verified CREST 3.0.2+topos-generic-paths-v1",
@@ -170,6 +169,7 @@ class MatrixInputs(Contract):
     source_resolution: Literal["native-composite-rawinteraction-v1", "orca-f12-reference-singlepoint-v1",
         "orca-f12d-numerical-geometry-dz-v1", "orca-f12d-numerical-geometry-tz-v1",
         "orca-f12d-composite-interaction-v1", "cfour-native-default-mass-corrected-geometry-v1",
+        "cfour-observed-default-mass-small-correction-v1",
         "cfour-relaxed-counterpoise-geometry-v1", "r2-separate-dft-vpt2-transfer-v1",
         "r2-b3lyp-d4-vpt2-transfer-v1"] | None = None
     external_protocol: ExternalProtocol | None = None
@@ -437,7 +437,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         explicit_variants = {
             'T3O-3h': {'r2-separate-dft-vpt2-transfer-v1', 'r2-b3lyp-d4-vpt2-transfer-v1'},
             'T3O-1w': {'cfour-relaxed-counterpoise-geometry-v1'},
-            'T3C-1mo': {'cfour-native-default-mass-corrected-geometry-v1'},
+            'T3C-1mo': {'cfour-native-default-mass-corrected-geometry-v1', 'cfour-observed-default-mass-small-correction-v1'},
             'T3O-1d': {'orca-f12d-numerical-geometry-dz-v1'},
             'T3O-1mo': {'orca-f12d-numerical-geometry-tz-v1', 'orca-f12-reference-singlepoint-v1'},
             'T5-3h': {'orca-f12d-composite-interaction-v1'},
@@ -544,7 +544,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
                 BackendCapability(engine='cfour', engine_version='2.1', methods=['HF'],
                     operations=['scalar-HF-geometry-increment', 'default-mass-HF-dboc-geometry-increment'], **common),
                 BackendCapability(engine='topos', engine_version='0.1.0', methods=['CBS+CV+fT+fQ+HF-corrections'],
-                    operations=['conditional-corrected-geometry'], **common)])
+                    operations=['conditional-corrected-geometry', 'observed-default-mass-corrected-rotors'], **common)])
         if inputs.ml_model is not None and not inputs.backend_capabilities:
             manifest = inputs.ml_model
             capabilities.append(BackendCapability(engine="mlff", engine_version=manifest.package_version,
@@ -743,17 +743,21 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
 
         if not execute_cfour_counterpoise_recipe(workflow, record, store, inputs, deadline, cancel_event):
             return
-    elif row_id == 'T3C-1mo' and inputs.source_resolution == 'cfour-native-default-mass-corrected-geometry-v1':
+    elif row_id == 'T3C-1mo' and inputs.source_resolution in {
+            'cfour-native-default-mass-corrected-geometry-v1', 'cfour-observed-default-mass-small-correction-v1'}:
         from .month_geometry import execute_month_geometry
 
         if not execute_month_geometry(workflow, record, store, inputs, deadline, cancel_event):
             return
-        state['full_row_completed'] = False
-        state['implemented_branch_completed'] = True
-        state['completion_scope'] = 'Conditional corrected geometry only; native numeric isotope masses and all rotor constants remain unverified/withheld'
-        record.status, record.validation_status = 'completed', 'human-review'
-        store.commit(record)
-        return
+        if inputs.source_resolution == 'cfour-native-default-mass-corrected-geometry-v1':
+            state['full_row_completed'] = False
+            state['implemented_branch_completed'] = True
+            state['completion_scope'] = 'Compatibility geometry-only branch; no rotor constants published'
+            record.status, record.validation_status = 'completed', 'human-review'
+            store.commit(record)
+            return
+        if record.metadata.get('matrix_external', {}).get('full_matrix_row_completed') is not True:
+            raise IntegrityError('Observed-mass month recipe did not attest its complete Product A outputs')
     elif row_id == "T3C-1w":
         from .higher_composite import execute_higher_recipe
 

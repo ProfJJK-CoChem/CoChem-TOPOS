@@ -153,6 +153,11 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
                               auxiliary_basis="def2/J", dispersion="D4", profile_id="orca-vpt2-reference-v1"))
                 optimized = retain(run_engine(molecule, method, remaining(), folder / "optimization", executable=binary,
                                                process_runner=runtime.run_process), folder, "optimization")
+                dft_import = None
+                if case == "native-hessian":
+                    from orca_dft_import_acceptance import verify_optimized_dft_import
+
+                    dft_import = verify_optimized_dft_import(optimized, molecule, folder / "dft-reference-import")
                 native = run_orca_hessian if case == "native-hessian" else run_orca_vpt2
                 options = {"semirigid_modes": True} if case == "native-vpt2" else {}
                 result = retain(native(optimized.molecule, method, remaining(), folder / "native",
@@ -169,6 +174,8 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
                     raise RuntimeError("Native completed-stage recovery did not reuse verified evidence")
                 details = {"recovery_verified": True, "energy_hartree": result.energy_hartree,
                            "result_sha256": file_digest(folder / "native-result.json")}
+                if dft_import is not None:
+                    details["optimized_dft_reference_import"] = dft_import
             else:
                 f12 = case in {"CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2"}
                 local = case == "DLPNO-CCSD(T1)"

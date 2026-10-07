@@ -51,9 +51,12 @@ The parameterized `T3C-1w` [higher geometry composite](TOPOS_HIGHER_COMPOSITES.m
 adds all eight explicit CBS/CV/fT/fQ component geometries, checked numerical
 energy derivatives for full quadruples, and durable displacement-level
 recovery. Its bases, extrapolation exponent, and numerical derivative settings
-must be selected explicitly. Counterpoise-bracketed geometry, relativistic
-increments and isotope-resolved DBOC geometry corrections remain separate
-requirements; their rows cannot borrow an uncorrected geometry.
+must be selected explicitly. Separate conditional adapters implement the
+[raw/CP geometry bracket](TOPOS_CFOUR_COUNTERPOISE_REVIEW.md) and
+[scalar/DBOC month composite with observed native-mass rotors](TOPOS_MONTH_GEOMETRY_BRANCH.md).
+These routes require their own native evidence; they cannot borrow an
+uncorrected geometry. The month Product A default-isotopologue calculation is
+distinct from arbitrary-isotope DBOC campaigns.
 
 **Psi4:** the explicitly selected SAPT2+3 branch, with two balanced closed-shell
 monomers, declared orbital/SCF-fitting/SAPT-fitting bases, core treatment,
