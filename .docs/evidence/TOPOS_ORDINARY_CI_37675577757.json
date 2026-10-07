@@ -1,0 +1,729 @@
+{
+  "run_url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37675577757",
+  "source_sha": "053c827638b3481c5c3d645856b69d50c47b387f",
+  "source_git_tree_sha": "38548e0cf0c8caba7d90b14e0642af95da77a2a8",
+  "conclusion": "success",
+  "status": "completed",
+  "jobs": [
+    {
+      "completedAt": "2026-10-07T19:43:03Z",
+      "conclusion": "success",
+      "databaseId": 112978093206,
+      "name": "verify (3.12)",
+      "startedAt": "2026-10-07T19:35:04Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install mandatory packages and verification tools",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install checksum-pinned genuine xTB",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install checksum-pinned genuine CREST",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Lint and check dependencies",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test mathematical, failure, storage, UI, and real engine paths",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build distributable",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Retain verification evidence",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 21,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 22,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "number": 23,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 24,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37675577757/job/112978093206"
+    },
+    {
+      "completedAt": "2026-10-07T19:45:08Z",
+      "conclusion": "success",
+      "databaseId": 112978093579,
+      "name": "verify (3.11)",
+      "startedAt": "2026-10-07T19:35:04Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 2,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "number": 3,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 4,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 5,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install mandatory packages and verification tools",
+          "number": 6,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install checksum-pinned genuine xTB",
+          "number": 7,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Install checksum-pinned genuine CREST",
+          "number": 8,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Lint and check dependencies",
+          "number": 9,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Test mathematical, failure, storage, UI, and real engine paths",
+          "number": 10,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Build distributable",
+          "number": 11,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Retain verification evidence",
+          "number": 12,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 21,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 22,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+          "number": 23,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+          "number": 24,
+          "status": "completed"
+        },
+        {
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37675577757/job/112978093579"
+    }
+  ],
+  "tests": {
+    "311": {
+      "job_id": 112978093579,
+      "log": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-311.log",
+      "log_sha256": "4c7964e4aa8bcbdfa98749d5fd72f9c47be360479a5c6ba29d48d08b69bba4d8",
+      "artifact": {
+        "id": 11506224687,
+        "path": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-python-311.zip",
+        "sha256": "abd21353856f824020ae1921feb22119cca4c4b20d630a7cd936fb5f0e57e7d4",
+        "github_digest": "sha256:abd21353856f824020ae1921feb22119cca4c4b20d630a7cd936fb5f0e57e7d4",
+        "github_digest_verified": true,
+        "extraction": "unchanged bytes from verified original ZIP"
+      },
+      "checkout": {
+        "sha": "85f4fb963c3770a84ea710bf88fb724586e24ef9",
+        "tree_sha": "38548e0cf0c8caba7d90b14e0642af95da77a2a8",
+        "parents": [
+          "6a01b0f2adb7cff02edda6e339facf3d6f93904d",
+          "053c827638b3481c5c3d645856b69d50c47b387f"
+        ],
+        "identical_source_tree": true
+      },
+      "junit": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-python-311/verification.xml",
+      "junit_sha256": "a4fbd516ae45a5994cadb162870b1974ebc83f444543631d53452ccf9a937444",
+      "summary": {
+        "tests": 1761,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 42,
+        "passed": 1719,
+        "time_seconds": 517.086
+      },
+      "failures": [],
+      "skips": [
+        {
+          "test": "tests.v010.test_abcluster::test_genuine_neon_dimer_analytic_lj_limit_resume_and_tamper",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:74: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster::test_genuine_methanol_dimer_preserves_monomers_and_interleaved_atom_ids",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:126: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster::test_cancelled_search_retains_raw_evidence_then_can_retry",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:151: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster_workflow::test_actual_abcluster_scores_are_never_quantum_candidate_energies",
+          "message": "Actual ABCluster 3.4 and xTB 6.7.1 required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster_workflow.py:66: Actual ABCluster 3.4 and xTB 6.7.1 required"
+        },
+        {
+          "test": "tests.v010.test_abcluster_workflow::test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages",
+          "message": "Actual ABCluster and xTB required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster_workflow.py:111: Actual ABCluster and xTB required"
+        },
+        {
+          "test": "tests.v010.test_anharmonic::test_authentic_orca_vpt2_water_and_completed_recovery",
+          "message": "licensed ORCA 6.1.1 must be provisioned explicitly",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_anharmonic.py:120: licensed ORCA 6.1.1 must be provisioned explicitly"
+        },
+        {
+          "test": "tests.v010.test_external_matrix_workflow::test_genuine_psi4_public_matrix_request_and_verified_resume",
+          "message": "Genuine optional Psi4 installation not configured; no simulated SAPT calculation",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_external_matrix_workflow.py:119: Genuine optional Psi4 installation not configured; no simulated SAPT calculation"
+        },
+        {
+          "test": "tests.v010.test_ml::test_actual_aimnet_committee_derivative_and_rigid_invariance",
+          "message": "Explicit AIMNet interpreter and official checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml.py:134: Explicit AIMNet interpreter and official checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_native_crest_reads_actual_mace_energy_and_gradient",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:145: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_native_sampler_callback_bound_never_claims_completion",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:185: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_stock_native_crest_is_rejected_before_model_search",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:204: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[missing-manifest]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[patch-bytes]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[binary-binding]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_extopt::test_authentic_persistent_mace_extopt_callback_and_unit_conversion",
+          "message": "explicit genuine ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_extopt.py:134: explicit genuine ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_training::test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol",
+          "message": "The actual pinned MACE parser is not installed",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_training.py:240: The actual pinned MACE parser is not installed"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_actual_committee_campaign_resumes_only_after_complete_evidence",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:89: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[True]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:99: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[False]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:99: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[empty-artifacts]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-converged]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-validated]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-real]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-receipt]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-native]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[artifact-size]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[escape]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[parent-symlink]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[receipt-hash]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[published-quantity]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-derived]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-frame]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[incomplete-frames]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[culling-claim]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[gradient-shape]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[derived]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[receipt]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[final-commit]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_commit_acknowledgement_loss_recovers_the_verified_publication",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_actual_surface_publication_and_semantic_hdf5_resume_validation",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_native_hessian::test_authentic_orca_native_hessian_and_verified_recovery",
+          "message": "licensed ORCA execution must be provisioned explicitly",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_native_hessian.py:84: licensed ORCA execution must be provisioned explicitly"
+        }
+      ]
+    },
+    "312": {
+      "job_id": 112978093206,
+      "log": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-312.log",
+      "log_sha256": "f319224124a464058e688b570079dd9966e12cd6b8b196d88b24755dedd3bf10",
+      "artifact": {
+        "id": 11506708509,
+        "path": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-python-312.zip",
+        "sha256": "1c48b6132194a9c444ef9d32649a7fdbf274f2ecf83877329f392f5c5992d6af",
+        "github_digest": "sha256:1c48b6132194a9c444ef9d32649a7fdbf274f2ecf83877329f392f5c5992d6af",
+        "github_digest_verified": true,
+        "extraction": "unchanged bytes from verified original ZIP"
+      },
+      "checkout": {
+        "sha": "85f4fb963c3770a84ea710bf88fb724586e24ef9",
+        "tree_sha": "38548e0cf0c8caba7d90b14e0642af95da77a2a8",
+        "parents": [
+          "6a01b0f2adb7cff02edda6e339facf3d6f93904d",
+          "053c827638b3481c5c3d645856b69d50c47b387f"
+        ],
+        "identical_source_tree": true
+      },
+      "junit": "/workspace/.cochem-setup/topos-ordinary-ci-37675577757-python-312/verification.xml",
+      "junit_sha256": "dea20c871e339945da117460be6b400a3b2c0e47840ab5e9ec03c3dcbd8ef89a",
+      "summary": {
+        "tests": 1761,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 42,
+        "passed": 1719,
+        "time_seconds": 390.636
+      },
+      "failures": [],
+      "skips": [
+        {
+          "test": "tests.v010.test_abcluster::test_genuine_neon_dimer_analytic_lj_limit_resume_and_tamper",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:74: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster::test_genuine_methanol_dimer_preserves_monomers_and_interleaved_atom_ids",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:126: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster::test_cancelled_search_retains_raw_evidence_then_can_retry",
+          "message": "native ABCluster 3.4 rigidmol executable not explicitly provisioned",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster.py:151: native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+        },
+        {
+          "test": "tests.v010.test_abcluster_workflow::test_actual_abcluster_scores_are_never_quantum_candidate_energies",
+          "message": "Actual ABCluster 3.4 and xTB 6.7.1 required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster_workflow.py:66: Actual ABCluster 3.4 and xTB 6.7.1 required"
+        },
+        {
+          "test": "tests.v010.test_abcluster_workflow::test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages",
+          "message": "Actual ABCluster and xTB required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_abcluster_workflow.py:111: Actual ABCluster and xTB required"
+        },
+        {
+          "test": "tests.v010.test_anharmonic::test_authentic_orca_vpt2_water_and_completed_recovery",
+          "message": "licensed ORCA 6.1.1 must be provisioned explicitly",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_anharmonic.py:120: licensed ORCA 6.1.1 must be provisioned explicitly"
+        },
+        {
+          "test": "tests.v010.test_external_matrix_workflow::test_genuine_psi4_public_matrix_request_and_verified_resume",
+          "message": "Genuine optional Psi4 installation not configured; no simulated SAPT calculation",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_external_matrix_workflow.py:119: Genuine optional Psi4 installation not configured; no simulated SAPT calculation"
+        },
+        {
+          "test": "tests.v010.test_ml::test_actual_aimnet_committee_derivative_and_rigid_invariance",
+          "message": "Explicit AIMNet interpreter and official checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml.py:134: Explicit AIMNet interpreter and official checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_native_crest_reads_actual_mace_energy_and_gradient",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:145: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_native_sampler_callback_bound_never_claims_completion",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:185: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_stock_native_crest_is_rejected_before_model_search",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:204: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[missing-manifest]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[patch-bytes]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[binary-binding]",
+          "message": "explicit genuine CREST/MACE interpreter and checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_extopt::test_authentic_persistent_mace_extopt_callback_and_unit_conversion",
+          "message": "explicit genuine ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_extopt.py:134: explicit genuine ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_training::test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol",
+          "message": "The actual pinned MACE parser is not installed",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_training.py:240: The actual pinned MACE parser is not installed"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_actual_committee_campaign_resumes_only_after_complete_evidence",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:89: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[True]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:99: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[False]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:99: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[empty-artifacts]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-converged]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-validated]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-real]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-receipt]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-native]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[artifact-size]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[escape]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[parent-symlink]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[receipt-hash]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[published-quantity]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-derived]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-frame]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[incomplete-frames]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[culling-claim]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[gradient-shape]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[derived]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[receipt]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[final-commit]",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_commit_acknowledgement_loss_recovers_the_verified_publication",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_ml_workflow::test_actual_surface_publication_and_semantic_hdf5_resume_validation",
+          "message": "Explicit actual ML interpreter/checkpoint request required",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required"
+        },
+        {
+          "test": "tests.v010.test_native_hessian::test_authentic_orca_native_hessian_and_verified_recovery",
+          "message": "licensed ORCA execution must be provisioned explicitly",
+          "detail": "/home/runner/work/CoChem-TOPOS/CoChem-TOPOS/tests/v010/test_native_hessian.py:84: licensed ORCA execution must be provisioned explicitly"
+        }
+      ]
+    }
+  },
+  "scope": "Ordinary cross-version CI with genuine xTB and CREST; optional native skips do not certify ORCA, CFOUR or GPU execution.",
+  "source_edited_by_monitor": false
+}

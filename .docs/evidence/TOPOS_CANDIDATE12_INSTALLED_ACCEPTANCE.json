@@ -1,0 +1,2187 @@
+{
+  "schema_version": "topos-installed-release-acceptance/0.1.0",
+  "status": "passed",
+  "editable": false,
+  "execution_backend": "base",
+  "topos_wheel_sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "prefix": "/workspace/.cochem-setup/topos-clean-wheel-12/venv",
+  "packages": {
+    "CoChem-BASE": {
+      "version": "1.0.0",
+      "location": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages",
+      "direct_url_sha256": "01ef8e3e1dbf4c547705b74412787225016214d62c283d26b33441443f2e6ab6"
+    },
+    "cochem-topos": {
+      "version": "0.1.0",
+      "location": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages",
+      "direct_url_sha256": "2609fb648cac5a6bf925bc6112bce46ddc4e97856f49c051d013bbe0499b8280"
+    },
+    "CoChem-TORQ": {
+      "version": "0.1.0",
+      "location": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages",
+      "direct_url_sha256": "21a869e0d6e2fe375d8d13d4618e8e389dbd7f7fe2e94c476f5406d8e708ac25"
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "returncode": 0,
+      "stdout": "No broken requirements found.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "topos",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "CoChem-TOPOS 0.1.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "topos",
+        "request-schema"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"$defs\": {\n    \"Bond\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"atom1\": {\n          \"minimum\": 0,\n          \"title\": \"Atom1\",\n          \"type\": \"integer\"\n        },\n        \"atom2\": {\n          \"minimum\": 0,\n          \"title\": \"Atom2\",\n          \"type\": \"integer\"\n        },\n        \"order\": {\n          \"default\": 1.0,\n          \"exclusiveMinimum\": 0,\n          \"title\": \"Order\",\n          \"type\": \"number\"\n        },\n        \"kind\": {\n          \"default\": \"covalent\",\n          \"enum\": [\n            \"covalent\",\n            \"coordination\",\n            \"unknown\"\n          ],\n          \"title\": \"Kind\",\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"atom1\",\n        \"atom2\"\n      ],\n      \"title\": \"Bond\",\n      \"type\": \"object\"\n    },\n    \"FragmentState\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"atom_indices\": {\n          \"items\": {\n            \"type\": \"integer\"\n          },\n          \"title\": \"Atom Indices\",\n          \"type\": \"array\"\n        },\n        \"charge\": {\n          \"title\": \"Charge\",\n          \"type\": \"integer\"\n        },\n        \"multiplicity\": {\n          \"minimum\": 1,\n          \"title\": \"Multiplicity\",\n          \"type\": \"integer\"\n        }\n      },\n      \"required\": [\n        \"atom_indices\",\n        \"charge\",\n        \"multiplicity\"\n      ],\n      \"title\": \"FragmentState\",\n      \"type\": \"object\"\n    },\n    \"Molecule\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"symbols\": {\n          \"items\": {\n            \"type\": \"string\"\n          },\n          \"minItems\": 1,\n          \"title\": \"Symbols\",\n          \"type\": \"array\"\n        },\n        \"coordinates\": {\n          \"items\": {\n            \"items\": {\n              \"type\": \"number\"\n            },\n            \"type\": \"array\"\n          },\n          \"title\": \"Coordinates\",\n          \"type\": \"array\"\n        },\n        \"coordinate_units\": {\n          \"const\": \"angstrom\",\n          \"default\": \"angstrom\",\n          \"title\": \"Coordinate Units\",\n          \"type\": \"string\"\n        },\n        \"charge\": {\n          \"default\": 0,\n          \"title\": \"Charge\",\n          \"type\": \"integer\"\n        },\n        \"multiplicity\": {\n          \"default\": 1,\n          \"minimum\": 1,\n          \"title\": \"Multiplicity\",\n          \"type\": \"integer\"\n        },\n        \"isotopes\": {\n          \"items\": {\n            \"anyOf\": [\n              {\n                \"type\": \"integer\"\n              },\n              {\n                \"type\": \"null\"\n              }\n            ]\n          },\n          \"title\": \"Isotopes\",\n          \"type\": \"array\"\n        },\n        \"atom_ids\": {\n          \"items\": {\n            \"type\": \"string\"\n          },\n          \"title\": \"Atom Ids\",\n          \"type\": \"array\"\n        },\n        \"fragments\": {\n          \"items\": {\n            \"items\": {\n              \"type\": \"integer\"\n            },\n            \"type\": \"array\"\n          },\n          \"title\": \"Fragments\",\n          \"type\": \"array\"\n        },\n        \"fragment_states\": {\n          \"items\": {\n            \"$ref\": \"#/$defs/FragmentState\"\n          },\n          \"title\": \"Fragment States\",\n          \"type\": \"array\"\n        },\n        \"bonds\": {\n          \"items\": {\n            \"$ref\": \"#/$defs/Bond\"\n          },\n          \"title\": \"Bonds\",\n          \"type\": \"array\"\n        },\n        \"stereochemistry\": {\n          \"additionalProperties\": true,\n          \"title\": \"Stereochemistry\",\n          \"type\": \"object\"\n        },\n        \"environment\": {\n          \"additionalProperties\": true,\n          \"title\": \"Environment\",\n          \"type\": \"object\"\n        },\n        \"name\": {\n          \"anyOf\": [\n            {\n              \"type\": \"string\"\n            },\n            {\n              \"type\": \"null\"\n            }\n          ],\n          \"default\": null,\n          \"title\": \"Name\"\n        }\n      },\n      \"required\": [\n        \"symbols\",\n        \"coordinates\"\n      ],\n      \"title\": \"Molecule\",\n      \"type\": \"object\"\n    },\n    \"RigidmolAtomParameter\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"atom_id\": {\n          \"minLength\": 1,\n          \"title\": \"Atom Id\",\n          \"type\": \"string\"\n        },\n        \"charge_e\": {\n          \"title\": \"Charge E\",\n          \"type\": \"number\"\n        },\n        \"epsilon_kj_mol\": {\n          \"minimum\": 0,\n          \"title\": \"Epsilon Kj Mol\",\n          \"type\": \"number\"\n        },\n        \"sigma_angstrom\": {\n          \"minimum\": 0,\n          \"title\": \"Sigma Angstrom\",\n          \"type\": \"number\"\n        }\n      },\n      \"required\": [\n        \"atom_id\",\n        \"charge_e\",\n        \"epsilon_kj_mol\",\n        \"sigma_angstrom\"\n      ],\n      \"title\": \"RigidmolAtomParameter\",\n      \"type\": \"object\"\n    },\n    \"RigidmolOptions\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"atomic_parameters\": {\n          \"items\": {\n            \"$ref\": \"#/$defs/RigidmolAtomParameter\"\n          },\n          \"minItems\": 1,\n          \"title\": \"Atomic Parameters\",\n          \"type\": \"array\"\n        },\n        \"parameter_source\": {\n          \"minLength\": 1,\n          \"title\": \"Parameter Source\",\n          \"type\": \"string\"\n        },\n        \"population\": {\n          \"default\": 20,\n          \"maximum\": 100000,\n          \"minimum\": 5,\n          \"title\": \"Population\",\n          \"type\": \"integer\"\n        },\n        \"generations\": {\n          \"default\": 20,\n          \"maximum\": 1000000,\n          \"minimum\": 1,\n          \"title\": \"Generations\",\n          \"type\": \"integer\"\n        },\n        \"scout_limit\": {\n          \"default\": 3,\n          \"maximum\": 1000000,\n          \"minimum\": 1,\n          \"title\": \"Scout Limit\",\n          \"type\": \"integer\"\n        },\n        \"amplitude_angstrom\": {\n          \"default\": 4,\n          \"exclusiveMinimum\": 0,\n          \"maximum\": 100,\n          \"title\": \"Amplitude Angstrom\",\n          \"type\": \"number\"\n        },\n        \"max_saved_minima\": {\n          \"default\": 30,\n          \"maximum\": 10000,\n          \"minimum\": 1,\n          \"title\": \"Max Saved Minima\",\n          \"type\": \"integer\"\n        }\n      },\n      \"required\": [\n        \"atomic_parameters\",\n        \"parameter_source\"\n      ],\n      \"title\": \"RigidmolOptions\",\n      \"type\": \"object\"\n    },\n    \"ThermalOptions\": {\n      \"additionalProperties\": false,\n      \"properties\": {\n        \"optimize_first\": {\n          \"default\": true,\n          \"title\": \"Optimize First\",\n          \"type\": \"boolean\"\n        },\n        \"step_bohr\": {\n          \"default\": 0.005,\n          \"exclusiveMinimum\": 0,\n          \"maximum\": 0.1,\n          \"title\": \"Step Bohr\",\n          \"type\": \"number\"\n        },\n        \"pressure_pa\": {\n          \"default\": 101325,\n          \"exclusiveMinimum\": 0,\n          \"title\": \"Pressure Pa\",\n          \"type\": \"number\"\n        },\n        \"concentration_mol_l\": {\n          \"anyOf\": [\n            {\n              \"exclusiveMinimum\": 0,\n              \"type\": \"number\"\n            },\n            {\n              \"type\": \"null\"\n            }\n          ],\n          \"default\": null,\n          \"title\": \"Concentration Mol L\"\n        },\n        \"symmetry_number\": {\n          \"anyOf\": [\n            {\n              \"minimum\": 1,\n              \"type\": \"integer\"\n            },\n            {\n              \"type\": \"null\"\n            }\n          ],\n          \"default\": null,\n          \"title\": \"Symmetry Number\"\n        },\n        \"frequency_scale\": {\n          \"default\": 1.0,\n          \"exclusiveMinimum\": 0,\n          \"title\": \"Frequency Scale\",\n          \"type\": \"number\"\n        },\n        \"low_frequency_policy\": {\n          \"default\": \"reject\",\n          \"enum\": [\n            \"reject\",\n            \"frequency-floor\"\n          ],\n          \"title\": \"Low Frequency Policy\",\n          \"type\": \"string\"\n        },\n        \"cutoff_cm1\": {\n          \"default\": 10,\n          \"exclusiveMinimum\": 0,\n          \"title\": \"Cutoff Cm1\",\n          \"type\": \"number\"\n        }\n      },\n      \"title\": \"ThermalOptions\",\n      \"type\": \"object\"\n    }\n  },\n  \"additionalProperties\": false,\n  \"properties\": {\n    \"molecule\": {\n      \"$ref\": \"#/$defs/Molecule\"\n    },\n    \"engine\": {\n      \"default\": \"xtb\",\n      \"title\": \"Engine\",\n      \"type\": \"string\"\n    },\n    \"method\": {\n      \"default\": \"GFN2-xTB\",\n      \"title\": \"Method\",\n      \"type\": \"string\"\n    },\n    \"engine_version\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Engine Version\"\n    },\n    \"purpose\": {\n      \"default\": \"search\",\n      \"title\": \"Purpose\",\n      \"type\": \"string\"\n    },\n    \"search_algorithm\": {\n      \"default\": \"jiggle-quench\",\n      \"enum\": [\n        \"jiggle-quench\",\n        \"crest\",\n        \"union\",\n        \"abcluster\"\n      ],\n      \"title\": \"Search Algorithm\",\n      \"type\": \"string\"\n    },\n    \"abcluster_options\": {\n      \"anyOf\": [\n        {\n          \"$ref\": \"#/$defs/RigidmolOptions\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null\n    },\n    \"sampler_profile\": {\n      \"default\": \"crest-imtdgc-v1\",\n      \"enum\": [\n        \"crest-imtdgc-v1\",\n        \"crest-mquick-v1\",\n        \"crest-nci-v1\"\n      ],\n      \"title\": \"Sampler Profile\",\n      \"type\": \"string\"\n    },\n    \"sampler_nci\": {\n      \"default\": false,\n      \"title\": \"Sampler Nci\",\n      \"type\": \"boolean\"\n    },\n    \"sampler_budget_fraction\": {\n      \"default\": 0.5,\n      \"exclusiveMaximum\": 1,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Sampler Budget Fraction\",\n      \"type\": \"number\"\n    },\n    \"presentation_environment\": {\n      \"default\": \"local\",\n      \"title\": \"Presentation Environment\",\n      \"type\": \"string\"\n    },\n    \"calculation_environment\": {\n      \"default\": \"local\",\n      \"title\": \"Calculation Environment\",\n      \"type\": \"string\"\n    },\n    \"budget_seconds\": {\n      \"default\": 300.0,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Budget Seconds\",\n      \"type\": \"number\"\n    },\n    \"budget_scope\": {\n      \"const\": \"workflow\",\n      \"default\": \"workflow\",\n      \"title\": \"Budget Scope\",\n      \"type\": \"string\"\n    },\n    \"include_queue_in_budget\": {\n      \"default\": false,\n      \"title\": \"Include Queue In Budget\",\n      \"type\": \"boolean\"\n    },\n    \"per_geometry_budget_seconds\": {\n      \"anyOf\": [\n        {\n          \"exclusiveMinimum\": 0,\n          \"type\": \"number\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Per Geometry Budget Seconds\"\n    },\n    \"per_ensemble_budget_seconds\": {\n      \"anyOf\": [\n        {\n          \"exclusiveMinimum\": 0,\n          \"type\": \"number\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Per Ensemble Budget Seconds\"\n    },\n    \"seed\": {\n      \"default\": 0,\n      \"minimum\": 0,\n      \"title\": \"Seed\",\n      \"type\": \"integer\"\n    },\n    \"n_candidates\": {\n      \"default\": 4,\n      \"maximum\": 10000,\n      \"minimum\": 1,\n      \"title\": \"N Candidates\",\n      \"type\": \"integer\"\n    },\n    \"threads\": {\n      \"default\": 1,\n      \"minimum\": 1,\n      \"title\": \"Threads\",\n      \"type\": \"integer\"\n    },\n    \"memory_mb\": {\n      \"default\": 1024,\n      \"minimum\": 64,\n      \"title\": \"Memory Mb\",\n      \"type\": \"integer\"\n    },\n    \"device\": {\n      \"default\": \"cpu\",\n      \"title\": \"Device\",\n      \"type\": \"string\"\n    },\n    \"profile_id\": {\n      \"default\": \"screening-v1\",\n      \"title\": \"Profile Id\",\n      \"type\": \"string\"\n    },\n    \"matrix_revision\": {\n      \"default\": \"topos-0.1.0-supported-profile-v1\",\n      \"title\": \"Matrix Revision\",\n      \"type\": \"string\"\n    },\n    \"matrix_row_id\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Matrix Row Id\"\n    },\n    \"matrix_product\": {\n      \"default\": \"A\",\n      \"enum\": [\n        \"A\",\n        \"B\",\n        \"C\"\n      ],\n      \"title\": \"Matrix Product\",\n      \"type\": \"string\"\n    },\n    \"matrix_inputs\": {\n      \"additionalProperties\": true,\n      \"title\": \"Matrix Inputs\",\n      \"type\": \"object\"\n    },\n    \"basis\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Basis\"\n    },\n    \"auxiliary_basis\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Auxiliary Basis\"\n    },\n    \"dispersion\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Dispersion\"\n    },\n    \"solvent\": {\n      \"anyOf\": [\n        {\n          \"type\": \"string\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Solvent\"\n    },\n    \"constraints\": {\n      \"additionalProperties\": true,\n      \"title\": \"Constraints\",\n      \"type\": \"object\"\n    },\n    \"temperature_k\": {\n      \"default\": 298.15,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Temperature K\",\n      \"type\": \"number\"\n    },\n    \"thermochemistry_options\": {\n      \"$ref\": \"#/$defs/ThermalOptions\"\n    },\n    \"deduplication_stage\": {\n      \"default\": \"generation\",\n      \"enum\": [\n        \"generation\",\n        \"reporting\"\n      ],\n      \"title\": \"Deduplication Stage\",\n      \"type\": \"string\"\n    },\n    \"collapse_enantiomers\": {\n      \"default\": false,\n      \"title\": \"Collapse Enantiomers\",\n      \"type\": \"boolean\"\n    },\n    \"environment_is_achiral\": {\n      \"anyOf\": [\n        {\n          \"type\": \"boolean\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Environment Is Achiral\"\n    },\n    \"dipole_method_error_debye\": {\n      \"anyOf\": [\n        {\n          \"exclusiveMinimum\": 0,\n          \"type\": \"number\"\n        },\n        {\n          \"type\": \"null\"\n        }\n      ],\n      \"default\": null,\n      \"title\": \"Dipole Method Error Debye\"\n    },\n    \"symmetry_tolerance_angstrom\": {\n      \"default\": 0.001,\n      \"exclusiveMinimum\": 0,\n      \"maximum\": 0.1,\n      \"title\": \"Symmetry Tolerance Angstrom\",\n      \"type\": \"number\"\n    },\n    \"rmsd_threshold_angstrom\": {\n      \"default\": 0.125,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Rmsd Threshold Angstrom\",\n      \"type\": \"number\"\n    },\n    \"dedup_energy_threshold_kcal_mol\": {\n      \"default\": 0.05,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Dedup Energy Threshold Kcal Mol\",\n      \"type\": \"number\"\n    },\n    \"dedup_rotational_threshold_fraction\": {\n      \"default\": 0.01,\n      \"exclusiveMaximum\": 1,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Dedup Rotational Threshold Fraction\",\n      \"type\": \"number\"\n    },\n    \"energy_window_kcal_mol\": {\n      \"default\": 6.0,\n      \"exclusiveMinimum\": 0,\n      \"title\": \"Energy Window Kcal Mol\",\n      \"type\": \"number\"\n    },\n    \"perturbation_angstrom\": {\n      \"default\": 0.15,\n      \"minimum\": 0,\n      \"title\": \"Perturbation Angstrom\",\n      \"type\": \"number\"\n    },\n    \"metadata\": {\n      \"additionalProperties\": true,\n      \"title\": \"Metadata\",\n      \"type\": \"object\"\n    }\n  },\n  \"required\": [\n    \"molecule\"\n  ],\n  \"title\": \"RunRequest\",\n  \"type\": \"object\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "topos",
+        "matrix",
+        "support"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"catalog_revision\": \"method-matrix-v4-2026-08-09\",\n  \"catalog_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n  \"catalog_rows\": 140,\n  \"topos_owned_rows\": 44,\n  \"topos_track_gaps\": [\n    \"T3C-10s\",\n    \"T3C-1min\"\n  ],\n  \"unavailable_by_design\": [\n    {\n      \"row_id\": \"T3C-10s\",\n      \"disposition\": \"unavailable-by-design\",\n      \"source_path\": \"wiki/Method_Matrix.md\",\n      \"source_lines\": [\n        36,\n        3034\n      ],\n      \"source_excerpt\": \"CFOUR has no 10 s or 1 min entry\",\n      \"source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\"\n    },\n    {\n      \"row_id\": \"T3C-1min\",\n      \"disposition\": \"unavailable-by-design\",\n      \"source_path\": \"wiki/Method_Matrix.md\",\n      \"source_lines\": [\n        36,\n        3035\n      ],\n      \"source_excerpt\": \"CFOUR has no 10 s or 1 min entry\",\n      \"source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\"\n    }\n  ],\n  \"unresolved_track_gaps\": [],\n  \"compiled_complete_recipes\": [\n    \"T1-10s\",\n    \"T1-12h\",\n    \"T1-1d\",\n    \"T1-1h\",\n    \"T1-1min\",\n    \"T1-1mo\",\n    \"T1-1w\",\n    \"T1-30min\",\n    \"T1-3d\",\n    \"T1-3h\",\n    \"T2-10s\",\n    \"T2-1h\",\n    \"T2-1min\",\n    \"T2-30min\",\n    \"T3C-12h\",\n    \"T3C-1d\",\n    \"T3C-1h\",\n    \"T3C-1mo\",\n    \"T3C-1w\",\n    \"T3C-30min\",\n    \"T3C-3d\",\n    \"T3C-3h\",\n    \"T3O-10s\",\n    \"T3O-12h\",\n    \"T3O-1d\",\n    \"T3O-1h\",\n    \"T3O-1min\",\n    \"T3O-1mo\",\n    \"T3O-1w\",\n    \"T3O-30min\",\n    \"T3O-3d\",\n    \"T3O-3h\",\n    \"T5-10s\",\n    \"T5-12h\",\n    \"T5-1d\",\n    \"T5-1h\",\n    \"T5-1min\",\n    \"T5-1mo\",\n    \"T5-1w\",\n    \"T5-30min\",\n    \"T5-3d\",\n    \"T5-3h\"\n  ],\n  \"compiled_recipe_count\": 42,\n  \"implemented_partial_branches\": [\n    \"T3C-1mo\",\n    \"T3O-1mo\"\n  ],\n  \"source_conflict_rows\": [\n    \"T3O-1d\",\n    \"T4O-30min\",\n    \"T5-30min\",\n    \"T5-3h\"\n  ],\n  \"reviewed_scientific_revisions\": {\n    \"r2-b3lyp-d4-vpt2-transfer-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"r2-b3lyp-d4-vpt2-transfer-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3O-3h\",\n        \"kind\": \"r2-dft-vpt2-transfer\",\n        \"title\": \"R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed B3LYP-D4 VPT2 correction transfer\",\n        \"reference_method\": \"B3LYP\",\n        \"reference_dispersion\": \"D4\",\n        \"delivers\": [\n          \"frozen-monomer QZ geometry and counterpoise interaction energy\",\n          \"approximate ground-state rotational constants from a separate B3LYP-D4 VPT2 correction with matched axes and masses\",\n          \"both geometry identities and explicit transferability limits\"\n        ],\n        \"replaces\": \"Nonstationary frozen-monomer VPT2 and the unavailable native wB97X-V analytic-Hessian reference\",\n        \"decision_basis\": \"User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback.\",\n        \"sources\": [\n          \"https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html\",\n          \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html\"\n        ],\n        \"differences\": [\n          \"wB97M-V/def2-QZVPP target geometry remains constrained to explicit high-level monomer shapes\",\n          \"Ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO counterpoise has no F12 Hamiltonian or CABS\",\n          \"Independently fully relaxed B3LYP-D4/def2-TZVPP replaces wB97X-V only in the explicitly selected DFT VPT2 reference; this is a different functional and dispersion treatment\",\n          \"Native wB97X-V/VV10 analytic Hessians are unsupported in ORCA 6.1 and never silently replaced\",\n          \"B0_approx=B_R2+(B0_DFT-Be_DFT) uses common attested native masses and compatible principal axes\",\n          \"Same-basin transferability and functional error are uncalibrated; no source benchmark or experimental accuracy claim\"\n        ]\n      },\n      \"sources\": [\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html\"\n      ],\n      \"user_decision\": \"User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback.\"\n    },\n    \"r2-separate-dft-vpt2-transfer-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"r2-separate-dft-vpt2-transfer-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3O-3h\",\n        \"kind\": \"r2-dft-vpt2-transfer\",\n        \"title\": \"R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed DFT VPT2 correction transfer\",\n        \"reference_method\": \"wB97X-V\",\n        \"reference_dispersion\": null,\n        \"native_capability_blocker\": \"ORCA 6.1 excludes VV10/nonlocal dispersion from analytic Hessians; native VPT2 requires analytic Hessians. The wB97X-V VPT2 reference is unavailable. Select an explicitly named different reference protocol; no automatic functional substitution.\",\n        \"delivers\": [\n          \"frozen-monomer QZ geometry and counterpoise interaction energy\",\n          \"approximate ground-state rotational constants from axis- and mass-matched separate DFT VPT2 correction\",\n          \"both geometry identities, all raw stages and explicit transferability limits\"\n        ],\n        \"replaces\": \"Full-dimensional VPT2 at a nonstationary frozen-monomer R2 geometry and ambiguous F12 energy label\",\n        \"decision_basis\": \"User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite\",\n        \"sources\": [\n          \"https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html\",\n          \"https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html\",\n          \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html\"\n        ],\n        \"differences\": [\n          \"wB97M-V/def2-QZVPP geometry remains constrained to explicit high-level monomer shapes\",\n          \"Counterpoise uses ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO; orbital F12 basis name does not select an F12 Hamiltonian or CABS\",\n          \"Independent fully relaxed strict wB97X-V/def2-TZVPP reference feeds native VPT2; unsupported native derivative capability fails explicitly with no B3LYP substitution\",\n          \"B0_approx=B_R2+(B0_DFT-Be_DFT) only after explicit atom/mass/axis and semirigid-domain checks\",\n          \"Both geometry identities retained; same-basin transferability remains an explicit approximation, with no experimental accuracy or numerical uncertainty claim\"\n        ]\n      },\n      \"sources\": [\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html\"\n      ],\n      \"user_decision\": \"User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite\"\n    },\n    \"cfour-relaxed-counterpoise-geometry-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"cfour-relaxed-counterpoise-geometry-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3O-1w\",\n        \"kind\": \"cfour-counterpoise-geometry\",\n        \"title\": \"CFOUR raw and relaxed-counterpoise CBS/CV/full-triples/full-quadruples geometry bracket\",\n        \"delivers\": [\n          \"separate raw and CP composite geometries and rigid-rotor constants\",\n          \"native component energies and checked numerical derivative evidence\"\n        ],\n        \"replaces\": \"Unspecified native driver, component bases and raw/CP bracket implementation\",\n        \"decision_basis\": \"Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention\",\n        \"sources\": [\n          \"https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py\",\n          \"https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py\"\n        ],\n        \"differences\": [\n          \"Every one of eight components is independently optimized on both E_AB and E_AB+sum(E_i_own-E_i_ghost)\",\n          \"Actual CFOUR 2.1 native energies with checked h/h2 numerical derivatives; no native analytic correlated CP-gradient claim\",\n          \"Closed-shell gas-phase H-Ne domain; conventional H/He=0 and Li-Ne=1 occupied core per physical nucleus\",\n          \"Separate raw/CP sensitivity bracket, no default midpoint, statistical uncertainty, verified composite minimum or transferred benchmark\"\n        ]\n      },\n      \"sources\": [\n        \"https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py\",\n        \"https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py\"\n      ],\n      \"user_decision\": \"Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention\"\n    },\n    \"cfour-observed-default-mass-small-correction-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"cfour-observed-default-mass-small-correction-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3C-1mo\",\n        \"kind\": \"observed-mass-month-geometry\",\n        \"title\": \"CFOUR higher composite with HF X2C/DBOC small corrections and native-observed default-mass rigid rotors\",\n        \"delivers\": [\n          \"explicit small-correction composite geometry\",\n          \"Product A equilibrium rigid-rotor constants from observed native atomic masses\",\n          \"complete per-evaluation native mass observations and print-precision intervals\"\n        ],\n        \"replaces\": \"Unspecified scalar/DBOC basis choices and previously withheld default-mass rotor deliverable\",\n        \"decision_basis\": \"Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred\",\n        \"sources\": [\n          \"wiki/Method_Matrix.md:3043\",\n          \"wiki/Method_Matrix.md:3057\",\n          \"wiki/Method_Matrix.md:3109\",\n          \"https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out\"\n        ],\n        \"differences\": [\n          \"Explicit same-basis all-electron HF X2C1E minus nonrelativistic and HF+DBOC minus HF coordinate increments\",\n          \"Every actual CFOUR 2.1 DBOC-enabled evaluation must report the same complete mapped native atomic-mass vector and print precision with retained raw evidence\",\n          \"The final rotor uses these observed atomic masses; internal DBOC nuclear masses are neither substituted nor claimed numerically known\",\n          \"H/C/N/O/F only, no explicit isotope requests; no generic isotope-campaign or most-abundant mass-table substitution\",\n          \"Composite geometry and Be are Product A outputs, not B0, a common-potential stationary point, a verified minimum or transferred benchmark accuracy\"\n        ]\n      },\n      \"sources\": [\n        \"wiki/Method_Matrix.md:3043\",\n        \"wiki/Method_Matrix.md:3057\",\n        \"wiki/Method_Matrix.md:3109\",\n        \"https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out\"\n      ],\n      \"user_decision\": \"Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred\"\n    },\n    \"cfour-native-default-mass-corrected-geometry-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"cfour-native-default-mass-corrected-geometry-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3C-1mo\",\n        \"kind\": \"conditional-month-geometry\",\n        \"title\": \"CFOUR higher composite plus explicit HF X2C and native-default HF DBOC geometry increments\",\n        \"delivers\": [\n          \"conditional corrected geometry and native component evidence\",\n          \"no mass-bound rotor constants or full archived row completion\"\n        ],\n        \"replaces\": \"Unspecified scalar/DBOC model choices; isotope-consistent rotor deliverable remains incomplete\",\n        \"decision_basis\": \"Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution\",\n        \"sources\": [\n          \"https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc\",\n          \"https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py\"\n        ],\n        \"differences\": [\n          \"Explicit same-basis HF X2C1E minus nonrelativistic geometry increment\",\n          \"Explicit same-basis HF+native-default-DBOC minus HF geometry increment\",\n          \"Only H/C/N/O/F with no explicit isotope; this compatibility variant intentionally does not publish observed-mass rotors\",\n          \"All rotor constants withheld; not completion of the full archived month row\"\n        ]\n      },\n      \"sources\": [\n        \"https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc\",\n        \"https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py\"\n      ],\n      \"user_decision\": \"Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution\"\n    },\n    \"orca-f12d-composite-interaction-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"orca-f12d-composite-interaction-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T5-3h\",\n        \"kind\": \"composite-interaction\",\n        \"title\": \"ORCA F12D/RI plus split MP2-F12 CBS and same-basis MP2 core-valence interaction\",\n        \"delivers\": [\n          \"explicit composite frozen-inc interaction energy\",\n          \"all native component energies and HF/CABS/correlation partitions\"\n        ],\n        \"base\": \"fc-CCSD(T)-F12D/RI/jun-cc-pVTZ\",\n        \"cbs\": \"matched fc-MP2-F12 jun-cc-pVTZ/jun-cc-pVQZ; separate HF+CABS exponential and F12 correlation inverse-power extrapolation\",\n        \"core_valence\": \"MP2(all electron)-MP2(frozen core), both cc-pwCVTZ\",\n        \"replaces\": \"junChS-F12b composite stated as an ORCA calculation\",\n        \"differences\": [\n          \"Explicit ORCA F12D/RI approximation, not CCSD(T)-F12b or a published junChS-F12b benchmark recipe\",\n          \"All CABS, fitting sets, SCF/core choices and extrapolation exponents are explicit\",\n          \"HF+CABS singles and F12 correlation are extrapolated separately\",\n          \"Frozen-inc interaction energy; no counterpoise, binding-energy or three-hour guarantee\"\n        ]\n      },\n      \"sources\": [\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html\"\n      ],\n      \"user_decision\": \"User explicitly authorized named ORCA alternatives and documented scientific differences\"\n    },\n    \"orca-f12d-numerical-geometry-dz-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"orca-f12d-numerical-geometry-dz-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3O-1d\",\n        \"title\": \"ORCA canonical fc-CCSD(T)-F12D/RI double-zeta numerical geometry\",\n        \"delivers\": [\n          \"numerically stationary geometry and electronic energy\",\n          \"rigid-rotor constants at the stationary geometry\",\n          \"gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee\"\n        ],\n        \"orbital_basis\": \"cc-pVDZ-F12\",\n        \"cabs\": \"cc-pVDZ-F12-CABS\",\n        \"auxiliary_c\": \"cc-pVDZ/C\",\n        \"replaces\": \"Conflicting MPQC/ORCA/F12 numerical-geometry specification\",\n        \"differences\": [\n          \"Canonical F12D/RI, not MPQC or local DLPNO\",\n          \"Explicit frozen core and conventional RHF integrals\",\n          \"TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient\",\n          \"Finite double-zeta model; no CBS, reference-accuracy or nominal one-day guarantee\"\n        ]\n      },\n      \"sources\": [\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html\"\n      ],\n      \"user_decision\": \"User explicitly authorized named ORCA alternatives and documented scientific differences\"\n    },\n    \"orca-f12d-numerical-geometry-tz-v1\": {\n      \"revision\": \"topos-matrix-reviewed-0.1.0-2026-10-07\",\n      \"sha256\": \"870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07\",\n      \"variant\": \"orca-f12d-numerical-geometry-tz-v1\",\n      \"archived_revision\": \"method-matrix-v4-2026-08-09\",\n      \"archived_source_sha256\": \"d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d\",\n      \"definition\": {\n        \"row_id\": \"T3O-1mo\",\n        \"title\": \"ORCA canonical fc-CCSD(T)-F12D/RI triple-zeta numerical geometry\",\n        \"delivers\": [\n          \"numerically stationary geometry and electronic energy\",\n          \"rigid-rotor constants at the stationary geometry\",\n          \"gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee\"\n        ],\n        \"orbital_basis\": \"cc-pVTZ-F12\",\n        \"cabs\": \"cc-pVTZ-F12-CABS\",\n        \"auxiliary_c\": \"cc-pVTZ/C\",\n        \"replaces\": \"Molpro F12 optimized-reference-geometry requirement\",\n        \"differences\": [\n          \"ORCA canonical F12D/RI, not Molpro F12a/F12b\",\n          \"Explicit frozen core and conventional RHF integrals\",\n          \"TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient\",\n          \"Finite triple-zeta model; no reference-accuracy or nominal one-month guarantee\"\n        ]\n      },\n      \"sources\": [\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html\",\n        \"https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html\"\n      ],\n      \"user_decision\": \"User explicitly authorized named ORCA alternatives and documented scientific differences\"\n    }\n  },\n  \"revision_scope\": \"Original v4 rows remain archived verbatim. Compiled revised rows require their explicit separately hashed reviewed variant; source benchmark claims are not transferred.\",\n  \"conditional_recipe_resolutions\": {\n    \"T1-3h\": {\n      \"source_literal\": \"ORCA Freq (native analytic Hessian)\",\n      \"implemented_derivative\": \"native ORCA analytic Hessian with separate real reference-gradient stationarity evidence\",\n      \"optional_explicit_resolution\": \"physical-central-gradient-hessian-v1 uses central differences of actual analytic gradients\",\n      \"source_attribution_limit\": \"Native CREST --screen disables origin tracking; only input counts/exact input overlap and combined-union final provenance are established\"\n    },\n    \"T3O-12h\": {\n      \"required_explicit_resolution\": \"junchs-same-basis-core-valence-v1\",\n      \"source_conflict\": \"source definitions differ for the MP2 core-valence subtraction\",\n      \"implemented_variant\": \"ae minus fc at the same cc-pwCVTZ basis; full independent internal-coordinate chart required\"\n    },\n    \"T3O-3d\": {\n      \"required_explicit_resolution\": \"autoci-conventional-transformation-v1\",\n      \"source_conflict\": \"MDCI AO-direct options cannot be transplanted to AUTOCI\",\n      \"implemented_variant\": \"canonical AUTOCI analytic gradients and native integral transformation; no AO-direct claim\"\n    },\n    \"T3O-1d\": {\n      \"required_explicit_resolution\": \"orca-f12d-numerical-geometry-dz-v1\",\n      \"implemented_variant\": \"canonical frozen-core ORCA F12D/RI with exact cc-pVDZ-F12/CABS/cc-pVDZ/C; checked numerical energy derivatives and explicit stationarity controls\"\n    },\n    \"T3O-1mo\": {\n      \"required_explicit_resolution\": \"orca-f12d-numerical-geometry-tz-v1\",\n      \"implemented_variant\": \"canonical frozen-core ORCA F12D/RI with exact cc-pVTZ-F12/CABS/cc-pVTZ/C; checked numerical energy derivatives, not Molpro F12b\",\n      \"compatibility_branch\": \"orca-f12-reference-singlepoint-v1 remains explicitly energy-only and does not complete the revised geometry protocol\"\n    },\n    \"T5-12h\": {\n      \"required_input\": \"complete correlated_protocol with exact correlation fitting basis and core convention\",\n      \"implemented_variant\": \"plain DLPNO-CCSD(T1) with cc-pVDZ-F12 orbital basis and native !LED; not an F12 Hamiltonian\"\n    },\n    \"T5-1d\": {\n      \"required_input\": \"complete DLPNO protocol; identical reference/settings except consecutive TCutPNO6/7\",\n      \"implemented_variant\": \"HF + correlation6 + 1.5*(correlation7-correlation6), then frozen fragment subtraction\"\n    },\n    \"T5-3d\": {\n      \"required_input\": \"explicit RI correlation fitting basis omitted by the source row\",\n      \"implemented_variant\": \"canonical CCSD(T)-F12D/RI with cc-pVTZ-F12 and its CABS; never relabeled F12b\"\n    },\n    \"T5-3h\": {\n      \"required_explicit_resolution\": \"orca-f12d-composite-interaction-v1\",\n      \"implemented_variant\": \"five exact ORCA protocols per frozen complex/fragment: F12D/RI base, separate HF+CABS exponential and F12-correlation inverse-power CBS, same-basis MP2 ae-fc correction\",\n      \"scientific_difference\": \"Explicit reviewed ORCA approximation; not archived junChS-F12b or its A14 benchmark\"\n    },\n    \"T5-30min\": {\n      \"required_explicit_resolution\": \"native-composite-rawinteraction-v1\",\n      \"implemented_variant\": \"native r2SCAN-3c frozen interaction including built-in gCP; no separate CP/half-CP claim\"\n    },\n    \"T5-1w\": {\n      \"required_input\": \"energy_composite with explicit consecutive CBS bases, HF exponential coefficient, correlation power, core-valence and full-triples bases\",\n      \"implemented_variant\": \"eight genuine native CFOUR components per complex/fragment; no named HEAT/Wn recipe or benchmark-accuracy transfer\"\n    },\n    \"T3C geometry rows\": {\n      \"required_explicit_resolution\": \"cfour-topos-cartesian-optimizer-v1\",\n      \"implemented_variant\": \"TOPOS Cartesian L-BFGS-B using actual CFOUR analytic gradients; not the source's native internal-coordinate optimizer\"\n    },\n    \"T3C-1w\": {\n      \"required_input\": \"higher_geometry with explicit consecutive CBS bases, geometry exponent, CV/full-triples/full-quadruples bases and independent coordinate chart\",\n      \"implemented_variant\": \"seven optimizations use native analytic derivatives; the full-quadruples optimization uses checked h/h2 central differences of genuine CFOUR 2.1 NCC CCSDTQ energies\",\n      \"derivative_limit\": \"No native CCSDTQ analytic-gradient claim; same torsional-basin membership remains an explicit unverified assumption\"\n    },\n    \"T3O-1w\": {\n      \"required_explicit_resolution\": \"cfour-relaxed-counterpoise-geometry-v1\",\n      \"required_input\": \"cfour_counterpoise with every native basis/core/chart/numerical derivative choice\",\n      \"implemented_variant\": \"sixteen component optimizations: eight raw and eight relaxed CP total surfaces; separate parameter-wise composite geometry bracket\",\n      \"validation_limit\": \"Strict conditional CFOUR 2.1 ghost/core/native output contract; live correlated ghost acceptance remains pending, no benchmark or verified composite minimum claim\"\n    },\n    \"T3O-3h\": {\n      \"required_explicit_resolution\": \"r2-b3lyp-d4-vpt2-transfer-v1\",\n      \"implemented_variant\": \"frozen QZ target plus ordinary DLPNO CP; independently relaxed strict B3LYP-D4/TZVPP native VPT2 reference and explicit axis/mass matched correction transfer\",\n      \"validation_limit\": \"Approximate composite with explicitly changed reference functional; archived wB97X-V/VV10 native VPT2 remains unsupported, no automatic fallback or experimental accuracy claim\"\n    },\n    \"T3C-1mo\": {\n      \"required_explicit_resolution\": \"cfour-observed-default-mass-small-correction-v1\",\n      \"implemented_variant\": \"higher composite plus paired HF X2C/native-default HF DBOC increments and Product A rotors using raw-bound observed native atomic masses\",\n      \"completion_limit\": \"Every actual DBOC-enabled evaluation must attest the same complete mass vector and print precision; H/C/N/O/F with no explicit isotope requests, no B0 or generic isotope campaign\",\n      \"compatibility_branch\": \"cfour-native-default-mass-corrected-geometry-v1 remains geometry-only and does not complete Product A\"\n    },\n    \"T1-30min\": {\n      \"required_input\": \"explicit AIMNet2 checkpoint manifest and concurrent ML/ORCA resource allocation\",\n      \"implemented_variant\": \"native GOAT-EXPLORE ExtOpt followed by actual common r2SCAN-3c refinement and Stage-A native CREGEN; ML energies remain raw enumeration observations\"\n    },\n    \"T1-1w\": {\n      \"required_input\": \"100\u2013500 provenance-verified DFT configurations, group-disjoint data partitions, explicit GPU training/model/allocation, and hash-verified CREST 3.0.2+topos-generic-paths-v1\",\n      \"implemented_variant\": \"float64 MACE fine-tuning and held-out evaluation; both native GOAT and patched CREST use the identical trained checkpoint; real common r2SCAN-3c refinement and native Stage-A CREGEN\",\n      \"validation_limit\": \"Native reduced-profile CREST/MACE interface passed; no actual GPU training, combined native GOAT/ML or full default compound-campaign acceptance is claimed\"\n    },\n    \"T1-1d\": {\n      \"required_input\": \"identical explicit seed geometries at 298.15 K\",\n      \"implemented_variant\": \"both native stopping criteria plus abs(GOAT Sconf-CREST Sconf)<0.1; excludes CREST total entropy and delta-RRHO\"\n    },\n    \"T1-1mo\": {\n      \"required_input\": \"at least three distinct seeds and an exact coupled-cluster energy protocol\",\n      \"implemented_variant\": \"native GOAT-DIVERSITY and CREST-v4, actual common GFN2 refinement, native CREGEN and DLPNO reranking; no exhaustive-sampling proof\"\n    },\n    \"T5-1min\": {\n      \"required_input\": \"independent float64 committee and explicit ml_no_energy_culling=True\",\n      \"implemented_variant\": \"frozen interaction and paired committee disagreement; retains all structures, no pruning without a separate G4 audit\"\n    }\n  },\n  \"additional_adapter_recipes\": [],\n  \"torq_owned_rows\": 96,\n  \"validation_scope\": \"Catalog/compiled orchestration coverage only. Each execution must verify its real engines and scientific outputs.\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/cochem-topos",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "CoChem-TOPOS 0.1.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/cochem-topos-release",
+        "--help"
+      ],
+      "returncode": 0,
+      "stdout": "usage: cochem-topos-release [-h] {gate,installed-check} ...\n\nDistribution evidence and a fail-closed release gate; never publishes\nsoftware.\n\npositional arguments:\n  {gate,installed-check}\n    gate                Check evidence; never creates a tag or publishes\n    installed-check     Verify noneditable wheel packages and real BASE\n                        calculation\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/topos-ui",
+        "--help"
+      ],
+      "returncode": 0,
+      "stdout": "usage: topos-ui [-h] [--port PORT]\n\nLaunch the CoChem-TOPOS browser interface\n\noptions:\n  -h, --help   show this help message and exit\n  --port PORT  Local HTTP port (default: 8501)\n",
+      "stderr": ""
+    }
+  ],
+  "browser": {
+    "status": "passed",
+    "source": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/topos/streamlit_app.py",
+    "selectboxes": 14,
+    "buttons": 2,
+    "scope": "real installed Streamlit application render; native computation checked separately"
+  },
+  "base": {
+    "backend": "cochem-base",
+    "ecosystem": {
+      "available": true,
+      "components": {
+        "CoChem-BASE": {
+          "available": true,
+          "kind": "installed",
+          "version": "1.0.0",
+          "path": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/cochem_base"
+        },
+        "CoChem-TOPOS": {
+          "available": true,
+          "kind": "installed",
+          "version": "0.1.0",
+          "path": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/topos/__init__.py"
+        },
+        "CoChem-TORQ": {
+          "available": true,
+          "kind": "installed",
+          "version": "0.1.0",
+          "path": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/cochem_torq/__init__.py",
+          "installed": true,
+          "distribution_path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl",
+          "import_path": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/cochem_torq/__init__.py",
+          "import_shadowed": true,
+          "consumer_ready": false
+        }
+      },
+      "problems": []
+    },
+    "registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+    "registry_sha256": "8760cbe00b62af6f0d5336caa95bbda7328e5db8ff2e0c39129cc5dba9b0aa7d",
+    "registry_checksum": "338ee1144ebe69702ce4ab6d58cd91f517253012f743f131917dc01c2058856c"
+  },
+  "registry_sha256": "8760cbe00b62af6f0d5336caa95bbda7328e5db8ff2e0c39129cc5dba9b0aa7d",
+  "native_run": {
+    "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+    "status": "completed",
+    "validation_status": "human-review",
+    "execution_kind": "real",
+    "engine_version": "6.7.1",
+    "energy_hartree": -5.070544054679,
+    "snapshot": {
+      "artifacts": [
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/.xtboptok",
+          "role": "raw-output",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/charges",
+          "role": "raw-output",
+          "sha256": "a74e1d1340d6191a81b8dd720380187e9c0368c61afb64687362c6cd743642bf",
+          "size_bytes": 45
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/energy",
+          "role": "raw-output",
+          "sha256": "cb99dd5de8593485d697778c295e1e8cf54bccac8b0590129bd196c1686e3af6",
+          "size_bytes": 74
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/engine.stderr",
+          "role": "raw-output",
+          "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+          "size_bytes": 26
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/engine.stdout",
+          "role": "raw-output",
+          "sha256": "a2dda4aad12e21fdf74136755334c72bdd85bcfd3da3a12d6a64914ddfde4f85",
+          "size_bytes": 26983
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/gradient",
+          "role": "raw-output",
+          "sha256": "c631595ee2ad45d6c629b1af3153936aa6e5cf7f112efcad7c825818eded8756",
+          "size_bytes": 506
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/input.engrad",
+          "role": "raw-output",
+          "sha256": "20825686665643e231e023a2aa6ff6c82f09e884046642d760b98caf8fb890cf",
+          "size_bytes": 519
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/input.xyz",
+          "role": "engine-input",
+          "sha256": "0659cd458a45467014db801da62e021dc4a6c152cc56cf9e7cdcb89d875485a8",
+          "size_bytes": 103
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/version.stderr",
+          "role": "raw-output",
+          "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+          "size_bytes": 26
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/version.stdout",
+          "role": "raw-output",
+          "sha256": "f47686023e4be88b6e2241c9a2660fffe132a193f8873d3890594b8f9ca0dd91",
+          "size_bytes": 660
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/wbo",
+          "role": "raw-output",
+          "sha256": "7fdb787ceeb3eac3523a1ebb86bcab70cc12057fdde0743ea20f4af927ff3c78",
+          "size_bytes": 98
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbopt.log",
+          "role": "raw-output",
+          "sha256": "71b55b8b8ba130eaef165910000f5a564dece25ec2db4ddf094a18b7a583c6bc",
+          "size_bytes": 1216
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbopt.xyz",
+          "role": "raw-output",
+          "sha256": "06d2d5e2def88c873c0d2363011b4910129e37ca6c65f706b920f409b9e5e8cc",
+          "size_bytes": 304
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbout.json",
+          "role": "raw-output",
+          "sha256": "883da17f19953e128528041ac4b7ec439881bcd238ccee545511ad1e5dae9242",
+          "size_bytes": 1446
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbrestart",
+          "role": "raw-output",
+          "sha256": "3b19866fdffe8648c63e381e0576d0f6aba6700919bce186657265054396f7b9",
+          "size_bytes": 328
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbtopo.mol",
+          "role": "raw-output",
+          "sha256": "dbb2ef9102119e66979a751ab0890d39f347e765de6c26dd534bced312952ed2",
+          "size_bytes": 347
+        },
+        {
+          "media_type": null,
+          "path": "input.xyz",
+          "role": "input-geometry",
+          "sha256": "3375bd55e0b056081bad2fea3cbe1d6a9912101017e5e96c2c931aa6452fe2f5",
+          "size_bytes": 199
+        },
+        {
+          "media_type": null,
+          "path": "request.json",
+          "role": "request",
+          "sha256": "b89ca6c3278d58fcab7652a79fda2c974907b39856cb5735f18a023de90027ac",
+          "size_bytes": 1661
+        }
+      ],
+      "hdf5_sha256": "551f28fecb801b116497578a2ce21f94a1e8b763f11d0f1330f22cb9b2bd5ba2",
+      "record_sha256": "94661e6674fb1df85fd72901b440c0edf26b460c85620dc31f0ebfa5ab48176a",
+      "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+      "schema_version": "topos-snapshot/0.1.0",
+      "snapshot_id": "c6f4db018b68bdb839abe50cc1f95b305e886697b6566c5a00f77e92ca565007"
+    },
+    "bundle": {
+      "author_review_required": true,
+      "concept_doi": null,
+      "ensemble_sha256": "0e7366d9be214dc096ededeae5b4ae4d8c69766eecf5438b73a1aa5f88cad400",
+      "figure_recipe": {
+        "file": "relative-energy.svg",
+        "missing": "omitted and explicitly counted",
+        "quantity": "relative electronic energy",
+        "reference": "minimum reported selected electronic energy",
+        "script": "regenerate.py",
+        "units": "hartree"
+      },
+      "files": [
+        {
+          "path": "candidate-ledger.json",
+          "sha256": "f1dee48581bdb1be3ed5d3c10efd715154d41ff396f8876dac9acf0f6cde4775",
+          "size_bytes": 10638
+        },
+        {
+          "path": "citations.json",
+          "sha256": "2fcd7df94a89ca2715f3192993a8ed1e0cef6a7b0452d1b259a7ef200ae08cac",
+          "size_bytes": 3892
+        },
+        {
+          "path": "ensemble.json",
+          "sha256": "7983e5546d3d511ca5f2033f06ceae317b917d7b5efc190ff1ea46571aa9894b",
+          "size_bytes": 10719
+        },
+        {
+          "path": "license.json",
+          "sha256": "69a90978d5ce6cdbba0c76940af1ffa5e227ba7b8b02ffbad88f91f965c65618",
+          "size_bytes": 221
+        },
+        {
+          "path": "methods.md",
+          "sha256": "aee968e6863e83dfd7d86a86a6bac215eccf44ee52836609548a94f97b2c71f0",
+          "size_bytes": 2943
+        },
+        {
+          "path": "recompute-sensitivity.py",
+          "sha256": "381d9ceb495115e7ec49f31503d9d3e32806785bc2da96b79e68f613dc40d8f1",
+          "size_bytes": 868
+        },
+        {
+          "path": "regenerate.py",
+          "sha256": "d62565c78fb9214705fd68c6baf3a847be38c3b14950c0a5117e518286101d76",
+          "size_bytes": 5273
+        },
+        {
+          "path": "relative-energy.svg",
+          "sha256": "42f233ae76ee8de35a66117bb0fedc9d53a976be1890e83a09d1086b39f3c87a",
+          "size_bytes": 618
+        },
+        {
+          "path": "review.json",
+          "sha256": "a566264d0044324efcc0c9236a07222fa05e75e138617c5c19be9fd257fd9c85",
+          "size_bytes": 586
+        },
+        {
+          "path": "run.json",
+          "sha256": "9f1ea995bbce7c24b4db7ecd2c8f3921005e13875c064f13291b227633a85b12",
+          "size_bytes": 44644
+        },
+        {
+          "path": "sampling-sensitivity.json",
+          "sha256": "eb4bb864983c3deaeec5b1f1f8c463298b3de8e464d01ef51c251baf324cdfdf",
+          "size_bytes": 1479
+        },
+        {
+          "path": "selected.csv",
+          "sha256": "d12a22231a65da35b66643e6d9c5d7751537d8c3a9bf6311c22dee468d79e23e",
+          "size_bytes": 500
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/.xtboptok",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/charges",
+          "sha256": "a74e1d1340d6191a81b8dd720380187e9c0368c61afb64687362c6cd743642bf",
+          "size_bytes": 45
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/energy",
+          "sha256": "cb99dd5de8593485d697778c295e1e8cf54bccac8b0590129bd196c1686e3af6",
+          "size_bytes": 74
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/engine.stderr",
+          "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+          "size_bytes": 26
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/engine.stdout",
+          "sha256": "a2dda4aad12e21fdf74136755334c72bdd85bcfd3da3a12d6a64914ddfde4f85",
+          "size_bytes": 26983
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/gradient",
+          "sha256": "c631595ee2ad45d6c629b1af3153936aa6e5cf7f112efcad7c825818eded8756",
+          "size_bytes": 506
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/input.engrad",
+          "sha256": "20825686665643e231e023a2aa6ff6c82f09e884046642d760b98caf8fb890cf",
+          "size_bytes": 519
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/input.xyz",
+          "sha256": "0659cd458a45467014db801da62e021dc4a6c152cc56cf9e7cdcb89d875485a8",
+          "size_bytes": 103
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/version.stderr",
+          "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+          "size_bytes": 26
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/version.stdout",
+          "sha256": "f47686023e4be88b6e2241c9a2660fffe132a193f8873d3890594b8f9ca0dd91",
+          "size_bytes": 660
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/wbo",
+          "sha256": "7fdb787ceeb3eac3523a1ebb86bcab70cc12057fdde0743ea20f4af927ff3c78",
+          "size_bytes": 98
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbopt.log",
+          "sha256": "71b55b8b8ba130eaef165910000f5a564dece25ec2db4ddf094a18b7a583c6bc",
+          "size_bytes": 1216
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbopt.xyz",
+          "sha256": "06d2d5e2def88c873c0d2363011b4910129e37ca6c65f706b920f409b9e5e8cc",
+          "size_bytes": 304
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbout.json",
+          "sha256": "883da17f19953e128528041ac4b7ec439881bcd238ccee545511ad1e5dae9242",
+          "size_bytes": 1446
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbrestart",
+          "sha256": "3b19866fdffe8648c63e381e0576d0f6aba6700919bce186657265054396f7b9",
+          "size_bytes": 328
+        },
+        {
+          "path": "snapshot/artifacts/attempts/attempt_4f69f763417c40f2bf6d58b765864905/xtbtopo.mol",
+          "sha256": "dbb2ef9102119e66979a751ab0890d39f347e765de6c26dd534bced312952ed2",
+          "size_bytes": 347
+        },
+        {
+          "path": "snapshot/artifacts/input.xyz",
+          "sha256": "3375bd55e0b056081bad2fea3cbe1d6a9912101017e5e96c2c931aa6452fe2f5",
+          "size_bytes": 199
+        },
+        {
+          "path": "snapshot/artifacts/request.json",
+          "sha256": "b89ca6c3278d58fcab7652a79fda2c974907b39856cb5735f18a023de90027ac",
+          "size_bytes": 1661
+        },
+        {
+          "path": "snapshot/manifest.json",
+          "sha256": "ac37b59e13334201345837f00f3a56e2aa2e1523c85a8c55fae510c71f9014f8",
+          "size_bytes": 3905
+        },
+        {
+          "path": "snapshot/record.h5",
+          "sha256": "551f28fecb801b116497578a2ce21f94a1e8b763f11d0f1330f22cb9b2bd5ba2",
+          "size_bytes": 65960
+        }
+      ],
+      "manifest_sha256": "d2396305b6f165feed9ae58467011ec8fdfcc8e32277dcc7790a84cb890f6847",
+      "publication_ready": false,
+      "publication_status": "not-published",
+      "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+      "schema_version": "topos-bundle/0.1.0",
+      "selected_member_ids": [
+        "candidate_2f2fae3de5664e5eaf699a176387fb06"
+      ],
+      "sensitivity_recipe": {
+        "file": "sampling-sensitivity.json",
+        "requires": "CoChem-TOPOS 0.1.0 archived environment",
+        "scope": "reviewed observed members; missing states unknown unless declared",
+        "script": "recompute-sensitivity.py"
+      },
+      "source_snapshot_sha256": "c6f4db018b68bdb839abe50cc1f95b305e886697b6566c5a00f77e92ca565007",
+      "state": "local-export",
+      "table_recipe": {
+        "columns": [
+          "candidate_id",
+          "attempt_id",
+          "engine",
+          "engine_version",
+          "method",
+          "comparison_protocol",
+          "electronic_energy_hartree",
+          "gibbs_energy_hartree",
+          "zpe_hartree",
+          "thermal_enthalpy_correction_hartree",
+          "entropy_hartree_per_k",
+          "standard_state_correction_hartree",
+          "temperature_k",
+          "thermal_model",
+          "missing_values",
+          "degeneracy"
+        ],
+        "file": "selected.csv",
+        "member_source": "ensemble.json:member_ids",
+        "missing": "empty cell with reason",
+        "python_minimum": "3.10",
+        "script": "regenerate.py"
+      },
+      "unresolved": [
+        "Author must verify citation applicability and completeness before public release",
+        "Artifact licenses/access rights have not been supplied"
+      ],
+      "version_doi": null
+    }
+  },
+  "dependencies": [
+    {
+      "name": "altair",
+      "version": "6.3.0",
+      "requires_dist": [
+        "altair-tiles>=0.3.0; extra == 'all'",
+        "anywidget>=0.9.0; extra == 'all'",
+        "docutils; extra == 'doc'",
+        "duckdb>=1.0; extra == 'dev'",
+        "geopandas>=0.14.3; extra == 'dev'",
+        "hatch>=1.13.0; extra == 'dev'",
+        "ipykernel; extra == 'dev'",
+        "ipython; extra == 'dev'",
+        "jinja2",
+        "jinja2; extra == 'doc'",
+        "jsonschema>=3.0",
+        "mistune; extra == 'dev'",
+        "mypy; extra == 'dev'",
+        "myst-parser; extra == 'doc'",
+        "narwhals>=2.4.0",
+        "numpy; extra == 'all'",
+        "numpydoc; extra == 'doc'",
+        "packaging",
+        "pandas-stubs>=3.0.3.260530; extra == 'dev'",
+        "pandas>=1.5.3; extra == 'all'",
+        "pandas>=1.5.3; extra == 'dev'",
+        "pillow; extra == 'doc'",
+        "polars>=0.20.3; extra == 'dev'",
+        "pyarrow-stubs; extra == 'dev'",
+        "pyarrow>=11; extra == 'all'",
+        "pydata-sphinx-theme>=0.14.1; extra == 'doc'",
+        "pytest-cov; extra == 'dev'",
+        "pytest-xdist[psutil]~=3.5; extra == 'dev'",
+        "pytest; extra == 'dev'",
+        "ruff>=0.9.5; extra == 'dev'",
+        "scipy-stubs; extra == 'doc'",
+        "scipy; extra == 'doc'",
+        "sphinx-autobuild; extra == 'doc'",
+        "sphinx-copybutton; extra == 'doc'",
+        "sphinx-design; extra == 'doc'",
+        "sphinx; extra == 'doc'",
+        "sphinxext-altair; extra == 'doc'",
+        "taskipy>=1.14.1; extra == 'dev'",
+        "ty; extra == 'dev'",
+        "types-jsonschema; extra == 'dev'",
+        "types-setuptools; extra == 'dev'",
+        "typing-extensions>=4.12.0; python_version < '3.15'",
+        "vegafusion>=2.0.3; extra == 'all'",
+        "vl-convert-python>=1.9.0; extra == 'all'",
+        "vl-convert-python>=1.9.0; extra == 'save'"
+      ],
+      "metadata_sha256": "e2c96038445540d765950ee1286995e6bf2b74eb70133aebf7ab0f2634be0b1e"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.8.0",
+      "requires_dist": [],
+      "metadata_sha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298"
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1",
+      "requires_dist": [
+        "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+        "idna>=2.8",
+        "trio>=0.32.0; extra == \"trio\"",
+        "typing_extensions>=4.16.0; python_version < \"3.15\""
+      ],
+      "metadata_sha256": "043aecb571af7189e8a6c528f5d8e32545f1b2cdfaaf761d51e6d5b67ea3ca81"
+    },
+    {
+      "name": "ase",
+      "version": "3.29.0",
+      "requires_dist": [
+        "matplotlib>=3.5.2",
+        "mypy; extra == \"lint\"",
+        "numpy>=1.21.6",
+        "pillow; extra == \"docs\"",
+        "pytest-xdist>=3.2.0; extra == \"test\"",
+        "pytest>=7.4.0; extra == \"test\"",
+        "ruff; extra == \"lint\"",
+        "scipy>=1.8.1",
+        "spglib>=1.9; extra == \"spglib\"",
+        "sphinx-gallery; extra == \"docs\"",
+        "sphinx; extra == \"docs\"",
+        "sphinx_book_theme; extra == \"docs\"",
+        "sphinxcontrib-video; extra == \"docs\"",
+        "types-PyMySQL; extra == \"lint\"",
+        "types-docutils; extra == \"lint\"",
+        "typing_extensions>=4.13.1"
+      ],
+      "metadata_sha256": "6fac364e5cec27d94f17f3baff52276ef97014692b3d6691c55fc6dce43b06d7"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0",
+      "requires_dist": [],
+      "metadata_sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22",
+      "requires_dist": [],
+      "metadata_sha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "requires_dist": [
+        "pycparser; implementation_name != \"PyPy\""
+      ],
+      "metadata_sha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "requires_dist": [],
+      "metadata_sha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "requires_dist": [],
+      "metadata_sha256": "e87bce0bd194de70dfb8e708e0a6b0483009f25611804eaf87bfeb63e6c20501"
+    },
+    {
+      "name": "CoChem-BASE",
+      "version": "1.0.0",
+      "requires_dist": [
+        "MolSym==1.2.0; extra == \"symmetry\"",
+        "PySide6",
+        "ase; extra == \"ui\"",
+        "cryptography>=50.0.1",
+        "filelock>=3.32.5",
+        "google-genai>=2.28.0; extra == \"scribe\"",
+        "h5py>=3.9.0",
+        "ipykernel; extra == \"ui\"",
+        "ipywidgets; extra == \"ui\"",
+        "jinja2",
+        "jinja2; extra == \"ui\"",
+        "matplotlib; extra == \"ui\"",
+        "mendeleev>=1.2.0",
+        "mmh3>=5.3.0",
+        "msgpack>=1.0",
+        "mypy>=1.8.0; extra == \"dev\"",
+        "networkx>=3.6.1",
+        "numpy",
+        "pandas; extra == \"catalog\"",
+        "parsl; extra == \"dev\"",
+        "parsl; extra == \"hpc\"",
+        "pluggy",
+        "psutil",
+        "py3Dmol; extra == \"ui\"",
+        "pyarrow; extra == \"catalog\"",
+        "pydantic>=2",
+        "pynacl; extra == \"ui\"",
+        "pyqtgraph",
+        "pytest-asyncio; extra == \"dev\"",
+        "pytest-qt; extra == \"dev\"",
+        "pytest; extra == \"dev\"",
+        "pyvista",
+        "pyvistaqt",
+        "pyzmq>=25.1.0",
+        "qcelemental>=0.29; extra == \"dev\"",
+        "rdkit>=2026.3.5",
+        "requests; extra == \"ui\"",
+        "ruff>=0.1.0; extra == \"dev\"",
+        "scipy>=1.17.1",
+        "tenacity>=8.2",
+        "voila; extra == \"ui\"",
+        "vtk",
+        "watchdog>=6.0.0; extra == \"ui\"",
+        "zstandard>=0.25.0; extra == \"scribe\""
+      ],
+      "metadata_sha256": "604c69689dc161d3a9d243ab7280b8515edf79e9ff35236c82713f7017f2f451",
+      "editable": false,
+      "direct_origin_kind": "local-or-archive"
+    },
+    {
+      "name": "cochem-topos",
+      "version": "0.1.0",
+      "requires_dist": [
+        "CoChem-BASE==1.0.0",
+        "CoChem-TORQ==0.1.0",
+        "MolSym<2,>=1.2",
+        "ase<4,>=3.29",
+        "build>=1.2; extra == \"dev\"",
+        "filelock>=3.13",
+        "h5py>=3.9",
+        "mendeleev>=0.20",
+        "networkx>=3.1",
+        "numpy>=1.24",
+        "psutil>=5.9",
+        "pydantic>=2.4",
+        "pytest-cov>=5; extra == \"dev\"",
+        "pytest>=8; extra == \"dev\"",
+        "qcelemental==0.51.2; extra == \"external\"",
+        "qcengine==0.51.0; extra == \"external\"",
+        "ruff>=0.9; extra == \"dev\"",
+        "scipy>=1.11",
+        "setuptools>=77; extra == \"dev\"",
+        "streamlit>=1.37; extra == \"ui\"",
+        "wheel>=0.45; extra == \"dev\""
+      ],
+      "metadata_sha256": "969a55e23a4f95b67370a7742daf5b65b86958874aed7c00d8a79de49f0fed12",
+      "editable": false,
+      "direct_origin_kind": "local-or-archive"
+    },
+    {
+      "name": "CoChem-TORQ",
+      "version": "0.1.0",
+      "requires_dist": [
+        "h5py",
+        "jax",
+        "jaxlib",
+        "mypy; extra == \"dev\"",
+        "networkx",
+        "psutil",
+        "pyarrow",
+        "pydantic",
+        "pytest; extra == \"dev\"",
+        "ruff; extra == \"dev\"",
+        "scipy"
+      ],
+      "metadata_sha256": "9082e87f15e44bb9cfa5cb5a1cb5db5c18252bf02ffc6cd57a739cb4bc8dc41f",
+      "editable": false,
+      "direct_origin_kind": "local-or-archive"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "requires_dist": [],
+      "metadata_sha256": "7baed29eb50c3b29bdb33ff84e3177bf1bc05784f7685ecdcaa4471c7dd810cc"
+    },
+    {
+      "name": "contourpy",
+      "version": "1.4.0",
+      "requires_dist": [
+        "Pillow; extra == \"test\"",
+        "bokeh; extra == \"bokeh\"",
+        "bokeh; extra == \"mypy\"",
+        "contourpy[bokeh,docs]; extra == \"mypy\"",
+        "contourpy[test-no-images]; extra == \"test\"",
+        "docutils-stubs; extra == \"mypy\"",
+        "matplotlib; extra == \"test\"",
+        "mypy==2.1.0; extra == \"mypy\"",
+        "myst-parser; extra == \"docs\"",
+        "numpy>=2.0",
+        "pre-commit; extra == \"test\"",
+        "pytest-cov; extra == \"test-no-images\"",
+        "pytest-rerunfailures<16; extra == \"test-no-images\"",
+        "pytest-xdist; extra == \"test-no-images\"",
+        "pytest; extra == \"test-no-images\"",
+        "selenium; extra == \"bokeh\"",
+        "sphinx-book-theme; extra == \"docs\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx; extra == \"docs\"",
+        "types-Pillow; extra == \"mypy\"",
+        "wurlitzer; extra == \"test-no-images\""
+      ],
+      "metadata_sha256": "40450acd747b288a5db999c435e1e921ffee0a38c7884a80cd46934c8004568f"
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "requires_dist": [
+        "bcrypt>=3.1.5 ; extra == 'ssh'",
+        "cffi>=2.0.0 ; platform_python_implementation != 'PyPy'",
+        "typing-extensions>=4.13.2 ; python_full_version < '3.11'"
+      ],
+      "metadata_sha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee"
+    },
+    {
+      "name": "cycler",
+      "version": "0.12.1",
+      "requires_dist": [
+        "ipython ; extra == 'docs'",
+        "matplotlib ; extra == 'docs'",
+        "numpydoc ; extra == 'docs'",
+        "pytest ; extra == 'tests'",
+        "pytest-cov ; extra == 'tests'",
+        "pytest-xdist ; extra == 'tests'",
+        "sphinx ; extra == 'docs'"
+      ],
+      "metadata_sha256": "23289e19b76f1e01394227696e6af2b6cd1ce79e89731209bf9195148b18ed36"
+    },
+    {
+      "name": "cyclopts",
+      "version": "5.2.0",
+      "requires_dist": [
+        "attrs>=23.1.0",
+        "coverage[toml]>=5.1; extra == 'dev'",
+        "docstring-parser<4.0,>=0.15",
+        "gitpython>=3.1.31; extra == 'docs'",
+        "ipdb>=0.13.9; extra == 'debug'",
+        "line-profiler>=3.5.1; extra == 'debug'",
+        "markdown>=3.3; extra == 'mkdocs'",
+        "mkdocs>=1.4.0; extra == 'dev'",
+        "mkdocs>=1.4.0; extra == 'mkdocs'",
+        "myst-parser[linkify]<6.0.0,>=3.0.1; extra == 'docs'",
+        "pexpect>=4.9.0; (sys_platform != 'win32') and extra == 'dev'",
+        "pre-commit>=2.16.0; extra == 'dev'",
+        "pydantic<3.0.0,>=2.11.2; extra == 'dev'",
+        "pymdown-extensions>=10.0; extra == 'mkdocs'",
+        "pytest-cov>=3.0.0; extra == 'dev'",
+        "pytest-mock>=3.7.0; extra == 'dev'",
+        "pytest-timeout>=2.3.0; extra == 'dev'",
+        "pytest>=8.2.0; extra == 'dev'",
+        "pyyaml>=6.0.1; extra == 'dev'",
+        "pyyaml>=6.0.1; extra == 'yaml'",
+        "rich-rst<3,>=2.0.1",
+        "rich>=13.6.0",
+        "sphinx-autodoc-typehints<4.0.0,>=1.25.2; extra == 'docs'",
+        "sphinx-copybutton<1.0,>=0.5; extra == 'docs'",
+        "sphinx-rtd-dark-mode<2.0.0,>=1.3.0; extra == 'docs'",
+        "sphinx-rtd-theme<4.0.0,>=3.0.0; extra == 'docs'",
+        "sphinx<10.0.0,>=7.4.7; extra == 'docs'",
+        "syrupy>=4.0.0; extra == 'dev'",
+        "toml<1.0.0,>=0.10.2; extra == 'dev'",
+        "trio>=0.10.0; extra == 'dev'",
+        "trio>=0.10.0; extra == 'trio'"
+      ],
+      "metadata_sha256": "a1bcd1e587744ec6f5c5c64126ac03a03fc2468f7c91cd1c44572a5ac11dcb2a"
+    },
+    {
+      "name": "Deprecated",
+      "version": "1.3.1",
+      "requires_dist": [
+        "PyTest-Cov; extra == \"dev\"",
+        "PyTest; extra == \"dev\"",
+        "bump2version<1; extra == \"dev\"",
+        "inspect2; python_version < \"3\"",
+        "setuptools; python_version >= \"3.12\" and extra == \"dev\"",
+        "tox; extra == \"dev\"",
+        "wrapt<3,>=1.10"
+      ],
+      "metadata_sha256": "409767ac23878c1c694888ce4acc43dab6b37efa2b40499567fb5c7d9dce5852"
+    },
+    {
+      "name": "docstring_parser",
+      "version": "0.18.0",
+      "requires_dist": [
+        "pre-commit>=2.16.0; (python_version >= '3.9') and extra == 'dev'",
+        "pydoctor>=25.4.0; extra == 'dev'",
+        "pydoctor>=25.4.0; extra == 'docs'",
+        "pytest; extra == 'dev'",
+        "pytest; extra == 'test'"
+      ],
+      "metadata_sha256": "cbc42027997fd4b194ae5fd064a4d1e57b92976941d0c26d369561a7c016a333"
+    },
+    {
+      "name": "filelock",
+      "version": "4.0.12",
+      "requires_dist": [],
+      "metadata_sha256": "13cef4f5394eede99fa578d493e22e063e9aa007d90b7145c18c21cb2ea0102a"
+    },
+    {
+      "name": "flexcache",
+      "version": "0.3",
+      "requires_dist": [
+        "pytest ; extra == 'test'",
+        "pytest-cov ; extra == 'test'",
+        "pytest-mpl ; extra == 'test'",
+        "pytest-subtests ; extra == 'test'",
+        "typing-extensions"
+      ],
+      "metadata_sha256": "13081e02b52beb171ca5b244ff8b412f03e8ac8c6eaad49fa83b559558de6b45"
+    },
+    {
+      "name": "flexparser",
+      "version": "0.4",
+      "requires_dist": [
+        "pytest-cov; extra == \"test\"",
+        "pytest-mpl; extra == \"test\"",
+        "pytest-subtests; extra == \"test\"",
+        "pytest; extra == \"test\"",
+        "typing-extensions"
+      ],
+      "metadata_sha256": "19ab3b2a5c81b171f64a09720ca2181d86c24029935e81c06fc778d8d9589c0d"
+    },
+    {
+      "name": "fonttools",
+      "version": "4.66.1",
+      "requires_dist": [
+        "brotli>=1.0.1; platform_python_implementation == \"CPython\" and extra == \"all\"",
+        "brotli>=1.0.1; platform_python_implementation == \"CPython\" and extra == \"woff\"",
+        "brotlicffi>=0.8.0; platform_python_implementation != \"CPython\" and extra == \"all\"",
+        "brotlicffi>=0.8.0; platform_python_implementation != \"CPython\" and extra == \"woff\"",
+        "lxml>=4.0; extra == \"all\"",
+        "lxml>=4.0; extra == \"lxml\"",
+        "lz4>=1.7.4.2; extra == \"all\"",
+        "lz4>=1.7.4.2; extra == \"graphite\"",
+        "matplotlib; extra == \"all\"",
+        "matplotlib; extra == \"plot\"",
+        "munkres; platform_python_implementation == \"PyPy\" and extra == \"all\"",
+        "munkres; platform_python_implementation == \"PyPy\" and extra == \"interpolatable\"",
+        "pycairo; extra == \"all\"",
+        "pycairo; extra == \"interpolatable\"",
+        "scipy; platform_python_implementation != \"PyPy\" and extra == \"all\"",
+        "scipy; platform_python_implementation != \"PyPy\" and extra == \"interpolatable\"",
+        "skia-pathops>=0.5.0; extra == \"all\"",
+        "skia-pathops>=0.5.0; extra == \"pathops\"",
+        "sympy; extra == \"all\"",
+        "sympy; extra == \"symfont\"",
+        "uharfbuzz>=0.45.0; extra == \"all\"",
+        "uharfbuzz>=0.45.0; extra == \"repacker\"",
+        "unicodedata2>=18.0.0; python_version <= \"3.15\" and extra == \"all\"",
+        "unicodedata2>=18.0.0; python_version <= \"3.15\" and extra == \"unicode\"",
+        "xattr; sys_platform == \"darwin\" and extra == \"all\"",
+        "xattr; sys_platform == \"darwin\" and extra == \"type1\"",
+        "zopfli>=0.1.4; extra == \"all\"",
+        "zopfli>=0.1.4; extra == \"woff\""
+      ],
+      "metadata_sha256": "d354d7b32166f817cb64da296e3e3152df8130c8a09a65fa8399631e20e3d672"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0",
+      "requires_dist": [],
+      "metadata_sha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64"
+    },
+    {
+      "name": "h5py",
+      "version": "3.16.0",
+      "requires_dist": [
+        "numpy>=1.21.2"
+      ],
+      "metadata_sha256": "e461fcf7eb9fee6242205f9225cc178455a0212d1c0cb8f997f7eebf8cd9695e"
+    },
+    {
+      "name": "httptools",
+      "version": "0.8.0",
+      "requires_dist": [],
+      "metadata_sha256": "7b5c0231580b589e7721b111f37324276f2a585bc2d27aedd67297e0c9b4bda8"
+    },
+    {
+      "name": "idna",
+      "version": "3.20",
+      "requires_dist": [
+        "coverage >= 7.10.0 ; extra == \"all\"",
+        "hypothesis >= 6.141.1 ; extra == \"all\"",
+        "mypy >= 1.11.2 ; extra == \"all\"",
+        "pytest >= 8.3.2 ; extra == \"all\"",
+        "ruff >= 0.16.0 ; extra == \"all\"",
+        "ty >= 0.0.37 ; extra == \"all\""
+      ],
+      "metadata_sha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85"
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "requires_dist": [],
+      "metadata_sha256": "d2b934fb56708a1b94e439f0255c0f5a8108e3258ec827b18a1dc9c991db9611"
+    },
+    {
+      "name": "jax",
+      "version": "0.11.2",
+      "requires_dist": [
+        "jax-cuda12-plugin<=0.11.2,>=0.11.2; extra == \"cuda12-local\"",
+        "jax-cuda12-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda\"",
+        "jax-cuda12-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda12\"",
+        "jax-cuda13-plugin<=0.11.2,>=0.11.2; extra == \"cuda13-local\"",
+        "jax-cuda13-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda13\"",
+        "jax-oneapi-plugin[with-oneapi]<=0.11.2,>=0.11.2; extra == \"oneapi\"",
+        "jax-rocm7-plugin==0.11.2.*; extra == \"rocm7-local\"",
+        "jaxlib<=0.11.2,>=0.11.2",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda12\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda12-local\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda13\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda13-local\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"oneapi\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"rocm7-local\"",
+        "jaxlib<=0.11.2,>=0.11.2; extra == \"tpu\"",
+        "jaxlib==0.11.1; extra == \"ci\"",
+        "jaxlib==0.11.2; extra == \"minimum-jaxlib\"",
+        "kubernetes; extra == \"k8s\"",
+        "libtpu==0.0.48.*; extra == \"tpu\"",
+        "ml_dtypes>=0.5.0",
+        "numpy>=2.1",
+        "opt_einsum",
+        "requests; extra == \"tpu\"",
+        "scipy>=1.15",
+        "xprof; extra == \"xprof\""
+      ],
+      "metadata_sha256": "c5b555876b5bebca82b4338a2754ef33afcd7932e5eeba2e300bb8c5ad5e10c8"
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.11.2",
+      "requires_dist": [
+        "ml_dtypes>=0.5.0",
+        "numpy>=2.0",
+        "scipy>=1.14"
+      ],
+      "metadata_sha256": "e4dc641e32319949e1dcc4ad823a9ab4dd690e33e691f5d5ace89d474030447b"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6",
+      "requires_dist": [
+        "Babel>=2.7 ; extra == \"i18n\"",
+        "MarkupSafe>=2.0"
+      ],
+      "metadata_sha256": "68c5548fb67c4132a13898d9b31ec50c6bea2abdd915d921f214355c3a6499c8"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.26.0",
+      "requires_dist": [
+        "attrs>=22.2.0",
+        "fqdn; extra == 'format'",
+        "fqdn; extra == 'format-nongpl'",
+        "idna; extra == 'format'",
+        "idna; extra == 'format-nongpl'",
+        "isoduration; extra == 'format'",
+        "isoduration; extra == 'format-nongpl'",
+        "jsonpointer>1.13; extra == 'format'",
+        "jsonpointer>1.13; extra == 'format-nongpl'",
+        "jsonschema-specifications>=2023.03.6",
+        "referencing>=0.28.4",
+        "rfc3339-validator; extra == 'format'",
+        "rfc3339-validator; extra == 'format-nongpl'",
+        "rfc3986-validator>0.1.0; extra == 'format-nongpl'",
+        "rfc3987-syntax>=1.1.0; extra == 'format-nongpl'",
+        "rfc3987; extra == 'format'",
+        "rpds-py>=0.25.0",
+        "uri-template; extra == 'format'",
+        "uri-template; extra == 'format-nongpl'",
+        "webcolors>=1.11; extra == 'format'",
+        "webcolors>=24.6.0; extra == 'format-nongpl'"
+      ],
+      "metadata_sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "requires_dist": [
+        "referencing>=0.31.0"
+      ],
+      "metadata_sha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d"
+    },
+    {
+      "name": "kiwisolver",
+      "version": "1.5.1",
+      "requires_dist": [],
+      "metadata_sha256": "f07b7b6c0c9c2a624c8a31f931e16712f2cf3490e7dfd51643d68e9d42d4b2c9"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0",
+      "requires_dist": [
+        "commonmark~=0.9 ; extra == \"compare\"",
+        "coverage ; extra == \"testing\"",
+        "gprof2dot ; extra == \"profiling\"",
+        "ipykernel ; extra == \"rtd\"",
+        "jupyter_sphinx ; extra == \"rtd\"",
+        "linkify-it-py>=1,<3 ; extra == \"linkify\"",
+        "markdown-it-pyrs ; extra == \"compare\"",
+        "markdown~=3.4 ; extra == \"compare\"",
+        "mdit-py-plugins>=0.5.0 ; extra == \"plugins\"",
+        "mdit-py-plugins>=0.5.0 ; extra == \"rtd\"",
+        "mdurl~=0.1",
+        "mistletoe~=1.0 ; extra == \"compare\"",
+        "mistune~=3.0 ; extra == \"compare\"",
+        "myst-parser ; extra == \"rtd\"",
+        "panflute~=2.3 ; extra == \"compare\"",
+        "psutil ; extra == \"benchmarking\"",
+        "pytest ; extra == \"benchmarking\"",
+        "pytest ; extra == \"testing\"",
+        "pytest-benchmark ; extra == \"benchmarking\"",
+        "pytest-cov ; extra == \"testing\"",
+        "pytest-regressions ; extra == \"testing\"",
+        "pytest-timeout ; extra == \"testing\"",
+        "pyyaml ; extra == \"rtd\"",
+        "requests ; extra == \"testing\"",
+        "sphinx ; extra == \"rtd\"",
+        "sphinx-book-theme~=1.0 ; extra == \"rtd\"",
+        "sphinx-copybutton ; extra == \"rtd\"",
+        "sphinx-design ; extra == \"rtd\""
+      ],
+      "metadata_sha256": "72c36ff516755443b1ecb61e17b2567a990230b49a504b0eb0c42d5f82448a9c"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.4",
+      "requires_dist": [],
+      "metadata_sha256": "66767d76388ece15d49d50dafb655891ef5d868715e7128e7f7d737a70b353c4"
+    },
+    {
+      "name": "matplotlib",
+      "version": "3.11.2",
+      "requires_dist": [
+        "contourpy>=1.0.1",
+        "cycler>=0.10",
+        "fonttools>=4.28.2",
+        "kiwisolver>=1.3.1",
+        "numpy>=1.25",
+        "packaging>=20.0",
+        "pillow>=9",
+        "pyparsing>=3",
+        "python-dateutil>=2.7"
+      ],
+      "metadata_sha256": "e5f532226d1025af2dd15ff951df27391f66d46403b8244ea61e6b8eb3e4d806"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2",
+      "requires_dist": [],
+      "metadata_sha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d"
+    },
+    {
+      "name": "mendeleev",
+      "version": "1.3.0",
+      "requires_dist": [
+        "Pygments (>=2.11.2,<3.0.0)",
+        "SQLAlchemy (>=1.4.0)",
+        "bokeh (>=3.0,<4.0) ; extra == \"vis\"",
+        "colorama (>=0.4.6,<0.5.0)",
+        "deprecated (>=1.2.14,<2.0.0)",
+        "jupyter-bokeh (>=4.0,<5.0) ; extra == \"vis\"",
+        "numpy (>=2.0,<3.0)",
+        "pandas (>=2.1)",
+        "pint (>=0.24.4,<0.25.0)",
+        "plotly (>=5.0) ; extra == \"vis\"",
+        "pydantic (>=2.12,<3.0)",
+        "pydantic-core (>=2.23,<3.0)",
+        "pyfiglet (>=0.8.post1,<0.9)",
+        "seaborn (>=0.12) ; extra == \"vis\""
+      ],
+      "metadata_sha256": "a39522182e2d6cc314a95c2a16c965fa7e5633ad8b8b259e0823d71f0d56a8ff"
+    },
+    {
+      "name": "ml_dtypes",
+      "version": "0.6.0",
+      "requires_dist": [
+        "absl-py; extra == \"dev\"",
+        "numpy>=2.0.0",
+        "numpy>=2.1.0; python_version >= \"3.13\"",
+        "numpy>=2.3.0; python_version >= \"3.14\"",
+        "pyink; extra == \"dev\"",
+        "pylint>=2.6.0; extra == \"dev\"",
+        "pytest-xdist; extra == \"dev\"",
+        "pytest; extra == \"dev\""
+      ],
+      "metadata_sha256": "363d582174259be78c619e314216fc8979e5a5ec245337ee236b244945df3f01"
+    },
+    {
+      "name": "mmh3",
+      "version": "5.3.1",
+      "requires_dist": [
+        "actionlint-py==1.7.12.24; extra == \"lint\"",
+        "clang-format==23.1.0; extra == \"lint\"",
+        "codespell==2.4.3; extra == \"lint\"",
+        "matplotlib==3.10.9; extra == \"plot\"",
+        "mypy==2.3.1; extra == \"type\"",
+        "myst-parser==5.0.0; extra == \"docs\"",
+        "pandas==3.0.1; extra == \"plot\"",
+        "pylint==4.0.8; extra == \"lint\"",
+        "pymmh3==0.0.5; extra == \"benchmark\"",
+        "pyperf==2.10.0; extra == \"benchmark\"",
+        "pytest-sugar==1.1.1; extra == \"test\"",
+        "pytest==9.1.1; extra == \"test\"",
+        "ruff==0.16.5; extra == \"lint\"",
+        "shibuya==2026.7.12; extra == \"docs\"",
+        "sphinx-copybutton==0.5.2; extra == \"docs\"",
+        "sphinx==8.2.3; extra == \"docs\"",
+        "xxhash==4.0.1; extra == \"benchmark\""
+      ],
+      "metadata_sha256": "c0e9c9f193d0caa406ca8e603b9c937cd80aa90314da5a9f9b7b5a176ae25a52"
+    },
+    {
+      "name": "MolSym",
+      "version": "1.2.0",
+      "requires_dist": [
+        "numpy>=1.23.4",
+        "qcelemental>=0.50.0; extra == \"qcel\""
+      ],
+      "metadata_sha256": "7f28b3dc924fcf0a845a43040ce6557eec3e2e17560beb822b6afe79e78594f6"
+    },
+    {
+      "name": "msgpack",
+      "version": "1.2.3",
+      "requires_dist": [],
+      "metadata_sha256": "f47c09192e9f4f81b8b4a63979473a13f7a63c67dcdc41be2e0f97353a9dc5b4"
+    },
+    {
+      "name": "narwhals",
+      "version": "2.26.0",
+      "requires_dist": [
+        "cudf-cu12>=24.10.0 ; sys_platform == 'linux' and extra == 'cudf'",
+        "dask[dataframe]>=2024.8 ; extra == 'dask'",
+        "duckdb>=1.1 ; extra == 'duckdb'",
+        "ibis-framework>=6.0.0 ; extra == 'ibis'",
+        "modin>=0.22.0 ; extra == 'modin'",
+        "narwhals[duckdb] ; extra == 'sql'",
+        "packaging>=21.3 ; extra == 'ibis'",
+        "pandas>=1.3.4 ; extra == 'pandas'",
+        "polars>=0.20.4 ; extra == 'polars'",
+        "pyarrow-hotfix>=0.7 ; extra == 'ibis'",
+        "pyarrow>=13.0.0 ; extra == 'pyarrow'",
+        "pyspark>=3.5.0 ; extra == 'pyspark'",
+        "pyspark[connect]>=3.5.0 ; extra == 'pyspark-connect'",
+        "sqlframe>=3.22.0,!=3.39.3 ; extra == 'sqlframe'",
+        "sqlparse>=0.5.5 ; extra == 'sql'"
+      ],
+      "metadata_sha256": "7e09d821259f98ca6ce639ddf38d5314fca112911dc3ba58d8546381ac1b2861"
+    },
+    {
+      "name": "networkx",
+      "version": "3.7",
+      "requires_dist": [
+        "asv>=0.6.5; extra == \"benchmarking\"",
+        "build>=0.10; extra == \"release\"",
+        "cairocffi>=1.7; extra == \"example\"",
+        "changelist==0.5; extra == \"release\"",
+        "contextily>=1.6; extra == \"example\"",
+        "hiveplotlib>=0.28; extra == \"example\"",
+        "igraph>=0.11; extra == \"example\"",
+        "intersphinx-registry; extra == \"doc\"",
+        "iplotx>=0.9.0; extra == \"example\"",
+        "lxml>=4.6; extra == \"extra\"",
+        "matplotlib>=3.10; extra == \"default\"",
+        "momepy>=0.7.2; extra == \"example\"",
+        "mypy>=1.15; extra == \"developer\"",
+        "myst-nb>=1.1; extra == \"doc\"",
+        "numpy>=2.2; extra == \"default\"",
+        "numpydoc>=1.8.0; extra == \"doc\"",
+        "osmnx>=2.0.0; extra == \"example\"",
+        "pandas>=2.3; extra == \"default\"",
+        "pillow>=10; extra == \"doc\"",
+        "pre-commit>=4.1; extra == \"developer\"",
+        "py-rattler<0.22,>=0.21; extra == \"benchmarking\"",
+        "pydata-sphinx-theme>=0.16; extra == \"doc\"",
+        "pydot>=3.0.1; extra == \"extra\"",
+        "pygraphviz>=2.0; extra == \"extra\"",
+        "pytest-cov>=4.0; extra == \"test\"",
+        "pytest-mpl; extra == \"test-extras\"",
+        "pytest-randomly; extra == \"test-extras\"",
+        "pytest-xdist>=3.0; extra == \"test\"",
+        "pytest>=7.2; extra == \"test\"",
+        "scikit-learn>=1.6; extra == \"example\"",
+        "scipy>=1.15; extra == \"default\"",
+        "seaborn>=0.13; extra == \"example\"",
+        "sphinx-gallery>=0.18; extra == \"doc\"",
+        "sphinx>=8.0; extra == \"doc\"",
+        "sympy>=1.10; extra == \"extra\"",
+        "texext>=0.6.7; extra == \"doc\"",
+        "twine>=4.0; extra == \"release\"",
+        "virtualenv; extra == \"benchmarking\"",
+        "wheel>=0.40; extra == \"release\""
+      ],
+      "metadata_sha256": "ffcf42a343af6ffc54ff9cc4c09cf9638cd73b131370f395abd11b630186c90c"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.3",
+      "requires_dist": [],
+      "metadata_sha256": "451a9b8028000588e66b0b415587b6aef0bbc51a96d8e8a0cba0dc23acf64f99"
+    },
+    {
+      "name": "opt_einsum",
+      "version": "3.4.0",
+      "requires_dist": [],
+      "metadata_sha256": "9f6791140c5e1be4f1b189365e6312d711a1eaaeb399b5dd6741f7a4bd99d03b"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "requires_dist": [],
+      "metadata_sha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763"
+    },
+    {
+      "name": "pandas",
+      "version": "3.0.6",
+      "requires_dist": [
+        "PyQt5>=5.15.9; extra == \"all\"",
+        "PyQt5>=5.15.9; extra == \"clipboard\"",
+        "SQLAlchemy>=2.0.36; extra == \"all\"",
+        "SQLAlchemy>=2.0.36; extra == \"mysql\"",
+        "SQLAlchemy>=2.0.36; extra == \"postgresql\"",
+        "SQLAlchemy>=2.0.36; extra == \"sql-other\"",
+        "adbc-driver-postgresql>=1.2.0; extra == \"all\"",
+        "adbc-driver-postgresql>=1.2.0; extra == \"postgresql\"",
+        "adbc-driver-postgresql>=1.2.0; extra == \"sql-other\"",
+        "adbc-driver-sqlite>=1.2.0; extra == \"all\"",
+        "adbc-driver-sqlite>=1.2.0; extra == \"sql-other\"",
+        "beautifulsoup4>=4.12.3; extra == \"all\"",
+        "beautifulsoup4>=4.12.3; extra == \"html\"",
+        "bottleneck>=1.4.2; extra == \"all\"",
+        "bottleneck>=1.4.2; extra == \"performance\"",
+        "fastparquet>=2024.11.0; extra == \"all\"",
+        "fsspec>=2024.10.0; extra == \"all\"",
+        "fsspec>=2024.10.0; extra == \"fss\"",
+        "gcsfs>=2024.10.0; extra == \"all\"",
+        "gcsfs>=2024.10.0; extra == \"gcp\"",
+        "html5lib>=1.1; extra == \"all\"",
+        "html5lib>=1.1; extra == \"html\"",
+        "hypothesis>=6.116.0; extra == \"all\"",
+        "hypothesis>=6.116.0; extra == \"test\"",
+        "jinja2>=3.1.5; extra == \"all\"",
+        "jinja2>=3.1.5; extra == \"output-formatting\"",
+        "lxml>=5.3.0; extra == \"all\"",
+        "lxml>=5.3.0; extra == \"html\"",
+        "lxml>=5.3.0; extra == \"xml\"",
+        "matplotlib>=3.9.3; extra == \"all\"",
+        "matplotlib>=3.9.3; extra == \"plot\"",
+        "numba>=0.60.0; extra == \"all\"",
+        "numba>=0.60.0; extra == \"performance\"",
+        "numexpr>=2.10.2; extra == \"all\"",
+        "numexpr>=2.10.2; extra == \"performance\"",
+        "numpy>=1.26.0; python_version < \"3.14\"",
+        "numpy>=2.3.3; python_version >= \"3.14\"",
+        "odfpy>=1.4.1; extra == \"all\"",
+        "odfpy>=1.4.1; extra == \"excel\"",
+        "openpyxl>=3.1.5; extra == \"all\"",
+        "openpyxl>=3.1.5; extra == \"excel\"",
+        "psycopg2>=2.9.10; extra == \"all\"",
+        "psycopg2>=2.9.10; extra == \"postgresql\"",
+        "pyarrow>=13.0.0; extra == \"all\"",
+        "pyarrow>=13.0.0; extra == \"feather\"",
+        "pyarrow>=13.0.0; extra == \"parquet\"",
+        "pyarrow>=13.0.0; extra == \"pyarrow\"",
+        "pyiceberg>=0.8.1; extra == \"all\"",
+        "pyiceberg>=0.8.1; extra == \"iceberg\"",
+        "pymysql>=1.1.1; extra == \"all\"",
+        "pymysql>=1.1.1; extra == \"mysql\"",
+        "pyreadstat>=1.2.8; extra == \"all\"",
+        "pyreadstat>=1.2.8; extra == \"spss\"",
+        "pytest-xdist>=3.6.1; extra == \"all\"",
+        "pytest-xdist>=3.6.1; extra == \"test\"",
+        "pytest<9.1,>=8.3.4; extra == \"test\"",
+        "pytest>=8.3.4; extra == \"all\"",
+        "python-calamine>=0.3.0; extra == \"all\"",
+        "python-calamine>=0.3.0; extra == \"excel\"",
+        "python-dateutil>=2.8.2",
+        "pytz>=2020.1; extra == \"all\"",
+        "pytz>=2020.1; extra == \"timezone\"",
+        "pyxlsb>=1.0.10; extra == \"all\"",
+        "pyxlsb>=1.0.10; extra == \"excel\"",
+        "qtpy>=2.4.2; extra == \"all\"",
+        "qtpy>=2.4.2; extra == \"clipboard\"",
+        "s3fs>=2024.10.0; extra == \"all\"",
+        "s3fs>=2024.10.0; extra == \"aws\"",
+        "scipy>=1.14.1; extra == \"all\"",
+        "scipy>=1.14.1; extra == \"computation\"",
+        "tables>=3.10.1; extra == \"all\"",
+        "tables>=3.10.1; extra == \"hdf5\"",
+        "tabulate>=0.9.0; extra == \"all\"",
+        "tabulate>=0.9.0; extra == \"output-formatting\"",
+        "tzdata; sys_platform == \"emscripten\"",
+        "tzdata; sys_platform == \"win32\"",
+        "xarray>=2024.10.0; extra == \"all\"",
+        "xarray>=2024.10.0; extra == \"computation\"",
+        "xlrd>=2.0.1; extra == \"all\"",
+        "xlrd>=2.0.1; extra == \"excel\"",
+        "xlsxwriter>=3.2.0; extra == \"all\"",
+        "xlsxwriter>=3.2.0; extra == \"excel\"",
+        "zstandard>=0.23.0; extra == \"all\"",
+        "zstandard>=0.23.0; extra == \"compression\""
+      ],
+      "metadata_sha256": "c2e8c472e1f49c30b7b00dc1cde8b8ed384b1b6d85b4d5ffe163e800e71dbc61"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "requires_dist": [
+        "arro3-compute; extra == \"test-arrow\"",
+        "arro3-core; extra == \"test-arrow\"",
+        "coverage>=7.4.2; extra == \"tests\"",
+        "defusedxml; extra == \"tests\"",
+        "defusedxml; extra == \"xmp\"",
+        "furo; extra == \"docs\"",
+        "markdown2; extra == \"tests\"",
+        "nanoarrow; extra == \"test-arrow\"",
+        "olefile; extra == \"docs\"",
+        "olefile; extra == \"fpx\"",
+        "olefile; extra == \"mic\"",
+        "olefile; extra == \"tests\"",
+        "packaging; extra == \"tests\"",
+        "pyarrow; extra == \"test-arrow\"",
+        "pytest-cov; extra == \"tests\"",
+        "pytest-timeout; extra == \"tests\"",
+        "pytest-xdist; extra == \"tests\"",
+        "pytest; extra == \"tests\"",
+        "setuptools; extra == \"tests\"",
+        "sphinx-autobuild; extra == \"docs\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx-inline-tabs; extra == \"docs\"",
+        "sphinx>=8.2; extra == \"docs\"",
+        "sphinxext-opengraph; extra == \"docs\"",
+        "trove-classifiers>=2024.10.12; extra == \"tests\""
+      ],
+      "metadata_sha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+    },
+    {
+      "name": "Pint",
+      "version": "0.24.4",
+      "requires_dist": [
+        "babel<=2.8; extra == \"babel\"",
+        "dask; extra == \"dask\"",
+        "flexcache>=0.3",
+        "flexparser>=0.4",
+        "mip>=1.13; extra == \"mip\"",
+        "numpy>=1.23; extra == \"numpy\"",
+        "pint-pandas>=0.3; extra == \"pandas\"",
+        "platformdirs>=2.1.0",
+        "pytest-benchmark; extra == \"test\"",
+        "pytest-benchmark; extra == \"testbase\"",
+        "pytest-codspeed; extra == \"bench\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-cov; extra == \"testbase\"",
+        "pytest-mpl; extra == \"test\"",
+        "pytest-subtests; extra == \"test\"",
+        "pytest-subtests; extra == \"testbase\"",
+        "pytest; extra == \"bench\"",
+        "pytest; extra == \"test\"",
+        "pytest; extra == \"testbase\"",
+        "typing-extensions>=4.0.0",
+        "uncertainties>=3.1.6; extra == \"uncertainties\"",
+        "xarray; extra == \"xarray\""
+      ],
+      "metadata_sha256": "4ab5d03ba2b04bf52c52a16ee271d48388ed466c95be79e5ac1cca8093dea63e"
+    },
+    {
+      "name": "pip",
+      "version": "25.0.1",
+      "requires_dist": [],
+      "metadata_sha256": "4fa7318cf30f979db7cec45c12cbbc2b4f88a15f12eefbf59a6291d0a03af926"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.12.3",
+      "requires_dist": [],
+      "metadata_sha256": "5b28a4e5ed5d077a5972c38ab5e5b25e10c378f6829676636c343187709d5be5"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "requires_dist": [
+        "coverage; extra == \"testing\"",
+        "pre-commit; extra == \"dev\"",
+        "pytest-benchmark; extra == \"testing\"",
+        "pytest; extra == \"testing\"",
+        "tox; extra == \"dev\""
+      ],
+      "metadata_sha256": "7438c35ee25a095eb7416f84b461c2d74425c5e734ad54c3912453c65244e01c"
+    },
+    {
+      "name": "pooch",
+      "version": "1.9.0",
+      "requires_dist": [
+        "packaging>=20.0",
+        "paramiko>=2.7.0; extra == \"sftp\"",
+        "platformdirs>=2.5.0",
+        "pytest-httpserver; extra == \"test\"",
+        "pytest-localftpserver; extra == \"test\"",
+        "requests>=2.19.0",
+        "tqdm<5.0.0,>=4.41.0; extra == \"progress\"",
+        "xxhash>=1.4.3; extra == \"xxhash\""
+      ],
+      "metadata_sha256": "7a67b1fba8575748276b1abee0db0d0c7d673d1f4f8f404699e949f1359da962"
+    },
+    {
+      "name": "protobuf",
+      "version": "7.36.2",
+      "requires_dist": [],
+      "metadata_sha256": "445916389cc3a87d5f815d763192372a17a221339d474cb661523157bf07d61c"
+    },
+    {
+      "name": "psutil",
+      "version": "7.2.2",
+      "requires_dist": [
+        "abi3audit ; extra == 'dev'",
+        "black ; extra == 'dev'",
+        "check-manifest ; extra == 'dev'",
+        "colorama ; (os_name == \"nt\") and extra == 'dev'",
+        "coverage ; extra == 'dev'",
+        "packaging ; extra == 'dev'",
+        "psleak ; extra == 'dev'",
+        "psleak ; extra == 'test'",
+        "pylint ; extra == 'dev'",
+        "pyperf ; extra == 'dev'",
+        "pypinfo ; extra == 'dev'",
+        "pyreadline3 ; (os_name == \"nt\") and extra == 'dev'",
+        "pytest ; extra == 'dev'",
+        "pytest ; extra == 'test'",
+        "pytest-cov ; extra == 'dev'",
+        "pytest-instafail ; extra == 'dev'",
+        "pytest-instafail ; extra == 'test'",
+        "pytest-xdist ; extra == 'dev'",
+        "pytest-xdist ; extra == 'test'",
+        "pywin32 ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+        "pywin32 ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'",
+        "requests ; extra == 'dev'",
+        "rstcheck ; extra == 'dev'",
+        "ruff ; extra == 'dev'",
+        "setuptools ; extra == 'dev'",
+        "setuptools ; extra == 'test'",
+        "sphinx ; extra == 'dev'",
+        "sphinx-rtd-theme ; extra == 'dev'",
+        "toml-sort ; extra == 'dev'",
+        "twine ; extra == 'dev'",
+        "validate-pyproject[all] ; extra == 'dev'",
+        "virtualenv ; extra == 'dev'",
+        "vulture ; extra == 'dev'",
+        "wheel ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+        "wheel ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'",
+        "wheel ; extra == 'dev'",
+        "wmi ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+        "wmi ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'"
+      ],
+      "metadata_sha256": "525f8ba78523cf7bc3759d62a105e7c57fd679ea702402b9449fb0746aa0217f"
+    },
+    {
+      "name": "py-cpuinfo",
+      "version": "9.0.0",
+      "requires_dist": [],
+      "metadata_sha256": "ad115e96f84576861c5e75d760301b81d23143cfe25546b99541e01265379dc1"
+    },
+    {
+      "name": "pyarrow",
+      "version": "25.0.1",
+      "requires_dist": [],
+      "metadata_sha256": "12ed8d0988a6f7153fec923ee47b7fc1d6134463a86b1b89fa36f24c250163ff"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0",
+      "requires_dist": [],
+      "metadata_sha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.13.5",
+      "requires_dist": [
+        "annotated-types>=0.6.0",
+        "email-validator>=2.0.0; extra == 'email'",
+        "pydantic-core==2.46.5",
+        "typing-extensions>=4.14.1",
+        "typing-inspection>=0.4.2",
+        "tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'"
+      ],
+      "metadata_sha256": "0685830d13647bd6f3f05526043d32a8b2a221d86b53773053d6c52bb17a9c07"
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.15.0",
+      "requires_dist": [
+        "azure-identity>=1.16.0; extra == 'azure-key-vault'",
+        "azure-keyvault-secrets>=4.8.0; extra == 'azure-key-vault'",
+        "boto3>=1.35.0; extra == 'aws-secrets-manager'",
+        "google-cloud-secret-manager>=2.23.1; extra == 'gcp-secret-manager'",
+        "pydantic>=2.7.0",
+        "python-dotenv>=0.21.0",
+        "pyyaml>=6.0.1; extra == 'yaml'",
+        "tomli>=2.0.1; extra == 'toml'",
+        "typing-inspection>=0.4.0"
+      ],
+      "metadata_sha256": "5ac12e408df62f1d4c7643146d9df04ace749f1fe5cf28b3b794be0b2834ca6d"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.46.5",
+      "requires_dist": [
+        "typing-extensions>=4.14.1"
+      ],
+      "metadata_sha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028"
+    },
+    {
+      "name": "pydeck",
+      "version": "0.9.3",
+      "requires_dist": [
+        "ipykernel>=5.1.2; extra == \"jupyter\"",
+        "ipywidgets<8,>=7; extra == \"jupyter\"",
+        "jinja2>=2.10.1",
+        "numpy>=1.16.4",
+        "pydeck-carto; extra == \"carto\"",
+        "traitlets>=4.3.2; extra == \"jupyter\""
+      ],
+      "metadata_sha256": "c906606245b896f48f560a2175dc6ade991447f8e545dec8539678e1134eb71d"
+    },
+    {
+      "name": "pyfiglet",
+      "version": "0.8.post1",
+      "requires_dist": [],
+      "metadata_sha256": "1268efd506d6aada59f3a201edb9a96e9cdccc085b14266c232513847bb8b85c"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.21.0",
+      "requires_dist": [
+        "colorama>=0.4.6; extra == 'windows-terminal'"
+      ],
+      "metadata_sha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.3",
+      "requires_dist": [
+        "jinja2 ; extra == \"diagrams\"",
+        "railroad-diagrams ; extra == \"diagrams\""
+      ],
+      "metadata_sha256": "f2ca34052d720622d300023472ef8ae94fe5b57d69acbb28a8667f6dd0e13497"
+    },
+    {
+      "name": "pyqtgraph",
+      "version": "0.14.0",
+      "requires_dist": [
+        "colorama",
+        "numpy>=1.25.0"
+      ],
+      "metadata_sha256": "69d844365130964cebecee828adc7628724e852305666cf37647b21b0a96a3bb"
+    },
+    {
+      "name": "PySide6",
+      "version": "6.11.2",
+      "requires_dist": [
+        "PySide6_Addons==6.11.2",
+        "PySide6_Essentials==6.11.2",
+        "shiboken6==6.11.2",
+        "tomli>=2.0.1; python_version < \"3.11\""
+      ],
+      "metadata_sha256": "08af5ec7d07fef5f85611330c09caf2a49209f85fbfe911b7b422808408916b3"
+    },
+    {
+      "name": "PySide6_Addons",
+      "version": "6.11.2",
+      "requires_dist": [
+        "PySide6_Essentials==6.11.2",
+        "shiboken6==6.11.2"
+      ],
+      "metadata_sha256": "28034cdfb0826f79d4f55cf3f8f56f3ca764c00b58652a4efb0cbed37581ab23"
+    },
+    {
+      "name": "PySide6_Essentials",
+      "version": "6.11.2",
+      "requires_dist": [
+        "shiboken6==6.11.2"
+      ],
+      "metadata_sha256": "a4e0d97dfc9aeb7f65f42c05281fdc0372297a95d1a3e498df14806729644677"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "requires_dist": [
+        "six >=1.5"
+      ],
+      "metadata_sha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.4",
+      "requires_dist": [
+        "click>=5.0; extra == \"cli\""
+      ],
+      "metadata_sha256": "87cfee6042412d48df1100ea7822684988c3f2b79de7a250f4717f4df3026d6f"
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.32",
+      "requires_dist": [],
+      "metadata_sha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86"
+    },
+    {
+      "name": "pyvista",
+      "version": "0.49.0",
+      "requires_dist": [
+        "cmcrameri; extra == \"colormaps\"",
+        "cmocean; extra == \"colormaps\"",
+        "colorcet; extra == \"colormaps\"",
+        "cvista[all]<9.8.0,>=9.7.0.2; extra == \"cvista\"",
+        "cyclopts>=4.0.0",
+        "fsspec; extra == \"io\"",
+        "imageio; extra == \"io\"",
+        "ipywidgets; extra == \"jupyter\"",
+        "matplotlib>=3.0.1",
+        "meshio>=5.2; extra == \"io\"",
+        "nest-asyncio2; extra == \"jupyter\"",
+        "numpy>=1.21.0",
+        "pillow",
+        "pooch",
+        "pyobjc-framework-Cocoa; sys_platform == \"darwin\"",
+        "pyvista-frd-reader>=0.2.1; extra == \"io\"",
+        "pyvista-miniply>=0.5.2; extra == \"io-override\"",
+        "pyvista-stl>=0.5.3; extra == \"io-override\"",
+        "pyvista-validation==0.2.2",
+        "pyvista-zstd>=0.3.1; extra == \"io\"",
+        "pyvista[colormaps,io,io-override,jupyter]; extra == \"all\"",
+        "scooby>=0.5.1",
+        "trame-pyvista; extra == \"jupyter\"",
+        "typing-extensions>=4.10",
+        "vtk!=9.4.0",
+        "vtk!=9.4.1",
+        "vtk<9.8.0",
+        "vtk>=9.3.1"
+      ],
+      "metadata_sha256": "6da1f560995d813f9dd3cb5786cb95e622c783aa1b22a05666913a7d229cd021"
+    },
+    {
+      "name": "pyvista-validation",
+      "version": "0.2.2",
+      "requires_dist": [
+        "numpy>=1.21.0",
+        "pyvista-validation[scipy,vtk]; extra == \"all\"",
+        "scipy; extra == \"scipy\"",
+        "typing-extensions>=4.4; python_version < \"3.13\"",
+        "vtk; extra == \"vtk\""
+      ],
+      "metadata_sha256": "698aa89b7ff0933fdc0c44346c86943db0fb1677779a05991fe63b0562f23b62"
+    },
+    {
+      "name": "pyvistaqt",
+      "version": "0.13.1",
+      "requires_dist": [
+        "QtPy>=1.9.0",
+        "Sphinx; extra == \"docs\"",
+        "ipython==8.39.0; extra == \"test\"",
+        "numpy==2.2.6; python_version < \"3.11\" and extra == \"test\"",
+        "numpy==2.4.4; python_version >= \"3.11\" and extra == \"test\"",
+        "pre-commit; extra == \"dev\"",
+        "pydata-sphinx-theme; extra == \"docs\"",
+        "pytest-cov==7.1.0; extra == \"test\"",
+        "pytest-memprof==0.2.0; extra == \"test\"",
+        "pytest-qt==4.5.0; extra == \"test\"",
+        "pytest==9.1.1; extra == \"test\"",
+        "pyvista>=0.43.7",
+        "pyvista[jupyter]; extra == \"test\"",
+        "refleak==0.2.2; extra == \"test\"",
+        "scooby==0.11.2; extra == \"test\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx-notfound-page; extra == \"docs\"",
+        "sphinx_gallery==0.21.0; extra == \"test\""
+      ],
+      "metadata_sha256": "9c86df51d931f331288b5ec79f72c0701a48e336402eddeaf581e449a1497716"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3",
+      "requires_dist": [],
+      "metadata_sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+    },
+    {
+      "name": "pyzmq",
+      "version": "27.2.0",
+      "requires_dist": [
+        "cffi; implementation_name == \"pypy\""
+      ],
+      "metadata_sha256": "efca840a7cf3173e6ffce4c77e50b5b449a6c44388abc272bc3e82bb27e97043"
+    },
+    {
+      "name": "qcelemental",
+      "version": "0.51.2",
+      "requires_dist": [
+        "autodoc-pydantic>2.0; extra == \"docs\"",
+        "black<26.0a0,>=25.1.0; extra == \"lint\"",
+        "codecov; extra == \"test\"",
+        "docutils; extra == \"docs\"",
+        "ipykernel<6.0; extra == \"viz\"",
+        "isort>=6.1.0; extra == \"lint\"",
+        "jsonschema; extra == \"standard\"",
+        "msgpack; extra == \"standard\"",
+        "networkx<3.0; extra == \"align\"",
+        "nglview; extra == \"viz\"",
+        "numpy; python_version < \"3.14\"",
+        "numpy>=2.3.3; python_version >= \"3.14\"",
+        "numpydoc; extra == \"docs\"",
+        "pint>=0.24",
+        "pre-commit; extra == \"lint\"",
+        "pydantic>=2.11; python_version < \"3.14\"",
+        "pydantic>=2.12; python_version >= \"3.14\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest; extra == \"test\"",
+        "scipy; extra == \"align\"",
+        "setuptools>=68.0.0; python_version >= \"3.12\" and extra == \"viz\"",
+        "sphinx-automodapi; extra == \"docs\"",
+        "sphinx-rtd-theme; extra == \"docs\"",
+        "sphinx>=7.0.0; extra == \"docs\"",
+        "sphinxcontrib-napoleon; extra == \"docs\""
+      ],
+      "metadata_sha256": "b8ca15edf43b75a135403ff11ef0f877dfa8c366b72d273a57aa58e7f3476248"
+    },
+    {
+      "name": "qcengine",
+      "version": "0.51.0",
+      "requires_dist": [
+        "autodoc-pydantic>=2.0; extra == \"docs\"",
+        "black<23.0a0,>=22.1.0; extra == \"lint\"",
+        "codecov; extra == \"test\"",
+        "isort>=5.13.2; extra == \"lint\"",
+        "numpydoc; extra == \"docs\"",
+        "packaging",
+        "pre-commit; extra == \"lint\"",
+        "psutil",
+        "py-cpuinfo",
+        "pydantic-settings",
+        "pydantic>=2.11; python_version < \"3.14\"",
+        "pydantic>=2.12; python_version >= \"3.14\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest; extra == \"test\"",
+        "pyyaml",
+        "qcelemental<0.70.0,>=0.50.4",
+        "sphinx-rtd-theme; extra == \"docs\"",
+        "sphinx>=7.0.0; extra == \"docs\"",
+        "sphinxcontrib-napoleon; extra == \"docs\""
+      ],
+      "metadata_sha256": "3789ea911b7f9caeec5d28d72572069b2107687192581dd34178fe570d5fbe68"
+    },
+    {
+      "name": "QtPy",
+      "version": "2.4.3",
+      "requires_dist": [
+        "packaging",
+        "pytest!=7.0.0,!=7.0.1,>=6; extra == \"test\"",
+        "pytest-cov>=3.0.0; extra == \"test\"",
+        "pytest-qt; extra == \"test\""
+      ],
+      "metadata_sha256": "2f1fb69814bd422e47969be0b1f4c0e37e0561e876a765cf8d4856c491eff9fb"
+    },
+    {
+      "name": "rdkit",
+      "version": "2026.3.6",
+      "requires_dist": [
+        "Pillow",
+        "numpy"
+      ],
+      "metadata_sha256": "80d457cad3c9d1b8a5775cf0408c0537c4739b34d5025eaae99e1c16ffc0e268"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0",
+      "requires_dist": [
+        "attrs>=22.2.0",
+        "rpds-py>=0.7.0",
+        "typing-extensions>=4.4.0; python_version < '3.13'"
+      ],
+      "metadata_sha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2",
+      "requires_dist": [
+        "PySocks!=1.5.7,>=1.5.6; extra == \"socks\"",
+        "certifi>=2023.5.7",
+        "chardet<8,>=3.0.2; extra == \"use-chardet-on-py3\"",
+        "charset_normalizer<4,>=2",
+        "idna<4,>=2.5",
+        "urllib3<3,>=1.26"
+      ],
+      "metadata_sha256": "8c384ba3e979480faae2859d3c5e6c1276dd2c3616e322e124d52c8cfc556f27"
+    },
+    {
+      "name": "rich",
+      "version": "15.0.0",
+      "requires_dist": [
+        "ipywidgets (>=7.5.1,<9) ; extra == \"jupyter\"",
+        "markdown-it-py (>=2.2.0)",
+        "pygments (>=2.13.0,<3.0.0)"
+      ],
+      "metadata_sha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b"
+    },
+    {
+      "name": "rich-rst",
+      "version": "2.2.0",
+      "requires_dist": [
+        "docutils; extra == \"docs\"",
+        "mypy; extra == \"dev\"",
+        "pre-commit; extra == \"dev\"",
+        "pygments>=2.0.0",
+        "pytest-cov; extra == \"tests\"",
+        "pytest; extra == \"tests\"",
+        "rich>=12.0.0",
+        "ruff; extra == \"dev\"",
+        "sphinx; extra == \"docs\"",
+        "sphinx_copybutton; extra == \"docs\"",
+        "sphinx_rtd_theme; extra == \"docs\""
+      ],
+      "metadata_sha256": "2cd1f39149e69bd94c4f1c30cb26c763e45689e6d6527b4c23afa1112c48f165"
+    },
+    {
+      "name": "rpds-py",
+      "version": "2026.9.1",
+      "requires_dist": [],
+      "metadata_sha256": "5d72dca2e387c8d2b4180b68ee87c15b64751e059100a6db58891ec9995445c3"
+    },
+    {
+      "name": "scipy",
+      "version": "1.18.1",
+      "requires_dist": [
+        "Cython; extra == \"test\"",
+        "array-api-strict>=2.3.1; extra == \"test\"",
+        "asv; extra == \"test\"",
+        "click<8.3.0; extra == \"dev\"",
+        "cython-lint>=0.12.2; extra == \"dev\"",
+        "gmpy2; extra == \"test\"",
+        "hypothesis>=6.30; extra == \"test\"",
+        "intersphinx_registry; extra == \"doc\"",
+        "jupyterlite-pyodide-kernel; extra == \"doc\"",
+        "jupyterlite-sphinx>=0.19.1; extra == \"doc\"",
+        "jupytext; extra == \"doc\"",
+        "linkify-it-py; extra == \"doc\"",
+        "matplotlib>=3.5; extra == \"doc\"",
+        "meson; extra == \"test\"",
+        "mpmath; extra == \"test\"",
+        "mypy==1.19.1; extra == \"dev\"",
+        "myst-nb>=1.2.0; extra == \"doc\"",
+        "ninja; sys_platform != \"emscripten\" and extra == \"test\"",
+        "numpy<2.8,>=2.0.0",
+        "numpydoc; extra == \"doc\"",
+        "pooch; extra == \"doc\"",
+        "pooch; extra == \"test\"",
+        "pycodestyle; extra == \"dev\"",
+        "pydata-sphinx-theme>=0.15.2; extra == \"doc\"",
+        "pyrefly==0.63.0; extra == \"dev\"",
+        "pytest-cov; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-xdist; extra == \"test\"",
+        "pytest>=8.0.0; extra == \"test\"",
+        "ruff>=0.12.0; extra == \"dev\"",
+        "scikit-umfpack; extra == \"test\"",
+        "scipy-doctest>=2.0.0; extra == \"test\"",
+        "sphinx-copybutton; extra == \"doc\"",
+        "sphinx-design>=0.4.0; extra == \"doc\"",
+        "sphinx<8.2.0,>=5.0.0; extra == \"doc\"",
+        "spin; extra == \"dev\"",
+        "tabulate; extra == \"doc\"",
+        "threadpoolctl; extra == \"test\"",
+        "types-psutil; extra == \"dev\"",
+        "typing_extensions; extra == \"dev\""
+      ],
+      "metadata_sha256": "6d1ebfbce110009e25e8249fea05e21c0449735144e9bd8df1a52931f957c1ea"
+    },
+    {
+      "name": "scooby",
+      "version": "0.12.0",
+      "requires_dist": [
+        "mkl; platform_system != \"Darwin\" and extra == \"cpu\"",
+        "psutil; extra == \"cpu\""
+      ],
+      "metadata_sha256": "76e9ececf6b3dca0672417a9db076fc45a7c284849135e14cbab2b65afdfe4d3"
+    },
+    {
+      "name": "shiboken6",
+      "version": "6.11.2",
+      "requires_dist": [],
+      "metadata_sha256": "5b25d571d8ef04593b5eaadd02c3d635fb1fe5ff42de7477e93eb33d61c58708"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "requires_dist": [],
+      "metadata_sha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468"
+    },
+    {
+      "name": "SQLAlchemy",
+      "version": "2.1.4",
+      "requires_dist": [
+        "aiomysql; extra == \"aiomysql\"",
+        "aioodbc; extra == \"aioodbc\"",
+        "aiosqlite; extra == \"aiosqlite\"",
+        "asyncmy>=0.2.12; extra == \"asyncmy\"",
+        "asyncpg; extra == \"postgresql-asyncpg\"",
+        "cx_oracle>=8; extra == \"oracle-cxoracle\"",
+        "cymysql; extra == \"cymysql\"",
+        "greenlet>=1; extra == \"asyncio\"",
+        "mariadb!=1.1.10,!=1.1.2,!=1.1.5,>=1.0.1; extra == \"mariadb-connector\"",
+        "mssql-python>=1.9.0; extra == \"mssql-python\"",
+        "mypy>=2.4; extra == \"mypy\"",
+        "mysql-connector-python; extra == \"mysql-connector\"",
+        "mysqlclient>=1.4.0; extra == \"mysql\"",
+        "oracledb>=2.0.1; extra == \"oracle\"",
+        "oracledb>=2.0.1; extra == \"oracle-oracledb\"",
+        "pg8000>=1.29.3; extra == \"postgresql-pg8000\"",
+        "psycopg!=3.1.15,>=3.0.7; extra == \"postgresql\"",
+        "psycopg!=3.1.15,>=3.0.7; extra == \"postgresql-psycopg\"",
+        "psycopg2-binary; extra == \"postgresql-psycopg2binary\"",
+        "psycopg2cffi; extra == \"postgresql-psycopg2cffi\"",
+        "psycopg[binary]!=3.1.15,>=3.0.7; extra == \"postgresql-psycopgbinary\"",
+        "pymssql; extra == \"mssql-pymssql\"",
+        "pymysql; extra == \"pymysql\"",
+        "pyodbc; extra == \"mssql\"",
+        "pyodbc; extra == \"mssql-pyodbc\"",
+        "sqlalchemy[asyncio]; extra == \"aiomysql\"",
+        "sqlalchemy[asyncio]; extra == \"aioodbc\"",
+        "sqlalchemy[asyncio]; extra == \"aiosqlite\"",
+        "sqlalchemy[asyncio]; extra == \"asyncmy\"",
+        "sqlalchemy[asyncio]; extra == \"postgresql-asyncpg\"",
+        "sqlcipher3_binary; extra == \"sqlcipher\"",
+        "types-greenlet>=2; extra == \"mypy\"",
+        "typing-extensions>=4.6.0"
+      ],
+      "metadata_sha256": "5416e2b0c439a0cee219e20495d0bdcf8de420213b929619a981c83d0af97bf6"
+    },
+    {
+      "name": "starlette",
+      "version": "1.7.0",
+      "requires_dist": [
+        "anyio<5,>=4.0.0",
+        "httpx2>=2.0.0; extra == 'full'",
+        "httpx<0.29.0,>=0.27.0; extra == 'full'",
+        "itsdangerous; extra == 'full'",
+        "jinja2; extra == 'full'",
+        "opentelemetry-api; extra == 'full'",
+        "python-multipart>=0.0.18; extra == 'full'",
+        "pyyaml; extra == 'full'",
+        "typing-extensions>=4.10.0; python_version < '3.13'"
+      ],
+      "metadata_sha256": "f7870fc19ab7c2e364887057340b9fb47e9bda74d24b06c58ca399494abfe019"
+    },
+    {
+      "name": "streamlit",
+      "version": "1.65.0",
+      "requires_dist": [
+        "Authlib>=1.3.2; extra == \"auth\"",
+        "SQLAlchemy>=2.0.0; extra == \"sql\"",
+        "altair!=5.4.0,!=5.4.1,<7,>=5.0.0",
+        "anyio<5,>=4.0.0",
+        "click<9,>=7.0",
+        "graphviz>=0.19.0; extra == \"charts\"",
+        "httptools<1,>=0.6.3",
+        "httpx>=0.24.1; extra == \"auth\"",
+        "itsdangerous<3,>=2.1.2",
+        "matplotlib>=3.0.0; extra == \"charts\"",
+        "numpy<3,>=1.23",
+        "orjson>=3.5.0; extra == \"charts\"",
+        "orjson>=3.5.0; extra == \"performance\"",
+        "packaging>=20",
+        "pandas<4,>=1.4.0",
+        "pillow<13,>=7.1.0",
+        "plotly>=4.0.0; extra == \"charts\"",
+        "protobuf<8,>=5.26.1",
+        "pyarrow!=25.0.0,<26,>=7.0",
+        "pydeck<1,>=0.8.0b4",
+        "python-multipart<1,>=0.0.10",
+        "requests<3,>=2.27",
+        "rich>=11.0.0; extra == \"all\"",
+        "snowflake-connector-python>=3.3.0; extra == \"snowflake\"",
+        "snowflake-snowpark-python[modin]>=1.17.0; extra == \"snowflake\"",
+        "starlette<2,>=0.46.0",
+        "streamlit-pdf>=2.1.0; extra == \"pdf\"",
+        "streamlit[auth,charts,pdf,performance,snowflake,sql]; extra == \"all\"",
+        "toml<2,>=0.10.1",
+        "typing-extensions<5,>=4.10.0",
+        "uvicorn<1,>=0.30.0",
+        "uvloop>=0.15.2; (sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\") and extra == \"performance\"",
+        "watchdog<7,>=2.1.5; platform_system != \"Darwin\"",
+        "websockets<18,>=12.0.0"
+      ],
+      "metadata_sha256": "7870c06b2efa359b1e7abe155af7c8c9ddafe8ffd221040b644b10dc07491457"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.2.1",
+      "requires_dist": [
+        "pytest; extra == 'test'",
+        "reno; extra == 'doc'",
+        "sphinx; extra == 'doc'",
+        "tornado>=6.0; extra == 'test'"
+      ],
+      "metadata_sha256": "1d30f0b4cd3cf1ad585400f9ea9c424e64c630ea63e57209a1f16fce72e68eb7"
+    },
+    {
+      "name": "toml",
+      "version": "0.10.2",
+      "requires_dist": [],
+      "metadata_sha256": "9ff624b29bc48a177f4172c8659e74595485cf7ad9fe4ee340ff8e535594a566"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.4",
+      "requires_dist": [
+        "typing-extensions>=4.15.0"
+      ],
+      "metadata_sha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "requires_dist": [],
+      "metadata_sha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.8.0",
+      "requires_dist": [
+        "backports-zstd>=1.0.0; (python_version < '3.14') and extra == 'zstd'",
+        "brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+        "brotlicffi>=1.2.0.0; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+        "h2<5,>=4; extra == 'h2'",
+        "pysocks!=1.5.7,<2.0,>=1.5.6; extra == 'socks'"
+      ],
+      "metadata_sha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0",
+      "requires_dist": [
+        "click>=7.0",
+        "h11>=0.8",
+        "httptools>=0.8.0; extra == 'standard'",
+        "python-dotenv>=0.13; extra == 'standard'",
+        "pyyaml>=5.1; extra == 'standard'",
+        "typing-extensions>=4.0; python_version < '3.11'",
+        "uvloop>=0.15.1; (sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')) and extra == 'standard'",
+        "watchfiles>=0.20; extra == 'standard'",
+        "websockets>=13.0; extra == 'standard'"
+      ],
+      "metadata_sha256": "9399e5ddda3d26e842d6fb5420c38b0857aac568d53badbdc224b3a21339efa8"
+    },
+    {
+      "name": "vtk",
+      "version": "9.7.1",
+      "requires_dist": [
+        "matplotlib>=2.0.0",
+        "numpy>=1.9; extra == \"numpy\"",
+        "wslink>=1.0.4; extra == \"web\""
+      ],
+      "metadata_sha256": "feeb42f60aa6e9f04d7f4b64b773fa5ae6c4e3b149ad5cdea25bed5d2ccc567b"
+    },
+    {
+      "name": "watchdog",
+      "version": "6.0.0",
+      "requires_dist": [
+        "PyYAML>=3.10; extra == \"watchmedo\""
+      ],
+      "metadata_sha256": "ecfde023047e7761dce06d4488abcede89e398399961a052f2fccb39b001e279"
+    },
+    {
+      "name": "websockets",
+      "version": "17.2",
+      "requires_dist": [],
+      "metadata_sha256": "0d5f1279d095e7ba84ef21614af0822dc500ccb2e51b7c3a19eda7159b2dade4"
+    },
+    {
+      "name": "wrapt",
+      "version": "2.5.0",
+      "requires_dist": [
+        "pytest; extra == \"dev\"",
+        "setuptools; extra == \"dev\""
+      ],
+      "metadata_sha256": "36db74ec7635580b3ac8132323769f7f3957ce1e08ce0592524621d44d68f061"
+    }
+  ],
+  "dependency_constraints": {
+    "path": "requirements-installed.txt",
+    "sha256": "d415749a26fbc270394101b1e019bc51b60e5d1b60c788313aeb344ed78a52a2"
+  },
+  "torq_handoff": {
+    "status": "passed",
+    "computation_performed": false,
+    "receipt": {
+      "consumed_at": "2026-10-07T19:39:15.237314+00:00",
+      "consumer": {
+        "name": "CoChem-TORQ",
+        "version": "0.1.0"
+      },
+      "ensemble_schema": "topos-ensemble/0.1.0",
+      "ensemble_sha256": "0e7366d9be214dc096ededeae5b4ae4d8c69766eecf5438b73a1aa5f88cad400",
+      "handoff_sha256": "888f0c4954db720894f33aabcdd3a6e16af92fa5392fa59e1443e5a3073256b8",
+      "members": [
+        {
+          "geometry_sha256": "d640e3f24c834df96d7548f22febeca62814ab07f8bda2f577dca32c24ea2399",
+          "member_id": "candidate_2f2fae3de5664e5eaf699a176387fb06"
+        }
+      ],
+      "receipt_sha256": "eebb290df08749c6d3facef71db9a788113df002d35d15161376d537dedd3be3",
+      "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+      "schema_version": "topos-torq-consumption/0.1.0",
+      "status": "consumed"
+    },
+    "consumer_source_sha256": "fe7fb0c45d35c0190b42c948b790df4f92c447ab52b6185686b096426c293ca8"
+  },
+  "torq_consumer_ready": true,
+  "package_file_collisions": [],
+  "installation_manifest_sha256": "15e7fb79066f0e06b3d1a15a2159bb89a473765984eaef5dd03eb6821b607d61"
+}

@@ -11,26 +11,26 @@ scientific conditions and remaining release gates.
 ## Verified source and installation
 
 The executable snapshot covered by the current regression receipts is
-`65af1e05ce505cac5911b1bfe8f985a26dd87864`; the documentation snapshot before this
-refresh is `0a2ced2`. Later source changes require their own validation.
+`053c827638b3481c5c3d645856b69d50c47b387f`. Later executable-source changes
+require their own validation.
 
-- [Local validation](evidence/TOPOS_VALIDATION_20261007T183854Z.json):
-  **1,774 passed and two licensed ORCA tests skipped**, with unchanged source
+- [Local validation](evidence/TOPOS_VALIDATION_20261007T194749Z.json):
+  **1,812 passed and two licensed ORCA tests skipped**, with unchanged source
   inventory before and after execution. The
-  [JUnit artifact](evidence/TOPOS_CURRENT_SUITE_20261007T183854Z.xml) preserves
+  [JUnit artifact](evidence/TOPOS_CURRENT_SUITE_20261007T194749Z.xml) preserves
   individual outcomes.
-- [Ordinary CI run 37666928361](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37666928361):
-  **1,681 passed and 42 skipped on each of Python 3.11 and 3.12**. Its
-  [receipt](evidence/TOPOS_ORDINARY_CI_37666928361.json) binds the merge checkout
+- [Ordinary CI run 37675577757](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37675577757):
+  **1,719 passed and 42 skipped on each of Python 3.11 and 3.12**. Its
+  [receipt](evidence/TOPOS_ORDINARY_CI_37675577757.json) binds the merge checkout
   to the frozen executable source by identical Git trees. Ordinary CI does not
   replace licensed native acceptance.
-- [Candidate10 clean installation](evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json)
-  and [installed acceptance](evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json):
+- [Candidate12 clean installation](evidence/TOPOS_CANDIDATE12_CLEAN_INSTALL.json)
+  and [installed acceptance](evidence/TOPOS_CANDIDATE12_INSTALLED_ACCEPTANCE.json):
   real noneditable BASE/TOPOS/TORQ packages, CLI/provider/UI checks, genuine
   BASE-authorized xTB 6.7.1 water optimization, human review and scientific-bundle
   verification passed. These receipts identify the actual built wheel and
   dependencies.
-- [External TORQ consumption](evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json):
+- [External TORQ consumption](evidence/TOPOS_CANDIDATE12_TORQ_CONSUMPTION.json):
   the installed companion importer accepted the reviewed native xTB result and
   returned a durable acknowledgment. Its state is `imported-awaiting-calculation`;
   no TORQ transition-state, spectrum, rate or dynamics calculation is established.
@@ -59,7 +59,7 @@ explicit provenance and limitations in the release status.
 
 ## Native acceptance and remaining work
 
-The full [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
+The earlier full [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
 targets executable source `65af1e0`. At this status update, its baseline stage has
 failed and its extended stage is still running; its completed artifacts remain
 pending. Dispatch and engine provisioning do not establish acceptance.
@@ -78,10 +78,14 @@ r2SCAN-3c thermochemistry, wB97X-V optimization and GOAT seed optimization faile
 native early-stop rules signaled convergence with declared criteria unmet, then
 one-cycle restarts omitted the `Energy change` row. Strict five-criterion
 convergence was therefore not established. This baseline-only diagnostic ran
-neither extended acceptance nor licensed pytest. The `EnforceStrictConvergence`
-and narrowly scoped actual-energy evidence changes under development retain the
-requested `TolE`; they are not covered by the regression receipts above and
-remain unvalidated on new hosted source.
+neither extended acceptance nor licensed pytest. The current strict optimizer
+policy and explicit one-cycle energy evidence retain every requested tolerance;
+the regression receipts above cover these changes. See the
+[native optimizer contract](TOPOS_ORCA_OPTIMIZER_POLICY.md).
+
+The new full [licensed run 37675771359](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359)
+tests current source `053c827` through unchanged BASE `705b9d5` and TORQ `79fbb11`.
+Its native outcome remains pending. Local passes do not replace that validation.
 
 Earlier hosted native runs contain real component successes and overall failures.
 Their unchanged receipts, including the

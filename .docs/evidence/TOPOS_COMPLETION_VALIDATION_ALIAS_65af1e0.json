@@ -1,16 +1,16 @@
 {
   "schema_version": "topos-completion-validation/0.1.0",
-  "generated_at": "2026-10-07T19:49:25Z",
+  "generated_at": "2026-10-07T18:39:46Z",
   "disposition": "Current-source regression; scientific release certification remains separate",
   "all_srs_acceptance_complete": false,
   "source_base_commits": {
     "CoChem-BASE": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
-    "CoChem-TOPOS": "053c827638b3481c5c3d645856b69d50c47b387f",
+    "CoChem-TOPOS": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
     "CoChem-TORQ": "79fbb111125e50627a1a2c129888a45496f368d4"
   },
   "source_identity_scope": "Exact executable/distribution/parser-fixture hashes below identify the tested files; Git HEAD alone does not attest dirty files",
   "verification": {
-    "started_at": "2026-10-07T19:38:19Z",
+    "started_at": "2026-10-07T18:29:32Z",
     "interpreter": "/workspace/.cochem-base-runtime/ui-env/bin/python",
     "source_sha256": {
       ".docs/patches/crest-3.0.2-generic-paths.patch": "9f22e2d9e0cd9b6aa8a6d41a0c32b6271d659c62498f888f0d5d889cc09aa8b9",
@@ -78,9 +78,6 @@
       "tests/v010/fixtures/orca_fifth_hosted/incomplete-r2scan-optimization.stdout": "08b7b9ed7b9627a078174bb40e6fefb09321ad2981226b2eefa321874603bcc4",
       "tests/v010/fixtures/orca_fifth_hosted/incomplete-r2scan-result.json": "85fc1f7842bc28ab82abff9f13fffddd40474e29018eb4716545210ddfbabacb",
       "tests/v010/fixtures/orca_fifth_hosted/provenance.json": "2e8899d76afb71bd385213b85cce5da3e73cb63507c821cf2e8f03ec994e826f",
-      "tests/v010/fixtures/orca_one_cycle_native/provenance.json": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
-      "tests/v010/fixtures/orca_one_cycle_native/r2scan-refinement-1.stdout": "be8ea356cec4b3fbda9b62815dfab464f7382eb928b1fe619a1adbe1363bd99d",
-      "tests/v010/fixtures/orca_one_cycle_native/wb97xv-refinement-1.stdout": "15255deae01218bb92fa53456972414f4c1ab9a0d35104bb70f57770f23a05fd",
       "tests/v010/test_abcluster.py": "1abe514d368066644f8216ea81bab51fb5ce144bcda0e0e5f78ffea1278e6f9d",
       "tests/v010/test_abcluster_workflow.py": "43ec605242ad2db3a5c8b3ee501de41e5b8588f0cd04b0478c1aeed03e4fdf07",
       "tests/v010/test_anharmonic.py": "e754898a6dd61405d3c76e88f1ec161bd9293ae1acebe18da8411528fcb05a36",
@@ -98,7 +95,7 @@
       "tests/v010/test_correlated_counterpoise.py": "fe22130040164dc92b6e64e3d198054bd84ca509e7201772750e53bd98570e82",
       "tests/v010/test_correlated_workflow.py": "42901ebc92730cbfb95f0b4b8f6a1260dccbf00eb540aa417b0ed7b27b6d3afd",
       "tests/v010/test_counterpoise.py": "65226f69ec02008ddf2be01ead7908c328038359c44f7641182f5f02b161edf0",
-      "tests/v010/test_dft_native_stage_binding.py": "2677923d36bfb0a3ec0dc0694d728d05026c81e93a6f115d9c13335089bcd486",
+      "tests/v010/test_dft_native_stage_binding.py": "0519f3844231f8dd11f47e2da9edd516681514a618314846593de51d69f53efd",
       "tests/v010/test_dipoles.py": "4d779900cb2166d039f3a5617046f47bc9dc9d8bed18ed3df4b1ce7cfb14f7b3",
       "tests/v010/test_energy_composite.py": "6fa36921686b5f8701a7fba14b26282b6227088b47a8931b29dba4f8e39b1f50",
       "tests/v010/test_engines.py": "c6e847522e0acc653e9e32a75a72d0f68d6a8a8c59571c193e2564348a232806",
@@ -134,10 +131,9 @@
       "tests/v010/test_orca_basis_names.py": "a5811496ba0bed096e227e2f1edb9c68767e563b8efe5a4c4cc6e1ac84b46752",
       "tests/v010/test_orca_f12_acceptance_case.py": "a4109e4d2855a28c138339fec55f1d779cc20a786f8e6ebb8928aeb0ec1e4804",
       "tests/v010/test_orca_f12_composite.py": "c5c65c6d413e0496e96802116dd8f7358bdde2e4aae447df6a8e89fb9a2d43ea",
-      "tests/v010/test_orca_geometry_evidence.py": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
       "tests/v010/test_orca_install.py": "7879ba4198b7cc385a00660bf5ac33551dfa4f68815ed5393fcb0d1a1f9ca84d",
       "tests/v010/test_orca_native_f12_outputs.py": "dcceb00e410fa2e407f72734ac98efb3e46b4691b065d844de8980c1993a3f99",
-      "tests/v010/test_orca_native_refinement.py": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
+      "tests/v010/test_orca_native_refinement.py": "4419bb013570fcd40b6a8896a4bdc51cf402294d65419fd4761d687b5dfc2efb",
       "tests/v010/test_orca_numerical_geometry.py": "95401685f4039f52cc61d2cc06df15d2a47b3505523301cd0081a5669e6e3e2c",
       "tests/v010/test_orca_r2_acceptance_case.py": "950541e4bda3971c7ff724d6b884d73c66271e3deaf1a852690088d5243538fd",
       "tests/v010/test_queue_budget.py": "408b6158101908ab7c769a374c3a6b0ec2e8ecd89c1fc18cbff82f4a89dfaf07",
@@ -190,7 +186,7 @@
       "topos/data/reviewed_matrix_v010.py": "6eb430aba1902e6bafdadc8b15b422017711f45b6ce8bf200bcc287930e8bcb5",
       "topos/data/runtime_recipes.py": "76f3f0288298c424e2fbaf9cee8d2eaba62d330b2740ea875da2c822a36681eb",
       "topos/energy_composite.py": "9e717af7449655a6b9d6e842fd5e67b3f839d3b20f23995bfbb096781d876621",
-      "topos/engines.py": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6",
+      "topos/engines.py": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602",
       "topos/ensemble_tools.py": "4607ed54f230f0605e629db267c13d129800ba8b04416d2313a02e284409573a",
       "topos/entropy.py": "6012bd2c8cb985f2ae91019cdaae75ae4bb998432f2c7c6a4c1ee9953a5fda39",
       "topos/external_engines.py": "9363cd7d66750d69375c02b6889335be34302af190fa6ad9c62f8f0700ecfa36",
@@ -211,7 +207,7 @@
       "topos/ml.py": "f1abf663588e9641e27361b3e84202a6695df79c91ec13f8678ca2cfc39e894b",
       "topos/ml_crest.py": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e",
       "topos/ml_extopt.py": "b535036ece101bf5f221b5d6860d8e091b2074d8020e7c3673cdd1f06f904517",
-      "topos/ml_training.py": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377",
+      "topos/ml_training.py": "597c70bae91dd41dafecb9a46207b1c12aa71f2d951b776e57d201dec7afbc68",
       "topos/ml_training_worker.py": "281081f60dfb1749d002c431ec2f1f964f58f6934aad4f40746993ba24216ce3",
       "topos/ml_worker.py": "0e5d47a34cba9e8a855054d32ba51ee0dadbbe724ae571ddde9a8e8f60d72087",
       "topos/ml_workflow.py": "2084fcb1c358daba063857ad71a0d1f6abe69a93c411496ffd8ad16dbd791c37",
@@ -222,7 +218,6 @@
       "topos/native_mass_rotors.py": "950565073bf33bb88d2ba20cff117491834621cd82a191e655cec4f48ed3b940",
       "topos/orca_basis_names.py": "d538fea40c80f3ce6c98f3470cdecbcf1be67414a929a850e996c3797406318d",
       "topos/orca_f12_composite.py": "b6d917761aa2f8bf0805a98a91b89b4763f7e2e03c86ed58da574f331e6cef85",
-      "topos/orca_geometry_evidence.py": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814",
       "topos/orca_numerical_geometry.py": "0657b11f8300573efb38426479c3a930baf59ddc5a7e5bc967b12edc01aac47f",
       "topos/publication.py": "9a004557eaee60f7f39fb61849cbeb7ccda2a6d34456c84a935c3c7e924a9bf9",
       "topos/references.py": "e7c5681d3c17f432e96c116f9f1538202b2345c0ae816c522ca449b41bac3342",
@@ -251,20 +246,20 @@
           "pytest",
           "tests",
           "-q",
-          "--junitxml=/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/whole-suite.xml"
+          "--junitxml=/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/whole-suite.xml"
         ],
         "exit_code": 0,
-        "elapsed_seconds": 569.5967900859978,
-        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/pytest.log",
-        "log_sha256": "dd660993c9952da61f16a0e2ffd64a0123babd39b183170e4c8e57b441b1fa7f",
+        "elapsed_seconds": 562.1337904569955,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/pytest.log",
+        "log_sha256": "59f5d48ab3cf31af78529ddedc5179f8cfc2212f7d678a9a306f215802172207",
         "junit": {
-          "tests": 1814,
+          "tests": 1776,
           "failures": 0,
           "errors": 0,
           "skipped": 2
         },
-        "junit_path": "evidence/TOPOS_CURRENT_SUITE_20261007T194749Z.xml",
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a"
+        "junit_path": "evidence/TOPOS_CURRENT_SUITE_20261007T183854Z.xml",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89"
       },
       {
         "check": "ruff",
@@ -280,8 +275,8 @@
           "cochem_topos_web.py"
         ],
         "exit_code": 0,
-        "elapsed_seconds": 0.044139208999695256,
-        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/ruff.log",
+        "elapsed_seconds": 0.043040607997681946,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/ruff.log",
         "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
       },
       {
@@ -293,8 +288,8 @@
           "check"
         ],
         "exit_code": 0,
-        "elapsed_seconds": 0.42369475500890985,
-        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/pip-check.log",
+        "elapsed_seconds": 0.3929665979958372,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/pip-check.log",
         "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
       },
       {
@@ -309,8 +304,8 @@
           "/workspace/CoChem-TOPOS/.github/workflows/topos_release.yml"
         ],
         "exit_code": 0,
-        "elapsed_seconds": 0.003674848994705826,
-        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/actionlint.log",
+        "elapsed_seconds": 0.004729594991658814,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/actionlint.log",
         "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       {
@@ -326,8 +321,8 @@
           ":!.docs/patches"
         ],
         "exit_code": 0,
-        "elapsed_seconds": 0.002913919001002796,
-        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/diff-check.log",
+        "elapsed_seconds": 0.0031861530005699024,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T182932Z/diff-check.log",
         "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     ],
@@ -351,7 +346,7 @@
       "MKL_NUM_THREADS": "1"
     },
     "sources_unchanged": true,
-    "finished_at": "2026-10-07T19:47:49Z",
+    "finished_at": "2026-10-07T18:38:54Z",
     "status": "passed"
   },
   "matrix_support": {

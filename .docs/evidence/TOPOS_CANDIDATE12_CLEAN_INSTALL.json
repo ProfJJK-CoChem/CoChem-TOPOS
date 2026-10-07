@@ -1,0 +1,153 @@
+{
+  "schema_version": "topos-clean-install/0.1.0",
+  "status": "passed",
+  "published": false,
+  "wheels": {
+    "cochem-base": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_base-1.0.0-py3-none-any.whl",
+      "sha256": "c21f595824ec62da8f70d1aa25fb812297f8cd8cc85e59190e88f0992b63e7e6"
+    },
+    "cochem-topos": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b"
+    },
+    "cochem-torq": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl",
+      "sha256": "d5e7ec3f8e1ae8cef85ca7aefe995219d3523e4e1330e465915a3159816fe617"
+    }
+  },
+  "package_file_collisions": [],
+  "registry_sha256": "8760cbe00b62af6f0d5336caa95bbda7328e5db8ff2e0c39129cc5dba9b0aa7d",
+  "steps": [
+    {
+      "name": "install",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "install",
+        "--report",
+        "/workspace/.cochem-setup/topos-clean-wheel-12/pip-install-report.json",
+        "--find-links",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_base-1.0.0-py3-none-any.whl",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_topos-0.1.0-py3-none-any.whl[ui,external]"
+      ],
+      "returncode": 0,
+      "log": "install.log",
+      "log_sha256": "172e75f514b91146351aabf81eb070ccee978db086fe5b151dd756768a5d46f0"
+    },
+    {
+      "name": "ownership-order-1-cochem-base",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--force-reinstall",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_base-1.0.0-py3-none-any.whl"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-1-cochem-base.log",
+      "log_sha256": "0188035228d3ed91d3c60dd9e7c028088b27590b67476cd34527b3f40710d383"
+    },
+    {
+      "name": "ownership-order-1-cochem-torq",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--force-reinstall",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-1-cochem-torq.log",
+      "log_sha256": "1244f505082f960130f042c8c69e9d3bb9f20b681203ab2e280462ee83bd2481"
+    },
+    {
+      "name": "ownership-order-1-probe",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path; import importlib.metadata as m; import cochem_base.core_engine.execution_authority; import Libraries.cochem_torq_dvr as d; import topos; from topos.base_provider import metadata; assert metadata()['integration_contract']=='cochem.module-handoff/1'; assert Path(d.__file__).is_relative_to(Path(__import__('sys').prefix)); assert m.version('CoChem-BASE')=='1.0.0' and m.version('CoChem-TORQ')=='0.1.0'"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-1-probe.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "ownership-order-2-cochem-torq",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--force-reinstall",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-2-cochem-torq.log",
+      "log_sha256": "1244f505082f960130f042c8c69e9d3bb9f20b681203ab2e280462ee83bd2481"
+    },
+    {
+      "name": "ownership-order-2-cochem-base",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--force-reinstall",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_base-1.0.0-py3-none-any.whl"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-2-cochem-base.log",
+      "log_sha256": "0188035228d3ed91d3c60dd9e7c028088b27590b67476cd34527b3f40710d383"
+    },
+    {
+      "name": "ownership-order-2-probe",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path; import importlib.metadata as m; import cochem_base.core_engine.execution_authority; import Libraries.cochem_torq_dvr as d; import topos; from topos.base_provider import metadata; assert metadata()['integration_contract']=='cochem.module-handoff/1'; assert Path(d.__file__).is_relative_to(Path(__import__('sys').prefix)); assert m.version('CoChem-BASE')=='1.0.0' and m.version('CoChem-TORQ')=='0.1.0'"
+      ],
+      "returncode": 0,
+      "log": "ownership-order-2-probe.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "installed-check",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "topos.release",
+        "installed-check",
+        "--wheel",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_topos-0.1.0-py3-none-any.whl",
+        "--registry",
+        "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+        "--output",
+        "/workspace/.cochem-setup/topos-clean-wheel-12/acceptance"
+      ],
+      "returncode": 0,
+      "log": "installed-check.log",
+      "log_sha256": "30208916c9cf1b213b10baad8c3347839c1e37e5104bf79b7818c247e0a5ba85"
+    }
+  ],
+  "acceptance_receipt": "acceptance/installed-acceptance.json",
+  "acceptance_sha256": "9ce039fe59b271777110f29ad7c2ceac855f6eaa8ea462c210b72e2b8b3122d3",
+  "distribution_ownership_clean": true
+}

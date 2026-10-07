@@ -101,6 +101,19 @@ molecule. It does not establish BASE authorization, GPU execution, broader-domai
 accuracy, a DFT benchmark or the accuracy of uncertainty estimates. The BASE
 production path and its separately audited interpreter have independent evidence.
 
+The subsequent BASE-managed
+[worker08 refresh](evidence/TOPOS_WORKER08_REFRESH.json) records actual execution
+of 21 MACE CPU frames, 75 four-member AIMNet CPU frames and three persistent MACE
+callbacks. Its [distribution manifest](evidence/TOPOS_WORKER08_DISTRIBUTION.json)
+binds all 84 worker source files to candidate12 source commit
+`053c827638b3481c5c3d645856b69d50c47b387f` and worker wheel SHA-256
+`7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71`.
+The [MACE](evidence/TOPOS_WORKER08_MACE_CPU.json),
+[AIMNet](evidence/TOPOS_WORKER08_AIMNET_CPU.json) and
+[persistent callback](evidence/TOPOS_WORKER08_MACE_PERSISTENT_CPU.json)
+receipts retain the individual checks. This refresh verifies the recorded CPU
+execution paths; no physical GPU execution was verified.
+
 ## Sources
 
 1. [Official MACE-OFF repository, model license and citation](https://github.com/ACEsuit/mace-off/tree/91a78c5a9c300d1104700d9352c8bfe449227737).

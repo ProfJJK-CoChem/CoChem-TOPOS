@@ -1,0 +1,1486 @@
+{
+  "timestamp_utc": "2026-10-07T19:35:33.497641+00:00",
+  "artifact_dir": "/workspace/.cochem-base-runtime",
+  "phases_executed": [
+    {
+      "phase_number": 1,
+      "phase_name": "OS & Hypervisor Audit",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "PHASE_1_ENVIRONMENT_GATEKEEPER",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:35:33.797430+00:00",
+        "os_profile": {
+          "system": "Linux",
+          "release": "6.18.44",
+          "version": "#1 SMP Sat Sep 26 20:02:31 UTC 2026",
+          "machine": "x86_64",
+          "is_wsl": false,
+          "is_windows": false,
+          "is_posix": true
+        },
+        "filesystem": {
+          "target_path": "/workspace/CoChem-BASE",
+          "mount_point": "/",
+          "fs_type": "overlay",
+          "is_9p_mount": false,
+          "is_posix_compliant": true
+        },
+        "toolchains": {
+          "gcc": {
+            "name": "gcc",
+            "path": "/usr/bin/x86_64-linux-gnu-gcc-14",
+            "version": "Available (output suppressed)",
+            "is_available": true,
+            "error_detail": null
+          },
+          "make": {
+            "name": "make",
+            "path": "/usr/bin/make",
+            "version": "Available (output suppressed)",
+            "is_available": true,
+            "error_detail": null
+          },
+          "git": {
+            "name": "git",
+            "path": "/usr/local/bin/git",
+            "version": "Available (output suppressed)",
+            "is_available": true,
+            "error_detail": null
+          }
+        },
+        "kernel_limits": {
+          "vm_max_map_count": 65530,
+          "stack_limit_bytes": 67108864,
+          "stack_unlimited": false,
+          "degraded_mode": false,
+          "recommended_flags": [
+            "sysctl -w vm.max_map_count=262144"
+          ]
+        },
+        "warnings": [
+          "vm.max_map_count is 65530 (recommended >= 262144)."
+        ],
+        "errors": [],
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p1.json",
+        "execution_time_sec": 0.01
+      }
+    },
+    {
+      "phase_number": 2,
+      "phase_name": "Hardware, SIMD & VRAM Profiling",
+      "status": "DEGRADED",
+      "success": true,
+      "report": {
+        "phase_id": "PHASE_2_HARDWARE_RESOURCE_GATEKEEPER",
+        "status": "DEGRADED",
+        "timestamp_utc": "2026-10-07T19:35:33.807199+00:00",
+        "memory": {
+          "total_bytes": 35743784960,
+          "available_bytes": 33995550720,
+          "swap_total_bytes": 0,
+          "swap_free_bytes": 0,
+          "cgroup_memory_limit_bytes": 34359738368,
+          "cgroup_swap_limit_bytes": null,
+          "is_cgroup_constrained": true,
+          "effective_memory_bytes": 34359738368
+        },
+        "cpu": {
+          "physical_cores": 5,
+          "logical_cores": 5,
+          "frequency_mhz": 2596.144,
+          "cgroup_cpu_quota_us": 400000,
+          "cgroup_cpu_period_us": 100000,
+          "cgroup_effective_cpus": 4.0,
+          "cpu_affinity_count": 5,
+          "architecture": "x86_64"
+        },
+        "gpu": {
+          "available": false,
+          "vendor_summary": {},
+          "devices": [],
+          "cuda_available": false,
+          "rocm_available": false,
+          "oneapi_available": false,
+          "degraded_fallback": true
+        },
+        "precision": {
+          "float32_epsilon": 1.1920928955078125e-07,
+          "float64_epsilon": 2.220446049250313e-16,
+          "subnormal_supported": true,
+          "smallest_subnormal_f64": 5e-324,
+          "smallest_normal_f64": 2.2250738585072014e-308,
+          "subnormal_arithmetic_valid": true,
+          "precision_intact": true,
+          "precision_message": "Float Precision: Intact"
+        },
+        "warnings": [
+          "No hardware GPU accelerator detected or accessible; falling back to CPU execution mode."
+        ],
+        "errors": [],
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p2.json",
+        "execution_time_sec": 0.002
+      }
+    },
+    {
+      "phase_number": 3,
+      "phase_name": "Quantum Engine Discovery & Integrity Hashing",
+      "status": "DEGRADED",
+      "success": true,
+      "report": {
+        "phase_id": "PHASE_3_ENGINE_DISCOVERY_INTEGRITY",
+        "status": "DEGRADED",
+        "timestamp_utc": "2026-10-07T19:35:33.809281+00:00",
+        "engines": {
+          "orca": {
+            "name": "orca",
+            "track": "ORCA",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'orca' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "mpirun": {
+            "name": "mpirun",
+            "track": "ORCA",
+            "path": "/usr/bin/mpirun.openmpi",
+            "version": "5.0.7",
+            "sha256_hash": "96ab74bcbe60c8b6a750cd3b726ce6b2360991bcbc2a16635525a1979fc252ff",
+            "file_size_bytes": 208848,
+            "is_available": true,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "mpiexec": {
+            "name": "mpiexec",
+            "track": "ORCA",
+            "path": "/usr/bin/mpirun.openmpi",
+            "version": "5.0.7",
+            "sha256_hash": "96ab74bcbe60c8b6a750cd3b726ce6b2360991bcbc2a16635525a1979fc252ff",
+            "file_size_bytes": 208848,
+            "is_available": true,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "orca_2mkl": {
+            "name": "orca_2mkl",
+            "track": "ORCA",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'orca_2mkl' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "orca_vpt2_prep": {
+            "name": "orca_vpt2_prep",
+            "track": "ORCA",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'orca_vpt2_prep' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "xcfour": {
+            "name": "xcfour",
+            "track": "CFOUR",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'xcfour' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "c4init": {
+            "name": "c4init",
+            "track": "CFOUR",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'c4init' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "c4cleanup": {
+            "name": "c4cleanup",
+            "track": "CFOUR",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'c4cleanup' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "xtb": {
+            "name": "xtb",
+            "track": "XTB_CREST",
+            "path": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+            "version": "6.7.1",
+            "sha256_hash": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+            "file_size_bytes": 63253248,
+            "is_available": true,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "crest": {
+            "name": "crest",
+            "track": "XTB_CREST",
+            "path": "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/crest",
+            "version": "3.0.2+topos-generic-paths-v1",
+            "sha256_hash": "a2834f036e793ae674c823d1cb673a2625b1644db5239cfed8eaa9f6fcc65adc",
+            "file_size_bytes": 20276496,
+            "is_available": true,
+            "native_components": {
+              "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/installation.json": "02a800b9cd1b7fdc861115c49a4e63f4e5bfd7fcefd67f4620c9abd80f8430ee",
+              "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/source.patch": "9f22e2d9e0cd9b6aa8a6d41a0c32b6271d659c62498f888f0d5d889cc09aa8b9",
+              "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0": "6456b504ac347bd50c419667440b691f6966ad8aff5309d2f06c977fe2f9debe",
+              "/usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.1": "7efae004d2cafae3d37c7690bbf3c1ad9e4cd01db01c125755d2db74f7a565b1",
+              "/usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.1": "2b3fdbf8e9daa85ce62e449b9738cad4c8b50ba220342f51501c9ade19670895",
+              "/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0": "d1c716d10039872bb5481b921d2142577c7873cad4d8d9f09028231aa7e42127",
+              "/usr/lib/x86_64-linux-gnu/libm.so.6": "6d567d53e895273ca14a1f9dc164fc6c8d39aed2f60aa46a733c2784228915f3",
+              "/usr/lib/x86_64-linux-gnu/libmvec.so.1": "cd2f99df70ed0fa44f79bd6322396180d19eaa1fb527b1b6e2aec9cdfc034d9d",
+              "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "30c61ab012a4241bed033725a09b61f5fdd3bb7df95ee852d0b096520524c7af",
+              "/usr/lib/x86_64-linux-gnu/libc.so.6": "fa430b8f298f817a266046af84a77533185ad6fc4406c7d3787b5a0a0c207826",
+              "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "438c546d8e8cc48496bf3a95f753051afd9db66a629a74e31a9ded71586b56e0"
+            },
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "abcluster": {
+            "name": "abcluster",
+            "track": "GENERAL",
+            "path": "/workspace/.tools/abcluster-3.4/abcluster-Release/rigidmol",
+            "version": "3.4",
+            "sha256_hash": "d535d2c3c1cef2e7ca33e0f11c16b102fc1405bcc8336840edb87b7fab777307",
+            "file_size_bytes": 1072776,
+            "is_available": true,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "gxtb": {
+            "name": "gxtb",
+            "track": "XTB_CREST",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'gxtb' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "mopac": {
+            "name": "mopac",
+            "track": "GENERAL",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'mopac' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "qe": {
+            "name": "qe",
+            "track": "GENERAL",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'qe' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "psi4": {
+            "name": "psi4",
+            "track": "GENERAL",
+            "path": "/workspace/.cochem-setup/psi4-runtime/bin/psi4",
+            "version": "1.10.2",
+            "sha256_hash": "1e546f5f39fb6b040dd0c292773c07e9f4eb53a5924e688ef06494fd4cc47b81",
+            "file_size_bytes": 17963,
+            "is_available": true,
+            "native_components": {
+              "/workspace/.cochem-setup/psi4-runtime/lib/python3.12/site-packages/psi4/core.cpython-312-x86_64-linux-gnu.so": "3904ced56bb50dae40173422806b8360036667dc7db8b641c857a16c7188e1a8",
+              "/workspace/.cochem-setup/psi4-runtime/bin/python3.12": "f0151c0dcbe58788c33839b344b231250cc35f3767ac3a488cf07b48ba56fcf1"
+            },
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": null,
+            "status": "FOUND_VALID"
+          },
+          "apptainer": {
+            "name": "apptainer",
+            "track": "GENERAL",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'apptainer' not found across standard or configured search tiers",
+            "status": "MISSING"
+          },
+          "singularity": {
+            "name": "singularity",
+            "track": "GENERAL",
+            "path": null,
+            "version": null,
+            "sha256_hash": null,
+            "file_size_bytes": null,
+            "is_available": false,
+            "native_components": {},
+            "is_container": false,
+            "container_flags": [],
+            "error_detail": "Binary 'singularity' not found across standard or configured search tiers",
+            "status": "MISSING"
+          }
+        },
+        "tracks": {
+          "ORCA": {
+            "track": "ORCA",
+            "total_scanned": 5,
+            "available_count": 2,
+            "missing_count": 3,
+            "is_track_ready": false
+          },
+          "CFOUR": {
+            "track": "CFOUR",
+            "total_scanned": 3,
+            "available_count": 0,
+            "missing_count": 3,
+            "is_track_ready": false
+          },
+          "XTB_CREST": {
+            "track": "XTB_CREST",
+            "total_scanned": 3,
+            "available_count": 2,
+            "missing_count": 1,
+            "is_track_ready": false
+          },
+          "PYSCF_GPU": {
+            "track": "PYSCF_GPU",
+            "total_scanned": 0,
+            "available_count": 0,
+            "missing_count": 0,
+            "is_track_ready": false
+          },
+          "CONTAINER_SIF": {
+            "track": "CONTAINER_SIF",
+            "total_scanned": 0,
+            "available_count": 0,
+            "missing_count": 0,
+            "is_track_ready": false
+          },
+          "GENERAL": {
+            "track": "GENERAL",
+            "total_scanned": 6,
+            "available_count": 2,
+            "missing_count": 4,
+            "is_track_ready": false
+          }
+        },
+        "container": {
+          "runtime_name": null,
+          "runtime_path": null,
+          "runtime_version": null,
+          "airgap_flags_valid": true,
+          "discovered_sifs": []
+        },
+        "fingerprint": {
+          "composite_hash": "34ffaba03ce6b8778713b64d4e1a710371ff68c645790b0bd3f32116ec78da8a",
+          "component_count": 6,
+          "provenance": "[D] Deterministic Composite System Hash"
+        },
+        "warnings": [
+          "ORCA binary not found in local paths; ORCA calculations are unavailable until an audited backend is configured."
+        ],
+        "errors": [],
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p3.json",
+        "execution_time_sec": 1.113
+      }
+    },
+    {
+      "phase_number": 4,
+      "phase_name": "Micro-Silo Provisioning & Dependency Isolation",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "PHASE_4_MICRO_SILO_PROVISIONING",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:35:34.922186+00:00",
+        "silos": {
+          "cochem_core_silo": {
+            "name": "cochem_core_silo",
+            "silo_type": "cochem_core_silo",
+            "path": "/workspace/.cochem-base-runtime/Silos/cochem_core_silo",
+            "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_core_silo/bin/python",
+            "python_version": "3.12.14",
+            "status": "EXISTS_VALID",
+            "is_available": true,
+            "is_heavy": false,
+            "stack_flags_injected": [
+              "-Wl,-z,stack-size=67108864"
+            ],
+            "env_vars_injected": {
+              "OMP_STACKSIZE": "64M",
+              "PYTHONSTACKSIZE": "67108864",
+              "KMP_STACKSIZE": "64M",
+              "GFORTRAN_UNBUFFERED_ALL": "y"
+            },
+            "error_detail": null,
+            "packages_verified": [
+              "pydantic",
+              "h5py",
+              "psutil",
+              "filelock",
+              "mendeleev"
+            ],
+            "dependency_profile": null,
+            "created_at": "2026-10-07T19:35:36.777677+00:00"
+          },
+          "cochem_ui_silo": {
+            "name": "cochem_ui_silo",
+            "silo_type": "cochem_ui_silo",
+            "path": "/workspace/.cochem-base-runtime/Silos/cochem_ui_silo",
+            "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_ui_silo/bin/python",
+            "python_version": "3.12.14",
+            "status": "EXISTS_VALID",
+            "is_available": true,
+            "is_heavy": false,
+            "stack_flags_injected": [
+              "-Wl,-z,stack-size=67108864"
+            ],
+            "env_vars_injected": {
+              "OMP_STACKSIZE": "64M",
+              "PYTHONSTACKSIZE": "67108864",
+              "KMP_STACKSIZE": "64M",
+              "GFORTRAN_UNBUFFERED_ALL": "y"
+            },
+            "error_detail": null,
+            "packages_verified": [
+              "voila",
+              "ipywidgets",
+              "networkx",
+              "matplotlib"
+            ],
+            "dependency_profile": null,
+            "created_at": "2026-10-07T19:35:39.458118+00:00"
+          },
+          "cochem_calc_silo": {
+            "name": "cochem_calc_silo",
+            "silo_type": "cochem_calc_silo",
+            "path": "/workspace/.cochem-base-runtime/Silos/cochem_calc_silo",
+            "python_executable": null,
+            "python_version": null,
+            "status": "BYPASSED",
+            "is_available": false,
+            "is_heavy": true,
+            "stack_flags_injected": [],
+            "env_vars_injected": {},
+            "error_detail": null,
+            "packages_verified": [],
+            "dependency_profile": null,
+            "created_at": null
+          },
+          "cochem_mace_silo": {
+            "name": "cochem_mace_silo",
+            "silo_type": "cochem_mace_silo",
+            "path": "/workspace/.cochem-base-runtime/Silos/cochem_mace_silo",
+            "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_mace_silo/bin/python",
+            "python_version": "3.12.14",
+            "status": "EXISTS_VALID",
+            "is_available": true,
+            "is_heavy": true,
+            "stack_flags_injected": [
+              "-Wl,-z,stack-size=67108864"
+            ],
+            "env_vars_injected": {
+              "OMP_STACKSIZE": "64M",
+              "PYTHONSTACKSIZE": "67108864",
+              "KMP_STACKSIZE": "64M",
+              "GFORTRAN_UNBUFFERED_ALL": "y"
+            },
+            "error_detail": null,
+            "packages_verified": [
+              "mace-torch",
+              "torch",
+              "e3nn"
+            ],
+            "dependency_profile": "cpu",
+            "created_at": "2026-10-07T19:35:42.753744+00:00"
+          },
+          "cochem_aimnet2_silo": {
+            "name": "cochem_aimnet2_silo",
+            "silo_type": "cochem_aimnet2_silo",
+            "path": "/workspace/.cochem-base-runtime/Silos/cochem_aimnet2_silo",
+            "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_aimnet2_silo/bin/python",
+            "python_version": "3.12.14",
+            "status": "EXISTS_VALID",
+            "is_available": true,
+            "is_heavy": true,
+            "stack_flags_injected": [
+              "-Wl,-z,stack-size=67108864"
+            ],
+            "env_vars_injected": {
+              "OMP_STACKSIZE": "64M",
+              "PYTHONSTACKSIZE": "67108864",
+              "KMP_STACKSIZE": "64M",
+              "GFORTRAN_UNBUFFERED_ALL": "y",
+              "CUDA_VISIBLE_DEVICES": ""
+            },
+            "error_detail": null,
+            "packages_verified": [
+              "aimnet",
+              "torch",
+              "warp-lang",
+              "nvalchemi-toolkit-ops"
+            ],
+            "dependency_profile": null,
+            "created_at": "2026-10-07T19:35:57.872828+00:00"
+          }
+        },
+        "version_walking": {
+          "initial_version": "3.12",
+          "target_version": "3.12",
+          "version_chain": [
+            "3.12"
+          ],
+          "resolved_version": "3.12",
+          "used_local_fallback": false,
+          "fallback_binary_path": null,
+          "steps": [
+            {
+              "attempted_version": "3.12",
+              "success": true,
+              "fallback_wheel_found": null,
+              "error_summary": null
+            }
+          ],
+          "status": "PASSED"
+        },
+        "mendeleev_authority": {
+          "symbol": "C",
+          "atomic_number": 6,
+          "monoisotopic_mass": 12.0,
+          "c13_mass": 13.00335483534,
+          "h1_mass": 1.007825031898,
+          "o16_mass": 15.99491461926,
+          "authority": "mendeleev-live",
+          "is_exact_carbon12": true,
+          "c13_mass_verified": true
+        },
+        "ipc_security": {
+          "socket_path": "/tmp/nvidia-mps",
+          "socket_permissions": "0o700",
+          "is_permission_secure": true,
+          "pid_namespace_isolated": false,
+          "mps_service_available": false,
+          "ipc_spoofing_shielded": false,
+          "details": "Socket permissions 0o700 strictly enclosed; Separate PID namespace not verified"
+        },
+        "manifest_filter": {
+          "manifest_path": "/workspace/.cochem-base-runtime/mandatory-deployment-with-ml.json",
+          "manifest_loaded": true,
+          "selected_repositories": [
+            "CoChem-BASE",
+            "CoChem-TOPOS",
+            "CoChem-TORQ"
+          ],
+          "requested_silos": [
+            "cochem_core_silo",
+            "cochem_ui_silo",
+            "cochem_mace_silo",
+            "cochem_aimnet2_silo"
+          ],
+          "heavy_silos_requested": true,
+          "skipped_silos": [
+            "cochem_calc_silo"
+          ],
+          "disk_space_saved_estimated_mb": 4500.0
+        },
+        "warnings": [
+          "Skipped unrequested heavy silos (cochem_calc_silo), saving ~4500 MB disk space."
+        ],
+        "errors": [],
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p4.json",
+        "execution_time_sec": 22.951
+      }
+    },
+    {
+      "phase_number": 5,
+      "phase_name": "NVIDIA MPS Daemon & POSIX Locking Verification",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "PHASE_5_NVIDIA_MPS_VRAM_BUDGETING",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:35:57.873508+00:00",
+        "mps_daemon": {
+          "mps_control_binary": null,
+          "mps_server_binary": null,
+          "status": "NOT_SUPPORTED",
+          "pipe_directory": "/tmp/cochem_mps_agent",
+          "log_directory": "/tmp/cochem_mps_log_agent",
+          "socket_path": "/tmp/cochem_mps_agent",
+          "is_daemon_active": false,
+          "pid": null,
+          "socket_permissions": "0o700",
+          "is_permission_secure": true,
+          "server_active": false,
+          "control_active": false,
+          "environment_variables": {
+            "CUDA_MPS_PIPE_DIRECTORY": "/tmp/cochem_mps_agent",
+            "CUDA_MPS_LOG_DIRECTORY": "/tmp/cochem_mps_log_agent",
+            "CUDA_MPS_ENABLE_PER_DEVICE_PINNED_MEM_LIMIT": "1",
+            "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE": "50"
+          },
+          "details": "nvidia-cuda-mps-control binary not found in PATH or standard system locations"
+        },
+        "vram_budget": {
+          "total_gpus_detected": 0,
+          "active_gpu_devices": [],
+          "total_cluster_vram_mb": 0.0,
+          "total_reserved_vram_mb": 0.0,
+          "total_allocatable_vram_mb": 0.0,
+          "worker_concurrency_target": 2,
+          "default_pinned_mem_limit": null,
+          "per_device_limits": {},
+          "is_vram_bounded": true,
+          "strategy": "ZERO_GPU_DEGRADED"
+        },
+        "is_cuda_available": false,
+        "is_hpc_slurm": false,
+        "config_lock": {
+          "golden_registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+          "status": "LOCKED",
+          "checksum": "935fe265c4d9ed8930667367f77fb95203cce1ae493bf64aecab58c5ab1247ce",
+          "posix_lock_test": {
+            "passed": true,
+            "method": "POSIX_FCNTL_LOCKF",
+            "single_threaded_mode": false,
+            "target_path": "/workspace/.cochem-base-runtime/Registry/.cochem_swmr_lock_probe_7c4e7a19.lock",
+            "lock_type": "POSIX_BYTE_RANGE_LOCK",
+            "error_message": null
+          },
+          "sweep_report": {
+            "swept_files_count": 0,
+            "cleaned_paths": [],
+            "retained_paths": [],
+            "trash_dir": null
+          },
+          "intermediate_phases_found": [
+            "p1.json",
+            "p2.json",
+            "p3.json",
+            "p4.json",
+            "p5.json",
+            "p6.json",
+            "p7.json",
+            "p8.json",
+            "p9.json",
+            "p10.json",
+            "p11.json"
+          ],
+          "is_immutable_mode_enforced": false
+        },
+        "warnings": [
+          "No active NVIDIA CUDA GPU detected; execution operating in CPU-only or direct compute fallback mode."
+        ],
+        "errors": [],
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p5.json",
+        "golden_config_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+        "execution_time_sec": 0.205
+      }
+    },
+    {
+      "phase_number": 6,
+      "phase_name": "Database & Bifurcated Storage Backend",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_6",
+        "status": "PASSED",
+        "storage_mode": "BIFURCATED",
+        "timestamp_utc": "2026-10-07T19:35:58.078851+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p6.json",
+        "storage_paths": {
+          "databases_directory": "/workspace/.cochem-base-runtime/Databases",
+          "scratch_directory": "/workspace/.cochem-base-runtime/Scratch",
+          "runtime_active_db_path": "/workspace/.cochem-base-runtime/Databases/runtime_active.h5",
+          "archive_pes_db_path": "/workspace/.cochem-base-runtime/Databases/archive_pes.h5",
+          "sqlite_wal_db_path": "/workspace/.cochem-base-runtime/Databases/runtime_active.db",
+          "is_git_ignored": true,
+          "filesystem_type": "overlay",
+          "free_disk_space_gb": 9.592,
+          "min_disk_space_required_gb": 1.0,
+          "is_disk_quota_sufficient": true
+        },
+        "swmr_audit": {
+          "swmr_supported": true,
+          "lock_test_passed": true,
+          "backend_selected": "HDF5_SWMR",
+          "lock_file_path": "/workspace/.cochem-base-runtime/Databases/cochem_runtime.lock",
+          "error_detail": null
+        },
+        "archive_audit": {
+          "qcschema_version": "1.0",
+          "groups_created": [
+            "/meta",
+            "/methods",
+            "/points",
+            "/grids",
+            "/hessians",
+            "/telemetry"
+          ],
+          "filters_applied": {
+            "compression": "gzip",
+            "compression_opts": 4,
+            "shuffle": true,
+            "fletcher32": true,
+            "scaleoffset": null,
+            "chunk_pts": 512
+          },
+          "scaleoffset_banned": true,
+          "file_size_bytes": 10255
+        },
+        "warnings": [],
+        "errors": [],
+        "execution_time_sec": 0.537
+      }
+    },
+    {
+      "phase_number": 7,
+      "phase_name": "HPC Slurm/PBS Environment Variable Injection",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_7",
+        "status": "PASSED",
+        "scheduler_detected": "LOCAL_STANDALONE",
+        "timestamp_utc": "2026-10-07T19:35:58.615688+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p7.json",
+        "topology": {
+          "scheduler": "LOCAL_STANDALONE",
+          "job_id": null,
+          "num_nodes": 1,
+          "node_list": [
+            "361c03bd419d"
+          ],
+          "tasks_per_node": [
+            1
+          ],
+          "total_tasks": 1,
+          "cpus_per_task": 5,
+          "cpus_on_node": 5,
+          "is_heterogeneous": false
+        },
+        "memory": {
+          "mem_per_node_mb": null,
+          "mem_per_cpu_mb": null,
+          "cgroup_limit_bytes": 34359738368,
+          "physical_ram_bytes": 35743784960,
+          "effective_usable_memory_mb": 32768.0,
+          "source": "CGROUP"
+        },
+        "scratch": {
+          "scratch_directory": "/home/agent/CoChem_Artifacts/Scratch",
+          "is_accessible": true,
+          "is_writable": true,
+          "free_disk_space_gb": 9.592,
+          "source_variable": "FALLBACK"
+        },
+        "affinity": {
+          "omp_num_threads": 5,
+          "mkl_num_threads": 5,
+          "openblas_num_threads": 5,
+          "blis_num_threads": 5,
+          "omp_places": "cores",
+          "omp_proc_bind": "close",
+          "kmp_affinity": "granularity=fine,compact,1,0",
+          "kmp_blocktime": 0,
+          "environment_variables": {
+            "OMP_NUM_THREADS": "5",
+            "MKL_NUM_THREADS": "5",
+            "OPENBLAS_NUM_THREADS": "5",
+            "BLIS_NUM_THREADS": "5",
+            "OMP_PLACES": "cores",
+            "OMP_PROC_BIND": "close",
+            "KMP_AFFINITY": "granularity=fine,compact,1,0",
+            "KMP_BLOCKTIME": "0"
+          }
+        },
+        "injected_env_vars": {
+          "OMP_NUM_THREADS": "5",
+          "MKL_NUM_THREADS": "5",
+          "OPENBLAS_NUM_THREADS": "5",
+          "BLIS_NUM_THREADS": "5",
+          "OMP_PLACES": "cores",
+          "OMP_PROC_BIND": "close",
+          "KMP_AFFINITY": "granularity=fine,compact,1,0",
+          "KMP_BLOCKTIME": "0",
+          "COCHEM_SCRATCH_DIR": "/home/agent/CoChem_Artifacts/Scratch",
+          "COCHEM_HPC_SCHEDULER": "LOCAL_STANDALONE",
+          "COCHEM_NUM_NODES": "1",
+          "COCHEM_TOTAL_TASKS": "1",
+          "COCHEM_CPUS_PER_TASK": "5",
+          "COCHEM_CPUS_ON_NODE": "5",
+          "COCHEM_MEMORY_PER_NODE_MB": "32768.0",
+          "TMPDIR": "/home/agent/CoChem_Artifacts/Scratch"
+        },
+        "warnings": [],
+        "errors": [],
+        "execution_time_sec": 0.001
+      }
+    },
+    {
+      "phase_number": 8,
+      "phase_name": "Network Port Allocation & Gateway Binding",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_8",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:35:58.616440+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p8.json",
+        "gateway_profile": {
+          "bind_host": "127.0.0.1",
+          "bind_policy": "LOCALHOST_ONLY",
+          "dock_api": {
+            "service": "DOCK_REST_API",
+            "protocol": "TCP",
+            "requested_port": 8000,
+            "allocated_port": 8000,
+            "bind_host": "127.0.0.1",
+            "is_bound_successfully": true,
+            "is_conflict_resolved": false,
+            "environment_variable": "COCHEM_DOCK_PORT",
+            "url": "http://127.0.0.1:8000"
+          },
+          "gateway_zmq": {
+            "service": "GATEWAY_IPC_ZMQ",
+            "protocol": "TCP",
+            "requested_port": 5555,
+            "allocated_port": 5555,
+            "bind_host": "127.0.0.1",
+            "is_bound_successfully": true,
+            "is_conflict_resolved": false,
+            "environment_variable": "COCHEM_GATEWAY_PORT",
+            "url": "tcp://127.0.0.1:5555"
+          },
+          "ui_dashboard": {
+            "service": "UI_DASHBOARD",
+            "protocol": "TCP",
+            "requested_port": 8888,
+            "allocated_port": 8888,
+            "bind_host": "127.0.0.1",
+            "is_bound_successfully": true,
+            "is_conflict_resolved": false,
+            "environment_variable": "COCHEM_UI_PORT",
+            "url": "http://127.0.0.1:8888"
+          },
+          "telemetry_stream": {
+            "service": "TELEMETRY_STREAM",
+            "protocol": "UDP",
+            "requested_port": 54321,
+            "allocated_port": 54321,
+            "bind_host": "127.0.0.1",
+            "is_bound_successfully": true,
+            "is_conflict_resolved": false,
+            "environment_variable": "COCHEM_TELEMETRY_PORT",
+            "url": "udp://127.0.0.1:54321"
+          },
+          "all_services_allocated": true,
+          "total_services_bound": 4
+        },
+        "injected_env_vars": {
+          "COCHEM_BIND_HOST": "127.0.0.1",
+          "COCHEM_DOCK_PORT": "8000",
+          "COCHEM_DOCK_URL": "http://127.0.0.1:8000",
+          "COCHEM_GATEWAY_PORT": "5555",
+          "COCHEM_ZMQ_PORT": "5555",
+          "COCHEM_GATEWAY_URL": "tcp://127.0.0.1:5555",
+          "COCHEM_UI_PORT": "8888",
+          "COCHEM_UI_URL": "http://127.0.0.1:8888",
+          "COCHEM_TELEMETRY_PORT": "54321",
+          "COCHEM_TELEMETRY_URL": "udp://127.0.0.1:54321"
+        },
+        "warnings": [],
+        "errors": [],
+        "execution_time_sec": 0.0
+      }
+    },
+    {
+      "phase_number": 9,
+      "phase_name": "Heterogeneous Parsl Concurrency Executor Mapping",
+      "status": "DEGRADED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_9",
+        "status": "DEGRADED",
+        "timestamp_utc": "2026-10-07T19:35:58.616937+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p9.json",
+        "scout_anchor_profile": {
+          "total_physical_cores": 5,
+          "total_logical_cores": 5,
+          "anchor_cores": 4,
+          "scout_cores": 1,
+          "scout_gpu_workers": 0,
+          "scout_step_latency_ms": null,
+          "anchor_executor": {
+            "label": "cochem_anchor_cpu",
+            "stream": "CPU_ANCHOR",
+            "provider": "LOCAL",
+            "max_workers_per_node": 4,
+            "cores_per_worker": 1.0,
+            "mem_per_worker_gb": null,
+            "cpu_affinity": "list:0,1,2,3",
+            "worker_port_range": [
+              50000,
+              52499
+            ],
+            "interchange_port_range": [
+              52500,
+              54999
+            ],
+            "init_blocks": 1,
+            "min_blocks": 0,
+            "max_blocks": 1,
+            "nodes_per_block": 1,
+            "walltime": "01:00:00",
+            "launcher": "SimpleLauncher"
+          },
+          "scout_executor": {
+            "label": "cochem_scout_gpu",
+            "stream": "GPU_SCOUT",
+            "provider": "LOCAL",
+            "max_workers_per_node": 1,
+            "cores_per_worker": 1.0,
+            "mem_per_worker_gb": null,
+            "cpu_affinity": "list:4",
+            "worker_port_range": [
+              55000,
+              57499
+            ],
+            "interchange_port_range": [
+              57500,
+              60000
+            ],
+            "init_blocks": 1,
+            "min_blocks": 0,
+            "max_blocks": 1,
+            "nodes_per_block": 1,
+            "walltime": "01:00:00",
+            "launcher": "SimpleLauncher"
+          },
+          "anchor_affinity": {
+            "stream": "CPU_ANCHOR",
+            "core_count": 4,
+            "core_ids": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "affinity_string": "list:0,1,2,3",
+            "strategy": "PINNED_EXPLICIT"
+          },
+          "scout_affinity": {
+            "stream": "GPU_SCOUT",
+            "core_count": 1,
+            "core_ids": [
+              4
+            ],
+            "affinity_string": "list:4",
+            "strategy": "PINNED_EXPLICIT"
+          },
+          "is_parsl_installed": true,
+          "parsl_version": "2026.10.05",
+          "is_heterogeneous_balanced": true
+        },
+        "amnesty_profile": {
+          "amnesty_file_path": "/workspace/CoChem-BASE/.anti_spoof_amnesty.json",
+          "is_amnesty_present": true,
+          "total_amnestied_entries": 264,
+          "is_utf8_lf_compliant": true,
+          "is_alphabetically_sorted": true,
+          "has_zero_duplicates": false,
+          "parsl_whitelisted": true,
+          "scanned_concurrency_modules": [
+            "parsl",
+            "multiprocessing",
+            "concurrent.futures",
+            "dask",
+            "ray",
+            "mpi4py",
+            "threading"
+          ]
+        },
+        "injected_env_vars": {
+          "COCHEM_PARSL_ANCHOR_LABEL": "cochem_anchor_cpu",
+          "COCHEM_PARSL_ANCHOR_CORES": "4",
+          "COCHEM_PARSL_ANCHOR_AFFINITY": "list:0,1,2,3",
+          "COCHEM_PARSL_SCOUT_LABEL": "cochem_scout_gpu",
+          "COCHEM_PARSL_SCOUT_CORES": "1",
+          "COCHEM_PARSL_SCOUT_WORKERS": "0",
+          "COCHEM_PARSL_SCOUT_AFFINITY": "list:4",
+          "COCHEM_PARSL_PROVIDER": "LOCAL",
+          "COCHEM_PARSL_AMNESTY_VERIFIED": "1",
+          "COCHEM_PARSL_CONFIG_READY": "1"
+        },
+        "warnings": [
+          ".anti_spoof_amnesty.json contains duplicate entries.",
+          "No measured CUDA GPU allocation; GPU Scout executor is disabled"
+        ],
+        "errors": [],
+        "execution_time_sec": 0.245
+      }
+    },
+    {
+      "phase_number": 10,
+      "phase_name": "State-Chain Recovery & Quarantined Sandbox",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_10",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:35:58.862287+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p10.json",
+        "sandbox_profile": {
+          "sandbox_path": "/workspace/.cochem-base-runtime/Scratch/cochem_exec_ca60cb4c52554dafb82cfe5c42533f7b",
+          "sandbox_uuid": "ca60cb4c52554dafb82cfe5c42533f7b",
+          "base_directory": "/workspace/.cochem-base-runtime/Scratch",
+          "is_created": true,
+          "is_writable": true,
+          "is_isolated": true,
+          "permissions_octal": "0o700",
+          "cleanup_verified": true,
+          "active_pid": 554438
+        },
+        "iops_profile": {
+          "target_directory": "/workspace/.cochem-base-runtime/Scratch/cochem_exec_ca60cb4c52554dafb82cfe5c42533f7b",
+          "file_size_bytes": 10485760,
+          "block_size_bytes": 65536,
+          "total_blocks": 160,
+          "write_duration_seconds": 0.0285,
+          "write_throughput_mb_s": 351.47,
+          "write_iops": 5623.5,
+          "read_duration_seconds": 0.0229,
+          "read_throughput_mb_s": 436.06,
+          "read_iops": 6976.9,
+          "sync_latency_ms": 0.43,
+          "status": "OPTIMAL",
+          "is_unbuffered": true,
+          "is_performance_sufficient": true
+        },
+        "checkpoint_report": {
+          "scanned_count": 0,
+          "valid_count": 0,
+          "corrupt_count": 0,
+          "resumable_checkpoints": [],
+          "validation_enabled": true
+        },
+        "state_chain_profile": {
+          "registry_directory": "/workspace/.cochem-base-runtime/Registry",
+          "verified_phases": [
+            "p1",
+            "p2",
+            "p3",
+            "p4",
+            "p5",
+            "p6",
+            "p7",
+            "p8",
+            "p9"
+          ],
+          "missing_phases": [],
+          "chain_intact": true,
+          "recoverable_jobs": [],
+          "orphaned_sandboxes": [
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_5e959a4f05d64867b83616bbe0a56951",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_5789fbae7b314a89ab6fa59a7574b123",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_77c2dcba7dc947c0ba24b8b31f78dc27",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_46c647acd0744b24bce18cdead413e1d",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_a06bc0fda68c477eb6009f6ad17ac1ea",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_16a30afd3a364460a0eb40a208970b7f",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_f628a5dcb1d541eb84da1aa265379049",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_eeda85ca8e9e46749d7a49a837d80126",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_382b97ca7f4c466685f2cbe84b6713f7",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_191944425de2454c9aad5155e9c53eae",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_f05591ba5cb24a03b9e556d7c582a6dd",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_fff719bf87114b92bda469a0a5b0281e",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_0cf3df77a8474d63986e0a257021261d",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_4145b67822bd4319929436a68ec4f02e",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_49271f0e44794003a095cc984e471628",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_ca60cb4c52554dafb82cfe5c42533f7b",
+            "/workspace/.cochem-base-runtime/Scratch/cochem_exec_9868811845dc4785a756d93e1949b5ff"
+          ]
+        },
+        "molsym_silo_profile": {
+          "silo_path": "/workspace/.cochem-base-runtime/ui-env/lib/python3.12/site-packages/molsym",
+          "is_installed": true,
+          "silo_status": "AVAILABLE",
+          "version": "1.2.0",
+          "location": "/workspace/.cochem-base-runtime/ui-env/lib/python3.12/site-packages/molsym",
+          "has_symtext": true,
+          "has_find_point_group": true,
+          "notes": "MolSym library successfully verified with full Symtext and point group detection."
+        },
+        "eckart_verification_report": {
+          "total_benchmarks": 5,
+          "passed_benchmarks": 5,
+          "failed_benchmarks": 0,
+          "overall_status": "VERIFIED",
+          "max_translational_residual": 8.738553443370256e-17,
+          "max_rotational_residual": 7.993565387416474e-15,
+          "items": [
+            {
+              "benchmark_name": "H2O_Rigid_Rotation_Translation",
+              "status": "VERIFIED",
+              "n_atoms": 3,
+              "has_ghost_atoms": false,
+              "translational_residual_norm": 8.139175990289584e-18,
+              "rotational_residual_norm": 2.489561858917263e-16,
+              "rotation_determinant": 1.0,
+              "rmsd": 7.339733008204129e-16,
+              "top_type": "asymmetric",
+              "is_verified": true,
+              "error_message": null
+            },
+            {
+              "benchmark_name": "H2O_Perturbed_Conformation",
+              "status": "VERIFIED",
+              "n_atoms": 3,
+              "has_ghost_atoms": false,
+              "translational_residual_norm": 8.71565258177344e-18,
+              "rotational_residual_norm": 4.3554104865059005e-16,
+              "rotation_determinant": 1.0,
+              "rmsd": 0.013780303388046788,
+              "top_type": "asymmetric",
+              "is_verified": true,
+              "error_message": null
+            },
+            {
+              "benchmark_name": "Water_Dimer_BSSE_Ghost_Complex",
+              "status": "VERIFIED",
+              "n_atoms": 6,
+              "has_ghost_atoms": true,
+              "translational_residual_norm": 1.378037276296016e-17,
+              "rotational_residual_norm": 4.331216040684256e-16,
+              "rotation_determinant": 0.9999999999999989,
+              "rmsd": 1.7773044017723836e-16,
+              "top_type": "asymmetric",
+              "is_verified": true,
+              "error_message": null
+            },
+            {
+              "benchmark_name": "CO2_Linear_Singularity",
+              "status": "VERIFIED",
+              "n_atoms": 3,
+              "has_ghost_atoms": false,
+              "translational_residual_norm": 8.738553443370256e-17,
+              "rotational_residual_norm": 7.993565387416474e-15,
+              "rotation_determinant": 1.0000000000000004,
+              "rmsd": 2.3805195741492114e-16,
+              "top_type": "linear",
+              "is_verified": true,
+              "error_message": null
+            },
+            {
+              "benchmark_name": "CH4_Spherical_Top",
+              "status": "VERIFIED",
+              "n_atoms": 5,
+              "has_ghost_atoms": false,
+              "translational_residual_norm": 6.920295609456815e-18,
+              "rotational_residual_norm": 5.425061840064926e-16,
+              "rotation_determinant": 0.9999999999999999,
+              "rmsd": 1.2780936846864309e-16,
+              "top_type": "spherical",
+              "is_verified": true,
+              "error_message": null
+            }
+          ]
+        },
+        "alignment_engine_ready": true,
+        "injected_env_vars": {
+          "COCHEM_EPHEMERAL_SANDBOX": "/workspace/.cochem-base-runtime/Scratch/cochem_exec_ca60cb4c52554dafb82cfe5c42533f7b",
+          "COCHEM_SANDBOX_UUID": "ca60cb4c52554dafb82cfe5c42533f7b",
+          "COCHEM_SANDBOX_BASE": "/workspace/.cochem-base-runtime/Scratch",
+          "COCHEM_IOPS_WRITE_MBPS": "351.47",
+          "COCHEM_IOPS_READ_MBPS": "436.06",
+          "COCHEM_IOPS_WRITE_IOPS": "5623.5",
+          "COCHEM_IOPS_STATUS": "OPTIMAL",
+          "COCHEM_CHECKPOINT_VALIDATION_ACTIVE": "1",
+          "COCHEM_CHECKPOINT_VALID_COUNT": "0",
+          "COCHEM_STATE_CHAIN_INTACT": "1",
+          "COCHEM_MOLSYM_SILO_STATUS": "AVAILABLE",
+          "COCHEM_ECKART_VERIFICATION_STATUS": "VERIFIED",
+          "COCHEM_ALIGNMENT_ENGINE_READY": "1",
+          "COCHEM_PHASE_10_STATUS": "PASSED"
+        },
+        "warnings": [
+          "Found 17 orphaned ephemeral sandboxes from prior runs."
+        ],
+        "errors": [],
+        "execution_time_sec": 7.652
+      }
+    },
+    {
+      "phase_number": 11,
+      "phase_name": "Memory Router & OOM Shield Audit",
+      "status": "PASSED",
+      "success": true,
+      "report": {
+        "phase_id": "cochem_setup_phase_11",
+        "status": "PASSED",
+        "timestamp_utc": "2026-10-07T19:36:06.516462+00:00",
+        "artifact_path": "/workspace/.cochem-base-runtime/Registry/p11.json",
+        "phase_2_findings": {
+          "loaded_from": "/workspace/.cochem-base-runtime/Registry/p2.json",
+          "status": "DEGRADED",
+          "total_physical_ram_bytes": 35743784960,
+          "effective_memory_bytes": 34359738368,
+          "physical_cores": 5,
+          "logical_cores": 5,
+          "is_cgroup_constrained": true,
+          "gpu_available": false
+        },
+        "host_memory": {
+          "total_ram_bytes": 35743784960,
+          "available_ram_bytes": 33873383424,
+          "free_ram_bytes": 10741141504,
+          "swap_total_bytes": 0,
+          "swap_free_bytes": 0,
+          "effective_system_ram_bytes": 35743784960,
+          "hpc_scheduler_detected": null,
+          "hpc_job_memory_limit_bytes": null,
+          "bounded_total_ram_bytes": 34359738368,
+          "bounded_total_ram_mb": 32768.0,
+          "bounded_total_ram_gb": 32.0
+        },
+        "cgroup_profile": {
+          "cgroup_version": "V2",
+          "memory_limit_bytes": 34359738368,
+          "memory_max_bytes": 34359738368,
+          "memory_high_bytes": null,
+          "memory_current_bytes": 24350326784,
+          "swap_limit_bytes": null,
+          "is_cgroup_constrained": true,
+          "cgroup_path": "/sys/fs/cgroup/memory.max"
+        },
+        "numa_profile": {
+          "numa_nodes_count": 1,
+          "numa_nodes": [
+            {
+              "node_id": 0,
+              "total_ram_mb": 34087.93,
+              "free_ram_mb": 10243.55,
+              "cpu_core_ids": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ],
+              "is_local": true
+            }
+          ],
+          "numa_balance_status": "BALANCED",
+          "tier_1_local_ram_mb": 34087.93,
+          "tier_2_remote_ram_mb": 0.0,
+          "tier_3_swap_mb": 0.0,
+          "is_numa_aware": false
+        },
+        "oom_shield": {
+          "total_physical_cores": 4,
+          "active_job_cores": 4,
+          "bounded_total_ram_mb": 32768.0,
+          "os_jupyter_reserve_mb": 4915,
+          "reserve_ratio": 0.15,
+          "allocatable_ram_mb": 27853,
+          "allocatable_ram_gb": 27.2,
+          "baseline_80pct_maxcore_mb": 6553,
+          "active_core_maxcore_mb": 6963,
+          "memory_gain_vs_baseline_pct": 6.3,
+          "shield_active": true
+        },
+        "engine_budgets": {
+          "ORCA": {
+            "engine": "ORCA",
+            "primary_directive_name": "%maxcore",
+            "directive_value_formatted": "%maxcore 6963",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27852,
+            "env_var_name": "ORCA_MAXCORE",
+            "env_var_value": "6963",
+            "notes": "Calculated for 4 active core(s) with flat OS buffer"
+          },
+          "PYSCF": {
+            "engine": "PYSCF",
+            "primary_directive_name": "max_memory",
+            "directive_value_formatted": "mol.max_memory = 27853",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "PYSCF_MAX_MEMORY",
+            "env_var_value": "27853",
+            "notes": "Global process memory ceiling for lib/pyscf integral caches"
+          },
+          "XTB": {
+            "engine": "XTB",
+            "primary_directive_name": "--memory",
+            "directive_value_formatted": "--memory 27853m",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "XTB_MAX_MEMORY",
+            "env_var_value": "27853",
+            "notes": "Extended Tight Binding total calculation memory envelope"
+          },
+          "GAUSSIAN": {
+            "engine": "GAUSSIAN",
+            "primary_directive_name": "%mem",
+            "directive_value_formatted": "%mem=27853MB",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "GAUSS_MEMDEF",
+            "env_var_value": "29205987328",
+            "notes": "Gaussian %memLink0 directive and GAUSS_MEMDEF byte ceiling"
+          },
+          "CFOUR": {
+            "engine": "CFOUR",
+            "primary_directive_name": "MEMORY_SIZE",
+            "directive_value_formatted": "MEMORY_SIZE = 3650748416",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "CFOUR_MEMORY_SIZE",
+            "env_var_value": "3650748416",
+            "notes": "Coupled-Cluster integral memory array in 64-bit float words"
+          },
+          "MACE_TORCH": {
+            "engine": "MACE_TORCH",
+            "primary_directive_name": "COCHEM_MACE_HOST_RAM_MB",
+            "directive_value_formatted": "Host VRAM Offload Buffer: 27853 MB",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "COCHEM_MACE_HOST_RAM_MB",
+            "env_var_value": "27853",
+            "notes": "Allocatable host system memory for GPU tensor dataset buffering"
+          },
+          "OPENMPI": {
+            "engine": "OPENMPI",
+            "primary_directive_name": "OMPI_MCA_btl_vader_single_copy_mechanism",
+            "directive_value_formatted": "OMPI_MCA_btl_vader_single_copy_mechanism = none",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "OMPI_MCA_btl_vader_single_copy_mechanism",
+            "env_var_value": "none",
+            "notes": "Bypasses kernel CMA traps across isolated memory namespaces"
+          },
+          "GENERIC": {
+            "engine": "GENERIC",
+            "primary_directive_name": "COCHEM_MAXCORE_MB",
+            "directive_value_formatted": "COCHEM_MAXCORE_MB=6963",
+            "allocated_per_core_mb": 6963,
+            "allocated_total_job_mb": 27853,
+            "env_var_name": "COCHEM_MAXCORE_MB",
+            "env_var_value": "6963",
+            "notes": "Standard CoChem per-core memory envelope for custom solvers"
+          }
+        },
+        "injected_env_vars": {
+          "ORCA_MAXCORE": "6963",
+          "PYSCF_MAX_MEMORY": "27853",
+          "XTB_MAX_MEMORY": "27853",
+          "GAUSS_MEMDEF": "29205987328",
+          "CFOUR_MEMORY_SIZE": "3650748416",
+          "COCHEM_MACE_HOST_RAM_MB": "27853",
+          "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
+          "COCHEM_MAXCORE_MB": "6963",
+          "COCHEM_ALLOCATABLE_RAM_MB": "27853",
+          "COCHEM_ALLOCATABLE_RAM_GB": "27.2",
+          "COCHEM_SAFETY_BUFFER_MB": "4915",
+          "COCHEM_ACTIVE_CORES": "4",
+          "COCHEM_TOTAL_RAM_MB": "32768",
+          "COCHEM_OOM_SHIELD_STATUS": "ACTIVE"
+        },
+        "warnings": [
+          "Phase 2 audit findings loaded from /workspace/.cochem-base-runtime/Registry/p2.json (Status: DEGRADED)",
+          "Execution memory actively bounded by Linux cgroups (V2) to 32.0 GB"
+        ],
+        "errors": [],
+        "execution_time_sec": 0.002
+      }
+    }
+  ],
+  "overall_status": "DEGRADED_OPERATIONAL",
+  "total_execution_time_sec": 33.019,
+  "dry_run": false,
+  "missing_capabilities": [
+    "apptainer",
+    "c4cleanup",
+    "c4init",
+    "cfour",
+    "cochem_calc_silo",
+    "cuda",
+    "gxtb",
+    "mopac",
+    "mps",
+    "orca",
+    "orca_2mkl",
+    "orca_vpt2_prep",
+    "pyscf",
+    "qe",
+    "singularity"
+  ],
+  "registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json"
+}

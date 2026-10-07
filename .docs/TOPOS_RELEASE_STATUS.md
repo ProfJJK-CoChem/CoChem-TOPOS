@@ -13,67 +13,72 @@ test does not establish successful execution of that scientific pathway.
 
 ## What the evidence establishes
 
-The frozen executable source is `65af1e05ce505cac5911b1bfe8f985a26dd87864`, with
+The frozen executable source is `053c827638b3481c5c3d645856b69d50c47b387f`, with
 BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1` and TORQ
 `79fbb111125e50627a1a2c129888a45496f368d4`. The exact-source
-[local validation](evidence/TOPOS_VALIDATION_20261007T183854Z.json) passed all five
-checks, including **1,774 passing tests and two explicitly skipped licensed ORCA
-tests**; the [JUnit](evidence/TOPOS_CURRENT_SUITE_20261007T183854Z.xml) retains each
-outcome. The source inventory was unchanged before and after execution.
+[local validation](evidence/TOPOS_VALIDATION_20261007T194749Z.json) passed all 5
+checks, including **1,812 passing tests and 2 explicitly skipped licensed ORCA
+tests**; the [JUnit](evidence/TOPOS_CURRENT_SUITE_20261007T194749Z.xml) retains each outcome.
+The source inventory was unchanged before and after execution. The skips remain
+uncovered until the exact named tests pass with matching-source native evidence.
 
-Ordinary [GitHub Actions run 37666928361](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37666928361)
-passed on Python 3.11 and 3.12 with an identical source tree: **1,681 passed and 42 skipped
-per interpreter**. Its [receipt](evidence/TOPOS_ORDINARY_CI_37666928361.json) and
-[3.11](evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml)/[3.12](evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml)
-JUnit files preserve the skips. The receipt binds the pull-request merge checkout
-to the frozen commit by its identical Git tree. This editable-install CI is separate from native
-licensed acceptance and the following fresh-wheel installation.
+Ordinary [GitHub Actions run 37675577757](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37675577757)
+passed on Python 3.11 and 3.12: **1,719 passed and 42 skipped per interpreter**.
+Its [receipt](evidence/TOPOS_ORDINARY_CI_37675577757.json) binds both jobs' actual
+merge checkout to the frozen source by identical Git trees. The original artifact
+ZIPs match GitHub's digests; unchanged [3.11](evidence/TOPOS_ORDINARY_CI_37675577757_PY311.xml)
+and [3.12](evidence/TOPOS_ORDINARY_CI_37675577757_PY312.xml) JUnit files retain every
+skip. This ordinary CI remains separate from licensed native acceptance and the
+following installed-wheel checks. Earlier ordinary CI receipts remain unchanged
+historical evidence for their identified source revisions.
 
-The [candidate10 clean-install receipt](evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json)
-and [installed acceptance](evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json)
-identify an actual twice-built wheel and dependency versions. They exercised the
-installed CLI, BASE provider and Streamlit controls, performed genuine
+The [candidate12 clean-install receipt](evidence/TOPOS_CANDIDATE12_CLEAN_INSTALL.json)
+and [installed acceptance](evidence/TOPOS_CANDIDATE12_INSTALLED_ACCEPTANCE.json)
+identify an actual twice-built wheel and the installed dependency versions. Eight
+installation steps passed, including both BASE/TORQ ownership reinstall orders;
+no mandatory package files overlap. Seven installed command checks and the
+Streamlit render passed. The fresh noneditable environment performed genuine
 BASE-authorized xTB 6.7.1 water optimization, reviewed the result and verified the
 scientific bundle. Water's actual electronic energy was −5.070544054679 Eh;
 the completed calculation retains its `human-review` scientific classification.
 The controller wheel SHA-256 is
-`ac5f1705cb967cce3e938e0c6a18de092f8d190e58b4dfa625a6e2114a00876f`.
-The fresh controller also passed [ASE 3.29 I/O checks](evidence/TOPOS_CANDIDATE10_ASE_IO.json):
+`66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b`.
+The fresh controller also passed all three [ASE 3.29 I/O checks](evidence/TOPOS_CANDIDATE12_ASE_IO.json):
 energy/force unit conversion, disjoint replay acceptance and reordered-frame leak
-rejection. These are mathematical file-contract checks; no DFT, GPU or training
-result is inferred. Torch was not imported in that controller check. The
-[archive audit](evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json) verifies all 36
-tracked native/parser fixture payloads in the actual source distribution, including
-ORCA Hessian, EnGrad and input files. Their hashes also bind the source receipt.
+rejection. These mathematical fixtures are not DFT, GPU or training results.
+Torch was not imported. The [archive audit](evidence/TOPOS_CANDIDATE12_FIXTURE_ARCHIVE.json)
+verifies all 39 tracked native/parser fixture payloads byte for byte in the source
+distribution, including ORCA Hessian, EnGrad, input and one-cycle convergence data.
 
-The [installed TORQ consumption receipt](evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json)
+The [installed TORQ consumption receipt](evidence/TOPOS_CANDIDATE12_TORQ_CONSUMPTION.json)
 records a real producer/consumer round trip for that native xTB result. The
 companion TORQ importer preserves exact reviewed geometries, maps, states and
 protocols before returning its durable acknowledgment. Its state is explicitly
-`imported-awaiting-calculation`; it does not claim that TORQ computed a transition
-state, spectrum, reaction rate or dynamics result.
+`imported-awaiting-calculation`; `computation_performed` is false. No TORQ
+transition-state, spectrum, reaction-rate or dynamics computation is claimed.
 
-Genuine xTB and CREST scientific workflows have local evidence. The current
-isolated worker wheel was independently built twice with SHA-256
-`acf225d4b50283ceaefebaf16f5b61fe1fcf10ceaabb68ead3b9f3f1fcbafe44`.
-Its BASE-authorized [MACE receipt](evidence/TOPOS_WORKER07_MACE_CPU.json) covers
-21 actual CPU frames; the [AIMNet2 receipt](evidence/TOPOS_WORKER07_AIMNET_CPU.json)
+The current isolated worker wheel was independently built twice with SHA-256
+`7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71`.
+Its BASE-authorized [MACE receipt](evidence/TOPOS_WORKER08_MACE_CPU.json) covers
+21 actual CPU frames; the [AIMNet2 receipt](evidence/TOPOS_WORKER08_AIMNET_CPU.json)
 covers 75 actual CPU frames and four committee members. The
-[persistent MACE receipt](evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json)
-records three actual callbacks and clean process shutdown. All 83 worker source
-files match the frozen controller. Separately retained [model checks](TOPOS_ML_PATHWAYS.md)
-exercise numerical derivative and rigid-transformation consistency. These model
-predictions and committee disagreements are not DFT results, calibrated error
-bars or GPU execution.
+[persistent MACE receipt](evidence/TOPOS_WORKER08_MACE_PERSISTENT_CPU.json)
+records three actual callbacks and clean process shutdown. All 84 worker source
+files match the frozen controller. The [worker08 refresh](evidence/TOPOS_WORKER08_REFRESH.json)
+retains installed-worker identities and the stable registry hash. Separately
+retained [model checks](TOPOS_ML_PATHWAYS.md) exercise numerical derivative and
+rigid-transformation consistency. Model predictions and committee disagreements
+are not DFT results, calibrated error bars or GPU execution.
 
-The current [BASE-authorized ABCluster receipt](evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json)
+The current [BASE-authorized ABCluster receipt](evidence/TOPOS_WORKER08_ABCLUSTER_BASE.json)
 records genuine rigidmol 3.4 Ne₂ sampling, two independent GFN2-xTB refinements
 and verified recovery without new processes. All 46 retained native artifact
-hashes were checked. The [BASE installation audit](evidence/TOPOS_WORKER07_ALL_ELEVEN.json)
-also passed all eleven phases with the current isolated workers. It does not establish exhaustive sampling or an entire
-matrix campaign. The [portable receipt index](evidence/TOPOS_CURRENT_INSTALLATION_EVIDENCE_INDEX.json)
-maps unchanged original receipt bytes to retained copies; absolute paths inside
-those originals remain historical execution provenance.
+hashes were checked. The [BASE installation audit](evidence/TOPOS_WORKER08_ALL_ELEVEN.json)
+completed all eleven phases with `DEGRADED_OPERATIONAL` status and explicitly
+retained missing capabilities. It does not establish exhaustive sampling or an
+entire matrix campaign. The [portable receipt index](evidence/TOPOS_CURRENT_INSTALLATION_EVIDENCE_INDEX.json)
+maps unchanged original receipt bytes to retained copies. The candidate10 and
+worker07 records and their specific index remain unchanged historical evidence.
 
 TOPOS's licensed ORCA calculations require their own exact-source hosted evidence.
 A successful BASE ORCA job does not by itself verify TOPOS's analytic Hessian,
@@ -96,7 +101,7 @@ the current source or the complete release.
 The subsequent [hosted run 37650295795](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37650295795)
 has now completed and its artifacts have been retrieved. It tested TOPOS
 `4cdcf3853eb839eaf05da9bdae0d4fd4a0a879bc` through the same BASE `705b9d5` commit;
-it did not test the current `65af1e0` executable snapshot. All three acceptance
+it did not test the current `053c827` executable snapshot. All three acceptance
 stages failed overall. Their original bytes are retained with an
 [evidence index](evidence/TOPOS_ORCA_RUN_37650295795_EVIDENCE_INDEX.json):
 
@@ -142,12 +147,18 @@ baseline-only diagnostic intentionally ran neither extended acceptance nor
 licensed pytest, so it does not cover the two local licensed skips or certify
 the full release.
 
-The `EnforceStrictConvergence` change and a narrow actual-energy evidence helper
-for the one-cycle energy difference are under development, retain the requested
-`TolE`, and remain unvalidated on new hosted source. The existing source also
+The frozen source implements `EnforceStrictConvergence` and the narrow
+actual-energy evidence check for the one-cycle energy difference while retaining
+the requested `TolE`. Parser and regression evidence do not establish successful
+current-source native optimization; new licensed hosted acceptance remains required. The existing source also
 retains separate optimizer/final-gradient validation, native Hessian frame
 alignment and explicit orbital-basis mappings. No historical failure is relabeled
 as a pass.
+
+The new [licensed run 37675771359](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359)
+targets frozen source `053c827638b3481c5c3d645856b69d50c47b387f` through the mandatory
+BASE and TORQ pins above. Dispatch and provisioning establish no scientific pass;
+completed native receipts must establish every required acceptance outcome.
 
 ## Method-matrix and scientific decisions
 
@@ -202,4 +213,4 @@ upgrade, rollback, worker-silo and gate commands. Candidate archives contain no
 engine binaries or model weights and remain unsigned, unpublished and uncertified.
 The earlier [907-test receipt](evidence/TOPOS_VALIDATION_20261007_113240.json) remains
 unchanged historical evidence. The current validation alias now points to the
-separately retained 1,774-pass run; the earlier result has not been relabeled.
+separately retained 1,812-pass run; the earlier result has not been relabeled.
