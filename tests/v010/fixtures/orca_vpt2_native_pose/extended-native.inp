@@ -1,0 +1,21 @@
+! B3LYP ExtremeSCF DEFGRID3 D4 def2-TZVPP RIJCOSX def2/J VPT2
+%pal nprocs 1 end
+%maxcore 1536
+%method
+  Z_Tol 1e-14
+end
+%vpt2
+  VPT2 On
+  AnharmDisp 0.05
+  HessianCutoff 1e-12
+  PrintLevel 4
+  MinimiseOrcaPrint False
+end
+%output
+  Pickettname "pickett.txt"
+end
+* xyz 0 1
+O 0.00084243262933 0.00135611540656 0
+H 0.96178289282925 -0.00230560758216 0
+H -0.24262532545858 0.9309494921756 0
+*

@@ -27,7 +27,9 @@ from .engines import (
     _method_problem,
     _number,
     _orca_input,
+    _orca_version_input,
     artifact_inventory,
+    parse_orca_engrad,
     run_engine,
 )
 from .models import MethodSpec, Molecule, ResourceLimits
@@ -131,11 +133,168 @@ def _read_completed(receipt: Path, root: Path) -> EngineResult | None:
     result = EngineResult.model_validate(payload["result"])
     if result.status != "completed" or result.metadata.get("execution_kind") != "real" or not result.artifacts:
         raise IntegrityError("native derivative receipt does not establish completed actual execution")
+    seen: set[Path] = set()
     for artifact in result.artifacts:
         path = Path(artifact.path)
-        if not path.resolve().is_relative_to(root) or path.is_symlink() or not path.is_file() or file_digest(path) != artifact.sha256:
+        resolved = path.resolve()
+        if (resolved in seen or not resolved.is_relative_to(root.resolve()) or path.is_symlink()
+                or not path.is_file() or file_digest(path) != artifact.sha256
+                or path.stat().st_size != artifact.size_bytes):
             raise IntegrityError("native derivative completed artifact changed")
+        seen.add(resolved)
     return result
+
+
+def _derivative_stopped(result: EngineResult, resources: ResourceLimits, started: float,
+                        cancel_event: Event | None, label: str) -> bool:
+    """Stop the current call without changing previously completed receipts."""
+    elapsed = time.monotonic() - started
+    if cancel_event is not None and cancel_event.is_set():
+        result.status, result.diagnostics['reason'] = 'cancelled', f'{label} cancelled'
+    elif elapsed >= resources.budget_seconds:
+        result.status, result.diagnostics['reason'] = 'timed-out', f'{label} budget exhausted'
+    else:
+        return False
+    result.converged = False
+    result.elapsed_seconds = elapsed
+    return True
+
+
+def _raw_artifact(result: EngineResult, path: Path, root: Path) -> Path:
+    """Require one exact confined retained artifact, never a basename fallback."""
+    resolved = path.resolve()
+    entries = [a for a in result.artifacts if Path(a.path).resolve() == resolved]
+    if (not resolved.is_relative_to(root.resolve()) or len(entries) != 1 or path.is_symlink()
+            or not path.is_file() or file_digest(path) != entries[0].sha256
+            or path.stat().st_size != entries[0].size_bytes):
+        raise IntegrityError('native derivative raw artifact is absent, changed or outside its assigned root')
+    return path
+
+
+def _raw_process(result: EngineResult, root: Path, executable: str, deck_name: str,
+                 output_prefix: str, *, key: str = 'process') -> tuple[Path, str]:
+    process = result.diagnostics.get(key, {})
+    command = [executable, deck_name]
+    if (process.get('status') != 'completed' or process.get('returncode') != 0
+            or process.get('command') != command or key == 'process' and result.command != command):
+        raise IntegrityError('native derivative process/command did not establish actual successful execution')
+    stdout = Path(process.get('stdout_path', ''))
+    stderr = Path(process.get('stderr_path', ''))
+    if stdout.name != output_prefix + '.stdout' or stderr != stdout.with_name(output_prefix + '.stderr'):
+        raise IntegrityError('native derivative process output locators differ from the actual operation')
+    raw = _raw_artifact(result, stdout, root).read_text(errors='replace')
+    errors = _raw_artifact(result, stderr, root).read_text(errors='replace')
+    if (_engine_version(raw + errors, 'orca') != ORCA_VERSION or 'ORCA TERMINATED NORMALLY' not in raw
+            or 'SCF CONVERGED AFTER' not in raw
+            or re.search(r'SCF NOT CONVERGED|SCF CONVERGENCE FAILURE', raw + errors, re.I)):
+        raise IntegrityError('native derivative raw version/completion/electronic convergence unverified')
+    return stdout.parent, raw
+
+
+def verify_orca_gradient_result(result: EngineResult, molecule: Molecule, method: MethodSpec,
+                                resources: ResourceLimits, root: str | Path, *, executable: str,
+                                executable_sha256: str) -> tuple[float, np.ndarray]:
+    """Reparse retained physical gradients; does not execute or certify a new job.
+
+    Cache loading separately verifies every retained artifact. This operation
+    validator requires the exact scientific input and all raw files used here.
+    Its expected executable identity is supplied by the caller's protocol, not
+    inferred from the result's metadata.
+    """
+    root = Path(root)
+    md = result.metadata
+    try:
+        if (result.status != 'completed' or result.converged is not True or result.engine != 'orca'
+                or result.operation != 'gradient' or result.method != method.method
+                or result.engine_version != ORCA_VERSION or result.molecule != molecule
+                or md.get('execution_kind') != 'real' or md.get('requested_method') != method.model_dump(mode='json')
+                or md.get('profile_id') != method.profile_id or md.get('executable') != executable
+                or md.get('executable_sha256') != executable_sha256
+                or ResourceLimits.model_validate(md['resources']).model_dump(exclude={'budget_seconds'})
+                   != resources.model_dump(exclude={'budget_seconds'})):
+            raise IntegrityError('native gradient cache differs from its requested molecule/method/operation/executable/resources')
+        folder, raw = _raw_process(result, root, executable, 'job.inp', 'engine')
+        if _raw_artifact(result, folder / 'job.inp', root).read_text() != _orca_input(molecule, method, resources, 'gradient'):
+            raise IntegrityError('native gradient input differs from its exact requested compiled deck')
+        version_folder, _ = _raw_process(result, root, executable, 'version.inp', 'version', key='version_probe_process')
+        if (version_folder != folder or result.diagnostics.get('observed_probe_version') != ORCA_VERSION
+                or _raw_artifact(result, folder / 'version.inp', root).read_text() != _orca_version_input(resources)):
+            raise IntegrityError('native gradient independent version probe differs from its declared loader diagnostic')
+        energy, gradient = parse_orca_engrad(_raw_artifact(result, folder / 'job.engrad', root), molecule)
+        literals = re.findall(r'FINAL SINGLE POINT ENERGY\s+(' + _FLOAT + ')', raw)
+        if (not literals or abs(_number(literals[-1]) - energy) > 2e-7
+                or result.energy_hartree is None or abs(result.energy_hartree - energy) > 1e-10
+                or result.gradient_hartree_per_bohr is None
+                or not np.allclose(result.gradient_hartree_per_bohr, gradient, atol=1e-12, rtol=0)):
+            raise IntegrityError('native gradient cache energy/gradient differs from actual raw derivatives')
+        return energy, np.asarray(gradient, dtype=float)
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        if isinstance(exc, IntegrityError):
+            raise
+        raise IntegrityError(f'incomplete native gradient cache evidence: {exc}') from exc
+
+
+def _analysis_matches(stored: Any, actual: Any) -> bool:
+    """Machine-precision comparison, with exact categorical validity gates."""
+    if isinstance(actual, dict):
+        return (isinstance(stored, dict) and set(stored) == set(actual)
+                and all(_analysis_matches(stored[key], value) for key, value in actual.items()))
+    if isinstance(actual, list):
+        return (isinstance(stored, list) and len(stored) == len(actual)
+                and all(_analysis_matches(a, b) for a, b in zip(stored, actual, strict=True)))
+    if isinstance(actual, bool) or actual is None or isinstance(actual, str):
+        return type(stored) is type(actual) and stored == actual
+    return (isinstance(stored, (int, float)) and not isinstance(stored, bool)
+            and np.isfinite(stored) and np.isclose(stored, actual, atol=1e-12, rtol=1e-12))
+
+
+def verify_orca_hessian_result(result: EngineResult, molecule: Molecule, method: MethodSpec,
+                               resources: ResourceLimits, root: str | Path, *, executable: str,
+                               executable_sha256: str, gradient_threshold: float) -> dict[str, Any]:
+    """Revalidate analytic-Hessian receipt and its independently observed gradient."""
+    root = Path(root)
+    md = result.metadata
+    expected = {'schema': 'topos-native-orca-hessian/0.1.0', 'molecule': molecule.model_dump(mode='json'),
+                'method': method.model_dump(mode='json'), 'gradient_threshold': gradient_threshold,
+                'resources': resources.model_dump(exclude={'budget_seconds'}), 'executable_sha256': executable_sha256}
+    try:
+        if (result.status != 'completed' or result.engine != 'orca' or result.operation != 'hessian'
+                or result.method != method.method or result.engine_version != ORCA_VERSION or result.molecule != molecule
+                or md.get('execution_kind') != 'real' or md.get('requested_method') != method.model_dump(mode='json')
+                or md.get('output_molecule') != molecule.model_dump(mode='json') or md.get('protocol') != expected
+                or md.get('executable') != executable or md.get('executable_sha256') != executable_sha256):
+            raise IntegrityError('native Hessian cache differs from its current molecule/method/operation/executable/protocol')
+        derivative = EngineResult.model_validate(md['reference_gradient_result'])
+        parent_artifacts = {a.path: (a.sha256, a.size_bytes, a.role) for a in result.artifacts}
+        if any(parent_artifacts.get(a.path) != (a.sha256, a.size_bytes, a.role) for a in derivative.artifacts):
+            raise IntegrityError('native Hessian cache does not retain its exact independent gradient artifacts')
+        energy, gradient = verify_orca_gradient_result(derivative, molecule, method, resources, root,
+                                                       executable=executable, executable_sha256=executable_sha256)
+        folder, raw = _raw_process(result, root, executable, 'frequency.inp', 'frequency')
+        if _raw_artifact(result, folder / 'frequency.inp', root).read_text() != orca_frequency_input(
+                molecule, method, resources, check_cpu_affinity=False):
+            raise IntegrityError('native Hessian cache input differs from its exact compiled analytic Freq deck')
+        literals = re.findall(r'FINAL SINGLE POINT ENERGY\s+(' + _FLOAT + ')', raw)
+        if not literals or abs(_number(literals[-1]) - energy) > 1e-7:
+            raise IntegrityError('native frequency and independent gradient energies disagree')
+        parsed = parse_orca_hessian(_raw_artifact(result, folder / 'frequency.hess', root), molecule)
+        if (result.energy_hartree is None or abs(result.energy_hartree - energy) > 1e-10
+                or result.gradient_hartree_per_bohr is None
+                or not np.allclose(result.gradient_hartree_per_bohr, gradient, atol=1e-12, rtol=0)
+                or not np.allclose(md['hessian_hartree_per_bohr2'], parsed['hessian_hartree_per_bohr2'], atol=1e-12, rtol=0)
+                or any(not _analysis_matches(md.get(field), parsed[field]) for field in (
+                    'native_masses_amu', 'native_coordinates_angstrom', 'native_to_requested_frame',
+                    'native_coordinates_units', 'units', 'hessian_frame', 'mass_policy'))):
+            raise IntegrityError('native Hessian cache scientific metadata differs from its physical raw derivatives')
+        analysis = harmonic_analysis(molecule, parsed['hessian_hartree_per_bohr2'],
+                                     gradient_hartree_per_bohr=gradient, gradient_threshold=gradient_threshold)
+        if not _analysis_matches(md['analysis'], analysis) or result.converged is not analysis['stationary']:
+            raise IntegrityError('native Hessian cache analysis/converged differs from its actual Hessian and gradient')
+        return analysis
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        if isinstance(exc, IntegrityError):
+            raise
+        raise IntegrityError(f'incomplete native Hessian cache evidence: {exc}') from exc
 
 
 def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
@@ -149,6 +308,11 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
                                     "requested_method": method.model_dump(mode="json"),
                                     "derivative_kind": "native-analytic-SCF-Hessian",
                                     "analytic_restart_policy": "reuse completed hashed stages; restart interrupted Freq in fresh scratch"})
+    def stopped() -> bool:
+        return _derivative_stopped(result, resources, started, cancel_event, 'native Hessian')
+
+    if stopped():
+        return result
     try:
         deck = orca_frequency_input(molecule, method, resources)
         if not np.isfinite(gradient_threshold) or gradient_threshold <= 0:
@@ -174,14 +338,33 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
         raise IntegrityError("native Hessian directory contains unverified evidence")
     else:
         atomic_json(protocol_path, protocol)
+    if stopped():
+        return result
     cached = _read_completed(folder / "completed.json", folder)
+    if stopped():
+        return result
     if cached is not None:
+        verify_orca_hessian_result(cached, molecule, method, resources, folder, executable=binary,
+                                   executable_sha256=protocol['executable_sha256'], gradient_threshold=gradient_threshold)
+        separate = _read_completed(folder / 'reference.json', folder)
+        if separate is None:
+            raise IntegrityError('completed native Hessian lacks its separate gradient reference receipt')
+        verify_orca_gradient_result(separate, molecule, method, resources, folder, executable=binary,
+                                    executable_sha256=protocol['executable_sha256'])
+        if separate.model_dump(mode='json') != cached.metadata['reference_gradient_result']:
+            raise IntegrityError('completed native Hessian differs from its separate independent gradient receipt')
+        if stopped():
+            return result
         cached.metadata["reused_completed_hessian"] = True
         return cached
     result.metadata.update(executable=binary, executable_sha256=protocol["executable_sha256"], protocol=protocol)
     execute = process_runner or run_process
 
     def remaining() -> ResourceLimits:
+        if stopped():
+            if result.status == 'cancelled':
+                raise InterruptedError(result.diagnostics['reason'])
+            raise TimeoutError(result.diagnostics['reason'])
         seconds = resources.budget_seconds - (time.monotonic() - started)
         if seconds <= 0:
             raise TimeoutError("native Hessian budget exhausted")
@@ -189,12 +372,19 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
 
     try:
         reference = _read_completed(folder / "reference.json", folder)
+        remaining()
         if reference is None:
             reference = run_engine(molecule, method, remaining(), folder / ("reference-" + uuid4().hex),
                                    operation="gradient", executable=binary, process_runner=process_runner,
                                    cancel_event=cancel_event)
-            if reference.status == "completed":
+            if reference.status == 'completed':
+                verify_orca_gradient_result(reference, molecule, method, resources, folder, executable=binary,
+                                            executable_sha256=protocol['executable_sha256'])
                 atomic_json(folder / "reference.json", {"result": reference.model_dump(mode="json")})
+        elif reference.status == 'completed':
+            verify_orca_gradient_result(reference, molecule, method, resources, folder, executable=binary,
+                                        executable_sha256=protocol['executable_sha256'])
+        remaining()
         result.metadata["reference_gradient_result"] = reference.model_dump(mode="json")
         result.artifacts = reference.artifacts.copy()
         if reference.status != "completed":
@@ -234,11 +424,20 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
                                                         gradient_threshold=gradient_threshold)
         result.metadata["output_molecule"] = molecule.model_dump(mode="json")
         result.converged = result.metadata["analysis"]["stationary"]
+        if stopped():
+            return result
         result.elapsed_seconds = time.monotonic() - started
         atomic_json(folder / "completed.json", {"result": result.model_dump(mode="json")})
+        if stopped():
+            return result
+        return result
+    except InterruptedError as exc:
+        result.status, result.diagnostics['reason'] = 'cancelled', str(exc)
+        result.converged = False
         return result
     except TimeoutError as exc:
         result.status, result.diagnostics["reason"] = "timed-out", str(exc)
+        result.converged = False
         return result
     except (ValueError, OSError) as exc:
         result.status, result.diagnostics["reason"] = "failed", str(exc)

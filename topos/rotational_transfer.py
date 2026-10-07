@@ -192,13 +192,18 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
                                   options: RotationalTransferOptions) -> dict[str, Any]:
     """Require immutable native evidence before evaluating the transfer."""
     import json
+    import re
     from pathlib import Path
 
     from .anharmonic import (
         orca_vpt2_input,
         parse_orca_vpt2,
         parse_orca_vpt2_geometry,
+        verify_vpt2_native_frame_reference,
         vpt2_execution_policy,
+        vpt2_native_reference_pose,
+        vpt2_reference_evidence_identity,
+        vpt2_reference_policy,
     )
     from .engines import _engine_version, _orca_input, parse_orca_engrad
     from .models import MethodSpec, ResourceLimits
@@ -253,7 +258,9 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
     if str(protocol_path.resolve()) not in paths or json.loads(protocol_path.read_text()) != protocol:
         raise ValueError('native VPT2 recovery protocol differs from immutable artifact evidence')
     if (protocol.get('schema') != 'topos-native-orca-vpt2/0.1.0'
-            or protocol.get('method') != method or protocol.get('molecule') != result.molecule.model_dump(mode='json')):
+            or protocol.get('method') != method or protocol.get('molecule') != result.molecule.model_dump(mode='json')
+            or protocol.get('reference_validation_policy') != vpt2_reference_policy()
+            or md.get('reference_validation_policy') != vpt2_reference_policy()):
         raise ValueError('native VPT2 protocol does not bind reference method and molecule')
     spec = MethodSpec.model_validate(method)
     resources = ResourceLimits.model_validate(protocol['resources'])
@@ -297,10 +304,83 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
                                  gradient_hartree_per_bohr=gradient, gradient_threshold=1e-7)
     if analysis['validity'] != 'harmonic-minimum-within-thresholds' or min(analysis['frequencies_cm1']) < 50:
         raise ValueError('native VPT2 reference is not a strict stationary semirigid minimum')
+    # Original-pose stationarity does not certify the actual finite-grid pose
+    # ORCA chooses before VPT2. Reparse its separate physical EnGrad and Freq.
+    from .storage import digest_json
+
+    initial_hessian = stdout.parent / 'anharmonic.hess'
+    frame_receipt = stdout.parent.parent / 'native-frame-reference-result.json'
+    frame_reference = EngineResult.model_validate(md.get('native_frame_reference_hessian_result', {}))
+    frame_stdout = Path(frame_reference.diagnostics.get('process', {}).get('stdout_path', ''))
+    frame_protocol_path = frame_stdout.parent.parent / 'protocol.json'
+    for path in (initial_hessian, frame_receipt, frame_protocol_path):
+        if str(path.resolve()) not in paths:
+            raise ValueError('native VPT2 actual-pose reference receipt is not inventoried')
+    receipt_reference = EngineResult.model_validate(json.loads(frame_receipt.read_text())['result'])
+    if vpt2_reference_evidence_identity(receipt_reference) != vpt2_reference_evidence_identity(frame_reference):
+        raise ValueError('native VPT2 actual-pose reference differs from its immutable result receipt')
+    native_pose = vpt2_native_reference_pose(result.molecule, geometry, initial_hessian)
+    if md.get('native_frame_reference_molecule') != native_pose.model_dump(mode='json'):
+        raise ValueError('native VPT2 actual-pose reference molecule differs from the initial native Hessian')
+    frame_md = frame_reference.metadata
+    frame_protocol = json.loads(frame_protocol_path.read_text())
+    expected_frame_protocol = {'schema': 'topos-native-orca-hessian/0.1.0',
+                               'molecule': native_pose.model_dump(mode='json'), 'method': method,
+                               'gradient_threshold': 1e-7,
+                               'resources': resources.model_dump(exclude={'budget_seconds'}),
+                               'executable_sha256': md.get('executable_sha256')}
+    if frame_protocol != expected_frame_protocol or frame_md.get('protocol') != frame_protocol:
+        raise ValueError('native VPT2 actual-pose reference protocol differs from its exact input and allocation')
+    frame_derivative = EngineResult.model_validate(frame_md.get('reference_gradient_result', {}))
+    frame_derivative_stdout = Path(frame_derivative.diagnostics.get('process', {}).get('stdout_path', ''))
+    if (frame_reference.command != [md['executable'], 'frequency.inp']
+            or frame_derivative.command != [md['executable'], 'job.inp']
+            or frame_derivative.molecule != native_pose or frame_derivative.operation != 'gradient'
+            or frame_derivative.engine != 'orca' or frame_derivative.method != result.method
+            or frame_derivative.engine_version != result.engine_version
+            or frame_derivative.metadata.get('requested_method') != method
+            or frame_derivative.metadata.get('execution_kind') != 'real'
+            or frame_derivative.metadata.get('executable_sha256') != md.get('executable_sha256')):
+        raise ValueError('native VPT2 actual-pose derivatives changed their genuine engine or execution identity')
+    for derivative_result in (frame_reference, frame_derivative):
+        process = derivative_result.diagnostics.get('process', {})
+        if derivative_result.status != 'completed' or process.get('status') != 'completed' or process.get('returncode') != 0:
+            raise ValueError('native VPT2 actual-pose derivative process did not complete successfully')
+    frame_hessian = frame_stdout.parent / 'frequency.hess'
+    frame_gradient = frame_derivative_stdout.parent / 'job.engrad'
+    frame_decks = {frame_stdout.parent / 'frequency.inp': orca_frequency_input(native_pose, spec, resources, check_cpu_affinity=False),
+                   frame_derivative_stdout.parent / 'job.inp': _orca_input(native_pose, spec, resources, 'gradient')}
+    for path in (frame_stdout, frame_derivative_stdout, frame_hessian, frame_gradient, *frame_decks):
+        if str(path.resolve()) not in paths:
+            raise ValueError('native VPT2 actual-pose raw derivatives or inputs are not inventoried')
+    if any(path.read_text() != deck for path, deck in frame_decks.items()):
+        raise ValueError('native VPT2 actual-pose derivative deck differs from its exact compiled input')
+    for output in (frame_stdout, frame_derivative_stdout):
+        evidence = output.read_text()
+        if ('ORCA TERMINATED NORMALLY' not in evidence or _engine_version(evidence, 'orca') != '6.1.1'
+                or 'SCF NOT CONVERGED' in evidence):
+            raise ValueError('native VPT2 actual-pose stationary derivative did not complete')
+    physical_hessian = parse_orca_hessian(frame_hessian, native_pose)
+    frame_energy, frame_gradient_values = parse_orca_engrad(frame_gradient, native_pose)
+    frame_energies = re.findall(r'FINAL SINGLE POINT ENERGY\s+([-+0-9.EeDd]+)', frame_stdout.read_text())
+    if not frame_energies or abs(float(frame_energies[-1].replace('D', 'E').replace('d', 'e')) - frame_energy) > 1e-7:
+        raise ValueError('native VPT2 actual-pose frequency and independent gradient energies disagree')
+    if (not np.allclose(physical_hessian['hessian_hartree_per_bohr2'], frame_md['hessian_hartree_per_bohr2'], atol=1e-12, rtol=0)
+            or not np.allclose(frame_gradient_values, frame_reference.gradient_hartree_per_bohr, atol=1e-12, rtol=0)
+            or not np.isclose(frame_energy, frame_reference.energy_hartree, atol=1e-10, rtol=0)
+            or not np.allclose(frame_gradient_values, frame_derivative.gradient_hartree_per_bohr, atol=1e-12, rtol=0)
+            or not np.isclose(frame_energy, frame_derivative.energy_hartree, atol=1e-10, rtol=0)):
+        raise ValueError('native VPT2 actual-pose stationary reference metadata differs from raw derivatives')
+    association = verify_vpt2_native_frame_reference(result.molecule, geometry, initial_hessian,
+                                                     frame_reference, method, md['executable_sha256'])
+    if association != md.get('native_frame_reference_association'):
+        raise ValueError('native VPT2 actual-pose reference association changed')
     report = calculate_rotational_transfer(target, result.molecule, geometry,
                                            native['rotational_constants_cm1']['B_e'],
                                            native['rotational_constants_cm1']['B_0'], options)
     report.update(native_execution_verified=True, native_source={'command': result.command,
                   'engine_version': result.engine_version, 'requested_method': method,
-                  'artifacts': [a.model_dump(mode='json') for a in result.artifacts]})
+                  'artifacts': [a.model_dump(mode='json') for a in result.artifacts],
+                  'native_frame_reference_evidence_sha256': digest_json(vpt2_reference_evidence_identity(frame_reference)),
+                  'reference_validation_policy': vpt2_reference_policy()})
     return report

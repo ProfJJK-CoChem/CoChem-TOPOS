@@ -2,7 +2,7 @@
   "schema": "topos-historical-hessian-attribution-fixture/1",
   "run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546",
   "topos_source_commit": "65af1e0",
-  "scope": "Unchanged retained historical B3LYP-D4/def2-TZVPP native harmonic Hessian and independent gradient. Persistence and provenance contracts only; not current r2SCAN-3c union or VPT2 acceptance. Binary native artifacts intentionally omitted from text-fixture subset.",
+  "scope": "Unchanged retained historical B3LYP-D4/def2-TZVPP native harmonic Hessian and independent gradient. Persistence, provenance and operation-specific raw scientific revalidation contracts only; not current r2SCAN-3c union or VPT2 acceptance. Binary native artifacts intentionally omitted from this incomplete text-fixture subset; it is not a standalone complete cache.",
   "files": {
     "completed-result.json": {
       "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/completed.json",
@@ -38,6 +38,31 @@
       "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/reference-fc0ec52013734b4c8d02e124d476e060/job.inp",
       "sha256": "8d01086551cf2c8449e80212eba843a5908ba4ebd8fdb35e417883550d563d5b",
       "size_bytes": 250
+    },
+    "gradient-engine.stderr": {
+      "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/reference-fc0ec52013734b4c8d02e124d476e060/engine.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "gradient-version.inp": {
+      "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/reference-fc0ec52013734b4c8d02e124d476e060/version.inp",
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "size_bytes": 72
+    },
+    "gradient-version.stdout": {
+      "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/reference-fc0ec52013734b4c8d02e124d476e060/version.stdout",
+      "sha256": "c1e62fdc3584e94cb0d712f7ffae22f0b8f55f7827e768b591a7c86efa32b054",
+      "size_bytes": 40005
+    },
+    "gradient-version.stderr": {
+      "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/reference-fc0ec52013734b4c8d02e124d476e060/version.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "frequency.stderr": {
+      "source_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/native-vpt2/native/reference/frequency-a351594e88524d0583dc9a58c6af0c90/frequency.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
     }
   }
 }

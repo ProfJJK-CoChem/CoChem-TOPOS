@@ -28,10 +28,15 @@ from .engines import (
 )
 from .models import Artifact, MethodSpec, Molecule, ResourceLimits
 from .native_hessian import (
+    _analysis_matches,
+    _derivative_stopped,
+    _raw_artifact,
+    _raw_process,
     _read_completed,
     orca_frequency_input,
     parse_orca_hessian,
     run_orca_hessian,
+    verify_orca_hessian_result,
 )
 from .runtime import run_process
 from .science import HARTREE_J, rotational_constants
@@ -40,6 +45,101 @@ from .storage import IntegrityError, atomic_json, digest_json, file_digest
 VPT2_MANUAL = 'https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html'
 PARSER_SOURCE = 'https://github.com/physicien/parser_vpt2/blob/main/data/VPT2_furan_vpt2.out'
 _FLOAT = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?'
+VPT2_REFERENCE_POLICY_ID = 'orca-vpt2-same-native-pose-reference-v1'
+
+
+def vpt2_reference_policy() -> dict[str, Any]:
+    """Bind independent derivatives to the actual VPT2 numerical-grid pose."""
+    return {'policy_id': VPT2_REFERENCE_POLICY_ID,
+            'schema': 'topos-vpt2-stationary-reference-policy/0.1.0',
+            'pose_source': 'initial native anharmonic.hess $atoms; unrounded bohr coordinates',
+            'preflight': 'immutable independent derivatives at requested input pose',
+            'native_pose_reference': 'independently executed same-level EnGrad and analytic Freq; no optimization',
+            'gradient_threshold_hartree_per_bohr': 1e-7, 'minimum_mode_cm1': 50.0,
+            'hessian_atol_hartree_per_bohr2': 1e-7, 'hessian_rtol': 1e-6,
+            'deadline_policy': 'original shared wall-clock budget; no automatic extension',
+            'manual': VPT2_MANUAL}
+
+
+def vpt2_native_reference_pose(molecule: Molecule, geometry: dict[str, Any],
+                               hessian_path: str | Path) -> Molecule:
+    """Verify indexed rigid identity and retain the native equilibrium pose."""
+    from .rotational_transfer import proper_alignment
+
+    if geometry['symbols'] != molecule.symbols:
+        raise EngineParseError('native VPT2 atom order differs from reference')
+    alignment = proper_alignment(geometry['coordinates_angstrom'], molecule.coordinates, geometry['masses_amu'])
+    if alignment['max_atom_displacement_angstrom'] > 2e-7:
+        raise EngineParseError('native VPT2 geometry is not the reference under a proper rigid rotation')
+    table_molecule = molecule.model_copy(update={'coordinates': geometry['coordinates_angstrom']})
+    parsed = parse_orca_hessian(hessian_path, table_molecule)
+    return molecule.model_copy(update={'coordinates': parsed['native_coordinates_angstrom']})
+
+
+def vpt2_reference_evidence_identity(reference: EngineResult) -> dict[str, Any]:
+    """Portable receipt identity: scientific/process fields and artifact bytes.
+
+    Locators can be rebound when immutable snapshots are imported. Native
+    artifact hashes, actual process outcomes and scientific fields cannot.
+    """
+    md = reference.metadata
+    derivative = EngineResult.model_validate(md['reference_gradient_result'])
+
+    def process_identity(result):
+        return {'status': result.status, 'converged': result.converged,
+                'engine': result.engine, 'method': result.method, 'operation': result.operation,
+                'engine_version': result.engine_version, 'command_arguments': result.command[1:],
+                'molecule': result.molecule.model_dump(mode='json') if result.molecule is not None else None,
+                'energy_hartree': result.energy_hartree, 'gradient_hartree_per_bohr': result.gradient_hartree_per_bohr,
+                'executable_sha256': result.metadata.get('executable_sha256'),
+                'requested_method': result.metadata.get('requested_method'),
+                'process_status': result.diagnostics.get('process', {}).get('status'),
+                'process_returncode': result.diagnostics.get('process', {}).get('returncode'),
+                'artifacts': [{'sha256': a.sha256, 'size_bytes': a.size_bytes, 'role': a.role} for a in result.artifacts]}
+
+    return {'reference': process_identity(reference), 'derivative': process_identity(derivative),
+            'protocol': md.get('protocol'), 'hessian_hartree_per_bohr2': md.get('hessian_hartree_per_bohr2'),
+            'analysis': md.get('analysis'), 'native_masses_amu': md.get('native_masses_amu'),
+            'native_coordinates_angstrom': md.get('native_coordinates_angstrom')}
+
+
+def verify_vpt2_native_frame_reference(molecule: Molecule, geometry: dict[str, Any],
+                                      hessian_path: str | Path, reference: EngineResult,
+                                      method: dict[str, Any], executable_sha256: str) -> dict[str, Any]:
+    """Require a separately executed stationary Hessian in the exact native pose.
+
+    Finite XC/COSX grids need not produce rotationally covariant derivatives
+    at the elementwise identity tolerance. Comparing independently calculated
+    tensors in their actual common pose preserves that tolerance.
+    Raw input/process/derivative checks remain the consumer's responsibility.
+    """
+    pose = vpt2_native_reference_pose(molecule, geometry, hessian_path)
+    md = reference.metadata
+    if (reference.status != 'completed' or reference.converged is not True
+            or reference.operation != 'hessian' or reference.engine != 'orca'
+            or reference.engine_version != ORCA_VERSION or reference.method != method['method']
+            or reference.molecule is None or reference.molecule.model_dump(mode='json') != pose.model_dump(mode='json')
+            or md.get('execution_kind') != 'real' or md.get('requested_method') != method
+            or md.get('executable_sha256') != executable_sha256
+            or reference.energy_hartree is None or reference.gradient_hartree_per_bohr is None
+            or not reference.command or not reference.artifacts):
+        raise EngineParseError('VPT2 requires independent actual Hessian evidence in its exact native equilibrium pose')
+    from .science import harmonic_analysis
+
+    parsed = parse_orca_hessian(hessian_path, pose)
+    analysis = harmonic_analysis(pose, md['hessian_hartree_per_bohr2'],
+                                gradient_hartree_per_bohr=reference.gradient_hartree_per_bohr,
+                                gradient_threshold=1e-7)
+    if analysis['validity'] != 'harmonic-minimum-within-thresholds' or min(analysis['frequencies_cm1']) < 50:
+        raise EngineParseError('VPT2 native-pose reference is not a strict stationary semirigid minimum')
+    if not np.allclose(parsed['hessian_hartree_per_bohr2'], md['hessian_hartree_per_bohr2'], atol=1e-7, rtol=1e-6):
+        raise EngineParseError('VPT2 native reference Hessian differs from its independently executed same-pose stationary reference')
+    return {'policy_id': VPT2_REFERENCE_POLICY_ID,
+            'native_equilibrium_molecule_sha256': digest_json(pose.model_dump(mode='json')),
+            'initial_native_hessian_sha256': file_digest(Path(hessian_path)),
+            'reference_evidence_sha256': digest_json(vpt2_reference_evidence_identity(reference)),
+            'comparison_frame': 'actual initial native Hessian $atoms Cartesian frame',
+            'hessian_atol_hartree_per_bohr2': 1e-7, 'hessian_rtol': 1e-6}
 
 
 def vpt2_execution_policy(resources: ResourceLimits) -> dict[str, Any]:
@@ -193,6 +293,90 @@ def parse_orca_vpt2_geometry(text: str, *, natoms: int) -> dict[str, Any]:
             'mass_precision_amu': 1e-6, 'coordinate_precision_angstrom': 1e-9}
 
 
+def _verify_completed_vpt2(result: EngineResult, molecule: Molecule, method: MethodSpec,
+                            resources: ResourceLimits, folder: Path, protocol: dict[str, Any],
+                            preflight: EngineResult) -> None:
+    """Reparse complete native spectroscopy and both independently raw-verified references."""
+    md = result.metadata
+    binary = preflight.metadata['executable']
+    binary_hash = preflight.metadata['executable_sha256']
+    if (result.status != 'completed' or result.converged is not True or result.engine != 'orca'
+            or result.engine_version != ORCA_VERSION or result.method != method.method or result.operation != 'anharmonic'
+            or result.molecule != molecule or md.get('requested_method') != method.model_dump(mode='json')
+            or md.get('output_molecule') != molecule.model_dump(mode='json') or md.get('execution_kind') != 'real'
+            or md.get('executable') != binary or md.get('executable_sha256') != binary_hash
+            or md.get('protocol') != protocol or md.get('reference_validation_policy') != vpt2_reference_policy()
+            or md.get('execution_policy') != vpt2_execution_policy(resources) or md.get('semirigid_declared') is not True):
+        raise IntegrityError('completed VPT2 differs from its current requested identity and execution/reference protocol')
+    native, raw = _raw_process(result, folder, binary, 'anharmonic.inp', 'anharmonic')
+    if _raw_artifact(result, native / 'anharmonic.inp', folder).read_text() != orca_vpt2_input(
+            molecule, method, resources, displacement=protocol['displacement'], check_cpu_affinity=False):
+        raise IntegrityError('completed VPT2 input differs from its exact requested compiled deck')
+    requested = ResourceLimits.model_validate(md['requested_resources'])
+    effective = ResourceLimits.model_validate(md['native_execution_resources'])
+    if (requested.model_dump(exclude={'budget_seconds'}) != resources.model_dump(exclude={'budget_seconds'})
+            or effective.model_dump(exclude={'budget_seconds'}) != resources.model_copy(update={'threads': 1}).model_dump(exclude={'budget_seconds'})
+            or effective.budget_seconds > requested.budget_seconds):
+        raise IntegrityError('completed VPT2 resource observations differ from its declared serial allocation')
+    original = EngineResult.model_validate(md['reference_hessian_result'])
+    parent_artifacts = {a.path: (a.sha256, a.size_bytes, a.role) for a in result.artifacts}
+    if any(parent_artifacts.get(a.path) != (a.sha256, a.size_bytes, a.role) for a in original.artifacts):
+        raise IntegrityError('completed VPT2 does not retain its exact independent original reference artifacts')
+    verify_orca_hessian_result(original, molecule, method, resources, folder / 'reference',
+                               executable=binary, executable_sha256=binary_hash, gradient_threshold=1e-7)
+    if (vpt2_reference_evidence_identity(original) != vpt2_reference_evidence_identity(preflight)
+            or result.energy_hartree is None or abs(result.energy_hartree - preflight.energy_hartree) > 1e-10
+            or result.gradient_hartree_per_bohr is None
+            or not np.allclose(result.gradient_hartree_per_bohr, preflight.gradient_hartree_per_bohr, atol=1e-12, rtol=0)):
+        raise IntegrityError('completed VPT2 original preflight differs from independently reverified raw derivatives')
+    geometry = parse_orca_vpt2_geometry(raw, natoms=len(molecule.symbols))
+    if (md.get('vpt2') != parse_orca_vpt2(raw, vibrational_modes=3 * len(molecule.symbols) - 6)
+            or md.get('vpt2_geometry') != geometry or md.get('native_masses_amu') != geometry['masses_amu']):
+        raise IntegrityError('completed VPT2 spectroscopy/geometry/masses differ from immutable native stdout')
+    hessian_path = _raw_artifact(result, native / 'anharmonic.hess', folder)
+    native_pose = vpt2_native_reference_pose(molecule, geometry, hessian_path)
+    parsed = parse_orca_hessian(hessian_path, native_pose)
+    from .rotational_transfer import proper_alignment
+
+    alignment = proper_alignment(geometry['coordinates_angstrom'], molecule.coordinates, geometry['masses_amu'])
+    if (md.get('hessian_masses_amu') != parsed['native_masses_amu']
+            or not _analysis_matches(md.get('vpt2_reference_alignment'), alignment)
+            or md.get('native_frame_reference_molecule') != native_pose.model_dump(mode='json')):
+        raise IntegrityError('completed VPT2 native Hessian frame/mass observations changed')
+    for field, name in (('native_force_field', 'anharmonic.vpt2'), ('native_pickett_template', 'pickett.txt')):
+        path = native / name
+        if md.get(field) != str(path) or _raw_artifact(result, path, folder).stat().st_size == 0:
+            raise IntegrityError('completed VPT2 force-field/Pickett locator differs from its actual inventoried native output')
+    frame_reference = EngineResult.model_validate(md['native_frame_reference_hessian_result'])
+    if any(parent_artifacts.get(a.path) != (a.sha256, a.size_bytes, a.role) for a in frame_reference.artifacts):
+        raise IntegrityError('completed VPT2 does not retain its exact independent native-pose reference artifacts')
+    frame_folder = folder / 'native-frame-reference' / digest_json(native_pose.model_dump(mode='json'))
+    verify_orca_hessian_result(frame_reference, native_pose, method, resources, frame_folder,
+                               executable=binary, executable_sha256=binary_hash, gradient_threshold=1e-7)
+    receipt = _raw_artifact(result, folder / 'native-frame-reference-result.json', folder)
+    if EngineResult.model_validate(json.loads(receipt.read_text())['result']).model_dump(mode='json') != frame_reference.model_dump(mode='json'):
+        raise IntegrityError('completed VPT2 actual-pose reference differs from its immutable result receipt')
+    frame_protocol = _raw_artifact(result, frame_folder / 'protocol.json', folder)
+    if json.loads(frame_protocol.read_text()) != frame_reference.metadata['protocol']:
+        raise IntegrityError('completed VPT2 actual-pose reference differs from its immutable protocol')
+    association = verify_vpt2_native_frame_reference(molecule, geometry, hessian_path, frame_reference,
+                                                     method.model_dump(mode='json'), binary_hash)
+    if association != md.get('native_frame_reference_association'):
+        raise IntegrityError('completed VPT2 native-pose reference association changed')
+
+
+def verify_completed_vpt2(result: EngineResult, molecule: Molecule, method: MethodSpec,
+                           resources: ResourceLimits, folder: Path, protocol: dict[str, Any],
+                           preflight: EngineResult) -> None:
+    """Reject incomplete as well as inconsistent completed spectroscopy evidence."""
+    try:
+        _verify_completed_vpt2(result, molecule, method, resources, folder, protocol, preflight)
+    except (KeyError, TypeError, ValueError, OSError) as exc:
+        if isinstance(exc, IntegrityError):
+            raise
+        raise IntegrityError(f'incomplete completed VPT2 cache evidence: {exc}') from exc
+
+
 def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
                   workdir: str | Path, *, executable: str | Path | None = None,
                   process_runner: Callable[..., Any] | None = None, cancel_event: Event | None = None,
@@ -213,7 +397,13 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
                                     'partial_restart_policy': 'completed stages reused; incomplete VPT2 starts fresh',
                                     'semirigid_declared': semirigid_modes, 'low_mode_threshold_cm1': 50.0,
                                     'requested_resources': resources.model_dump(mode='json'),
-                                    'execution_policy': vpt2_execution_policy(resources)})
+                                    'execution_policy': vpt2_execution_policy(resources),
+                                    'reference_validation_policy': vpt2_reference_policy()})
+    def stopped() -> bool:
+        return _derivative_stopped(result, resources, started, cancel_event, 'VPT2')
+
+    if stopped():
+        return result
     try:
         deck = orca_vpt2_input(molecule, method, resources, displacement=displacement)
         if semirigid_modes is not True:
@@ -229,6 +419,7 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
                 'resources': resources.model_dump(exclude={'budget_seconds'}), 'displacement': displacement,
                 'effective_resources': effective_resources.model_dump(exclude={'budget_seconds'}),
                 'execution_policy': vpt2_execution_policy(resources),
+                'reference_validation_policy': vpt2_reference_policy(),
                 'semirigid_modes': semirigid_modes, 'deck_sha256': digest_json(deck)}
     manifest = folder / 'vpt2-protocol.json'
     if manifest.exists():
@@ -241,6 +432,10 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
     execute = process_runner or run_process
 
     def remaining():
+        if stopped():
+            if result.status == 'cancelled':
+                raise InterruptedError(result.diagnostics['reason'])
+            raise TimeoutError(result.diagnostics['reason'])
         seconds = resources.budget_seconds - (time.monotonic() - started)
         if seconds <= 0:
             raise TimeoutError('VPT2 budget exhausted')
@@ -263,11 +458,12 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         if analysis['validity'] != 'harmonic-minimum-within-thresholds' or min(analysis['frequencies_cm1']) < 50:
             result.diagnostics['reason'] = 'VPT2 requires a tightly stationary full-dimensional semirigid minimum with modes >=50 cm-1'
             return result
+        remaining()
         cached = _read_completed(folder / 'completed.json', folder)
+        remaining()
         if cached is not None:
-            if (cached.metadata.get('protocol') != protocol
-                    or cached.metadata.get('execution_policy') != protocol['execution_policy']):
-                raise IntegrityError('completed VPT2 execution policy differs from its recovery protocol')
+            verify_completed_vpt2(cached, molecule, method, resources, folder, protocol, reference)
+            remaining()
             cached.metadata['reused_completed_vpt2'] = True
             return cached
         result.energy_hartree = reference.energy_hartree
@@ -297,20 +493,38 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         force_field = native / 'anharmonic.vpt2'
         if not force_field.is_file() or force_field.stat().st_size == 0:
             raise EngineParseError('native VPT2 force-field artifact missing')
-        from .rotational_transfer import proper_alignment, rotate_cartesian_hessian
+        from .rotational_transfer import proper_alignment
 
         geometry = parse_orca_vpt2_geometry(raw, natoms=len(molecule.symbols))
-        if geometry['symbols'] != molecule.symbols:
-            raise EngineParseError('native VPT2 atom order differs from reference')
+        native_pose = vpt2_native_reference_pose(molecule, geometry, native / 'anharmonic.hess')
         alignment = proper_alignment(geometry['coordinates_angstrom'], molecule.coordinates, geometry['masses_amu'])
-        if alignment['max_atom_displacement_angstrom'] > 2e-7:
-            raise EngineParseError('native VPT2 geometry is not the reference under a proper rigid rotation')
-        native_molecule = molecule.model_copy(update={'coordinates': geometry['coordinates_angstrom']})
-        parsed_hessian = parse_orca_hessian(native / 'anharmonic.hess', native_molecule)
-        rotated_hessian = rotate_cartesian_hessian(parsed_hessian['hessian_hartree_per_bohr2'],
-                                                   alignment['rotation_source_to_target'])
-        if not np.allclose(rotated_hessian, reference.metadata['hessian_hartree_per_bohr2'], atol=1e-7, rtol=1e-6):
-            raise EngineParseError('VPT2 native reference Hessian differs from its same-level stationary reference')
+        parsed_hessian = parse_orca_hessian(native / 'anharmonic.hess', native_pose)
+        # ORCA rotates before constructing its finite XC/COSX grids. A rigidly
+        # equivalent original-pose derivative is a useful preflight, but does
+        # not certify stationarity or tensor identity in this numerical pose.
+        frame_folder = folder / 'native-frame-reference' / digest_json(native_pose.model_dump(mode='json'))
+        frame_reference = run_orca_hessian(native_pose, method, remaining(), frame_folder,
+                                           executable=binary, process_runner=process_runner,
+                                           cancel_event=cancel_event, gradient_threshold=1e-7)
+        result.metadata['native_frame_reference_hessian_result'] = frame_reference.model_dump(mode='json')
+        result.artifacts.extend(frame_reference.artifacts)
+        frame_receipt = folder / 'native-frame-reference-result.json'
+        atomic_json(frame_receipt, {'result': frame_reference.model_dump(mode='json')})
+        for path, role in ((frame_receipt, 'vpt2-native-frame-reference-result'),
+                           (frame_folder / 'protocol.json', 'vpt2-native-frame-reference-protocol')):
+            if path.is_file():
+                result.artifacts.append(Artifact(path=str(path), sha256=file_digest(path),
+                                                 size_bytes=path.stat().st_size, role=role))
+        if frame_reference.status != 'completed':
+            result.status = frame_reference.status
+            result.diagnostics['reason'] = 'VPT2 independently executed native-pose reference Hessian did not complete'
+            return result
+        association = verify_vpt2_native_frame_reference(molecule, geometry, native / 'anharmonic.hess',
+                                                         frame_reference, method.model_dump(mode='json'),
+                                                         result.metadata['executable_sha256'])
+        result.metadata['native_frame_reference_association'] = association
+        result.metadata['native_frame_reference_molecule'] = native_pose.model_dump(mode='json')
+        result.metadata['reference_energy_role'] = 'original requested-pose stationary preflight; actual native-pose derivatives retained separately'
         result.metadata['vpt2'] = parse_orca_vpt2(raw, vibrational_modes=3 * len(molecule.symbols) - 6)
         result.metadata['vpt2_geometry'] = geometry
         result.metadata['vpt2_reference_alignment'] = alignment
@@ -322,11 +536,18 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
             raise EngineParseError('Requested native Pickett spectroscopy template missing')
         result.metadata['native_pickett_template'] = str(pickett)
         result.converged = True
+        remaining()
         result.elapsed_seconds = time.monotonic() - started
         atomic_json(folder / 'completed.json', {'result': result.model_dump(mode='json')})
+        remaining()
+        return result
+    except InterruptedError as exc:
+        result.status, result.diagnostics['reason'] = 'cancelled', str(exc)
+        result.converged = False
         return result
     except TimeoutError as exc:
         result.status, result.diagnostics['reason'] = 'timed-out', str(exc)
+        result.converged = False
         return result
     except (ValueError, OSError) as exc:
         result.status, result.diagnostics['reason'] = 'failed', str(exc)

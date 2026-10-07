@@ -78,7 +78,7 @@ def test_absent_binary_never_creates_hessian_evidence(tmp_path):
     assert 'hessian_hartree_per_bohr2' not in result.metadata
 
 
-def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path):
+def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path, monkeypatch):
     binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
     if not binary or not shutil.which(binary):
         pytest.skip('licensed ORCA execution must be provisioned explicitly')
@@ -104,3 +104,70 @@ def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path):
                               process_runner=process_runner)
     assert replay.metadata['reused_completed_hessian']
     assert replay.command == result.command
+    from threading import Event
+
+    from topos import native_hessian
+    from topos.storage import file_digest
+
+    folder = tmp_path / 'native-hessian'
+    preserved = {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()}
+
+    def no_new_process(*args, **kwargs):
+        raise AssertionError('completed Hessian recovery must not launch a native process')
+
+    # These are genuine completed native receipts. Corrupt one scientific
+    # assertion at a time, require rejection without a process, then restore
+    # the exact original bytes; raw engine evidence is never edited.
+    import json
+
+    from topos.storage import IntegrityError
+
+    completed = folder / 'completed.json'
+    reference_receipt = folder / 'reference.json'
+    for case in ('energy', 'gradient', 'hessian', 'analysis', 'protocol', 'separate_gradient'):
+        receipt = reference_receipt if case == 'separate_gradient' else completed
+        original_bytes = receipt.read_bytes()
+        payload = json.loads(original_bytes)
+        changed = payload['result']
+        if case == 'energy':
+            changed['energy_hartree'] += .01
+        elif case in {'gradient', 'separate_gradient'}:
+            changed['gradient_hartree_per_bohr'] = [[0., 0., 0.]] * len(optimized.molecule.symbols)
+        elif case == 'hessian':
+            changed['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
+        elif case == 'analysis':
+            changed['metadata']['analysis']['frequencies_cm1'][0] += 1
+        else:
+            changed['metadata']['protocol']['gradient_threshold'] *= 10
+        try:
+            receipt.write_text(json.dumps(payload))
+            with pytest.raises(IntegrityError):
+                run_orca_hessian(optimized.molecule, method, resources, folder, executable=binary,
+                                  process_runner=no_new_process)
+        finally:
+            receipt.write_bytes(original_bytes)
+        assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
+
+    for stop_kind in ('cancelled', 'timed-out'):
+        cancel = Event()
+        clock = {'value': 0.0}
+        actual_digest = native_hessian.file_digest
+
+        def digest_then_stop(path, *, actual_digest=actual_digest, stop_kind=stop_kind, cancel=cancel, clock=clock):
+            value = actual_digest(path)
+            # This is a genuinely completed, unchanged native cache. Stop
+            # only after hashing its actual physical Hessian during replay.
+            if path.name == 'frequency.hess':
+                if stop_kind == 'cancelled':
+                    cancel.set()
+                else:
+                    clock['value'] = resources.budget_seconds + 1
+            return value
+
+        with monkeypatch.context() as context:
+            context.setattr(native_hessian, 'file_digest', digest_then_stop)
+            context.setattr(native_hessian.time, 'monotonic', lambda clock=clock: clock['value'])
+            stopped = run_orca_hessian(optimized.molecule, method, resources, folder, executable=binary,
+                                       process_runner=no_new_process, cancel_event=cancel)
+        assert stopped.status == stop_kind and stopped.converged is False
+        assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
