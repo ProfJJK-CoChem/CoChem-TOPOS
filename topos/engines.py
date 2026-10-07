@@ -317,7 +317,11 @@ def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimit
     if strict_vpt2:
         lines.extend(["%method", "  Z_Tol 1e-14", "end"])
     if operation == "optimize":
-        lines.extend(["%geom", "  MaxIter 200", "  TolE 1e-10" if strict_vpt2 else "  TolE 1e-7",
+        # ORCA's default step-overachievement shortcut can stop while a
+        # required gradient criterion still fails. The documented optimizer
+        # policy used by GOAT enforces the requested criteria without changing
+        # their values; five numerical gates and the independent gradient remain.
+        lines.extend(["%geom", "  EnforceStrictConvergence true", "  MaxIter 200", "  TolE 1e-10" if strict_vpt2 else "  TolE 1e-7",
                       "  TolMaxG 1e-7" if strict_vpt2 else "  TolMaxG 1e-5",
                       "  TolRMSG 3e-8" if strict_vpt2 else "  TolRMSG 3e-6",
                       "  TolRMSD 5e-7" if strict_vpt2 else "  TolRMSD 5e-5",
@@ -396,8 +400,8 @@ def run_engine(
 ) -> EngineResult:
     """Run genuine stages within one budget, refining ORCA's early-stop shortcut.
 
-    Native ORCA may announce geometry convergence before all five printed
-    tolerances pass. Keep those thresholds and the independent final gradient;
+    Native ORCA may announce geometry convergence before all five numerical
+    conditions pass. Keep those thresholds and the independent final gradient;
     restart at most three times from its actual returned geometry. Every stage
     retains its original files, status and input. No failed calculation is
     promoted to successful merely because continuation was attempted.
@@ -436,6 +440,7 @@ def run_engine(
             "method": method.model_dump(mode="json"), "resources": stage_resources.model_dump(mode="json"),
             "engine_version": current.engine_version, "executable_sha256": current.metadata.get("executable_sha256"),
             "convergence": current.diagnostics.get("convergence", {}),
+            "energy_change_evidence": current.diagnostics.get("energy_change_evidence"),
             "native_optimizer_reported_converged": current.diagnostics.get("native_optimizer_reported_converged"),
             "independent_stationarity": current.diagnostics.get("independent_stationarity"),
             "process": current.diagnostics.get("process"),
@@ -677,6 +682,12 @@ def _run_engine_once(
             command.append("--grad")
             runtime_resources = resources.model_copy(update={"budget_seconds": remaining})
         else:
+            if operation == "optimize":
+                result.metadata["native_optimizer_policy"] = {
+                    "name": "EnforceStrictConvergence", "requested_value": True,
+                    "scope": "native stopping policy; unchanged requested numerical tolerances",
+                    "manual": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html",
+                }
             (folder / "job.inp").write_text(_orca_input(molecule, method, resources, operation,
                 ghost_atom_indices=ghosts, ghost_electronic_state=ghost_electronic_state, basis_files=basis_files))
             command = [str(Path(binary).resolve()), "job.inp"]
@@ -746,8 +757,13 @@ def _run_engine_once(
                 if abs(energy - derivative_energy) > 2e-7:
                     raise EngineParseError("ORCA energy and derivative artifacts disagree")
             if operation == "optimize":
-                criteria = _orca_convergence(raw)
+                from .orca_geometry_evidence import convergence_evidence
+
+                energy_tolerance = 1e-10 if method.profile_id == "orca-vpt2-reference-v1" else 1e-7
+                criteria, energy_evidence = convergence_evidence(raw, energy_tolerance=energy_tolerance)
                 result.diagnostics["convergence"] = criteria
+                if energy_evidence is not None:
+                    result.diagnostics["energy_change_evidence"] = energy_evidence
                 result.diagnostics["native_optimizer_reported_converged"] = "THE OPTIMIZATION HAS CONVERGED" in raw
                 result.converged = ("THE OPTIMIZATION HAS CONVERGED" in raw and
                                     len(criteria) == 5 and all(criteria.values()))

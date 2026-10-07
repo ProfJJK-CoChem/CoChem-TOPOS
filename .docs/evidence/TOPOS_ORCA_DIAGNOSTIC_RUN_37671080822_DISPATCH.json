@@ -1,0 +1,21 @@
+{
+  "scope": "diagnostic: unchanged all-five TOPOS baseline only; not full scientific or release acceptance",
+  "submitted_at": "2026-10-07T18:59:39.711857+00:00",
+  "source_commits": {
+    "base": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+    "topos": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "branch": "codex/topos-baseline-diagnostic-65af1e0",
+  "baseline_only": true,
+  "state": "submitted",
+  "dispatch_returncode": 0,
+  "run": {
+    "conclusion": "",
+    "createdAt": "2026-10-07T18:59:41Z",
+    "databaseId": 37671080822,
+    "headSha": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+    "status": "queued",
+    "url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822"
+  }
+}
