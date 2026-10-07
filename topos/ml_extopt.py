@@ -467,6 +467,27 @@ def goat_extopt_input(molecule: Molecule, wrapper: str | Path, resources: Resour
     return '\n'.join([*lines, '*', ''])
 
 
+def orca_executable_identity(executable: str | Path) -> dict:
+    """Observe actual native bytes, independently of registry/model receipts."""
+    from .storage import file_digest
+
+    path = Path(executable)
+    if not path.is_absolute():
+        raise ValueError('ORCA executable observation requires an absolute command path')
+    resolved = path.resolve(strict=True)
+    before = resolved.stat()
+    if not stat.S_ISREG(before.st_mode) or not os.access(resolved, os.X_OK):
+        raise ValueError('Resolved ORCA executable must be an executable regular file')
+    digest = file_digest(resolved)
+    after = resolved.stat()
+    fields = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    if (path.resolve(strict=True) != resolved
+            or any(getattr(before, field) != getattr(after, field) for field in fields)):
+        raise ValueError('ORCA executable changed during its actual byte observation')
+    return {'executable': str(path), 'resolved_path': str(resolved),
+            'sha256': digest, 'size_bytes': after.st_size}
+
+
 def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: ResourceLimits,
                     workdir: str | Path, *, runtime, allocation: ExtOptAllocation,
                     gpu_index: int | None = None, gpu_memory_mb: int | None = None,
@@ -483,6 +504,7 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
     )
     from .goat import parse_goat_ensemble
     from .ml import ML_SCHEMA
+    from .models import utc_now
     from .sampling import SamplingResult
     from .storage import atomic_json, digest_json, file_digest, read_json
 
@@ -502,6 +524,19 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
     internal_cancel = Event()
     server_future = None
     executor = None
+    orca_identity = None
+
+    def observe_orca(phase: str) -> None:
+        observed = orca_executable_identity(orca_identity['executable'])
+        matching = observed == orca_identity
+        result.metadata['orca_executable_observations'].append({
+            'phase': phase, 'observed_at': utc_now(), 'identity': observed,
+            'matches_initial': matching,
+        })
+        if not matching:
+            result.metadata['orca_executable_stable'] = False
+            raise ValueError('Actual ORCA executable identity changed during ExtOpt execution')
+
     try:
         if runtime is None or not hasattr(runtime, 'run_ml_process') or not hasattr(runtime, 'run_process'):
             raise ValueError('GOAT ExtOpt production execution requires mandatory BASE ML and ORCA authority')
@@ -521,6 +556,14 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
         server.mkdir(mode=0o700)
         native.mkdir()
         orca = runtime.resolve_executable('orca')
+        orca_identity = orca_executable_identity(orca)
+        result.metadata.update(executable=orca_identity['executable'],
+            executable_sha256=orca_identity['sha256'],
+            orca_executable_identity=orca_identity,
+            orca_executable_identity_sha256=digest_json(orca_identity),
+            orca_executable_stable=None,
+            orca_executable_observations=[{'phase': 'resolved-before-native-invocation',
+                'observed_at': utc_now(), 'identity': orca_identity, 'matches_initial': True}])
         python = runtime.resolve_executable(manifest.backend)
         models = {str(member.verify()): member.sha256 for member in manifest.members}
 
@@ -535,9 +578,13 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
         orca_resources = resources.model_copy(update={'threads': allocation.orca_threads,
             'memory_mb': allocation.orca_memory_mb, 'device': 'cpu', 'budget_seconds': remaining()})
         (native / 'version.inp').write_text(_orca_version_input(orca_resources))
-        probe = runtime.run_process([orca, 'version.inp'], native,
-                                     orca_resources.model_copy(update={'threads': 1, 'budget_seconds': min(10, remaining())}),
-                                     cancel_event=cancel_event, log_prefix='version')
+        observe_orca('before-loader-invocation')
+        try:
+            probe = runtime.run_process([orca, 'version.inp'], native,
+                orca_resources.model_copy(update={'threads': 1, 'budget_seconds': min(10, remaining())}),
+                cancel_event=cancel_event, log_prefix='version')
+        finally:
+            observe_orca('after-loader-invocation')
         result.diagnostics['orca_probe'] = probe.to_dict()
         probe_text = Path(probe.stdout_path).read_text(errors='replace')
         if (probe.status != 'completed' or _engine_version(probe_text, 'orca') != ORCA_VERSION
@@ -592,9 +639,13 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
                                manifest_sha256=ready['manifest_sha256'], worker_sha256=file_digest(worker),
                                client_module_sha256=file_digest(Path(__file__)), wrapper_sha256=file_digest(wrapper),
                                versions=ready['versions'], native_energy_window_kcal_mol=energy_window_kcal_mol)
-        process = runtime.run_process(result.command, native,
-            orca_resources.model_copy(update={'budget_seconds': remaining()}), cancel_event=cancel_event,
-            log_prefix='goat', threads_per_process=1)
+        observe_orca('before-GOAT-invocation')
+        try:
+            process = runtime.run_process(result.command, native,
+                orca_resources.model_copy(update={'budget_seconds': remaining()}), cancel_event=cancel_event,
+                log_prefix='goat', threads_per_process=1)
+        finally:
+            observe_orca('after-GOAT-invocation')
         result.status = process.status
         result.diagnostics['process'] = process.to_dict()
         # Graceful shutdown writes the final model revalidation and count receipt.
@@ -665,6 +716,16 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
                 result.diagnostics['server_cleanup'] = str(exc)
         if executor is not None:
             executor.shutdown(wait=True, cancel_futures=True)
+        if orca_identity is not None:
+            try:
+                observe_orca('finalization-after-server-cleanup')
+                if result.metadata['orca_executable_stable'] is not False:
+                    result.metadata['orca_executable_stable'] = True
+            except (ValueError, OSError) as exc:
+                result.status, result.converged, result.ensemble = 'failed', False, []
+                result.metadata['orca_executable_stable'] = False
+                result.diagnostics['orca_executable_error'] = str(exc)
+                result.diagnostics['reason'] = 'ORCA executable stability could not be established: ' + str(exc)
         if folder.exists():
             try:
                 result.artifacts = artifact_inventory(folder)

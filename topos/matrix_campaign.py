@@ -13,6 +13,7 @@ from typing import Any
 from pydantic import Field, model_validator
 
 from .actions.queue_budget import utc_timestamp
+from .campaign_authority import base_authority_evidence, retained_registries
 from .matrix_workflow import MatrixInputs, _available_inputs, execution_support_report
 from .method_matrix import MATRIX_REVISION, HardwareSpec, plan_route, resolve_row
 from .models import Contract, RunRequest, utc_now
@@ -34,6 +35,7 @@ CONDITION = "reviewed_matrix_campaign"
 SHA = r"[a-f0-9]{64}"
 SCOPE = ("One completed, current-source, predeclared full-row calculation per available TOPOS row; "
          "specified cases only, without benchmark-accuracy, exhaustive-search, full chemical-domain or TORQ certification")
+
 
 
 def _recipe(plan: dict[str, Any]) -> dict[str, Any]:
@@ -219,13 +221,16 @@ def _native_evidence(record: dict[str, Any], store: RunStore) -> list[dict[str, 
                     or result.get("manifest_sha256") != identity or not result.get("frames")):
                 raise IntegrityError("ML worker result differs from its immutable model and request")
         else:
-            if engine == "orca" and identity is None and metadata.get("server_summary"):
-                # The persistent ExtOpt adapter binds its model/callback worker
-                # rather than recording another copy of the ORCA binary hash.
+            if engine == "orca" and "server_summary" in metadata:
+                # Native binary identity and model/callback completion are
+                # separate proofs; neither may replace or bypass the other.
                 server = metadata["server_summary"]
-                identity = metadata.get("manifest_sha256")
-                if (server.get("manifest_sha256") != identity or not server.get("successful_requests")
-                        or server.get("successful_requests") != server.get("requests")):
+                manifest = metadata.get("manifest_sha256")
+                if (not isinstance(server, dict) or not re.fullmatch(SHA, str(manifest or ""))
+                        or server.get("manifest_sha256") != manifest
+                        or type(server.get("successful_requests")) is not int or server["successful_requests"] < 1
+                        or type(server.get("requests")) is not int
+                        or server["successful_requests"] != server["requests"]):
                     raise IntegrityError("Native ExtOpt requires a model-bound successful callback session")
             if not re.fullmatch(SHA, str(identity or "")) or not raw_files:
                 raise IntegrityError("Native engine requires a hashed executable and nonempty calculation output")
@@ -273,7 +278,8 @@ def _predeclaration_evidence(record: dict[str, Any], store: RunStore, declared_a
     return history
 
 
-def _assess_run(case: CampaignCase, store: RunStore, plan: CampaignPlan, bundle_root: Path) -> dict[str, Any]:
+def _assess_run(case: CampaignCase, store: RunStore, plan: CampaignPlan, bundle_root: Path,
+                registries: dict[str, dict[str, Any]]) -> dict[str, Any]:
     manifest = store.verify()
     record = store.load()
     metadata = record["metadata"]
@@ -296,18 +302,27 @@ def _assess_run(case: CampaignCase, store: RunStore, plan: CampaignPlan, bundle_
     for field in ("cpu_threads", "memory_mb", "device", "gpu_model", "gpu_memory_mb"):
         if hardware[field] != getattr(case.hardware, field):
             raise IntegrityError("Actual matrix hardware differs from the predeclared resource/device allocation")
+    native = _native_evidence(record, store)
+    try:
+        authority = base_authority_evidence(record, store, registries)
+        release_eligible, reason = True, None
+    except (ValueError, KeyError, TypeError) as exc:
+        authority, release_eligible, reason = None, False, str(exc)
     return {"run_path": store.run_dir.relative_to(bundle_root).as_posix(), "run_id": record["run_id"], "snapshot_id": manifest["snapshot_id"],
             "record_sha256": manifest["record_sha256"], "verified_snapshot_history": history,
-            "native_attempts": _native_evidence(record, store)}
+            "native_attempts": native, "release_eligible": release_eligible,
+            "base_authority": authority, "release_blocker": reason}
 
 
-def assess(plan_path: Path, run_dirs: list[Path], source_root: Path) -> dict[str, Any]:
+def assess(plan_path: Path, run_dirs: list[Path], source_root: Path,
+           base_registry_paths: list[Path] | None = None) -> dict[str, Any]:
     """Read immutable scientific evidence; never launch, repair or fabricate runs."""
     if plan_path.is_symlink():
         raise IntegrityError("Matrix campaign plan must be a regular retained file")
     plan_path = plan_path.resolve()
     bundle_root = plan_path.parent
     plan = _load_plan(plan_path, source_root)
+    registries, registry_receipts = retained_registries(bundle_root, base_registry_paths or [])
     cases = {case.row_id: case for case in plan.cases}
     candidates: dict[str, list[dict[str, Any]]] = {row: [] for row in plan.available_rows}
     invalid = []
@@ -330,7 +345,7 @@ def assess(plan_path: Path, run_dirs: list[Path], source_root: Path) -> dict[str
             if row_id not in cases:
                 raise IntegrityError("Candidate has no matching predeclared available TOPOS full-row case")
             try:
-                evidence = _assess_run(cases[row_id], store, plan, bundle_root)
+                evidence = _assess_run(cases[row_id], store, plan, bundle_root, registries)
                 candidates[row_id].append({"status": "passed", "evidence": evidence})
             except (ValueError, KeyError, TypeError) as exc:
                 candidates[row_id].append({"status": "failed", "run_path": directory, "reason": str(exc)})
@@ -340,14 +355,19 @@ def assess(plan_path: Path, run_dirs: list[Path], source_root: Path) -> dict[str
     for row in plan.available_rows:
         results = candidates[row]
         status = "passed" if any(item["status"] == "passed" for item in results) else "failed" if results else "pending"
-        rows.append({"row_id": row, "status": status,
+        release_eligible = any(item["status"] == "passed" and item["evidence"]["release_eligible"] for item in results)
+        rows.append({"row_id": row, "status": status, "release_eligible": release_eligible,
                      "reason": "No predeclared scientific case" if row not in cases else "No matching completed actual RunStore" if not results else None,
                      "case_request_sha256": cases[row].request_sha256 if row in cases else None, "results": results})
     counts = {status: sum(row["status"] == status for row in rows) for status in ("passed", "failed", "pending")}
+    release_count = sum(row["release_eligible"] for row in rows)
+    release_eligible = release_count == len(plan.available_rows) and not invalid
     return {"schema_version": REPORT_SCHEMA, "condition": CONDITION,
-            "status": "passed" if counts["passed"] == len(plan.available_rows) and not invalid else "blocked",
+            "status": "passed" if release_eligible else "pending" if counts["passed"] and not counts["failed"] and not invalid else "blocked",
+            "release_eligible": release_eligible, "release_eligible_rows": release_count,
             "plan_path": plan_path.name, "plan_file_sha256": file_digest(plan_path), "plan_sha256": digest_json(plan.model_dump(mode="json")),
             "source_sha256": plan.source_sha256, "candidate_runs": resolved_runs, "rows": rows, "counts": counts,
+            "base_registries": registry_receipts,
             "unavailable_by_design": plan.unavailable_by_design, "torq_owned_rows_excluded": plan.torq_owned_rows_excluded,
             "invalid_candidates": invalid, "scope": SCOPE}
 
@@ -367,7 +387,8 @@ def verify_report(report_path: Path, source_root: Path) -> dict[str, Any]:
             directory = bundle_root / safe_relative(relative)
             confined_file(bundle_root, relative + "/CURRENT.json")
             candidates.append(directory)
-        expected = assess(plan_path, candidates, source_root)
+        registry_paths = [confined_file(bundle_root, item["path"]) for item in report["base_registries"]]
+        expected = assess(plan_path, candidates, source_root, registry_paths)
     except (KeyError, TypeError) as exc:
         raise IntegrityError("Campaign report lacks its retained plan or candidate RunStore identity") from exc
     if report != expected:
@@ -386,6 +407,8 @@ def main(argv: list[str] | None = None) -> int:
     assess_parser.add_argument("--source-root", type=Path, default=Path.cwd())
     assess_parser.add_argument("--plan", type=Path, required=True)
     assess_parser.add_argument("--run", type=Path, action="append", default=[])
+    assess_parser.add_argument("--base-registry", type=Path, action="append", default=[],
+                               help="Exact audited registry snapshot retained inside the portable campaign bundle; repeat for multiple workers")
     assess_parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     if args.output.exists() or args.output.is_symlink():
@@ -400,7 +423,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         if args.output.resolve().parent != args.plan.resolve().parent:
             parser.error("Keep the campaign report beside its retained plan inside the portable campaign bundle")
-        report = assess(args.plan, args.run, args.source_root)
+        report = assess(args.plan, args.run, args.source_root, args.base_registry)
     atomic_json(args.output, report)
     print(str(args.output.resolve()))
     return 0 if args.command == "plan" or report["status"] == "passed" else 3
