@@ -1,0 +1,59 @@
+{
+  "artifact_id": 11513284313,
+  "artifact_name": "topos-orca-acceptance-37675771359-1",
+  "fixture_sha256": {
+    "native-ensemble.txt": "6fadc245d22151d2ec0e9d7f786b3d9a105ceb8015e73394648ae2b06d53a91b",
+    "native-input.inp": "b53258e509c193d616b32b3a796996f690849d69285cff9166a2b5b9ad6d90a1",
+    "native-search.stdout": "f54be5af8f68b9995f8c202fc328cd11c67beef80bb9da203e6c336a4e6f7122",
+    "native-version.stdout": "44be54f442859d25e361cfcff4752cb525d2845a53a40b18928df623df325b50"
+  },
+  "interpretation": "converged=true in the frame comment describes a local optimization; the separate Global minimum found marker determines finite global-search stopping and is absent in this historical run",
+  "manual": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html",
+  "observed_global_search": {
+    "after_parser_repair_expected_status": "partial",
+    "finite_stopping_marker": false,
+    "max_global_iterations": 3,
+    "min_global_iterations": 3,
+    "normal_termination": true
+  },
+  "observed_native_process": {
+    "command": [
+      "/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+      "goat.inp"
+    ],
+    "elapsed_seconds": 2417.19613003,
+    "peak_rss_mb": 486.8515625,
+    "reason": null,
+    "returncode": 0,
+    "status": "completed",
+    "stderr_path": "/home/runner/work/_temp/topos-orca-evidence/goat-native/goat.stderr",
+    "stdout_path": "/home/runner/work/_temp/topos-orca-evidence/goat-native/goat.stdout"
+  },
+  "observed_native_resources": {
+    "budget_seconds": 4800,
+    "device": "cpu",
+    "memory_mb": 2048,
+    "threads": 2
+  },
+  "original_archive_sha256": "2d3a2bd29b5a387f957df834e34f3e4be1da718d770d687958778161bb346c8e",
+  "original_record_sha256": "75bd053a1d915707c7883d37e66ce8377f0bea7197a1d9995309be8474469f65",
+  "original_snapshot_id": "2afae5932e4f081aeaac9ca39ade6c44fcede49243667ab4c73b8af4a6227dcd",
+  "run_attempt": 1,
+  "run_id": "37675771359",
+  "schema": "topos-historical-native-goat-fixture/1",
+  "scope": "Unchanged historical ORCA6.1.1 scientific text for parser and recovery classification only; not current-source native acceptance, a published benchmark or release certification",
+  "selection": "Four complete unmodified actual native text files; finalensemble retains its exact bytes under a .txt fixture extension for source and distribution identity",
+  "source_commits": {
+    "base": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "topos": "053c827638b3481c5c3d645856b69d50c47b387f",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "source_members": {
+    "native-ensemble.txt": "topos-orca-evidence/goat-native/goat.finalensemble.xyz",
+    "native-input.inp": "topos-orca-evidence/goat-native/goat.inp",
+    "native-search.stdout": "topos-orca-evidence/goat-native/goat.stdout",
+    "native-version.stdout": "topos-orca-evidence/goat-native/version.stdout"
+  },
+  "source_result_sha256": "4c33f0a70e13f076b4bbe2f0102d1804881afc6d93c28bfe2160267578fec9b3",
+  "source_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359"
+}

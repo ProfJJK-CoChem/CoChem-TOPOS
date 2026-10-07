@@ -135,10 +135,12 @@ def goat_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits
 
 
 def parse_goat_ensemble(path: str | Path, reference: Molecule) -> list[SampledConformer]:
-    """Read complete native ``Energy <hartree>`` frames without remapping atoms.
+    """Read complete native or READENSEMBLE frames without remapping atoms.
 
-    The documented READENSEMBLE convention is ``Energy (float)``. Unrecognized
-    comments, altered atom order and truncated files are errors, not zero energy.
+    READENSEMBLE uses ``Energy (float)``; ORCA 6.1.1 final ensembles also write
+    ``(float) converged=true``. This flag describes a local frame, independently
+    of the native global-search stopping criterion. Unrecognized or unconverged
+    native comments, altered atom order and truncated files are errors.
     Native energy and geometry remain observations requiring common refinement.
     """
     lines = Path(path).read_text(encoding="utf-8").splitlines()
@@ -151,8 +153,12 @@ def parse_goat_ensemble(path: str | Path, reference: Molecule) -> list[SampledCo
             raise EngineParseError("GOAT ensemble has changed atom count or an incomplete frame")
         comment = lines[cursor + 1].strip()
         match = re.fullmatch(r"Energy\s+(" + _FLOAT + r")(?:\s+(?:Eh|hartree))?", comment, re.I)
+        comment_format, native_frame_converged = "readensemble-energy-v1", None
         if match is None:
-            raise EngineParseError("GOAT frame lacks its documented Energy <hartree> comment")
+            match = re.fullmatch(r"(" + _FLOAT + r")\s+converged=true", comment, re.I)
+            if match is None:
+                raise EngineParseError("GOAT frame requires Energy <hartree> or <hartree> converged=true")
+            comment_format, native_frame_converged = "native-finalensemble-energy-convergence-v1", True
         energy = _number(match.group(1))
         rows = [line.split() for line in lines[cursor + 2:cursor + n + 2]]
         if any(len(row) != 4 for row in rows) or [row[0] for row in rows] != reference.symbols:
@@ -163,6 +169,8 @@ def parse_goat_ensemble(path: str | Path, reference: Molecule) -> list[SampledCo
             molecule=Molecule.model_validate(data), energy_hartree=energy,
             source_index=len(result) + 1, source="GOAT", metadata={
                 "raw_comment": comment, "energy_units": "hartree", "energy_definition": "GOAT native search electronic energy",
+                "comment_format": comment_format, "native_frame_converged": native_frame_converged,
+                "frame_convergence_scope": "local native frame only; not the global-search finite stopping criterion",
                 "validation_status": "requires-common-level-refinement", "stationary_point_classification": "unclassified",
                 "atom_mapping": "native index order; complete element sequence checked",
             },
