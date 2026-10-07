@@ -107,12 +107,20 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
     if not binary or not shutil.which(binary):
         pytest.skip('licensed ORCA 6.1.1 must be provisioned explicitly')
+    process_runner = None
+    if os.environ.get('TOPOS_REQUIRE_BASE') == '1':
+        from topos.base_integration import BaseRuntime
+
+        runtime = BaseRuntime()
+        binary = runtime.resolve_executable('orca', binary)
+        process_runner = runtime.run_process
     resources = ResourceLimits(budget_seconds=600, threads=2, memory_mb=4096)
-    optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary)
+    optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary,
+                           process_runner=process_runner)
     assert optimized.status == 'completed', optimized.diagnostics
     assert optimized.molecule is not None
     result = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
-                           executable=binary, semirigid_modes=True)
+                           executable=binary, semirigid_modes=True, process_runner=process_runner)
     assert result.status == 'completed', result.diagnostics
     assert result.metadata['execution_kind'] == 'real'
     native = result.metadata['vpt2']
@@ -120,6 +128,6 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     assert native['zero_point_energy']['total_cm1'] > 0
     assert all(value > 0 for value in native['rotational_constants_cm1']['B_0'])
     replay = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
-                           executable=binary, semirigid_modes=True)
+                           executable=binary, semirigid_modes=True, process_runner=process_runner)
     assert replay.metadata['reused_completed_vpt2']
     assert replay.command == result.command

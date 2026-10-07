@@ -16,6 +16,7 @@ from topos.base_integration import BaseRuntime
 from topos.correlated import CorrelatedMethod, run_correlated
 from topos.engines import EngineResult, run_engine
 from topos.models import MethodSpec, Molecule, ResourceLimits, utc_now
+from topos.native_diagnostics import native_failure_tails
 from topos.native_hessian import run_orca_hessian
 from topos.storage import atomic_json, file_digest
 from topos.workflow import software_provenance
@@ -37,7 +38,9 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
               "started_at": utc_now(), "requested_cases": list(cases), "cases": {},
               "accuracy_benchmark": False, "scope": "actual small-molecule native calculation and recovery",
               "source": software_provenance(), "script_sha256": file_digest(Path(__file__)),
-              "github_run_id": os.environ.get("GITHUB_RUN_ID"), "github_sha": os.environ.get("GITHUB_SHA")}
+              "github_repository": os.environ.get("GITHUB_REPOSITORY"),
+        "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+        "github_run_id": os.environ.get("GITHUB_RUN_ID"), "github_sha": os.environ.get("GITHUB_SHA")}
     receipt = output / "acceptance.json"
     atomic_json(receipt, report)
     deadline = time.monotonic() + budget_seconds
@@ -117,6 +120,7 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
             report["cases"][case].update(status="passed", **details)
         except (ValueError, RuntimeError, OSError, ImportError) as exc:
             report["cases"][case].update(status="failed", reason=str(exc), exception=type(exc).__name__)
+            report["cases"][case]["native_failure_tails"] = native_failure_tails(folder)
         report["cases"][case]["finished_at"] = utc_now()
         atomic_json(receipt, report)
         print(json.dumps({"case": case, **report["cases"][case]}), flush=True)

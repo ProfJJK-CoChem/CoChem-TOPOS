@@ -82,15 +82,25 @@ def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path):
     binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
     if not binary or not shutil.which(binary):
         pytest.skip('licensed ORCA execution must be provisioned explicitly')
+    process_runner = None
+    if os.environ.get('TOPOS_REQUIRE_BASE') == '1':
+        from topos.base_integration import BaseRuntime
+
+        runtime = BaseRuntime()
+        binary = runtime.resolve_executable('orca', binary)
+        process_runner = runtime.run_process
     method = MethodSpec(engine='orca', method='r2SCAN-3c', profile_id='orca-mapping-v4.1')
     resources = ResourceLimits(budget_seconds=180, memory_mb=2048)
-    optimized = run_engine(water(), method, resources, tmp_path / 'optimize', executable=binary)
+    optimized = run_engine(water(), method, resources, tmp_path / 'optimize', executable=binary,
+                           process_runner=process_runner)
     assert optimized.status == 'completed', optimized.diagnostics
     assert optimized.molecule is not None
-    result = run_orca_hessian(optimized.molecule, method, resources, tmp_path / 'native-hessian', executable=binary)
+    result = run_orca_hessian(optimized.molecule, method, resources, tmp_path / 'native-hessian', executable=binary,
+                              process_runner=process_runner)
     assert result.status == 'completed', result.diagnostics
     assert result.metadata['analysis']['validity'] == 'harmonic-minimum-within-thresholds'
     assert len(result.metadata['analysis']['frequencies_cm1']) == 3
-    replay = run_orca_hessian(optimized.molecule, method, resources, tmp_path / 'native-hessian', executable=binary)
+    replay = run_orca_hessian(optimized.molecule, method, resources, tmp_path / 'native-hessian', executable=binary,
+                              process_runner=process_runner)
     assert replay.metadata['reused_completed_hessian']
     assert replay.command == result.command

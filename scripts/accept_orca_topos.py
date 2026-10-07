@@ -135,7 +135,9 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
         "resources": {"threads": threads, "memory_mb": memory_mb, "budget_seconds": budget_seconds},
         "requested_cases": ["hf3c-energy-gradient", "r2scan3c-optimization-thermochemistry", "wb97xv-optimization"]
                            + (["counterpoise"] if include_counterpoise else []) + (["goat-refinement"] if include_goat else []),
-        "cases": {}, "runs": [], "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+        "cases": {}, "runs": [], "github_repository": os.environ.get("GITHUB_REPOSITORY"),
+        "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+        "github_run_id": os.environ.get("GITHUB_RUN_ID"),
         "github_sha": os.environ.get("GITHUB_SHA"), "registry_path": str(registry.resolve()),
         "acceptance_script_sha256": file_digest(Path(__file__)),
     }
@@ -318,7 +320,10 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
                 details = evaluate()
                 report["cases"][name] = {"status": "passed", "details": details}
             except Exception as exc:
+                from topos.native_diagnostics import native_failure_tails
+
                 report["cases"][name] = {"status": "failed", "reason": str(exc), "exception_type": type(exc).__name__}
+                report["cases"][name]["native_failure_tails"] = native_failure_tails(output)
             report["cases"][name]["elapsed_seconds"] = time.monotonic() - case_start
             atomic_json(receipt_path, report)
             print(json.dumps({"case": name, **report["cases"][name]}), flush=True)
