@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 from threading import Event
 
-from .entropy import run_matched_entropy
+from .entropy import run_matched_entropy, sampling_execution_timing
 from .models import Artifact, Attempt, MethodSpec, Quantity
 from .sampling import SamplingResult
 from .storage import IntegrityError, atomic_json, digest_json, file_digest
@@ -70,6 +70,7 @@ def execute_entropy_recipe(workflow, record, store, inputs, deadline: float, can
     native_attempt_ids = []
     for row in result["results"]:
         sampled = SamplingResult.model_validate(row["result"])
+        invocation_started_at, invocation_finished_at = sampling_execution_timing(sampled)
         # Per-engine native directories are immutable; mutable top-level cache
         # receipts are deliberately not attached as immutable evidence.
         identifier = "attempt_entropy_" + digest_json({"seed": row["seed_index"], "result": row["result"]})[:24]
@@ -85,6 +86,7 @@ def execute_entropy_recipe(workflow, record, store, inputs, deadline: float, can
         native = sampled.metadata.get("native_entropy")
         attempt = Attempt(attempt_id=identifier, run_id=record.run_id, engine=sampled.engine, method=sampled.method,
                           status=sampled.status, converged=sampled.converged, engine_version=sampled.engine_version,
+                          started_at=invocation_started_at, finished_at=invocation_finished_at,
                           command=sampled.command, diagnostics=sampled.diagnostics, artifacts=artifacts,
                           validation_status="validated-for-protocol" if sampled.status == "completed" and native else "not-evaluated",
                           metadata={**sampled.metadata, "role": "matrix-native-entropy", "native_engine": row["engine"],

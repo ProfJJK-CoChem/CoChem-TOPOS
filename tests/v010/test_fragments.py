@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from datetime import datetime
 from threading import Event
 
 import numpy as np
@@ -10,13 +11,15 @@ import pytest
 
 from topos.config import SystemConfig
 from topos.fragments import (
+    ASSOCIATION_TIMING_SCOPE,
+    _frozen_fragment_execution_timing,
     assemble_monomer_seed,
     association_energies,
     association_gibbs,
     monomer_first_association,
     split_fragments,
 )
-from topos.models import Bond, FragmentState, Molecule, RunRequest
+from topos.models import Bond, FragmentState, Molecule, RunRequest, utc_now
 from topos.science import geometry_digest
 from topos.storage import IntegrityError, RunStore, digest_json
 from topos.thermochemistry import rrho_thermochemistry
@@ -244,6 +247,19 @@ def test_association_workflow_imports_real_child_evidence_for_review(tmp_path):
     assert len(candidate.metadata["monomer_run_ids"]) == 2
     assert record.metadata["association"]["gibbs_association_hartree"] is None
     assert sum(a.metadata.get("advanced_role") == "frozen-fragment-energy" for a in record.attempts) == 2
+    for attempt in record.attempts:
+        assert attempt.started_at and attempt.finished_at
+        assert datetime.fromisoformat(attempt.finished_at) >= datetime.fromisoformat(attempt.started_at)
+        if attempt.metadata.get("advanced_role") == "frozen-fragment-energy":
+            timing = attempt.metadata["execution_timing"]
+            assert attempt.started_at == timing["started_at"] and attempt.finished_at == timing["finished_at"]
+            assert timing["scope"] == ASSOCIATION_TIMING_SCOPE
+    aggregate = next(a for a in record.attempts if a.metadata.get("result_kind") == "derived-association")
+    assert aggregate.command == ["topos-internal", "balanced-association-arithmetic"]
+    source = next(a for a in record.attempts if a.attempt_id == aggregate.metadata["source_complex_attempt_id"])
+    assert aggregate.parent_attempt_id == source.attempt_id
+    assert datetime.fromisoformat(aggregate.started_at) >= datetime.fromisoformat(source.finished_at)
+    assert "attribution creation" in aggregate.metadata["execution_timing_scope"]
     assert len({a.metadata.get("source_child_run_id") for a in record.attempts if a.metadata.get("source_child_run_id")}) == 3
     RunStore(tmp_path / record.run_id).verify()
     for mutation in ("source-energy", "missing-component"):
@@ -328,6 +344,8 @@ def test_association_resume_reuses_completed_child_jobs_and_raw_evidence(tmp_pat
                                     profile_id="xtb-vtight-v1", budget_seconds=120), cancel_event=event)
     assert record.status == "cancelled", record.metadata.get("termination_reason")
     old_ids = {a.attempt_id for a in record.attempts}
+    original_frozen = {a.attempt_id: a.model_dump(mode="json") for a in record.attempts
+                       if a.metadata.get("advanced_role") == "frozen-fragment-energy"}
     first_child = next(a.metadata["source_child_run_id"] for a in record.attempts if a.metadata.get("source_child_run_id"))
     event.clear()
     resumed = workflow.resume(tmp_path / record.run_id, cancel_event=event)
@@ -337,5 +355,41 @@ def test_association_resume_reuses_completed_child_jobs_and_raw_evidence(tmp_pat
     assert len(calls) == 3 * count + 2  # Two monomer searches + one complex search + two frozen energies.
     assert len({path for _, path in calls}) == len(calls)
     assert len(resumed.attempts) == len(calls) + 1  # One separately attributable derived association result.
+    assert all(next(a for a in resumed.attempts if a.attempt_id == identifier).model_dump(mode="json") == data
+               for identifier, data in original_frozen.items())
     validate_scientific_candidate(resumed.model_dump(mode="json"), resumed.candidates[-1].model_dump(mode="json"))
     RunStore(tmp_path / record.run_id).verify()
+
+
+@pytest.mark.parametrize("damage", ["absent-boundary", "naive", "reversed", "scope", "extra", "format"])
+def test_frozen_fragment_timing_rejects_ambiguous_or_repackaging_boundaries(damage):
+    from topos.engines import EngineResult
+
+    # Unexecuted metadata contract; these dates supply no scientific result.
+    evaluation = EngineResult(status="unavailable", engine="xtb", method="GFN2-xTB", operation="energy",
+        metadata={"execution_kind": "not-executed", "execution_timing": {
+            "started_at": "2026-10-07T00:00:00+00:00", "finished_at": "2026-10-07T00:00:01+00:00",
+            "scope": ASSOCIATION_TIMING_SCOPE}})
+    timing = evaluation.metadata["execution_timing"]
+    if damage == "absent-boundary":
+        del timing["started_at"]
+    elif damage == "naive":
+        timing["started_at"] = "2026-10-07T00:00:00"
+    elif damage == "reversed":
+        timing["finished_at"] = "2026-10-06T23:59:59+00:00"
+    elif damage == "scope":
+        timing["scope"] = "importing previously calculated output"
+    elif damage == "extra":
+        timing["imported_at"] = utc_now()
+    else:
+        timing["started_at"] = "unknown"
+    with pytest.raises(IntegrityError, match="wall-clock"):
+        _frozen_fragment_execution_timing(evaluation)
+
+
+def test_legacy_frozen_fragment_receipt_timing_is_not_replaced_by_import_time():
+    from topos.engines import EngineResult
+
+    evaluation = EngineResult(status="unavailable", engine="xtb", method="GFN2-xTB", operation="energy")
+    assert _frozen_fragment_execution_timing(evaluation) == (None, None)
+    assert "execution_timing" not in evaluation.metadata

@@ -284,6 +284,12 @@ def test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance(
     source = validate_scientific_candidate(record.model_dump(mode="json"), candidate.model_dump(mode="json"))
     assert source["metadata"]["result_kind"] == "physical-hessian-thermochemistry"
     assert len(source["metadata"]["derivative_attempt_ids"]) == 19
+    from datetime import datetime
+
+    native_reference = next(a for a in record.attempts if a.attempt_id == source["metadata"]["accepted_derivative_attempt_id"])
+    assert datetime.fromisoformat(source["started_at"]) >= datetime.fromisoformat(native_reference.finished_at)
+    assert datetime.fromisoformat(source["finished_at"]) >= datetime.fromisoformat(source["started_at"])
+    assert "attribution creation" in source["metadata"]["execution_timing_scope"]
     assert record.metadata["frequency_optimization_policy"]["hamiltonian_changed"] is False
     assert record.metadata["derivative_coordinate_frame"]["kind"] == "proper-rigid-coordinate-transformation"
     store = RunStore(tmp_path / record.run_id)

@@ -7,7 +7,7 @@ from threading import Event
 from typing import TYPE_CHECKING, Any
 
 from .engines import EngineResult
-from .fragments import monomer_first_association
+from .fragments import _frozen_fragment_execution_timing, monomer_first_association
 from .models import Artifact, Attempt, Candidate, Molecule, Quantity, RunRecord, new_id, utc_now
 from .storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest
 from .thermochemistry import calculate_thermochemistry, derivative_coordinate_frame
@@ -141,10 +141,11 @@ def _frequencies(workflow: Workflow, record: RunRecord, store: RunStore,
                         status=result["status"], engine_version=reference.engine_version,
                         parent_attempt_id=reference.attempt_id,
                         command=["topos-internal", "physical-finite-difference-hessian"],
-                        started_at=reference.started_at, finished_at=utc_now(),
+                        started_at=utc_now(),
                         converged=result["status"] == "completed",
                         validation_status="validated-for-protocol" if result["status"] == "completed" else "rejected",
                         metadata={"execution_kind": reference.metadata.get("execution_kind", "not-executed"), "result_kind": "physical-hessian-thermochemistry",
+                                  "execution_timing_scope": "physical-Hessian result attribution creation; actual derivative invocation boundaries remain on their source attempts",
                                   "derivative_attempt_ids": derivative_ids,
                                   "accepted_derivative_attempt_id": reference.attempt_id,
                                   "analysis": result["analysis"], "thermochemistry": result["thermochemistry"],
@@ -200,6 +201,7 @@ def _frequencies(workflow: Workflow, record: RunRecord, store: RunStore,
         aggregate.metadata["comparison_protocol"] = candidate.comparison_protocol
     for quantity in aggregate.quantities:
         quantity.validity = aggregate.validation_status
+    aggregate.finished_at = utc_now()
     record.attempts.append(aggregate)
     # A resumed successful calculation adds a new candidate; partial historical
     # candidates remain in the append-only ledger and cannot enter export.
@@ -246,6 +248,7 @@ def _association(workflow: Workflow, record: RunRecord, store: RunStore,
     frozen_ids = []
     for index, data in enumerate(result["fragment_evaluations"]):
         native = EngineResult.model_validate(data)
+        native_started_at, native_finished_at = _frozen_fragment_execution_timing(native)
         existing = next((a for a in record.attempts if a.metadata.get("association_evaluation_id")
                          == native.metadata.get("association_evaluation_id")), None)
         if existing is not None:
@@ -255,7 +258,8 @@ def _association(workflow: Workflow, record: RunRecord, store: RunStore,
                           status=native.status, engine_version=native.engine_version,
                           command=native.command, converged=native.converged,
                           validation_status="validated-for-protocol" if native.status == "completed" else "rejected",
-                          finished_at=utc_now(), metadata={**native.metadata, "advanced_role": "frozen-fragment-energy", "fragment_index": index,
+                          started_at=native_started_at, finished_at=native_finished_at,
+                          metadata={**native.metadata, "advanced_role": "frozen-fragment-energy", "fragment_index": index,
                                                           "output_molecule": native.molecule.model_dump(mode="json") if native.molecule else None},
                           diagnostics=native.diagnostics)
         attempt.artifacts = [a.model_copy(update={"path": Path(a.path).resolve().relative_to(store.run_dir).as_posix()}) for a in native.artifacts]
@@ -280,8 +284,11 @@ def _association(workflow: Workflow, record: RunRecord, store: RunStore,
     monomer_ids = [min((c for c in child_record["candidates"] if c["status"] == "eligible"),
                        key=lambda c: c["energy_hartree"])["attempt_id"] for child_record in result["monomer_runs"]]
     aggregate = source.model_copy(deep=True, update={"attempt_id": new_id("attempt"),
-                                                    "parent_attempt_id": source.attempt_id})
+                                                    "parent_attempt_id": source.attempt_id,
+                                                    "command": ["topos-internal", "balanced-association-arithmetic"],
+                                                    "started_at": utc_now(), "finished_at": None})
     aggregate.metadata.update(result_kind="derived-association", source_complex_attempt_id=source.attempt_id,
+                               execution_timing_scope="association result attribution creation; original native invocation boundaries remain on the linked source attempts",
                                source_complex_candidate_id=candidate.candidate_id,
                                component_attempt_ids=[*monomer_ids, *frozen_ids],
                                monomer_reference_attempt_ids=monomer_ids,
@@ -298,6 +305,7 @@ def _association(workflow: Workflow, record: RunRecord, store: RunStore,
     for name in ("electronic_interaction_hartree", "electronic_binding_hartree", "fragment_deformation_hartree"):
         aggregate.quantities.append(_quantity(name.removesuffix("_hartree"), result["energies"][name], "hartree",
                                              "balanced common-method association; negative interaction/binding favors association", aggregate, candidate))
+    aggregate.finished_at = utc_now()
     record.attempts.append(aggregate)
     record.candidates.append(candidate)
     record.validation_status = "validated-for-protocol"

@@ -8,7 +8,7 @@ from typing import Any
 from .correlated import CorrelatedMethod, run_correlated
 from .fragments import split_fragments
 from .matrix_components import run_component
-from .models import Artifact, Attempt, Quantity, RunRecord
+from .models import Artifact, Attempt, Quantity, RunRecord, utc_now
 from .storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest
 
 
@@ -50,8 +50,10 @@ def _publish(record: RunRecord, store: RunStore, row_id: str, output: dict[str, 
     if not any(a.attempt_id == identity for a in record.attempts):
         aggregate = Attempt(attempt_id=identity, run_id=record.run_id, engine="topos", method=output["recipe"],
                             status="completed", converged=True, validation_status="validated-for-protocol",
+                            started_at=utc_now(),
                             command=["topos-internal", "correlated-recipe-arithmetic"], artifacts=[artifact],
                             metadata={"execution_kind": "real", "result_kind": "derived-correlated-recipe",
+                                      "execution_timing_scope": "correlated result attribution creation; actual native invocation boundaries remain on component_attempt_ids",
                                       "component_attempt_ids": output["component_attempt_ids"],
                                       "scientific_definition": output["definition"],
                                       "basis_and_method_identity": output.get("protocols"),
@@ -63,6 +65,7 @@ def _publish(record: RunRecord, store: RunStore, row_id: str, output: dict[str, 
                 aggregate.quantities.append(Quantity(name=key, value=output[key], units=units,
                                                      definition=output["definition"], attempt_id=identity,
                                                      method=output["recipe"], validity="validated-for-protocol"))
+        aggregate.finished_at = utc_now()
         record.attempts.append(aggregate)
     store.commit(record)
 

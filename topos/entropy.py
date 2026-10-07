@@ -11,6 +11,7 @@ import math
 import re
 import shutil
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Event
 from typing import Any, Callable
@@ -22,14 +23,32 @@ from scipy import constants
 from scipy.special import logsumexp
 
 from .engines import EngineParseError, _number, artifact_inventory
-from .models import Contract, MethodSpec, Molecule, ResourceLimits
+from .models import Contract, MethodSpec, Molecule, ResourceLimits, utc_now
 from .sampling import SamplingResult
 from .science import HARTREE_J, KB_HARTREE_K, geometry_digest
-from .storage import IntegrityError, atomic_json, file_digest
+from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
 GOAT_MANUAL = "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html"
 CREST_SOURCE = "https://github.com/crest-lab/crest/blob/v3.0.2/src/entropy/entropy.f90"
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
+SAMPLING_TIMING_SCOPE = "UTC wall clock around sampling adapter dispatch, including prelaunch setup, version probes and evidence parsing"
+
+
+def sampling_execution_timing(result: SamplingResult) -> tuple[str | None, str | None]:
+    """Retain original dispatch boundaries; undated historical evidence stays undated."""
+    timing = result.metadata.get("execution_timing")
+    if timing is None:
+        return None, None
+    try:
+        start, finish = timing["started_at"], timing["finished_at"]
+        first, last = datetime.fromisoformat(start), datetime.fromisoformat(finish)
+        if (set(timing) != {"started_at", "finished_at", "scope"}
+                or timing["scope"] != SAMPLING_TIMING_SCOPE
+                or first.utcoffset() != timedelta(0) or last.utcoffset() != timedelta(0) or last < first):
+            raise ValueError("Invalid UTC dispatch boundary")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise IntegrityError("Native sampling has invalid recorded execution wall-clock timing") from exc
+    return start, finish
 
 
 class EntropyOptions(Contract):
@@ -199,6 +218,10 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
             if receipt.exists():
                 saved = json.loads(receipt.read_text())
                 candidate = SamplingResult.model_validate(saved["result"])
+                timing = sampling_execution_timing(candidate)
+                if ("result_sha256" in saved and digest_json(saved["result"]) != saved["result_sha256"]
+                        or timing[0] is not None and "result_sha256" not in saved):
+                    raise IntegrityError("Entropy result or its recorded timing identity changed")
                 if candidate.status == "completed":
                     if candidate.metadata.get("execution_kind") != "real" or not candidate.artifacts or "native_entropy" not in candidate.metadata:
                         raise IntegrityError("completed entropy receipt lacks native execution evidence")
@@ -216,6 +239,7 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
                 # jobs never borrow a future seed's entire allocation.
                 limits = resources.model_copy(update={"budget_seconds": remaining / (2 * len(seeds) - len(results))})
                 native = folder / (key + "-" + uuid4().hex)
+                invocation_started_at = utc_now()
                 if engine == "goat":
                     sampled = run_goat(seed, method, limits, native, executable=orca_executable, xtb_executable=xtb_executable,
                                        energy_window_kcal_mol=options.energy_window_kcal_mol,
@@ -229,7 +253,11 @@ def run_matched_entropy(seeds: list[Molecule], method: MethodSpec, resources: Re
                                                          "entropy_growth_threshold": options.crest_entropy_growth_threshold,
                                                          "conformer_growth_threshold": options.crest_conformer_growth_threshold},
                                         process_runner=process_runner, cancel_event=cancel_event)
-                atomic_json(receipt, {"result": sampled.model_dump(mode="json")})
+                sampled.metadata["execution_timing"] = {
+                    "started_at": invocation_started_at, "finished_at": utc_now(), "scope": SAMPLING_TIMING_SCOPE}
+                sampling_execution_timing(sampled)
+                payload = sampled.model_dump(mode="json")
+                atomic_json(receipt, {"result": payload, "result_sha256": digest_json(payload)})
             results.append({"seed_index": seed_index, "seed_geometry_sha256": geometry_digest(seed), "engine": engine,
                             "reused_completed": reused, "result": sampled.model_dump(mode="json")})
     return {"status": "completed" if all(row["result"]["status"] == "completed" for row in results) else "partial",

@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import os
 import shutil
+from datetime import datetime
 from threading import Event
 
 import h5py
@@ -182,6 +183,13 @@ def test_matrix_scan_routes_actual_gradients_and_preserves_slice_points_without_
     assert result.metadata["matrix_scan"]["surface_hdf5"].endswith(".h5")
     assert all(a.artifacts and a.metadata["accepted_gradient_attempt_id"]
                for a in result.attempts if a.metadata.get("result_kind") == "derived-constrained-scan")
+    for attempt in result.attempts:
+        assert attempt.started_at and attempt.finished_at
+        if attempt.metadata.get("result_kind") == "derived-constrained-scan":
+            source = next(a for a in result.attempts if a.attempt_id == attempt.metadata["accepted_gradient_attempt_id"])
+            assert attempt.parent_attempt_id == source.attempt_id
+            assert datetime.fromisoformat(source.finished_at) <= datetime.fromisoformat(attempt.started_at) <= datetime.fromisoformat(attempt.finished_at)
+            assert "attribution creation" in attempt.metadata["execution_timing_scope"]
     assert RunStore(tmp_path / result.run_id).verify()
 
 
