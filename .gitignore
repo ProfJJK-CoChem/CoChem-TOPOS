@@ -22,6 +22,10 @@ TOPOS_Runtime_State.json
 *.chk
 *scf*.out
 
+# Curated text derivatives used by regression tests belong in source archives.
+!tests/fixtures/**/*.hess
+!tests/v010/fixtures/**/*.hess
+
 # 5. Standard Python Ignored Environments & Ephemeral IPC
 __pycache__/
 *.pyc
