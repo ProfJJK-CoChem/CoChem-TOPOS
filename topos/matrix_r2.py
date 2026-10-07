@@ -33,9 +33,11 @@ class R2AnharmonicProtocol(MethodSpec):
     operation: Literal['anharmonic'] = 'anharmonic'
     displacement: float = Field(gt=0, le=.2)
     semirigid_modes: Literal[True]
+    reference_validation_policy: Literal['orca-vpt2-same-native-pose-reference-v1'] = 'orca-vpt2-same-native-pose-reference-v1'
 
     def native_method(self) -> MethodSpec:
-        return MethodSpec.model_validate(self.model_dump(exclude={'operation', 'displacement', 'semirigid_modes'}))
+        return MethodSpec.model_validate(self.model_dump(exclude={'operation', 'displacement', 'semirigid_modes',
+                                                                  'reference_validation_policy'}))
 
 
 def r2_reference_method(*, purpose: str = 'optimize') -> MethodSpec:

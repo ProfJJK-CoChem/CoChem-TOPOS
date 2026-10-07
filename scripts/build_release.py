@@ -143,7 +143,7 @@ def release_files(root: Path) -> list[Path]:
     selected = {root / name for name in ("README.md", "LICENSE", "CITATION.cff", "pyproject.toml", "setup.py",
                                          "MANIFEST.in", "requirements.txt", "cochem_topos_web.py")}
     for folder, suffixes in {"topos": {".py", ".json"}, "scripts": {".py", ".txt"},
-                            "tests": {".py", ".txt", ".json", ".stdout", ".out", ".hess", ".engrad", ".inp"},
+                            "tests": {".py", ".txt", ".json", ".stdout", ".stderr", ".out", ".hess", ".engrad", ".inp"},
                             "examples": {".json", ".xyz"},
                             ".docs": {".md", ".json", ".patch", ".xml"}, "wiki": {".md"},
                             ".github/workflows": {".yml"}}.items():

@@ -538,12 +538,10 @@ def _orca_optimization_proof(attempt, molecule: Molecule, snapshot: Path) -> tup
 
 def _vpt2_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tuple[Any, dict]:
     """Reparse immutable native spectroscopy and recompute the declared transfer."""
+    from .anharmonic import verify_vpt2_native_frame_reference
     from .engines import EngineResult, _engine_version, _number, _orca_input, parse_orca_engrad
-    from .native_hessian import parse_orca_hessian
     from .rotational_transfer import (
         RotationalTransferOptions,
-        proper_alignment,
-        rotate_cartesian_hessian,
         transfer_rotational_correction,
     )
 
@@ -652,7 +650,6 @@ def _vpt2_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tupl
         relocated = EngineResult.model_validate(rebind(native))
         recomputed = transfer_rotational_correction(target, relocated, options)
         geometry = relocated.metadata['vpt2_geometry']
-        native_molecule = relocated.molecule.model_copy(update={'coordinates': geometry['coordinates_angstrom']})
         stdout = Path(relocated.diagnostics['process']['stdout_path'])
         hessian_path = stdout.parent/'anharmonic.hess'
         force_field = Path(relocated.metadata['native_force_field'])
@@ -660,12 +657,12 @@ def _vpt2_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tupl
         if any(str(path) not in replacements.values() or path.stat().st_size == 0
                for path in (hessian_path, force_field, pickett)):
             raise IntegrityError('Native VPT2 reference Hessian, force field or Pickett output is absent from its immutable inventory')
-        parsed_hessian = parse_orca_hessian(hessian_path, native_molecule)
-        alignment = proper_alignment(geometry['coordinates_angstrom'], relocated.molecule.coordinates, geometry['masses_amu'])
-        rotated = rotate_cartesian_hessian(parsed_hessian['hessian_hartree_per_bohr2'], alignment['rotation_source_to_target'])
-        reference_hessian = relocated.metadata['reference_hessian_result']['metadata']['hessian_hartree_per_bohr2']
-        if not np.allclose(rotated, reference_hessian, atol=1e-7, rtol=1e-6):
-            raise IntegrityError('Actual VPT2 reference Hessian differs from the same-level stationary derivative reference')
+        frame_reference = EngineResult.model_validate(relocated.metadata['native_frame_reference_hessian_result'])
+        association = verify_vpt2_native_frame_reference(relocated.molecule, geometry, hessian_path,
+                                                         frame_reference, relocated.metadata['requested_method'],
+                                                         relocated.metadata['executable_sha256'])
+        if association != relocated.metadata.get('native_frame_reference_association'):
+            raise IntegrityError('Actual VPT2 Hessian differs from its independent same-pose stationary reference association')
     if transferred:
         expected = payload['correction_transfer']
         actual_science = {key: value for key, value in recomputed.items() if key != 'native_source'}

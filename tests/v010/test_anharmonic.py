@@ -201,7 +201,7 @@ def test_anharmonic_and_dispersion_citations_require_actual_execution():
     assert not refs
 
 
-def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
+def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path, monkeypatch):
     import os
     import shutil
 
@@ -231,6 +231,16 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     assert result.metadata['native_execution_resources']['memory_mb'] == resources.memory_mb
     assert result.metadata['execution_policy']['native_maxcore_mb'] == 1536
     assert result.metadata['reference_hessian_result']['metadata']['requested_method'] == method().model_dump(mode='json')
+    from topos.anharmonic import vpt2_reference_policy
+
+    assert result.metadata['reference_validation_policy'] == vpt2_reference_policy()
+    frame_reference = result.metadata['native_frame_reference_hessian_result']
+    assert frame_reference['status'] == 'completed' and frame_reference['converged'] is True
+    assert frame_reference['metadata']['requested_method'] == method().model_dump(mode='json')
+    assert frame_reference['molecule'] == result.metadata['native_frame_reference_molecule']
+    assert frame_reference['command'][1:] == ['frequency.inp']
+    assert frame_reference['metadata']['reference_gradient_result']['command'][1:] == ['job.inp']
+    assert frame_reference['molecule'] != result.metadata['reference_hessian_result']['molecule']
     native = result.metadata['vpt2']
     assert len(native['fundamental_transitions']) == 3
     assert native['zero_point_energy']['total_cm1'] > 0
@@ -247,6 +257,10 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     altered.metadata['reference_hessian_result']['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
     with pytest.raises(ValueError, match='raw derivatives'):
         transfer_rotational_correction(optimized.molecule, altered, RotationalTransferOptions(semirigid_same_basin=True))
+    changed_frame = result.model_copy(deep=True)
+    changed_frame.metadata['native_frame_reference_hessian_result']['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
+    with pytest.raises(ValueError, match='immutable result receipt'):
+        transfer_rotational_correction(optimized.molecule, changed_frame, RotationalTransferOptions(semirigid_same_basin=True))
     changed_policy = result.model_copy(deep=True)
     changed_policy.metadata['execution_policy']['effective_workers'] = 2
     with pytest.raises(ValueError, match='execution policy'):
@@ -257,7 +271,74 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     with pytest.raises(ValueError, match='process allocation'):
         transfer_rotational_correction(optimized.molecule, changed_allocation,
                                        RotationalTransferOptions(semirigid_same_basin=True))
+    def no_new_process(*args, **kwargs):
+        raise AssertionError('completed verified VPT2 recovery must not launch a new native process')
+
     replay = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
-                           executable=binary, semirigid_modes=True, process_runner=process_runner)
+                           executable=binary, semirigid_modes=True, process_runner=no_new_process)
     assert replay.metadata['reused_completed_vpt2']
     assert replay.command == result.command
+    assert replay.metadata['native_frame_reference_association'] == result.metadata['native_frame_reference_association']
+    from threading import Event
+
+    from topos import anharmonic
+    from topos.storage import file_digest
+
+    folder = tmp_path / 'native-vpt2'
+    preserved = {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()}
+    import json
+
+    completed = folder / 'completed.json'
+    original_bytes = completed.read_bytes()
+    for case in ('transition', 'rotational_constant', 'masses', 'original_preflight',
+                 'native_frame_reference', 'force_field', 'pickett', 'protocol'):
+        payload = json.loads(original_bytes)
+        md = payload['result']['metadata']
+        if case == 'transition':
+            md['vpt2']['fundamental_transitions'][0]['fundamental_cm1'] += 1
+        elif case == 'rotational_constant':
+            md['vpt2']['rotational_constants_cm1']['B_0'][0] += .01
+        elif case == 'masses':
+            md['native_masses_amu'][0] += 1
+        elif case == 'original_preflight':
+            md['reference_hessian_result']['gradient_hartree_per_bohr'] = [[0., 0., 0.]] * len(optimized.molecule.symbols)
+        elif case == 'native_frame_reference':
+            md['native_frame_reference_hessian_result']['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
+        elif case == 'force_field':
+            md['native_force_field'] = str(folder / 'another-force-field.vpt2')
+        elif case == 'pickett':
+            md['native_pickett_template'] = str(folder / 'another-pickett.txt')
+        else:
+            md['protocol']['method']['basis'] = 'def2-SVP'
+        try:
+            completed.write_text(json.dumps(payload))
+            rejected = run_orca_vpt2(optimized.molecule, method(), resources, folder,
+                                     executable=binary, semirigid_modes=True, process_runner=no_new_process)
+            assert rejected.status == 'failed', rejected.diagnostics
+            assert 'reused_completed_vpt2' not in rejected.metadata
+        finally:
+            completed.write_bytes(original_bytes)
+        assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
+    actual_verify = anharmonic.verify_vpt2_native_frame_reference
+    for stop_kind in ('cancelled', 'timed-out'):
+        cancel = Event()
+        clock = {'value': 0.0}
+
+        def verify_then_stop(*args, stop_kind=stop_kind, cancel=cancel, clock=clock, **kwargs):
+            association = actual_verify(*args, **kwargs)
+            # Use the real completed cache and actual physical derivatives,
+            # then stop after its final native-pose scientific verification.
+            if stop_kind == 'cancelled':
+                cancel.set()
+            else:
+                clock['value'] = resources.budget_seconds + 1
+            return association
+
+        with monkeypatch.context() as context:
+            context.setattr(anharmonic, 'verify_vpt2_native_frame_reference', verify_then_stop)
+            context.setattr(anharmonic.time, 'monotonic', lambda clock=clock: clock['value'])
+            stopped = run_orca_vpt2(optimized.molecule, method(), resources, folder,
+                                    executable=binary, semirigid_modes=True,
+                                    process_runner=no_new_process, cancel_event=cancel)
+        assert stopped.status == stop_kind and stopped.converged is False
+        assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved

@@ -236,6 +236,22 @@ def test_tracked_native_fixtures_survive_candidate_staging_and_source_archive(tm
         fixtures = {path for folder in ("tests/fixtures", "tests/v010/fixtures")
                     for path in (ROOT / folder).rglob("*")
                     if path.is_file() and "__pycache__" not in path.parts}
+    # These unchanged historical derivative files are required by the native
+    # raw revalidators, including the evidence of empty stderr. Source identity
+    # and archives must retain them even before a new fixture reaches Git.
+    derivative_folder = ROOT / "tests/v010/fixtures/orca_native_hessian_attribution"
+    provenance = json.loads((derivative_folder / "provenance.json").read_text())
+    required = {"frequency.stderr", "gradient-engine.stderr", "gradient-version.stderr",
+                "gradient-version.inp", "gradient-version.stdout"}
+    assert required <= set(provenance["files"])
+    identity = source_inventory(ROOT)
+    for name in required:
+        path = derivative_folder / name
+        observed = hashlib.sha256(path.read_bytes()).hexdigest()
+        assert observed == provenance["files"][name]["sha256"]
+        assert path.stat().st_size == provenance["files"][name]["size_bytes"]
+        assert identity[path.relative_to(ROOT).as_posix()] == observed
+    fixtures.update(derivative_folder / name for name in provenance["files"])
     assert fixtures
     stage = tmp_path / "source"
     stage.mkdir()
@@ -264,7 +280,7 @@ def test_tracked_native_fixtures_survive_candidate_staging_and_source_archive(tm
         assert payloads.get(name) == hashlib.sha256(fixture.read_bytes()).hexdigest(), name
 
 
-@pytest.mark.parametrize("suffix", [".hess", ".engrad", ".inp"])
+@pytest.mark.parametrize("suffix", [".hess", ".engrad", ".inp", ".stderr"])
 def test_native_fixture_mutation_invalidates_source_receipt(tmp_path, suffix):
     fixture = tmp_path / "tests/v010/fixtures" / ("native" + suffix)
     fixture.parent.mkdir(parents=True)
