@@ -60,9 +60,12 @@ def test_vpt2_input_enforces_documented_precision_and_actual_d4():
 
 
 @pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])
-def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):
+def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, monkeypatch, threads, memory):
     from topos.base_integration import _orca_deck_allocation
 
+    # Exercise declared deck allocations, including four workers on two-vCPU CI.
+    # No process is launched here; native execution retains its real affinity gate.
+    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: threads)
     resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
     policy = vpt2_execution_policy(resources)
     deck = orca_vpt2_input(water(), method(), resources)
@@ -83,6 +86,23 @@ def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path
 def test_vpt2_policy_does_not_turn_a_requested_gpu_into_cpu():
     with pytest.raises(ValueError, match='requested GPU'):
         orca_vpt2_input(water(), method(), ResourceLimits(device='gpu', threads=2, memory_mb=4096))
+
+
+def test_offline_native_deck_verification_preserves_recorded_allocation_on_smaller_controller(monkeypatch):
+    from topos.native_hessian import orca_frequency_input
+
+    resources = ResourceLimits(threads=4, memory_mb=8192)
+    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: 4)
+    original_frequency = orca_frequency_input(water(), method(), resources)
+    original_vpt2 = orca_vpt2_input(water(), method(), resources)
+    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: 1)
+    assert orca_frequency_input(water(), method(), resources, check_cpu_affinity=False) == original_frequency
+    assert orca_vpt2_input(water(), method(), resources, check_cpu_affinity=False) == original_vpt2
+    for writer in (orca_frequency_input, orca_vpt2_input):
+        with pytest.raises(ValueError, match='available CPU affinity'):
+            writer(water(), method(), resources)
+        with pytest.raises(ValueError, match='requested GPU'):
+            writer(water(), method(), resources.model_copy(update={'device': 'gpu'}), check_cpu_affinity=False)
 
 
 def test_vpt2_recovery_rejects_policy_change_before_native_execution(tmp_path):

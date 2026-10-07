@@ -1,0 +1,127 @@
+{
+  "schema": "cochem-reference-source-inventory/0.1.0",
+  "all_selected_git_blobs_match_committed_tree": true,
+  "sources": [
+    {
+      "local_path": "S66.py",
+      "repository": "psi4/psi4",
+      "commit": "23be3de4b1f6cd70e337b98a2a200008cf350274",
+      "repository_path": "psi4/share/psi4/databases/S66.py",
+      "raw_url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/share/psi4/databases/S66.py",
+      "sha256": "02fdf4462db6d6aa87c4846e055a9752c6cbb2be27a89518f95be2cb6d34e2c6",
+      "git_blob_sha1": "06f4f9b733da20cd3c8bbc6c4dcd9fa5dd499f89",
+      "git_blob_matches_tree": true,
+      "bytes": 148398
+    },
+    {
+      "local_path": "S22.py",
+      "repository": "psi4/psi4",
+      "commit": "23be3de4b1f6cd70e337b98a2a200008cf350274",
+      "repository_path": "psi4/share/psi4/databases/S22.py",
+      "raw_url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/share/psi4/databases/S22.py",
+      "sha256": "6fb9cc1d6901ea137a18a93925f0e03568cac2314e21c1af8f0f874c8d80f6c9",
+      "git_blob_sha1": "9dbea5594865beb6b782c5ea7392e8d277d2826c",
+      "git_blob_matches_tree": true,
+      "bytes": 43408
+    },
+    {
+      "local_path": "psi4_wrapper_database.py",
+      "repository": "psi4/psi4",
+      "commit": "23be3de4b1f6cd70e337b98a2a200008cf350274",
+      "repository_path": "psi4/driver/wrapper_database.py",
+      "raw_url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/driver/wrapper_database.py",
+      "sha256": "52555aea1488fafca630426301975b5a8ca00e38e83822384d89d6c1714b32e4",
+      "git_blob_sha1": "dcb2c8c11039bc932fb3cf7f93ee994cf15e5609",
+      "git_blob_matches_tree": true,
+      "bytes": 26090
+    },
+    {
+      "local_path": "COPYING",
+      "repository": "psi4/psi4",
+      "commit": "23be3de4b1f6cd70e337b98a2a200008cf350274",
+      "repository_path": "COPYING",
+      "raw_url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/COPYING",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "git_blob_sha1": "94a9ed024d3859793618152ea559a168bbcbb5e2",
+      "git_blob_matches_tree": true,
+      "bytes": 35147
+    },
+    {
+      "local_path": "COPYING.LESSER",
+      "repository": "psi4/psi4",
+      "commit": "23be3de4b1f6cd70e337b98a2a200008cf350274",
+      "repository_path": "COPYING.LESSER",
+      "raw_url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/COPYING.LESSER",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "git_blob_sha1": "65c5ca88a67c30becee01c5a8816d964b03862f9",
+      "git_blob_matches_tree": true,
+      "bytes": 7651
+    },
+    {
+      "local_path": "GMTKN55/S66/.bib",
+      "repository": "grimme-lab/GMTKN55",
+      "commit": "8d485b37a1ca8837e395042671ca5ba4e0714691",
+      "repository_path": "S66/.bib",
+      "raw_url": "https://raw.githubusercontent.com/grimme-lab/GMTKN55/8d485b37a1ca8837e395042671ca5ba4e0714691/S66/.bib",
+      "sha256": "f63cefe8c7c1c64ddad680c2aa07bf69dcfb9c031b587e0796962a35c421ed34",
+      "git_blob_sha1": "26b610d59de7a6740514fe7eb2cb5b6d3800ba35",
+      "git_blob_matches_tree": true,
+      "bytes": 462
+    },
+    {
+      "local_path": "GMTKN55/S66/.res",
+      "repository": "grimme-lab/GMTKN55",
+      "commit": "8d485b37a1ca8837e395042671ca5ba4e0714691",
+      "repository_path": "S66/.res",
+      "raw_url": "https://raw.githubusercontent.com/grimme-lab/GMTKN55/8d485b37a1ca8837e395042671ca5ba4e0714691/S66/.res",
+      "sha256": "1d799b114fd0899ff4e2e9834c3e8382f2c99f56c16a776635da8c632bda0ec3",
+      "git_blob_sha1": "1897991f7ded85e6bfb8b8d162eae2b7eb5240b8",
+      "git_blob_matches_tree": true,
+      "bytes": 2829
+    },
+    {
+      "local_path": "GMTKN55/LICENSE",
+      "repository": "grimme-lab/GMTKN55",
+      "commit": "8d485b37a1ca8837e395042671ca5ba4e0714691",
+      "repository_path": "LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/grimme-lab/GMTKN55/8d485b37a1ca8837e395042671ca5ba4e0714691/LICENSE",
+      "sha256": "29853614116e554998fb67ca0654c69dadedaf70960344027acdfa8ee42f0a68",
+      "git_blob_sha1": "8f82b4474f9f9da2f0585f6d9176d72f89b7b9ab",
+      "git_blob_matches_tree": true,
+      "bytes": 2259
+    },
+    {
+      "local_path": "GMTKN55/S66/01/struc.xyz",
+      "repository": "grimme-lab/GMTKN55",
+      "commit": "8d485b37a1ca8837e395042671ca5ba4e0714691",
+      "repository_path": "S66/01/struc.xyz",
+      "raw_url": "https://raw.githubusercontent.com/grimme-lab/GMTKN55/8d485b37a1ca8837e395042671ca5ba4e0714691/S66/01/struc.xyz",
+      "sha256": "1891ce8d31daea6d164e86e2b7e3b09736c35921683fd11fa921d9c8c5c40dcf",
+      "git_blob_sha1": "e29b7ffe8d33934697119a1d95a86fd33a58b45e",
+      "git_blob_matches_tree": true,
+      "bytes": 471
+    },
+    {
+      "local_path": "cuby_s66.yaml",
+      "repository": "berquist/cuby",
+      "commit": "84824bfbaeb50425d586794453b41f397ac7b68a",
+      "repository_path": "data/datasets/s66.yaml",
+      "raw_url": "https://raw.githubusercontent.com/berquist/cuby/84824bfbaeb50425d586794453b41f397ac7b68a/data/datasets/s66.yaml",
+      "sha256": "fcd0947aff829ec19456363e93013105ff3aa4c7445b8fee16630bd856da121a",
+      "git_blob_sha1": "6167740afb9e702ad9539d894f63faf8dc038a98",
+      "git_blob_matches_tree": true,
+      "bytes": 18937
+    },
+    {
+      "local_path": "cuby_LICENSE",
+      "repository": "berquist/cuby",
+      "commit": "84824bfbaeb50425d586794453b41f397ac7b68a",
+      "repository_path": "LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/berquist/cuby/84824bfbaeb50425d586794453b41f397ac7b68a/LICENSE",
+      "sha256": "a3b40ca4cf972b449da1fb6a92b7767b8a4e45814e992862f5ba29bf8489c8c1",
+      "git_blob_sha1": "adee37021aa70839fb8315ea5247d3d77b5d381f",
+      "git_blob_matches_tree": true,
+      "bytes": 34075
+    }
+  ]
+}

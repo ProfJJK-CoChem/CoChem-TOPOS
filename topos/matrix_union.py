@@ -7,13 +7,14 @@ frames to individual input searches; input evidence and that limitation survive.
 from __future__ import annotations
 
 import time
+from copy import deepcopy
 from pathlib import Path
 from threading import Event
 from typing import Any, Callable
 
 from .ensemble_tools import run_cregen, run_crest_screen
 from .matrix_sources import import_native_ensemble
-from .models import Artifact, Attempt, Candidate, RunRecord, utc_now
+from .models import Artifact, Attempt, Candidate, MethodSpec, Molecule, Quantity, RunRecord, utc_now
 from .sampling import SampledConformer
 from .storage import IntegrityError, RunStore, digest_json, file_digest
 
@@ -110,6 +111,84 @@ def _one_candidate(result: RunRecord, *, require_minimum: bool = False) -> Candi
         raise ValueError("Common-level candidate lacks verified real engine identity")
     if require_minimum and candidate.metadata.get("stationary_point_classification") != "harmonic-minimum-within-thresholds":
         raise ValueError("A refined union member is not a verified harmonic minimum within the explicit numerical thresholds")
+    return candidate
+
+
+def _native_hessian_candidate(workflow: Any, record: RunRecord, store: RunStore,
+                              molecule: Molecule, source: Attempt, native: Any,
+                              spec: MethodSpec, index: int, deadline: float) -> Candidate:
+    """Attribute an immutable native component without editing its finished attempt.
+
+    The linked attempt performs only candidate/quantity attribution. Its internal
+    command is deliberately distinct from the source's actual ORCA invocation.
+    Publish candidate and attribution atomically, so recovery never has to append
+    quantities or comparison metadata to an already finished native attempt.
+    """
+    from .matrix_workflow import _child_request
+
+    native_hash = digest_json(native.model_dump(mode="json"))
+    if (source.status != "completed" or source.validation_status != "validated-for-protocol"
+            or source.converged is not True or source.metadata.get("execution_kind") != "real"
+            or source.metadata.get("native_result_sha256") != native_hash
+            or source.metadata.get("native_result") != native.model_dump(mode="json")
+            or source.metadata.get("input_molecule") != molecule.model_dump(mode="json")
+            or native.metadata["analysis"]["validity"] != "harmonic-minimum-within-thresholds"):
+        raise IntegrityError("Native union candidate requires its exact validated immutable component")
+    identity = digest_json({"native_hessian_attempt_id": source.attempt_id,
+                            "native_hessian_result_sha256": native_hash,
+                            "molecule": molecule.model_dump(mode="json"),
+                            "requested_method": spec.model_dump(mode="json"), "source_index": index})
+    attempt_id = "attempt_union_hessian_" + identity[:24]
+    candidate_id = "candidate_union_hessian_" + identity[:24]
+    previous = next((a for a in record.attempts if a.attempt_id == attempt_id), None)
+    attribution = Attempt(
+        attempt_id=attempt_id, run_id=record.run_id, parent_attempt_id=source.attempt_id,
+        engine=source.engine, method=source.method, engine_version=source.engine_version,
+        status="completed", converged=True, validation_status="validated-for-protocol",
+        started_at=previous.started_at if previous else utc_now(),
+        finished_at=previous.finished_at if previous else utc_now(),
+        command=["topos-internal", "native-hessian-candidate-attribution"],
+        artifacts=[a.model_copy(deep=True) for a in source.artifacts],
+        quantities=[q.model_copy(deep=True, update={"attempt_id": attempt_id}) for q in source.quantities],
+        metadata={**deepcopy(native.metadata), "role": "matrix-union-native-hessian-candidate",
+                  "result_kind": "native-analytic-hessian", "attribution_only": True,
+                  "native_hessian_attempt_id": source.attempt_id,
+                  "native_hessian_result_sha256": native_hash, "attribution_sha256": identity,
+                  "provenance_scope": "candidate attribution of completed native evidence; no additional engine execution",
+                  "attribution_requested_method": spec.model_dump(mode="json")},
+    )
+    request = _child_request(record.request, molecule, engine="orca", method=spec.method,
+        purpose="frequency", remaining=max(1e-9, deadline - time.monotonic()), optimize_first=False)
+    request = request.model_copy(update={key: value for key, value in spec.model_dump().items()
+                                        if key in type(request).model_fields})
+    temp = RunRecord(request=request)
+    candidate = workflow._candidate(temp, molecule, attribution, native, index, "MATRIX:native-Freq")
+    if candidate.status != "eligible" or attribution.validation_status != "validated-for-protocol":
+        raise ValueError("Native union Hessian candidate failed mapped chemistry or stereochemistry validation")
+    generated_id, candidate.candidate_id = candidate.candidate_id, candidate_id
+    for quantity in attribution.quantities:
+        if quantity.geometry_id == generated_id:
+            quantity.geometry_id = candidate_id
+    analysis = deepcopy(native.metadata["analysis"])
+    candidate.metadata.update(stationary_point_classification=analysis["validity"], frequency_analysis=analysis,
+                              native_hessian_attempt_id=source.attempt_id)
+    attribution.quantities.append(Quantity(
+        name="cartesian_hessian", value=native.metadata["hessian_hartree_per_bohr2"],
+        units="hartree/bohr^2", definition="native ORCA analytic Cartesian Hessian; attributed from linked immutable component",
+        attempt_id=attempt_id, geometry_id=candidate_id, method=spec.method,
+        validity="validated-for-protocol"))
+    existing = next((c for c in record.candidates if c.candidate_id == candidate_id), None)
+    if previous is not None or existing is not None:
+        if (previous is None or existing is None or previous.model_dump(mode="json") != attribution.model_dump(mode="json")
+                or any(getattr(existing, field) != getattr(candidate, field) for field in
+                       ("molecule", "attempt_id", "energy_hartree", "gibbs_hartree", "comparison_protocol"))
+                or any(existing.metadata.get(field) != candidate.metadata.get(field) for field in
+                       ("stationary_point_classification", "frequency_analysis", "native_hessian_attempt_id"))):
+            raise IntegrityError("Native Hessian candidate attribution changed or lost its atomic membership")
+        return existing
+    record.attempts.append(attribution)
+    record.candidates.append(candidate)
+    store.commit(record)
     return candidate
 
 
@@ -220,8 +299,6 @@ def execute_union(workflow: Any, record: RunRecord, store: RunStore, inputs: Any
                 hessian_attempt = next(a for a in result.attempts if a.attempt_id == candidate.attempt_id)
             else:
                 from .matrix_components import run_component
-                from .matrix_workflow import _child_request
-                from .models import MethodSpec, Quantity
                 from .native_hessian import run_orca_hessian
 
                 spec = MethodSpec(engine="orca", method="r2SCAN-3c", purpose="frequency",
@@ -234,20 +311,8 @@ def execute_union(workflow: Any, record: RunRecord, store: RunStore, inputs: Any
                 if analysis["validity"] != "harmonic-minimum-within-thresholds":
                     raise ValueError("Native Hessian does not establish a harmonic minimum within the explicit thresholds")
                 hessian_attempt = next(a for a in reversed(record.attempts) if a.metadata.get("component_key") == f"union-native-hessian-{frame.source_index:05d}" and a.status == "completed")
-                existing = next((c for c in record.candidates if c.attempt_id == hessian_attempt.attempt_id), None)
-                if existing is None:
-                    temp = RunRecord(request=_child_request(record.request, optimized.molecule, engine="orca", method="r2SCAN-3c",
-                                                           purpose="frequency", remaining=max(1e-9, deadline - time.monotonic()), optimize_first=False))
-                    candidate = workflow._candidate(temp, optimized.molecule, hessian_attempt, native, frame.source_index, "MATRIX:native-Freq")
-                    candidate.metadata.update(stationary_point_classification=analysis["validity"], frequency_analysis=analysis)
-                    hessian_attempt.metadata.update(result_kind="native-analytic-hessian", requested_method=spec.model_dump(mode="json"))
-                    hessian_attempt.quantities.append(Quantity(name="cartesian_hessian", value=native.metadata["hessian_hartree_per_bohr2"],
-                                                               units="hartree/bohr^2", definition="native ORCA analytic Cartesian Hessian",
-                                                               attempt_id=hessian_attempt.attempt_id, geometry_id=candidate.candidate_id,
-                                                               method="r2SCAN-3c", validity="validated-for-protocol"))
-                    record.candidates.append(candidate)
-                else:
-                    candidate = existing
+                candidate = _native_hessian_candidate(workflow, record, store, optimized.molecule,
+                                                       hessian_attempt, native, spec, frame.source_index, deadline)
             qm_binary_identities.add((hessian_attempt.engine_version, hessian_attempt.metadata["executable_sha256"]))
             if len(qm_binary_identities) != 1:
                 raise IntegrityError("Union optimization and Hessian stages used different ORCA binaries")

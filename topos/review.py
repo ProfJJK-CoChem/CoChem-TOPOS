@@ -196,6 +196,51 @@ def _validate_native_hessian(record, candidate, attempt) -> None:
     from .thermochemistry import rrho_thermochemistry
 
     metadata = attempt["metadata"]
+    source_id = metadata.get("native_hessian_attempt_id")
+    if source_id is not None or metadata.get("attribution_only") or attempt.get("parent_attempt_id") is not None:
+        sources = [a for a in record["attempts"] if a["attempt_id"] == source_id]
+        if (len(sources) != 1 or source_id == attempt["attempt_id"]
+                or attempt.get("parent_attempt_id") != source_id
+                or metadata.get("attribution_only") is not True
+                or attempt.get("command") != ["topos-internal", "native-hessian-candidate-attribution"]):
+            raise IntegrityError("Native Hessian attribution requires its unique immutable source link")
+        source = sources[0]
+        original = source.get("metadata", {})
+        payload = original.get("native_result")
+        if (source.get("status") != "completed" or source.get("converged") is not True
+                or source.get("validation_status") != "validated-for-protocol"
+                or original.get("execution_kind") != "real"
+                or original.get("role") != "matrix-native-component"
+                or not source.get("command") or source["command"][0] == "topos-internal"
+                or not isinstance(payload, dict)
+                or digest_json(payload) != original.get("native_result_sha256")
+                or metadata.get("native_hessian_result_sha256") != original.get("native_result_sha256")
+                or payload.get("status") != "completed" or payload.get("converged") is not True
+                or payload.get("operation") != "hessian"
+                or any(source.get(key) != attempt.get(key) or source.get(key) != payload.get(key)
+                       for key in ("engine", "method", "engine_version"))
+                or source.get("command") != payload.get("command")
+                or original.get("input_molecule") != candidate["molecule"]
+                or payload.get("molecule") != candidate["molecule"]):
+            raise IntegrityError("Native Hessian attribution does not match completed actual component evidence")
+        native_metadata = payload.get("metadata", {})
+        for key in ("execution_kind", "derivative_kind", "protocol", "analysis", "reference_gradient_result",
+                    "hessian_hartree_per_bohr2", "executable_sha256", "output_molecule"):
+            if (key not in native_metadata or metadata.get(key) != native_metadata[key]
+                    or original.get(key) != native_metadata[key]):
+                raise IntegrityError("Native Hessian attribution copied incompatible source metadata")
+        if attempt.get("artifacts") != source.get("artifacts"):
+            raise IntegrityError("Native Hessian attribution lost exact source artifact membership")
+        values = {"electronic_energy": payload.get("energy_hartree"),
+                  "cartesian_gradient": payload.get("gradient_hartree_per_bohr")}
+        quantities = source.get("quantities", [])
+        if (len(quantities) != len(values) or {q.get("name") for q in quantities} != set(values)
+                or any(q.get("value") != values[q["name"]] or q.get("attempt_id") != source_id
+                       or q.get("method") != source["method"] or q.get("validity") != "validated-for-protocol"
+                       or q.get("units") != ("hartree" if q["name"] == "electronic_energy" else "hartree/bohr")
+                       for q in quantities)
+                or payload.get("energy_hartree") != candidate.get("energy_hartree")):
+            raise IntegrityError("Native Hessian attribution energy/gradient differs from its immutable source")
     reference = metadata["reference_gradient_result"]
     molecule = Molecule.model_validate(candidate["molecule"])
     if (metadata.get("derivative_kind") != "native-analytic-SCF-Hessian"
@@ -224,6 +269,8 @@ def _validate_native_hessian(record, candidate, attempt) -> None:
     reported = [q for q in attempt["quantities"] if q.get("name") == "cartesian_hessian"]
     if (len(reported) != 1 or reported[0].get("units") != "hartree/bohr^2"
             or reported[0].get("attempt_id") != attempt["attempt_id"]
+            or reported[0].get("geometry_id") != candidate["candidate_id"]
+            or reported[0].get("method") != attempt["method"]
             or reported[0].get("validity") != "validated-for-protocol"
             or not np.allclose(reported[0]["value"], hessian, rtol=1e-12, atol=1e-14)):
         raise IntegrityError("Native Hessian quantity differs from the recorded physical derivative")

@@ -208,6 +208,8 @@ def test_gate_refuses_missing_evidence_without_inventing_matrix_gaps():
     result = release_gate(ROOT)
     assert result["status"] == "blocked" and not result["release_certified"] and not result["published"]
     assert any("current evidence file is missing" in reason for reason in result["blockers"])
+    assert "Scientific reference campaign: current evidence file is missing" in result["blockers"]
+    assert "Reviewed matrix campaign: current evidence file is missing" in result["blockers"]
     # Every available TOPOS row now has a complete explicitly selected recipe;
     # scientific/native evidence remains a separate release requirement.
     assert not any(reason.startswith("Method matrix") for reason in result["blockers"])
@@ -223,6 +225,39 @@ def test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence(t
     assert any("current source files" in item for item in result["blockers"])
     assert any("Installed wheel" in item for item in result["blockers"])
     assert any("Hosted ORCA" in item for item in result["blockers"])
+
+
+def test_claimed_campaign_passes_require_reverified_plans_and_actual_runs(tmp_path):
+    path = tmp_path / "claimed-campaign.json"
+    path.write_text(json.dumps({"status": "passed", "source_sha256": source_inventory(ROOT),
+                                "scientific_reference_campaign": True, "reviewed_matrix_campaign": True}))
+    result = release_gate(ROOT, scientific_reference_campaign=path, reviewed_matrix_campaign=path)
+    assert result["status"] == "blocked" and result["release_certified"] is False
+    assert any(item.startswith("Scientific reference campaign:") for item in result["blockers"])
+    assert any(item.startswith("Reviewed matrix campaign:") for item in result["blockers"])
+
+
+def test_empty_objects_cannot_satisfy_any_mandatory_release_evidence(tmp_path):
+    path = tmp_path / "empty-receipt.json"
+    path.write_text("{}\n")
+    result = release_gate(
+        ROOT, validation=path, installation=path, hosted=path, hosted_extended=path,
+        srs_acceptance=path, distribution_manifest=path,
+        scientific_reference_campaign=path, reviewed_matrix_campaign=path,
+    )
+    assert result["status"] == "blocked" and result["release_certified"] is False
+    for label in ("regression", "installed-wheel acceptance", "hosted ORCA acceptance", "extended hosted ORCA acceptance",
+                  "SRS acceptance", "distribution", "Scientific reference campaign", "Reviewed matrix campaign"):
+        assert any(reason.startswith(label + ": invalid receipt") and "empty object" in reason
+                   for reason in result["blockers"]), result["blockers"]
+
+
+@pytest.mark.parametrize("command", ["scientific-references", "matrix-campaign", "release"])
+def test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation(command):
+    result = subprocess.run([sys.executable, "-m", "topos", command, "--help"],
+                            cwd=ROOT, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stderr
+    assert "usage:" in result.stdout
 
 
 def test_source_identity_is_content_based_and_ignores_local_caches(tmp_path):

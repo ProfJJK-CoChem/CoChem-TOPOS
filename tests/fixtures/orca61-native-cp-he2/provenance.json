@@ -1,0 +1,202 @@
+{
+  "actions_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546",
+  "file_name_note": "Some unchanged raw bytes have .txt appended solely for source distribution inclusion; tests restore original basenames within their explicitly marked fixture wrapper.",
+  "github_artifact_id": 11509101361,
+  "members": {
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-0.log": {
+      "role": "basis-export-output",
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "size_bytes": 265,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-0.log.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-1.log": {
+      "role": "basis-export-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-1.log.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-receipt.json": {
+      "role": "basis-export-receipt",
+      "sha256": "bce711964865a603469a01e264f7ed16507dd2c505b81aeaaa87e65aaa67ddeb",
+      "size_bytes": 3165,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/auxiliary-receipt.json"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-0.log": {
+      "role": "basis-export-output",
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "size_bytes": 265,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-0.log.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-1.log": {
+      "role": "basis-export-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-1.log.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-receipt.json": {
+      "role": "basis-export-receipt",
+      "sha256": "c99b527febe9203079389b8de9abe2003521267b17a33dc2325f9c66b9ac83b7",
+      "size_bytes": 3166,
+      "stored_path": "basis-export-evidence-be390327332d618301f66358e03f65371b9f43519bedd54f8129a6ab9c093c45/orbital-receipt.json"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-0-attempt-0/auxiliary.bas": {
+      "role": "raw-output",
+      "sha256": "2b9cae133186008b84b8988a2b0f6294893d7e7e55d1acac3c1e54fceb95b3f9",
+      "size_bytes": 753,
+      "stored_path": "leg-0-attempt-0/auxiliary.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-0-attempt-0/engine.stderr": {
+      "role": "raw-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "leg-0-attempt-0/engine.stderr.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-0-attempt-0/engine.stdout": {
+      "role": "raw-output",
+      "sha256": "eabde8f6106707453d6fae3abc81c30136637c5ad6d6fc041e363ba3f9639ffd",
+      "size_bytes": 53479,
+      "stored_path": "leg-0-attempt-0/engine.stdout"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-0-attempt-0/job.inp": {
+      "role": "engine-input",
+      "sha256": "4c06b2b9ebc968d740e42329a6f0ad2eb3c071d7a3def5fd750737d4f0ec1276",
+      "size_bytes": 162,
+      "stored_path": "leg-0-attempt-0/job.inp"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-0-attempt-0/orbital.bas": {
+      "role": "raw-output",
+      "sha256": "588e178f0e6ef0183f8288dee0d4032ca2a47648e4e0133978cbc96517803762",
+      "size_bytes": 641,
+      "stored_path": "leg-0-attempt-0/orbital.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-1-attempt-0/auxiliary.bas": {
+      "role": "raw-output",
+      "sha256": "2b9cae133186008b84b8988a2b0f6294893d7e7e55d1acac3c1e54fceb95b3f9",
+      "size_bytes": 753,
+      "stored_path": "leg-1-attempt-0/auxiliary.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-1-attempt-0/engine.stderr": {
+      "role": "raw-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "leg-1-attempt-0/engine.stderr.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-1-attempt-0/engine.stdout": {
+      "role": "raw-output",
+      "sha256": "dfad469bb6f5199544010b321fe8b0b33a34bd88c860ac3f0873cfd8899e5ac9",
+      "size_bytes": 55111,
+      "stored_path": "leg-1-attempt-0/engine.stdout"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-1-attempt-0/job.inp": {
+      "role": "engine-input",
+      "sha256": "5631e29a4d333cf110e8de920354a44e7e156fa51be63c2606bf4f4af67407cf",
+      "size_bytes": 153,
+      "stored_path": "leg-1-attempt-0/job.inp"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-1-attempt-0/orbital.bas": {
+      "role": "raw-output",
+      "sha256": "588e178f0e6ef0183f8288dee0d4032ca2a47648e4e0133978cbc96517803762",
+      "size_bytes": 641,
+      "stored_path": "leg-1-attempt-0/orbital.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-2-attempt-0/auxiliary.bas": {
+      "role": "raw-output",
+      "sha256": "2b9cae133186008b84b8988a2b0f6294893d7e7e55d1acac3c1e54fceb95b3f9",
+      "size_bytes": 753,
+      "stored_path": "leg-2-attempt-0/auxiliary.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-2-attempt-0/engine.stderr": {
+      "role": "raw-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "leg-2-attempt-0/engine.stderr.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-2-attempt-0/engine.stdout": {
+      "role": "raw-output",
+      "sha256": "89e9e7ec68a7402812da13f4f330f2f6808f23d570c0e115da47b9dfd8aa77e4",
+      "size_bytes": 53435,
+      "stored_path": "leg-2-attempt-0/engine.stdout"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-2-attempt-0/job.inp": {
+      "role": "engine-input",
+      "sha256": "73dc7afdb25587c64451fabbe447549f322b9f06cc9efa2b1ad9de06d792341e",
+      "size_bytes": 163,
+      "stored_path": "leg-2-attempt-0/job.inp"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-2-attempt-0/orbital.bas": {
+      "role": "raw-output",
+      "sha256": "588e178f0e6ef0183f8288dee0d4032ca2a47648e4e0133978cbc96517803762",
+      "size_bytes": 641,
+      "stored_path": "leg-2-attempt-0/orbital.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-3-attempt-0/auxiliary.bas": {
+      "role": "raw-output",
+      "sha256": "2b9cae133186008b84b8988a2b0f6294893d7e7e55d1acac3c1e54fceb95b3f9",
+      "size_bytes": 753,
+      "stored_path": "leg-3-attempt-0/auxiliary.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-3-attempt-0/engine.stderr": {
+      "role": "raw-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "leg-3-attempt-0/engine.stderr.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-3-attempt-0/engine.stdout": {
+      "role": "raw-output",
+      "sha256": "d146900aa01c30bc7308b22f197c22ee5ffe71990cb4c2294f387271b0b3cb2b",
+      "size_bytes": 55111,
+      "stored_path": "leg-3-attempt-0/engine.stdout"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-3-attempt-0/job.inp": {
+      "role": "engine-input",
+      "sha256": "9051f9f43b754790ecec771f5b5b9e642e6b5d66f855bc640aefd3cec51e054f",
+      "size_bytes": 153,
+      "stored_path": "leg-3-attempt-0/job.inp"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-3-attempt-0/orbital.bas": {
+      "role": "raw-output",
+      "sha256": "588e178f0e6ef0183f8288dee0d4032ca2a47648e4e0133978cbc96517803762",
+      "size_bytes": 641,
+      "stored_path": "leg-3-attempt-0/orbital.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-4-attempt-0/auxiliary.bas": {
+      "role": "raw-output",
+      "sha256": "2b9cae133186008b84b8988a2b0f6294893d7e7e55d1acac3c1e54fceb95b3f9",
+      "size_bytes": 753,
+      "stored_path": "leg-4-attempt-0/auxiliary.bas.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-4-attempt-0/engine.stderr": {
+      "role": "raw-output",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "stored_path": "leg-4-attempt-0/engine.stderr.txt"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-4-attempt-0/engine.stdout": {
+      "role": "raw-output",
+      "sha256": "d2c05e8306cc27a2640da28e7c49779cc36ca4f3265729608f4537e707ea28fc",
+      "size_bytes": 53435,
+      "stored_path": "leg-4-attempt-0/engine.stdout"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-4-attempt-0/job.inp": {
+      "role": "engine-input",
+      "sha256": "98f3b880a142b2d94277ff0a0019ee68782c72028a6f57fb6b21b87e6fe5e59d",
+      "size_bytes": 163,
+      "stored_path": "leg-4-attempt-0/job.inp"
+    },
+    "/home/runner/work/_temp/topos-orca-evidence/counterpoise-native/leg-4-attempt-0/orbital.bas": {
+      "role": "raw-output",
+      "sha256": "588e178f0e6ef0183f8288dee0d4032ca2a47648e4e0133978cbc96517803762",
+      "size_bytes": 641,
+      "stored_path": "leg-4-attempt-0/orbital.bas.txt"
+    }
+  },
+  "original_counterpoise_result_sha256": "6b3e4c4d20ff5416c226f7c14ef01b623a0d2499b969c1c335fef534e5eda77e",
+  "original_github_artifact_zip_sha256": "72ebf75b7832088d4aa803eec3f29ce36ac1deb54ce62e18e37fed2e7c181d19",
+  "schema_version": "topos-historical-native-parser-fixture/1",
+  "scope": "Historical unchanged ORCA native scientific text for CP importer regression only; a test-created RunStore wrapper is not a genuine current-source workflow run, reference campaign or release acceptance",
+  "source_commits": {
+    "BASE": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "TOPOS": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+    "TORQ": "79fbb111125e50627a1a2c129888a45496f368d4"
+  }
+}

@@ -20,6 +20,15 @@ on:
         required: true
         type: string
         default: '1'
+      campaign_evidence_run_id:
+        description: Completed run containing predeclared reference and reviewed-matrix campaign evidence
+        required: false
+        type: string
+      campaign_evidence_artifact:
+        description: Campaign artifact in the selected acceptance repository
+        required: false
+        type: string
+        default: topos-campaign-evidence
 
 permissions:
   contents: read
@@ -103,6 +112,15 @@ jobs:
           run-id: ${{ inputs.hosted_acceptance_run_id }}
           github-token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN || github.token }}
           path: ${{ runner.temp }}/hosted-acceptance
+      - name: Retrieve explicitly selected scientific and matrix campaign evidence
+        if: inputs.campaign_evidence_run_id != ''
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: ${{ inputs.campaign_evidence_artifact }}
+          repository: ${{ inputs.hosted_acceptance_repository }}
+          run-id: ${{ inputs.campaign_evidence_run_id }}
+          github-token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN || github.token }}
+          path: ${{ runner.temp }}/campaign-evidence
       - name: Require complete current SRS, matrix, regression and licensed evidence
         if: always()
         env:
@@ -131,6 +149,8 @@ jobs:
             --hosted-repository "$HOSTED_ACCEPTANCE_REPOSITORY" \
             --hosted-run-id "$HOSTED_ACCEPTANCE_RUN_ID" \
             --hosted-run-attempt "$HOSTED_ACCEPTANCE_RUN_ATTEMPT" \
+            --scientific-reference-campaign "$RUNNER_TEMP/campaign-evidence/scientific-reference-campaign.json" \
+            --reviewed-matrix-campaign "$RUNNER_TEMP/campaign-evidence/reviewed-matrix-campaign.json" \
             --output "$RUNNER_TEMP/topos-candidate/release-gate.json" "${supplements[@]}"
       - name: Assemble complete mandatory ecosystem download with retained gate status
         if: always()
@@ -146,6 +166,7 @@ jobs:
         with:
           name: topos-unsigned-candidate-${{ github.run_id }}
           path: |
+            ${{ runner.temp }}/campaign-evidence/
             ${{ runner.temp }}/ecosystem-download/
             ${{ runner.temp }}/topos-candidate/
             ${{ runner.temp }}/wheelhouse/

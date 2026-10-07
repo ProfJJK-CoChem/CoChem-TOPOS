@@ -277,8 +277,8 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
             or native_resources.budget_seconds > requested_resources.budget_seconds):
         raise ValueError('native VPT2 allocation exceeds or differs from its original request')
     decks = {stdout.parent / 'anharmonic.inp': orca_vpt2_input(result.molecule, spec, resources,
-                                                              displacement=protocol['displacement']),
-             reference_stdout.parent / 'frequency.inp': orca_frequency_input(result.molecule, spec, resources),
+                                                              displacement=protocol['displacement'], check_cpu_affinity=False),
+             reference_stdout.parent / 'frequency.inp': orca_frequency_input(result.molecule, spec, resources, check_cpu_affinity=False),
              derivative_stdout.parent / 'job.inp': _orca_input(result.molecule, spec, resources, 'gradient')}
     for path, expected_deck in decks.items():
         if str(path.resolve()) not in paths or path.read_text() != expected_deck:

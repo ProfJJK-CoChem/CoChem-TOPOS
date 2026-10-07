@@ -2,20 +2,23 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime
 from pathlib import Path
 from threading import Event
 
 import pytest
 
 from topos.counterpoise import (
+    EXECUTION_TIMING_SCOPE,
+    _leg_execution_timing,
     _validate_basis_export_receipts,
     counterpoise_plan,
     execute_counterpoise,
 )
 from topos.engines import EngineResult, _orca_input, run_engine
-from topos.models import FragmentState, MethodSpec, Molecule, ResourceLimits
+from topos.models import FragmentState, MethodSpec, Molecule, ResourceLimits, utc_now
 from topos.science import counterpoise_interaction
-from topos.storage import IntegrityError, file_digest
+from topos.storage import IntegrityError, digest_json, file_digest
 
 
 def hydrogen_pair():
@@ -286,11 +289,13 @@ def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, 
     binary = tmp_path / "inert-orca"
     binary.write_text("INERT ORCHESTRATION FIXTURE: never executed")
     calls = []
+    observed_calls = []
 
     def parser_fixture(molecule, requested_method, resources, workdir, **kwargs):
         folder = Path(workdir)
         folder.mkdir()
         calls.append(folder.name)
+        observed_calls.append(utc_now())
         basis = {}
         for kind, option in (("orbital", "orbital_basis_file"), ("auxiliary", "auxiliary_basis_file")):
             path = folder / f"{kind}.bas"
@@ -320,12 +325,64 @@ def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, 
                "cancel_event": cancel}
     interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
     assert interrupted["status"] == "cancelled" and interrupted["energies"] is None and len(calls) == 2
+    original_jobs = deepcopy(interrupted["jobs"])
+    for entry, observed in zip(original_jobs, observed_calls, strict=True):
+        first, last = _leg_execution_timing(EngineResult.model_validate(entry["result"]))
+        assert datetime.fromisoformat(first) <= datetime.fromisoformat(observed) <= datetime.fromisoformat(last)
+        assert entry["result_sha256"] == digest_json(entry["result"])
     cancel.clear()
     resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
     assert resumed["status"] == "completed" and len(calls) == 5
     assert resumed["resumed_completed_roles"] == ["complex-in-complex-basis", "fragment-0-in-own-basis"]
     assert resumed["validation_status"] == "human-review"  # arbitrary basis files never satisfy the matrix
+    assert resumed["jobs"][:2] == original_jobs  # Resume retains actual original invocation times.
     output = Path(resumed["jobs"][0]["result"]["diagnostics"]["process"]["stdout_path"])
     output.write_text(output.read_text().replace("-1.0000", "-2.0000"))
     with pytest.raises(IntegrityError, match="retained artifact"):
         execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+
+
+def test_unavailable_cp_leg_retains_dated_invocation_without_native_execution_claim(tmp_path):
+    before = datetime.fromisoformat(utc_now())
+    result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp",
+        **basis_files(tmp_path), executable="/missing-licensed-orca",
+        process_runner=lambda *a, **kw: pytest.fail("Missing executable must never launch a process"))
+    after = datetime.fromisoformat(utc_now())
+    assert result["status"] == "unavailable" and len(result["jobs"]) == 1
+    entry = result["jobs"][0]
+    calculation = EngineResult.model_validate(entry["result"])
+    first, last = _leg_execution_timing(calculation)
+    assert before <= datetime.fromisoformat(first) <= datetime.fromisoformat(last) <= after
+    assert entry["result_sha256"] == digest_json(entry["result"])
+    assert calculation.metadata["execution_kind"] != "real"
+    assert calculation.energy_hartree is None and not calculation.command
+
+
+@pytest.mark.parametrize("damage", ["missing", "naive", "reversed", "scope", "extra", "format"])
+def test_counterpoise_leg_rejects_invalid_recorded_timing(damage):
+    # Explicitly unexecuted contract; no engine output or energy is supplied.
+    calculation = EngineResult(status="unavailable", engine="orca", method="HF", operation="energy",
+        metadata={"execution_kind": "not-executed", "execution_timing": {
+            "started_at": "2026-10-07T00:00:00+00:00", "finished_at": "2026-10-07T00:00:01+00:00",
+            "scope": EXECUTION_TIMING_SCOPE}})
+    timing = calculation.metadata["execution_timing"]
+    if damage == "missing":
+        del timing["started_at"]
+    elif damage == "naive":
+        timing["started_at"] = "2026-10-07T00:00:00"
+    elif damage == "reversed":
+        timing["finished_at"] = "2026-10-06T23:59:59+00:00"
+    elif damage == "scope":
+        timing["scope"] = "repackaging old output"
+    elif damage == "extra":
+        timing["imported_at"] = timing["started_at"]
+    else:
+        timing["started_at"] = "invented-clock"
+    with pytest.raises(IntegrityError, match="wall-clock"):
+        _leg_execution_timing(calculation)
+
+
+def test_historical_counterpoise_leg_without_invocation_timing_stays_undated():
+    legacy = EngineResult(status="unavailable", engine="orca", method="HF", operation="energy")
+    assert _leg_execution_timing(legacy) == (None, None)
+    assert "execution_timing" not in legacy.metadata

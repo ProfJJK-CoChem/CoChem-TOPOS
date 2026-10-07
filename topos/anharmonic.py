@@ -71,7 +71,7 @@ def vpt2_execution_policy(resources: ResourceLimits) -> dict[str, Any]:
 
 
 def orca_vpt2_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
-                    *, displacement: float = .05) -> str:
+                    *, displacement: float = .05, check_cpu_affinity: bool = True) -> str:
     if not np.isfinite(displacement) or not 0 < displacement <= .2:
         raise ValueError('VPT2 dimensionless normal-coordinate displacement must be positive and at most 0.2')
     if method.profile_id != 'orca-vpt2-reference-v1':
@@ -80,7 +80,7 @@ def orca_vpt2_input(molecule: Molecule, method: MethodSpec, resources: ResourceL
         raise ValueError('native VPT2 requires an unconstrained nonlinear full-dimensional reference')
     if any(isotope is not None for isotope in molecule.isotopes):
         raise ValueError('native VPT2 isotope-specific force-field/reanalysis input is not validated')
-    lines = orca_frequency_input(molecule, method, resources).splitlines()
+    lines = orca_frequency_input(molecule, method, resources, check_cpu_affinity=check_cpu_affinity).splitlines()
     lines[0] = lines[0].removesuffix(' Freq') + ' VPT2'
     # Keep MaxCore from the caller's original per-worker allocation. BASE
     # authorizes this actual input allocation, independently of the total RAM
