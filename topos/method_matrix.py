@@ -17,6 +17,9 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from .data.method_matrix_v4 import ROWS, SOURCE_PATH, SOURCE_REVISION, SOURCE_SHA256
+from .data.reviewed_matrix_v010 import RECIPES as REVIEWED_RECIPES
+from .data.reviewed_matrix_v010 import REVISION as REVIEWED_REVISION
+from .data.reviewed_matrix_v010 import SOURCES as REVIEWED_SOURCES
 from .models import Contract
 
 MATRIX_REVISION = SOURCE_REVISION
@@ -115,6 +118,32 @@ def canonical_row_id(row_id: str) -> str:
     return row_id
 
 
+def unavailable_by_design(row_id: str) -> dict[str, Any] | None:
+    """Cite deliberately absent CFOUR tiers without creating a native recipe.
+
+    The pinned source states this exclusion in its two-track summary and repeats
+    the gaps in the archived tables. A capability declaration cannot fill them.
+    """
+    canonical = canonical_row_id(row_id)
+    if not re.fullmatch(r"T(?:3|4|6|8)C-(?:10s|1min)", canonical):
+        return None
+    archived = next(row for row in ROWS if row["row_id"] == canonical)
+    return {
+        "row_id": canonical,
+        "disposition": "unavailable-by-design",
+        "source_path": SOURCE_PATH,
+        "source_lines": [36, archived["source_line"]],
+        "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": SOURCE_SHA256,
+    }
+
+
+def _unavailable_blocker(disposition: dict[str, Any]) -> str:
+    return (f"{disposition['row_id']} is unavailable-by-design: {disposition['source_excerpt']} "
+            f"({disposition['source_path']}:{disposition['source_lines'][0]}). "
+            "Choose a listed alternative explicitly; no replacement recipe is implied.")
+
+
 def load_catalog(source_path: Path | str | None = None) -> MatrixCatalog:
     """Load bundled rows; optionally assert that a repository document is the pinned source."""
     if source_path is not None:
@@ -136,6 +165,10 @@ def load_catalog(source_path: Path | str | None = None) -> MatrixCatalog:
         if rid == "T5-30min":
             conflicts.append("Main row uses native r2SCAN-3c/gCP; expansion promises raw/CP/half-CP. "
                              "Separate counterpoise on this composite is not specified consistently.")
+        if rid == "T5-3h":
+            conflicts.append("Source names ORCA F12 single points but specifies CCSD(T)-F12b. "
+                             "The verified ORCA F12D/RI protocol is a distinct approximation; "
+                             "select an explicit validated F12b backend and full auxiliary/CABS protocol.")
         if rid == "T4O-30min":
             conflicts.append("An ordinary harmonic Hessian alone does not determine vibration–rotation "
                              "alpha constants; the row's harmonic-alpha output needs an explicit "
@@ -248,6 +281,7 @@ class ExecutionPlan(Contract):
     missing_inputs: list[str]
     blockers: list[str]
     warnings: list[str]
+    reviewed_revision: dict[str, Any] | None = None
     policies: dict[str, str] = Field(default_factory=lambda: dict(SCIENTIFIC_POLICIES))
     runnable: bool = False
     # Tier duration is never copied into a prediction of elapsed time.
@@ -302,8 +336,17 @@ def _recipe(row: MatrixRow) -> tuple[list[ScientificStep], list[str]]:
     if rid == "T1-3d":
         return [_step("optimize-ensemble", "orca", "wB97X-V", "def2-TZVPP", derivative="gradient")], ["molecule", "stage_b_ensemble"]
     if rid == "T1-1w":
-        return [_step("fine-tune", "mace", "MACE", minimum_points=100, maximum_points=500,
-                      experimental=True), _step("goat-and-crest-union", "orca+crest", "custom-MLFF")], ["molecule", "model_manifest", "reference_training_set"]
+        training = _step("fine-tune", "mace", "MACE", minimum_points=100, maximum_points=500,
+                         experimental=True, required_device="gpu", heldout_evaluation=True)
+        training.engine_version = "0.3.16"
+        search = _step("goat-and-crest-union", "orca+crest", "custom-MLFF", required_device="gpu",
+                       identical_trained_checkpoint=True, native_crest_build="3.0.2+topos-generic-paths-v1")
+        search.engine_version = "6.1.1+3.0.2+topos-generic-paths-v1"
+        return [training, search,
+                _step("optimize-ensemble", "orca", "r2SCAN-3c", derivative="gradient", required_device="cpu"),
+                _step("cregen-reporting", "crest", energy_threshold_kcal_mol=0.100,
+                      rotational_fraction=0.01, required_device="cpu")], [
+                          "molecule", "model_manifest", "reference_training_set", "training_protocol", "ml_search_allocation"]
     if rid == "T1-1mo":
         return [_step("exhaustive-union", "orca+crest", "GFN2-xTB"),
                 _step("rerank-ensemble", "orca", "DLPNO-CCSD(T1)")], ["molecule", "topology_seeds", "cc_protocol"]
@@ -395,6 +438,15 @@ def _recipe(row: MatrixRow) -> tuple[list[ScientificStep], list[str]]:
                  _step("full-triples-geometry-increment", engine, "CCSDT", derivative="gradient"),
                  _step("full-quadruples-geometry-increment", engine, "CCSDTQ", derivative="gradient"),
                  _step("composite-geometry", "topos", "CBS+CV+fT+fQ")]
+        if rid == "T3C-1w":
+            for step in steps[:3]:
+                step.options["derivative_mechanism"] = "native analytic gradient"
+            steps[3].options.update(
+                derivative_mechanism="checked central differences of genuine native NCC CCSDTQ energies",
+                native_analytic_gradient=False,
+                step_size_check="explicit h and h/2 agreement",
+                engine_version="2.1",
+            )
         if rid == "T3C-1mo":
             steps.extend([_step("relativistic-geometry-increment", "cfour", derivative="gradient"),
                           _step("dboc-geometry-increment", "cfour", derivative="gradient")])
@@ -456,25 +508,117 @@ def _recipe(row: MatrixRow) -> tuple[list[ScientificStep], list[str]]:
     return [step], ["molecule", "validated_recipe_inputs:" + rid]
 
 
+def reviewed_revision(source_resolution: str) -> dict[str, Any]:
+    if source_resolution not in REVIEWED_RECIPES:
+        raise ValueError('No reviewed matrix revision matches this explicit variant')
+    definition = {'revision':REVIEWED_REVISION, 'archived_revision':MATRIX_REVISION,
+                  'archived_source_sha256':SOURCE_SHA256, 'recipes':REVIEWED_RECIPES, 'sources':REVIEWED_SOURCES}
+    digest = hashlib.sha256(json.dumps(definition, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()).hexdigest()
+    return {'revision':REVIEWED_REVISION, 'sha256':digest, 'variant':source_resolution,
+            'archived_revision':MATRIX_REVISION, 'archived_source_sha256':SOURCE_SHA256,
+            'definition':REVIEWED_RECIPES[source_resolution],
+            'sources':REVIEWED_RECIPES[source_resolution].get('sources', REVIEWED_SOURCES),
+            'user_decision':REVIEWED_RECIPES[source_resolution].get('decision_basis',
+                'User explicitly authorized named ORCA alternatives and documented scientific differences')}
+
+
+def resolved_recipe(row: MatrixRow, source_resolution: str | None = None) -> tuple[list[ScientificStep], list[str]]:
+    """Shared typed branch selection for execution and pre-provision Actions gates."""
+    if source_resolution in REVIEWED_RECIPES:
+        definition = REVIEWED_RECIPES[source_resolution]
+        if definition['row_id'] != row.row_id:
+            raise ValueError('Reviewed scientific variant does not match the archived row')
+        if definition.get('kind') == 'r2-dft-vpt2-transfer':
+            steps = [
+                _step('optimize', 'orca', 'wB97M-V', 'def2-QZVPP', derivative='gradient', frozen_monomer='frozen-iso'),
+                _step('counterpoise', 'orca', 'DLPNO-CCSD(T1)', 'cc-pVDZ-F12', derivative='energy',
+                      frozen_core=True, pno='TightPNO', f12_hamiltonian=False, cabs=None),
+                _step('strict-unconstrained-reference-optimize', 'orca', definition['reference_method'], 'def2-TZVPP', derivative='gradient',
+                      profile='orca-vpt2-reference-v1', dispersion=definition['reference_dispersion'], independent_from_frozen_geometry=True),
+                _step('vpt2', 'orca', definition['reference_method'], 'def2-TZVPP', derivative='anharmonic',
+                      reference='separately fully relaxed stationary DFT minimum', dispersion=definition['reference_dispersion'], constraints=False),
+                _step('rotational-correction-transfer', 'topos', 'R2-separate-DFT-VPT2',
+                      formula='B0_approx=B_R2+(B0_DFT-Be_DFT)', approximate_composite=True, empirical_accuracy=None),
+            ]
+            steps[1].profile_id = None
+            steps[1].options['exact_native_protocol_input'] = 'r2_counterpoise.native'
+            for step in steps[2:4]:
+                step.profile_id = 'orca-vpt2-reference-v1'
+                step.auxiliary_basis = 'def2/J'
+                step.dispersion = definition['reference_dispersion']
+            return steps, ['molecule', 'fragments', 'fragment_states', 'isolated_monomer_references',
+                           'r2_monomer_provenance', 'r2_counterpoise', 'r2_vpt2']
+        if definition.get('kind') == 'cfour-counterpoise-geometry':
+            steps, _ = _recipe(resolve_row('T3C-1w'))
+            for step in steps[:4]:
+                step.operation = 'raw-and-cp-' + step.operation
+                step.options.update(derivative_mechanism='checked h/h2 central differences of genuine native energies',
+                    native_analytic_gradient=False, branches=['raw', 'relaxed-total-counterpoise'],
+                    cp_potential='E_AB+sum(E_i_own-E_i_ghost)', engine_version='2.1')
+                step.engine_version = '2.1'
+            steps[-1].operation = 'counterpoise-bracketed-composite-geometries'
+            steps[-1].options.update(midpoint_geometry=False, composite_stationarity_verified=False)
+            return steps, ['molecule', 'fragments', 'fragment_states', 'cfour_counterpoise']
+        if definition.get('kind') == 'conditional-month-geometry':
+            steps, required = _recipe(resolve_row('T3C-1w'))
+            steps.extend([
+                _step('scalar-HF-geometry-increment', 'cfour', 'HF', derivative='gradient',
+                      derivative_mechanism='checked h/h2 native energy differences',
+                      paired_hamiltonians=['OFF', 'X2C1E'], contraction='UNCONTRACTED'),
+                _step('default-mass-HF-dboc-geometry-increment', 'cfour', 'HF', derivative='gradient',
+                      derivative_mechanism='checked h/h2 native HF+DBOC energy differences with print precision bound',
+                      numeric_masses_verified=False, rotor_constants_withheld=True),
+                _step('conditional-corrected-geometry', 'topos', 'CBS+CV+fT+fQ+HF-corrections',
+                      full_matrix_row_completed=False, rotor_constants_withheld=True),
+            ])
+            return steps, [*required, 'month_corrections', 'native_default_mass_domain']
+        if definition.get('kind') == 'composite-interaction':
+            return [_step('energy', 'orca', 'CCSD(T)-F12D/RI', 'jun-cc-pVTZ', derivative='energy', frozen_core=True),
+                    _step('mp2-f12-cbs', 'orca', derivative='energy',
+                          methods=['F12-MP2', 'F12-RI-MP2'], bases=['jun-cc-pVTZ', 'jun-cc-pVQZ'],
+                          extrapolation='separate HF+CABS exponential and F12-correlation power'),
+                    _step('same-basis-core-valence', 'orca', 'MP2', 'cc-pwCVTZ', derivative='energy'),
+                    _step('composite-interaction', 'topos', 'ORCA-F12D-CBS-CV')], [
+                        'molecule', 'fragments', 'fragment_states', 'orca_f12_composite']
+        step = _step('numerical-energy-geometry', 'orca', 'CCSD(T)-F12D/RI', definition['orbital_basis'],
+                     derivative='gradient', native_analytic_gradient=False,
+                     derivative_mechanism='checked h/h2 central differences of actual native energies',
+                     frozen_core=True, cabs=definition['cabs'], source_resolution=source_resolution)
+        step.auxiliary_basis = definition['auxiliary_c']
+        return [step], ['molecule', 'orca_numerical_geometry']
+    if source_resolution == "orca-f12-reference-singlepoint-v1" and row.row_id == "T3O-1mo":
+        return [_step("energy", "orca", "CCSD(T)-F12D/RI", "cc-pVTZ-F12", derivative="energy",
+                      geometry_optimized=False, source_resolution=source_resolution)], ["molecule", "correlated_protocol"]
+    if source_resolution is not None and (source_resolution, row.row_id) != ("native-composite-rawinteraction-v1", "T5-30min"):
+        raise ValueError("No compiled scientific source-conflict resolution matches this row")
+    return _recipe(row)
+
+
 def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[BackendCapability],
                product: str = "A", available_inputs: list[str] | None = None,
                symbols: list[str] | None = None, charge: int = 0, multiplicity: int = 1,
                source_resolution: str | None = None) -> ExecutionPlan:
     row = resolve_row(row_id, product=product)
-    steps, required = _recipe(row)
+    steps, required = resolved_recipe(row, source_resolution)
     inputs = set(available_inputs or [])
     missing = sorted(set(required) - inputs)
     blockers = list(row.source_conflicts)
     if row.track_gap:
-        blockers.append("This matrix row is an explicit track gap; choose a listed alternative explicitly.")
+        disposition = unavailable_by_design(row.row_id)
+        blockers.append(_unavailable_blocker(disposition) if disposition else
+                        "This matrix row is an explicit track gap; choose a listed alternative explicitly.")
     warnings = ["Nominal tier labels do not guarantee completion, sampling coverage or chemical accuracy.",
                 row.limitations]
+    reviewed = None
     if source_resolution is not None:
-        if row.row_id == "T3O-1mo" and source_resolution == "orca-f12-reference-singlepoint-v1":
-            steps = [_step("energy", "orca", "CCSD(T)-F12D/RI", "cc-pVTZ-F12", derivative="energy",
-                           geometry_optimized=False, source_resolution=source_resolution)]
-            required = ["molecule", "correlated_protocol"]
-            missing = sorted(set(required) - inputs)
+        if source_resolution in REVIEWED_RECIPES:
+            reviewed = reviewed_revision(source_resolution)
+            warnings.extend(blockers)
+            blockers = []
+            warnings.extend(reviewed['definition']['differences'])
+            if reviewed['definition'].get('native_capability_blocker'):
+                blockers.append(reviewed['definition']['native_capability_blocker'])
+        elif row.row_id == "T3O-1mo" and source_resolution == "orca-f12-reference-singlepoint-v1":
             warnings.append("Only the source's ORCA reference-energy branch is selected; no new reference geometry or B_e is computed")
         elif row.row_id == "T5-30min" and source_resolution == "native-composite-rawinteraction-v1":
             warnings.extend(blockers)
@@ -493,7 +637,7 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
         if index:
             step.depends_on = [steps[index - 1].step_id]
         step.inputs = required if index == 0 else [steps[index - 1].step_id + ":outputs"]
-        step.outputs = [row.delivers] if index == len(steps) - 1 else [step.operation + ":results"]
+        step.outputs = (reviewed['definition']['delivers'] if reviewed else [row.delivers]) if index == len(steps) - 1 else [step.operation + ":results"]
         candidates = [c for c in capabilities if c.engine == step.engine and c.verified and c.evidence
                       and step.operation in c.operations and (step.method is None or step.method in c.methods)
                       and (step.engine_version is None or step.engine_version == c.engine_version)
@@ -506,7 +650,10 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
             candidates = [c for c in candidates if c.supports_rigid_fragments]
         selected = None
         for capability in candidates:
-            wanted = [hardware.device] if hardware.device != "auto" else ["cpu", "gpu"]
+            required_device = step.options.get("required_device")
+            if required_device == "gpu" and hardware.device == "cpu":
+                continue
+            wanted = [required_device] if required_device else ([hardware.device] if hardware.device != "auto" else ["cpu", "gpu"])
             for device in wanted:
                 if device not in capability.devices:
                     continue
@@ -519,7 +666,8 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
                         capability.gpu_memory_required_mb * hardware.gpu_workers > hardware.gpu_memory_mb
                     ):
                         continue
-                if "model_manifest" in required and not capability.model_sha256:
+                if ("model_manifest" in required and step.engine in {"mlff", "mace", "orca+aimnet2", "orca+crest"}
+                        and not capability.model_sha256):
                     continue
                 if capability.precision != "float64" and row.row_id not in {"T1-30min", "T2-1min"}:
                     continue
@@ -539,7 +687,7 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
         blockers.append("Missing scientific inputs: " + ", ".join(missing))
     return ExecutionPlan(row=row, requested_row_id=row_id, hardware=hardware, steps=steps,
                          required_inputs=required, missing_inputs=missing, blockers=blockers,
-                         warnings=warnings, runnable=not blockers)
+                         warnings=warnings, runnable=not blockers, reviewed_revision=reviewed)
 
 
 # Bind only rows representable by one primitive RunRequest. Compound recipes must use
@@ -566,6 +714,9 @@ def validate_request_matrix(request: Any) -> tuple[str, str] | None:
         row = resolve_row(row_id, product=getattr(request, "matrix_product", "A"))
     except ValueError as exc:
         return "unsupported", str(exc)
+    disposition = unavailable_by_design(row.row_id)
+    if disposition is not None:
+        return "unsupported", _unavailable_blocker(disposition)
     if row.source_conflicts or row.track_gap:
         return "unsupported", "; ".join(row.source_conflicts) or "Selected row is a matrix track gap."
     if row.row_id not in PRIMITIVE_BINDINGS:

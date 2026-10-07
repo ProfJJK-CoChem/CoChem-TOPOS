@@ -36,6 +36,7 @@ from .science import BOHR_ANGSTROM, harmonic_analysis, validate_derivatives
 from .storage import IntegrityError, atomic_json, file_digest
 
 FREQUENCY_MANUAL = "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html"
+VV10_MANUAL = "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html#non-local-dispersion-correction-vv10-dft-nl"
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 
 
@@ -96,9 +97,12 @@ def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: Reso
     problem = _method_problem(method, resources, "gradient")
     if problem or method.engine != "orca" or method.constraints:
         raise ValueError(problem or "native analytic frequencies require unconstrained ORCA HF/DFT")
+    if method.method in {"wB97X-V", "wB97M-V"}:
+        raise ValueError("ORCA 6.1 VV10/NL second derivatives are unavailable: analytic Hessians and native VPT2 "
+                         "cannot use this functional; separately requested numerical frequencies remain possible. " + VV10_MANUAL)
     # _method_problem restricts to the tested SCF method/basis registry. No
     # generic keyword injection, double hybrid, RI-JK, CC or external basis.
-    if method.method not in {"B3LYP", "HF", "HF-3c", "r2SCAN-3c", "r²SCAN-3c", "wB97X-V", "wB97M-V"}:
+    if method.method not in {"B3LYP", "HF", "HF-3c", "r2SCAN-3c", "r²SCAN-3c"}:
         raise ValueError("ORCA analytic Freq is restricted to the documented SCF HF/DFT domain")
     lines = _orca_input(molecule, method, resources, "energy").splitlines()
     lines[0] += " Freq"

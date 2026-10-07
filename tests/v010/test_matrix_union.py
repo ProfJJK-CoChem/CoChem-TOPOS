@@ -74,6 +74,27 @@ def test_actual_native_stage_checkpoint_resume_without_binary_reexecution(real_c
 
 
 @pytest.mark.integration
+def test_gpu_parent_uses_actual_cpu_cregen_after_model_search(real_context, tmp_path):
+    """Real xTB frames + real CREGEN; this does not pretend GPU training ran."""
+    workflow, source_record, _, frames = real_context
+    request = source_record.request.model_copy(update={"device": "gpu", "matrix_row_id": "T1-1w"})
+    record = RunRecord(request=request)
+    store = RunStore(tmp_path / "gpu-parent" / record.run_id)
+    store.commit(record)
+    unique = native_stage(workflow, record, store, frames, "cregen", time.monotonic() + 30, None,
+                          comparison_protocol="actual-GFN2-GPU-parent-allocation-regression")
+    assert unique is not None and len(unique) == 1
+    assert record.request.device == "gpu"
+    attempt = record.attempts[-1]
+    assert attempt.status == "completed" and attempt.metadata["execution_kind"] == "real"
+    assert attempt.metadata["resources"]["device"] == "cpu"
+    assert attempt.metadata["resources"]["threads"] == record.request.threads
+    assert attempt.metadata["resources"]["memory_mb"] == record.request.memory_mb
+    assert unique[0].energy_hartree == frames[0].energy_hartree
+    assert store.verify()
+
+
+@pytest.mark.integration
 def test_cached_native_stage_tamper_is_rejected(real_context):
     workflow, record, store, frames = real_context
     result = native_stage(workflow, record, store, frames, "cregen", time.monotonic() + 30, None,
@@ -84,6 +105,22 @@ def test_cached_native_stage_tamper_is_rejected(real_context):
     with pytest.raises(IntegrityError, match="artifact changed"):
         native_stage(workflow, record, store, frames, "cregen", time.monotonic() + 30, None,
                       comparison_protocol="actual-GFN2-native-stage-test")
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("cancelled", [True, False])
+def test_completed_native_cache_cannot_override_cancellation_or_deadline(real_context, cancelled):
+    workflow, record, store, frames = real_context
+    result = native_stage(workflow, record, store, frames, "cregen", time.monotonic() + 30, None,
+                          comparison_protocol="actual-GFN2-native-stage-test")
+    assert result is not None and record.attempts[-1].status == "completed"
+    event = Event()
+    if cancelled:
+        event.set()
+    cached = native_stage(workflow, record, store, frames, "cregen", 0 if not cancelled else time.monotonic()+30,
+                          event, comparison_protocol="actual-GFN2-native-stage-test")
+    assert cached is None and record.status == ("cancelled" if cancelled else "timed-out")
+    assert len(record.attempts) == 1 and record.attempts[0].status == "completed"
 
 
 def test_native_stage_cancellation_before_execution_retains_no_fabricated_result(tmp_path):

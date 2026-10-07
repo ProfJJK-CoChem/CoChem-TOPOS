@@ -87,7 +87,10 @@ def test_unavailable_orca_does_not_substitute(water, tmp_path):
 def test_orca_composite_native_recipe_and_resolved_profile(water):
     method = MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.1")
     text = _orca_input(water, method, ResourceLimits(threads=2, memory_mb=2048), "optimize")
-    assert "! r2SCAN-3c TightSCF DEFGRID3 Opt Engrad" in text
+    assert "! r2SCAN-3c TightSCF DEFGRID3 Opt" in text
+    assert "Engrad" not in text.splitlines()[0]
+    derivative = _orca_input(water, method, ResourceLimits(), "gradient")
+    assert "Engrad" in derivative.splitlines()[0] and " Opt" not in derivative.splitlines()[0]
     assert "mTZ2" not in text
     assert "InHess Lindh" in text and "Calc_Hess true" not in text
     assert "nprocs 2" in text and "%maxcore 768" in text

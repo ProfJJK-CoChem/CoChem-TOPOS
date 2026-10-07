@@ -63,10 +63,10 @@ removed for the final installed-package validation. ORCA is provisioned by BASE'
 licensed workflow separately; no ORCA binary is included in these downloads.
 
 The release workflow pins the companion BASE packaging revision
-`86fd7bdbc77b87ab4303e03e0902b4089054f402`. The original BASE 1.0.0 source revision
+`705b9d54370d5089da286a02b7a1c4afdcbafec1`. The original BASE 1.0.0 source revision
 `c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86`
-duplicates four installed `Libraries` files owned by TORQ. The reviewed companion
-BASE packaging change must remove that duplicate wheel ownership. The installer
+duplicates four installed `Libraries` files owned by TORQ. The pinned companion
+BASE revision removes that duplicate wheel ownership. The installer
 refuses the conflicting original wheel set. TOPOS itself no longer distributes
 the `frontend` package owned by BASE. Source-tree compatibility shims do not belong
 in the installed TOPOS wheel.
@@ -149,6 +149,10 @@ SHA-256 values. It rejects changed source during the build, source symlinks and
 retired/conflicting packages. `SOURCE_DATE_EPOCH` is explicit archive metadata,
 not an assertion about when scientific tests ran. The source and dependency
 inventories distinguish exact candidate contents from installed runtime versions.
+The source archive retains native provisioning patches and their byte identities;
+the CREST generic-interface patch is part of the tested executable source set.
+Retained JUnit XML may be stored under `.docs/evidence` and ships with the source
+archive. Generated test receipts are evidence, not executable source inputs.
 
 Full certification is a separate, failing-until-complete command:
 
@@ -159,6 +163,9 @@ cochem-topos-release gate --source-root /path/to/CoChem-TOPOS \
   --srs-acceptance .docs/TOPOS_SRS_ACCEPTANCE.json \
   --installation /path/to/installation-acceptance/acceptance/installed-acceptance.json \
   --hosted /path/to/hosted-ORCA/acceptance.json \
+  --hosted-extended /path/to/hosted-ORCA-extended/acceptance.json \
+  --hosted-repository ProfJJK-CoChem/CoChem-BASE \
+  --hosted-run-id ACTUAL_RUN_ID --hosted-run-attempt ACTUAL_ATTEMPT \
   --output /tmp/topos-candidate/release-gate.json
 ```
 
@@ -166,7 +173,80 @@ The SRS acceptance ledger must bind the current SRS SHA-256 and all 50 exact
 requirement IDs to `verified` status and nonempty retained evidence entries
 (`path`, `sha256`). Missing requirements cannot be closed by a top-level boolean.
 Current tested source hashes, nonzero executed regression tests, zero
-failures/errors/skips, full TOPOS matrix implementation, resolved source gaps,
+failures/errors, full TOPOS matrix implementation, resolved source gaps,
 the matching installed wheel and complete correlated hosted ORCA acceptance are
 all required. Gate failure preserves the unsigned candidate for review and exits
 with status 3. No command in this flow publishes, tags or releases externally.
+
+A local licensed-engine skip can be covered by an actual passing execution of the
+**same named test on exactly the same sources** in a different environment. Add
+`--supplemental-validation /path/to/native-pytest-receipt.json` (repeatable). Each
+receipt needs `verification.source_sha256`, `sources_unchanged: true` and one
+successful pytest check with counts, `junit_path` and `junit_sha256`. Retain the
+actual JUnit XML beside that receipt, using a relative path. The gate checks every
+named skipped testcase against the supplemental executed results. A generic
+hosted success, an unrelated ORCA calculation or altered source cannot cover it.
+Unresolved GPU, external-engine and other physical acceptance conditions in the
+SRS ledger remain blockers independently of testcase coverage.
+The primary whole-suite receipt must likewise reference a retained, hash-checked
+JUnit artifact. For the repository receipt, use a relative `junit_path` such as
+`evidence/TOPOS_REGRESSION.xml`; a temporary build-machine path is insufficient
+for another machine to repeat the gate.
+
+The release workflow accepts the repository, run ID and exact run attempt that
+produced the licensed artifacts. The BASE companion uploads
+`topos-orca-acceptance-RUN_ID-ATTEMPT`, with `topos-orca-evidence/acceptance.json`,
+`topos-orca-extended/acceptance.json` and the retained native pytest files. Reading
+this private repository requires the existing `COCHEM_SOURCE_READ_TOKEN` or
+`BASE_SOURCE_READ_TOKEN` binding to have Actions artifact read access there.
+Baseline evidence must pass GOAT, counterpoise and all three core calculation
+cases; the extended evidence must separately pass native Hessian, VPT2 and the
+declared correlated methods. The gate requires matching source, repository, run,
+attempt and workflow commit across both receipts. A passing baseline does not
+override a failed or absent extended calculation.
+
+## Isolated ML inference worker
+
+The mandatory controller environment still installs BASE, TOPOS and TORQ together.
+BASE runs ML inference in its separately locked interpreter so incompatible model
+frameworks cannot alter the controller's numerical environment. The worker carries
+identical TOPOS source bytes in a separate `cochem-topos-ml-worker` distribution.
+It has no BASE/TORQ/UI distribution dependency, downloads no checkpoints and does
+not provide an independently supported TOPOS application.
+
+Build its exact-source wheel twice and verify byte reproducibility:
+
+```bash
+/tmp/topos-build-env/bin/python scripts/build_ml_worker.py --output /tmp/topos-ml-worker
+```
+
+The BASE-managed ML silo must already match the recorded core dependencies and
+have its separately validated model framework/checkpoints. Install using that
+silo's interpreter, never the controller's interpreter:
+
+```bash
+/path/to/BASE/Silos/cochem_mace_silo/bin/python -I scripts/install_ml_worker.py \
+  --wheel /tmp/topos-ml-worker/cochem_topos_ml_worker-0.1.0-py3-none-any.whl \
+  --manifest /tmp/topos-ml-worker/worker-distribution-manifest.json \
+  --receipt /tmp/ml-worker-installation.json
+```
+
+The installer refuses a `cochem-topos` controller distribution before running pip,
+checks every declared dependency and source digest, uses only the local wheel with
+`--no-index --no-deps`, and verifies the installed source. This separation matters
+because both distributions own the `topos` Python module namespace and must never
+be co-installed. BASE must re-audit the updated silo before approving inference.
+The wheel manifest binds the current worker bytes; later source changes require
+rebuilding and reinstalling the worker, not a `PYTHONPATH` override.
+
+## TORQ consumption acceptance
+
+Clean installation acceptance now requires the companion TORQ contract importer.
+It exports the actual reviewed xTB result, imports its exact member/state/protocol
+manifest through installed TORQ, and checks that TOPOS accepts TORQ's durable
+consumption receipt. The import is `imported-awaiting-calculation`; no TORQ solver,
+reaction rate or transition-state calculation is represented by this receipt.
+
+The reviewed companion source pins are BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1`
+and TORQ `79fbb111125e50627a1a2c129888a45496f368d4`; their companion pull requests
+remain separate from publication of a final TOPOS release.

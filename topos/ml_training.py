@@ -28,8 +28,8 @@ from .engines import (
     parse_orca_engrad,
     read_xyz,
 )
-from .ml import BOHR_ANGSTROM, HARTREE_EV, MLRunner, ModelManifest
-from .models import Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
+from .ml import BOHR_ANGSTROM, HARTREE_EV, MLRunner, ModelManifest, molecule_system_identity
+from .models import Artifact, Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
 from .storage import IntegrityError, RunStore, atomic_json, confined_file, digest_json, file_digest
 
 MACE_VERSION = "0.3.16"
@@ -185,10 +185,21 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
 
 
 def _configuration_key(molecule: Molecule) -> str:
+    """Conservative isotope/species distance fingerprint, not an identity proof.
+
+    Atom IDs/order cannot hide a duplicate from permutation-invariant models.
+    Sorted per-center distance profiles also ignore rigid motion and reflection;
+    homometric configurations can collide and are conservatively kept out of
+    separate partitions. Exact target atom mapping is checked independently.
+    """
     xyz = np.asarray(molecule.coordinates)
-    distances = np.linalg.norm(xyz[:, None] - xyz[None, :], axis=2)
-    return digest_json({"identity": molecule.model_dump(exclude={"coordinates", "name"}),
-                        "pair_distances_angstrom": np.round(distances, 8).tolist()})
+    distances = np.round(np.linalg.norm(xyz[:, None] - xyz[None, :], axis=2), 8)
+    labels = list(zip(molecule.symbols, [isotope or 0 for isotope in molecule.isotopes], strict=True))
+    centers = sorted((labels[i], sorted((labels[j], float(distances[i, j]))
+                                       for j in range(len(labels)) if i != j)) for i in range(len(labels)))
+    return digest_json({"fingerprint": "species-isotope-distance-profiles-v1",
+                        "charge": molecule.charge, "multiplicity": molecule.multiplicity,
+                        "environment": molecule.environment, "centers": centers})
 
 
 def validate_reference_partition(frames: list[ReferenceFrame]) -> dict[str, Any]:
@@ -211,8 +222,46 @@ def validate_reference_partition(frames: list[ReferenceFrame]) -> dict[str, Any]
         counts[frame.source.partition] += 1
     return {"counts": counts, "reference_protocol": protocol,
             "configuration_keys": sorted(seen),
-            "split_scope": "explicit related-configuration groups; no group crosses partitions; no distance-equivalent duplicates at 1e-8 angstrom",
+            "split_scope": "explicit related-configuration groups; no group crosses partitions; conservative species/isotope-labelled permutation/rigid-invariant distance fingerprint at 1e-8 angstrom, not molecular identity proof",
             "native_provenance_verified": False}
+
+
+def validate_training_target(frames: list[ReferenceFrame], expected_molecule: Molecule | None = None) -> dict[str, Any]:
+    """Bind system-specific labels to one exact chemical identity, not a shape.
+
+    Distorted DFT configurations are legitimate training points. Distances are
+    therefore not used to invent or replace their declared graph; atom IDs,
+    declared bonds, fragments, isotopes, state and stereochemistry must agree.
+    """
+    if not frames:
+        raise ValueError("System-specific training requires reference configurations")
+    target = expected_molecule or frames[0].molecule
+    target = Molecule.model_validate(target.model_dump(mode="json"))
+    identity = target.model_dump(mode="json", exclude={"coordinates", "name"})
+    for frame in frames:
+        if frame.molecule.model_dump(mode="json", exclude={"coordinates", "name"}) != identity:
+            raise ValueError("System-specific DFT dataset identity differs from the requested target molecule")
+    return {"molecule_identity": identity, "molecule_identity_sha256": molecule_system_identity(target),
+            "bound_to_requested_target": expected_molecule is not None,
+            "geometry_scope": "supplied system-specific configurations; coordinates may differ",
+            "graph_policy": "preserve declared graph; no distance-threshold reassignment on distorted points",
+            "transferability_outside_target_assessed": False}
+
+
+def _trained_manifest(manifest: ModelManifest, checkpoint: Path, request: dict,
+                      prepared: dict, domain: dict, folder: Path) -> ModelManifest:
+    trained = manifest.model_dump(mode="json")
+    trained.update(head="Default", precision="float64",
+        family=manifest.family + "/system-finetuned",
+        training_method=json.dumps(prepared["reference_protocol"], sort_keys=True),
+        supported_elements=sorted(set(domain["molecule_identity"]["symbols"])),
+        system_identity_sha256=domain["molecule_identity_sha256"],
+        domain_reference=("System-specific Default head; target_identity_sha256=" + domain["molecule_identity_sha256"]
+            + "; dataset_specification_sha256=" + prepared["specification_sha256"]
+            + "; transferability outside this target is unassessed. Foundation provenance: " + manifest.domain_reference),
+        members=[{"path": str(checkpoint), "sha256": file_digest(checkpoint),
+                  "training_run_id": digest_json(request), "source": str(folder / "training-request.json")}])
+    return ModelManifest.model_validate(trained)
 
 
 def reference_extxyz(frames: list[ReferenceFrame]) -> str:
@@ -423,10 +472,140 @@ def _validate_replay(options: MACETrainingOptions, frames: list[ReferenceFrame])
             replay_keys.add(key)
 
 
+def _verified_fitted_checkpoint(resume_report: dict[str, Any], manifest: ModelManifest,
+                                dataset: TrainingDatasetSpec, options: MACETrainingOptions,
+                                expected_molecule: Molecule | None, *, deadline: float,
+                                cancel_event: Event | None) -> tuple[dict, dict, ModelManifest, dict]:
+    """Verify retained fitting evidence before reusing its checkpoint for heldout.
+
+    A retry may itself have failed during heldout inference. Its immutable source
+    report always identifies the original fit, avoiding recursive retraining or
+    a claim that the original native training command executed again.
+    """
+    source = resume_report.get("fitted_checkpoint_source", resume_report)
+    if not isinstance(source, dict):
+        raise IntegrityError("Checkpoint recovery requires its original fitting report")
+    for previous in [resume_report, source] if source is not resume_report else [source]:
+        artifacts = previous.get("artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            raise IntegrityError("Checkpoint recovery requires retained immutable native artifacts")
+        seen = set()
+        for artifact in artifacts:
+            artifact = Artifact.model_validate(artifact)
+            if cancel_event is not None and cancel_event.is_set():
+                raise InterruptedError("Checkpoint verification cancelled")
+            if time.monotonic() >= deadline:
+                raise TimeoutError("Checkpoint verification deadline reached")
+            path = Path(artifact.path)
+            if not path.is_absolute() or path.is_symlink() or any(p.is_symlink() for p in path.parents):
+                raise IntegrityError("Checkpoint evidence must use absolute regular paths without symlinks")
+            if path.resolve() in seen:
+                raise IntegrityError("Checkpoint artifact inventory contains duplicate paths")
+            seen.add(path.resolve())
+            if not path.is_file() or path.stat().st_size != artifact.size_bytes or file_digest(path) != artifact.sha256:
+                raise IntegrityError("Retained checkpoint/training evidence changed")
+    process = source.get("process", {})
+    if (source.get("schema_version") != "topos-mace-finetuning/1"
+            or source.get("execution_kind") != "real" or source.get("checkpoint") is None
+            or process.get("status") != "completed" or process.get("returncode") != 0
+            or source.get("training_performed") is not True):
+        raise IntegrityError("Recovery requires a completed actual native fit with its archived checkpoint")
+    paths = {Path(item["path"]).resolve() for item in source["artifacts"]}
+    requests = [path for path in paths if path.name == "training-request.json"]
+    if len(requests) != 1:
+        raise IntegrityError("Recovery requires exactly one original immutable training request")
+    request_path = requests[0]
+    original = request_path.parent
+    if any(not path.is_relative_to(original) for path in paths):
+        raise IntegrityError("Original fitting artifacts escape their recorded work directory")
+    source_report = original / "training-report.json"
+    if (source_report not in paths
+            or json.loads(source_report.read_text()) != {k: v for k, v in source.items() if k != "artifacts"}):
+        raise IntegrityError("Original fitting report differs from its retained native receipt")
+    request = json.loads(request_path.read_text())
+    if (digest_json(request) != source.get("request_sha256")
+            or request.get("manifest") != manifest.model_dump(mode="json")
+            or request.get("dataset") != dataset.model_dump(mode="json")
+            or request.get("options") != options.model_dump(mode="json")
+            or request.get("command") != process.get("command")):
+        raise IntegrityError("Checkpoint recovery model/data/training protocol changed")
+    dataset_path = original / "dataset/dataset.json"
+    trained_path = original / "trained-model.json"
+    if dataset_path not in paths or trained_path not in paths:
+        raise IntegrityError("Checkpoint recovery lacks its native dataset or checkpoint manifest receipt")
+    if file_digest(dataset_path) != request.get("dataset_sha256"):
+        raise IntegrityError("Checkpoint source dataset differs from its training request")
+    prepared = json.loads(dataset_path.read_text())
+    if (prepared.get("native_provenance_verified") is not True
+            or prepared.get("specification_sha256") != digest_json(dataset.model_dump(mode="json"))
+            or prepared.get("specification") != dataset.model_dump(mode="json")):
+        raise IntegrityError("Checkpoint source data are not the requested verified DFT dataset")
+    frames = [ReferenceFrame.model_validate(frame) for frame in prepared["frames"]]
+    validated_partition = validate_reference_partition(frames)
+    if any(prepared.get(key) != validated_partition[key]
+           for key in ("counts", "reference_protocol", "configuration_keys")):
+        raise IntegrityError("Checkpoint dataset summary differs from its reference configurations")
+    if [frame.source.model_dump(mode="json") for frame in frames] != dataset.model_dump(mode="json")["points"]:
+        raise IntegrityError("Checkpoint dataset frames differ from the selected DFT attempts")
+    domain = validate_training_target(frames, expected_molecule)
+    if request.get("training_domain") != domain or source.get("training_domain") != domain:
+        raise IntegrityError("Checkpoint target identity differs from the requested training system")
+    checkpoint = original / "native/models" / (options.name + ".model")
+    if checkpoint not in paths:
+        raise IntegrityError("Checkpoint itself is missing from the immutable fitting evidence")
+    if checkpoint.stat().st_size == 0 or file_digest(checkpoint) == manifest.members[0].sha256:
+        raise IntegrityError("Retained checkpoint is empty or identical to the unfitted foundation")
+    trained = _trained_manifest(manifest, checkpoint, request, prepared, domain, original)
+    if (trained.model_dump(mode="json") != source["checkpoint"]
+            or json.loads(trained_path.read_text()) != source["checkpoint"]):
+        raise IntegrityError("Trained checkpoint manifest differs from the verified fitting protocol")
+    stdout_path = Path(process.get("stdout_path", ""))
+    if stdout_path not in paths:
+        raise IntegrityError("Native fitting stdout is not part of the verified evidence")
+    native_evidence = stdout_path.read_text(errors="replace") + "\n" + "\n".join(
+        path.read_text(errors="replace") for path in paths if path.parent == original / "native/logs" and path.suffix == ".log")
+    if (f"MACE version: {MACE_VERSION}" not in native_evidence
+            or "Using multiheads finetuning mode" not in native_evidence
+            or "Error-table on TRAIN and VALID:" not in native_evidence
+            or not re.search(r"(?m)\bDone\s*$", native_evidence)):
+        raise IntegrityError("Retained source lacks actual completed native multihead fitting evidence")
+    return source, prepared, trained, domain
+
+
+def _evaluate_heldout(prepared: dict, trained: ModelManifest, resources: ResourceLimits,
+                       options: MACETrainingOptions, folder: Path, runtime, report: dict,
+                       *, deadline: float, cancel_event: Event | None) -> dict:
+    remaining = deadline - time.monotonic()
+    if remaining <= 0 or cancel_event is not None and cancel_event.is_set():
+        report.update(status="cancelled" if cancel_event is not None and cancel_event.is_set() else "partial",
+                      reason="Checkpoint archived; independent held-out evaluation awaits another invocation")
+        return report
+    heldout = [ReferenceFrame.model_validate(frame) for frame in prepared["frames"] if frame["source"]["partition"] == "test"]
+    predictions = MLRunner(trained, runtime, gpu_index=options.gpu_index,
+        gpu_memory_mb=options.gpu_memory_mb).evaluate_frames([frame.molecule for frame in heldout],
+            folder / "heldout", resources.model_copy(update={"budget_seconds": remaining}), cancel_event=cancel_event)
+    report["execution_kind"] = "real"
+    if predictions:
+        report["heldout_command"] = predictions[0].command
+        report["heldout_process"] = predictions[0].diagnostics.get("process")
+        report["heldout_execution_kind"] = predictions[0].metadata.get("execution_kind", "not-executed")
+        if report.get("resumed_checkpoint"):
+            report["command"] = predictions[0].command
+    if len(predictions) != len(heldout) or any(item.status != "completed" for item in predictions):
+        report.update(status="partial", reason="Checkpoint archived; actual held-out model evaluation did not complete")
+        return report
+    report["heldout_errors"] = heldout_errors(heldout, predictions,
+        manifest_sha256=digest_json(trained.model_dump(mode="json")))
+    report["heldout_errors"]["foundation_pretraining_overlap_assessed"] = False
+    report.update(status="completed", reason="Fine-tuned checkpoint and held-out observations archived; GOAT and CREST searches remain separate required stages")
+    return report
+
+
 def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
                         options: MACETrainingOptions, resources: ResourceLimits,
                         workdir: str | Path, *, runtime=None,
-                        cancel_event: Event | None = None) -> dict[str, Any]:
+                        cancel_event: Event | None = None, expected_molecule: Molecule | None = None,
+                        resume_report: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run the official MACE CLI only through the dedicated audited BASE boundary.
 
     A successful result archives the checkpoint and independently evaluates the
@@ -445,6 +624,8 @@ def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
                              "execution_kind": "not-executed", "experimental": True,
                              "matrix_row_complete": False, "search_reexecuted": False,
                              "accuracy_guarantee": None, "checkpoint": None, "heldout_errors": None,
+                             "training_performed": False, "resumed_checkpoint": False,
+                             "heldout_execution_kind": "not-executed",
         "official_source": MACE_SOURCE}
     try:
         manifest = ModelManifest.model_validate(manifest.model_dump())
@@ -462,12 +643,26 @@ def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
         if runtime is None or not callable(getattr(runtime, "run_mace_training_process", None)):
             report["reason"] = "Mandatory CoChem-BASE audited GPU training boundary run_mace_training_process is unavailable"
             return report
+        if resume_report is not None:
+            source, prepared, trained, domain = _verified_fitted_checkpoint(
+                resume_report, manifest, dataset, options, expected_molecule,
+                deadline=started + resources.budget_seconds, cancel_event=cancel_event)
+            report.update(status="partial", execution_kind="real", resumed_checkpoint=True, fitted_checkpoint_source=source,
+                original_training_process=source["process"], process=source["process"],
+                checkpoint=trained.model_dump(mode="json"), training_domain=domain,
+                request_sha256=source["request_sha256"], dataset_sha256=source["dataset_sha256"],
+                partition_counts=prepared["counts"])
+            atomic_json(folder / "fitted-checkpoint-source.json", source)
+            return _evaluate_heldout(prepared, trained, resources, options, folder, runtime, report,
+                                    deadline=started + resources.budget_seconds, cancel_event=cancel_event)
         if options.replay_train.reference_method != manifest.training_method:
             raise ValueError("Replay labels must explicitly match the foundation model's declared training method")
         foundation_path = manifest.members[0].verify()
         prepared = prepare_training_dataset(dataset, folder / "dataset",
             deadline=started + resources.budget_seconds, cancel_event=cancel_event)
         frames = [ReferenceFrame.model_validate(frame) for frame in prepared["frames"]]
+        domain = validate_training_target(frames, expected_molecule)
+        report["training_domain"] = domain
         for frame in frames:
             manifest.validate_molecule(frame.molecule)
         _validate_replay(options, frames)
@@ -491,7 +686,7 @@ def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
         request = {"manifest": manifest.model_dump(mode="json"), "dataset": dataset.model_dump(mode="json"),
                    "dataset_sha256": file_digest(folder / "dataset" / "dataset.json"),
                    "options": options.model_dump(mode="json"), "resources": resources.model_dump(mode="json"),
-                   "command": command, "output_head": "Default"}
+                   "command": command, "output_head": "Default", "training_domain": domain}
         atomic_json(folder / "training-request.json", request)
         inputs = {str(path): file_digest(path) for path in
                   [foundation, replay_train, replay_validation, folder / "training-request.json",
@@ -506,7 +701,7 @@ def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
             resources.model_copy(update={"budget_seconds": remaining}), package_version=MACE_VERSION,
             input_files=inputs, gpu_index=options.gpu_index, gpu_memory_mb=options.gpu_memory_mb,
             cancel_event=cancel_event)
-        report.update(execution_kind="real", process=process.to_dict(), status=process.status)
+        report.update(execution_kind="real", training_performed=True, process=process.to_dict(), status=process.status)
         for path, expected in inputs.items():
             if Path(path).is_symlink() or file_digest(Path(path)) != expected:
                 raise IntegrityError("An immutable fine-tuning input changed during execution")
@@ -526,29 +721,11 @@ def run_mace_finetuning(manifest: ModelManifest, dataset: TrainingDatasetSpec,
             raise IntegrityError("Completed fine-tuning did not retain its model checkpoint")
         if file_digest(checkpoint) == manifest.members[0].sha256:
             raise IntegrityError("Fine-tuned checkpoint is byte-identical to the unfitted foundation")
-        trained = manifest.model_dump(mode="json")
-        trained.update(head="Default", precision="float64", training_method=json.dumps(prepared["reference_protocol"], sort_keys=True),
-                       members=[{"path": str(checkpoint), "sha256": file_digest(checkpoint),
-                                 "training_run_id": digest_json(request), "source": str(folder / "training-request.json")}])
-        trained_manifest = ModelManifest.model_validate(trained)
+        trained_manifest = _trained_manifest(manifest, checkpoint, request, prepared, domain, folder)
         atomic_json(folder / "trained-model.json", trained_manifest.model_dump(mode="json"))
         report["checkpoint"] = trained_manifest.model_dump(mode="json")
-        remaining = resources.budget_seconds - (time.monotonic() - started)
-        if remaining <= 0:
-            report.update(status="partial", reason="Checkpoint archived; independent held-out evaluation exceeded the remaining budget")
-            return report
-        heldout = [frame for frame in frames if frame.source.partition == "test"]
-        predictions = MLRunner(trained_manifest, runtime, gpu_index=options.gpu_index,
-            gpu_memory_mb=options.gpu_memory_mb).evaluate_frames([frame.molecule for frame in heldout],
-                folder / "heldout", resources.model_copy(update={"budget_seconds": remaining}), cancel_event=cancel_event)
-        if len(predictions) != len(heldout) or any(item.status != "completed" for item in predictions):
-            report.update(status="partial", reason="Checkpoint archived; actual held-out model evaluation did not complete")
-            return report
-        report["heldout_errors"] = heldout_errors(heldout, predictions,
-            manifest_sha256=digest_json(trained_manifest.model_dump(mode="json")))
-        report["heldout_errors"]["foundation_pretraining_overlap_assessed"] = False
-        report["reason"] = "Fine-tuned checkpoint and held-out observations archived; GOAT and CREST searches remain separate required stages"
-        return report
+        return _evaluate_heldout(prepared, trained_manifest, resources, options, folder, runtime, report,
+                                deadline=started + resources.budget_seconds, cancel_event=cancel_event)
     except InterruptedError as exc:
         report.update(status="cancelled", reason=str(exc))
         return report

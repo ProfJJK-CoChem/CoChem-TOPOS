@@ -6,6 +6,7 @@ claim for a named HEAT/Wn recipe. Every basis/exponent is selected explicitly.
 from __future__ import annotations
 
 import math
+import time
 from threading import Event
 
 from pydantic import Field, model_validator
@@ -43,6 +44,10 @@ class EnergyCompositeProtocol(Contract):
         if (self.low_basis not in _BASIS_CARDINALS or self.high_basis not in _BASIS_CARDINALS
                 or _BASIS_CARDINALS[self.high_basis] != _BASIS_CARDINALS[self.low_basis]+1):
             raise ValueError('CBS requires explicitly consecutive cc-pVXZ bases or documented native PVXZ aliases')
+        low, high = _BASIS_CARDINALS[self.low_basis], _BASIS_CARDINALS[self.high_basis]
+        if (-math.expm1(-self.hf_exponential_alpha*(high-low)) < 1e-6 or
+                -math.expm1(self.correlation_inverse_power*math.log(low/high)) < 1e-6):
+            raise ValueError('CBS extrapolation is numerically ill-conditioned: denominator must be at least 1e-6')
         if not self.core_valence_basis.startswith(('cc-pCV', 'cc-pwCV', 'PCV', 'PWCV')):
             raise ValueError('The same-basis ae-minus-fc core increment requires an explicit core-valence basis')
         for protocol in self.protocols().values():
@@ -65,12 +70,12 @@ def combine_energy_components(energies: dict[str, float], protocol: EnergyCompos
     if set(energies) != required or any(isinstance(v, bool) or not math.isfinite(v) for v in energies.values()):
         raise ValueError('Every exact finite native component energy is required')
     low, high = _BASIS_CARDINALS[protocol.low_basis], _BASIS_CARDINALS[protocol.high_basis]
-    ratio = math.exp(-protocol.hf_exponential_alpha * (high-low))
-    hf = (energies['hf_high'] - ratio*energies['hf_low']) / (1-ratio)
+    denominator_hf = -math.expm1(-protocol.hf_exponential_alpha * (high-low))
+    hf = energies['hf_low'] + (energies['hf_high']-energies['hf_low'])/denominator_hf
     corr_low = energies['cc_low']-energies['hf_low']
     corr_high = energies['cc_high']-energies['hf_high']
-    ratio_corr = (low/high)**protocol.correlation_inverse_power
-    correlation = (corr_high - ratio_corr*corr_low) / (1-ratio_corr)
+    denominator_corr = -math.expm1(protocol.correlation_inverse_power*math.log(low/high))
+    correlation = corr_low + (corr_high-corr_low)/denominator_corr
     cv = energies['cv_ae']-energies['cv_fc']
     triples = energies['triples_full']-energies['triples_parent']
     total = math.fsum([hf, correlation, cv, triples])
@@ -81,6 +86,7 @@ def combine_energy_components(energies: dict[str, float], protocol: EnergyCompos
             'components_hartree': dict(energies), 'basis_cardinals': [low, high],
             'hf_exponential_alpha': protocol.hf_exponential_alpha,
             'correlation_inverse_power': protocol.correlation_inverse_power,
+            'extrapolation_absolute_coefficient_sums': {'HF': 2/denominator_hf-1, 'correlation': 2/denominator_corr-1},
             'formula': 'HF_inf[exp(-alpha*X)] + corr_inf[X^-beta] + (ae-fc)CCSD(T) + (CCSDT-CCSD(T))fc',
             'accuracy_claim': None}
 
@@ -97,14 +103,24 @@ def execute_energy_composite(workflow, record, store, inputs, deadline: float, c
     results, identities = {}, set()
     for index, molecule in enumerate(molecules):
         role = 'complex' if index == 0 else f'fragment-{index-1}'
-        energies = {}
+        geometry_deadline = deadline
+        if record.request.per_geometry_budget_seconds is not None:
+            geometry_deadline = min(deadline, time.monotonic()+record.request.per_geometry_budget_seconds)
+        energies, references = {}, {}
         for component, native in protocol.protocols().items():
             result = run_component(workflow, record, store, f'CBS-CV-fT-{role}-{component}', molecule,
-                                   native, run_external, deadline, cancel_event)
+                                   native, run_external, geometry_deadline, cancel_event)
             if result is None:
                 return False
             energies[component] = result.energy_hartree
-            identities.add((result.engine_version, result.metadata.get('executable_sha256')))
+            references[component] = result.metadata.get('native_result', {}).get('reference_energy_hartree')
+            identities.add((result.engine_version, result.metadata.get('executable_sha256'),
+                            result.metadata.get('basis_library', {}).get('sha256')))
+        comparisons = [(references['cc_low'], energies['hf_low']), (references['cc_high'], energies['hf_high']),
+                       (references['cv_ae'], references['cv_fc']),
+                       (references['triples_full'], references['triples_parent'])]
+        if any(a is None or b is None or abs(a-b) > 2e-8 for a, b in comparisons):
+            raise IntegrityError('Composite components do not share the same native HF solution at each matched basis')
         results[role] = combine_energy_components(energies, protocol)
     if len(identities) != 1 or not all(next(iter(identities))):
         raise IntegrityError('Composite component executable identities are inconsistent')

@@ -7,6 +7,7 @@ parser validation are conditional until an installed licensed engine executes.
 from __future__ import annotations
 
 import hashlib
+import math
 import re
 import shutil
 import time
@@ -114,7 +115,9 @@ def correlated_input(molecule: Molecule, protocol: CorrelatedMethod, resources: 
     if protocol.local_energy_decomposition:
         keywords.append("LED")
     if protocol.operation == "optimize":
-        keywords.extend(["Opt", "Engrad"])
+        # Opt and EnGrad select different native run types; verify the final
+        # geometry using an independent gradient job under the same budget.
+        keywords.append("Opt")
     elif protocol.operation == "gradient":
         keywords.append("Engrad")
     lines = ["! " + " ".join(keywords), f"%pal nprocs {resources.threads} end",
@@ -156,24 +159,58 @@ def parse_correlated_output(raw: str, protocol: CorrelatedMethod) -> dict[str, A
         "CCSD(T)": [r"E\(CCSD\(T\)\)\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")"],
         "AUTOCI-CCSD(T)": [r"(?:E\(CCSD\(T\)\)|Total CCSD\(T\) energy)\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")"],
         "DLPNO-CCSD(T1)": [r"E\(CCSD\(T1?\)\)\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")"],
-        "CCSD(T)-F12D/RI": [r"(?:E\(CCSD\(T\)-F12(?:D)?\)|Final (?:basis set limit )?CCSD\(T\)(?:-F12)? (?:energy|estimate))\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")"],
+        "CCSD(T)-F12D/RI": [r"(?:E\(CCSD\(T\)-F12(?:D)?\)|Final (?:basis set limit )?CCSD\(T\)(?:-F12)? (?:energy|estimate))\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")",
+                           # ORCA 6.1.1 prints the unscaled triples result with
+                           # this prefix. The neighboring scaled-(T) estimate
+                           # is a different quantity and must not match.
+                           r"(?m)^\s*F12-E\(CCSD\(T\)\)\s*\.\.\.\s*(" + _FLOAT + r")\s*$"],
         "F12-MP2": [r"Final basis set limit MP2 estimate\s*:\s*(" + _FLOAT + r")"],
         "F12-RI-MP2": [r"Final basis set limit MP2 estimate\s*:\s*(" + _FLOAT + r")"],
     }
     observed = [_number(match) for pattern in patterns[protocol.method] for match in re.findall(pattern, raw, re.I)]
     if not observed or abs(observed[-1] - energy) > 2e-7:
         raise EngineParseError("Final total energy is not confirmed by the requested correlated method's native result block")
-    reference = re.findall(r"(?m)^\s*E\(0\)\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")", raw)
-    reference_energy = _number(reference[-1]) if reference else None
+    reference_energy, reference_sources = _reference_energy(raw)
     observation = {"energy_hartree": energy, "method_result_energy_hartree": observed[-1],
             "method": protocol.method, "orbital_basis": protocol.orbital_basis,
             "frozen_core": protocol.frozen_core, "f12_hamiltonian": protocol.method in {"CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2"},
             "reference_energy_hartree": reference_energy,
+            "reference_energy_sources": reference_sources,
             "total_correlation_energy_hartree": energy - reference_energy if reference_energy is not None else None,
+            "total_correlation_energy_scope": (
+                "total minus uncorrected orbital HF; includes the HF basis correction for F12, not the pure F12 correlation partition"
+                if protocol.method in {"CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2"}
+                else "total minus orbital HF reference"),
             "method_identity_scope": "explicit native input protocol plus native correlated result block; version-specific live acceptance remains separate"}
     if protocol.local_energy_decomposition:
         observation["local_energy_decomposition"] = parse_led(raw, energy)
     return observation
+
+
+def _reference_energy(raw: str) -> tuple[float | None, dict[str, float]]:
+    """Read only native orbital HF labels, excluding CABS-corrected estimates.
+
+    MP2 does not print E(0). Its TOTAL SCF ENERGY section supplies the same
+    reference, at higher precision. For optimization output use each label's
+    final evaluation, and reject disagreement between available labels.
+    """
+    patterns = {
+        "total_scf_energy": (r"(?m)^\s*TOTAL SCF ENERGY\s*\n[ \t]*-+[ \t]*\n\s*"
+                             r"Total Energy[ \t]*:[ \t]*(" + _FLOAT + r")[ \t]+Eh\b"),
+        "e_zero": r"(?m)^\s*E\(0\)\s*(?:[:=]|\.\.\.)\s*(" + _FLOAT + r")",
+        "f12_hartree_fock": r"(?m)^\s*Hartree-Fock energy\s*:\s*(" + _FLOAT + r")\s*$",
+    }
+    values = {}
+    for label, pattern in patterns.items():
+        matches = re.findall(pattern, raw)
+        if matches:
+            values[label] = _number(matches[-1])
+    if not values:
+        return None, {}
+    reference = next(iter(values.values()))
+    if any(abs(value - reference) > 2e-8 for value in values.values()):
+        raise EngineParseError("Native orbital HF reference labels disagree")
+    return reference, values
 
 
 def parse_led(raw: str, total_energy: float) -> dict[str, Any]:
@@ -263,7 +300,7 @@ def run_correlated(molecule: Molecule, protocol: CorrelatedMethod, resources: Re
         result.metadata["native_result"] = observation
         result.energy_hartree = observation["energy_hartree"]
         result.molecule = read_xyz(folder / "job.xyz", molecule) if protocol.operation == "optimize" else molecule
-        if protocol.operation != "energy":
+        if protocol.operation == "gradient":
             energy, gradient = parse_orca_engrad(folder / "job.engrad", result.molecule)
             if abs(energy - result.energy_hartree) > 2e-7:
                 raise EngineParseError("Correlated derivative and native energy refer to different results")
@@ -275,14 +312,68 @@ def run_correlated(molecule: Molecule, protocol: CorrelatedMethod, resources: Re
             result.converged = len(criteria) == 5 and all(criteria.values()) and "THE OPTIMIZATION HAS CONVERGED" in raw
             if not result.converged:
                 result.status = "partial"
+            else:
+                if cancel_event is not None and cancel_event.is_set():
+                    result.status, result.converged = "cancelled", False
+                    result.diagnostics["reason"] = "Cancelled before independent final correlated gradient"
+                    return result
+                gradient_protocol = protocol.model_copy(update={"operation": "gradient"})
+                final = run_correlated(result.molecule, gradient_protocol, limits(), folder / "final-gradient",
+                                       executable=binary, process_runner=process_runner, cancel_event=cancel_event)
+                result.diagnostics["final_gradient"] = {"status": final.status, "diagnostics": final.diagnostics,
+                    "command": final.command, "elapsed_seconds": final.elapsed_seconds}
+                if (final.status != "completed" or final.converged is not True
+                        or final.gradient_hartree_per_bohr is None or final.energy_hartree is None):
+                    result.status = final.status if final.status != "completed" else "failed"
+                    result.converged = False
+                    result.diagnostics["reason"] = "Independent final correlated gradient did not complete"
+                    return result
+                if (final.engine_version != result.engine_version
+                        or final.metadata.get("executable_sha256") != result.metadata["executable_sha256"]
+                        or abs(final.energy_hartree - result.energy_hartree) > 2e-7):
+                    raise EngineParseError("Correlated optimization and final gradient disagree in executable, version or energy")
+                result.gradient_hartree_per_bohr = final.gradient_hartree_per_bohr
+                stationarity = _stationarity(final.gradient_hartree_per_bohr)
+                result.diagnostics["independent_stationarity"] = stationarity
+                result.metadata["final_gradient_verification"] = {
+                    "execution_kind": "real", "protocol": gradient_protocol.model_dump(mode="json"),
+                    "directory": "final-gradient", "energy_hartree": final.energy_hartree,
+                    "energy_difference_hartree": final.energy_hartree - result.energy_hartree,
+                    "budget_scope": "remaining original attempt wall budget"}
+                result.converged = stationarity["passed"]
+                if not result.converged:
+                    result.status = "partial"
+                    result.diagnostics["reason"] = "Independent final correlated gradient is not stationary"
+                if cancel_event is not None and cancel_event.is_set() or time.monotonic() - started >= resources.budget_seconds:
+                    result.status = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out"
+                    result.converged = False
+                    result.diagnostics["reason"] = "Correlated attempt stopped before final-gradient publication"
+        result.metadata["stationary_point_classification"] = "unclassified; no frequency Hessian"
         return result
     except TimeoutError as exc:
         result.status, result.diagnostics["reason"] = "timed-out", str(exc)
+        result.converged = False
         return result
     except (ValueError, RuntimeError, OSError) as exc:
         result.status, result.diagnostics["reason"] = "failed" if result.metadata["execution_kind"] == "real" else "unsupported", str(exc)
+        result.converged = False
         return result
     finally:
         result.elapsed_seconds = time.monotonic() - started
         if folder.is_dir():
             result.artifacts = artifact_inventory(folder)
+
+
+def _stationarity(gradient: list[list[float]]) -> dict[str, Any]:
+    """Independent Cartesian gradient check; this does not classify a minimum."""
+    if not gradient or any(len(row) != 3 for row in gradient):
+        raise EngineParseError("Final correlated gradient requires three components per atom")
+    values = [component for row in gradient for component in row]
+    if any(not math.isfinite(value) for value in values):
+        raise EngineParseError("Final correlated gradient is not finite")
+    maximum = max(abs(value) for value in values)
+    rms = math.sqrt(math.fsum(value * value for value in values) / len(values))
+    return {"max_gradient_hartree_per_bohr": maximum, "rms_gradient_hartree_per_bohr": rms,
+            "max_gradient_threshold": 1e-5, "rms_gradient_threshold": 3e-6,
+            "passed": maximum <= 1e-5 and rms <= 3e-6,
+            "scope": "independent final EnGrad; no Hessian classification"}

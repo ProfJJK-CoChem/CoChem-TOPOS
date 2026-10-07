@@ -32,10 +32,11 @@ SOURCES = [
     f"https://github.com/psi4/psi4/blob/{PSI4_REVISION}/doc/sphinxman/source/cfour.rst",
     f"https://github.com/psi4/psi4/blob/{PSI4_REVISION}/doc/sphinxman/source/sapt.rst",
     "https://github.com/MolSSI/QCEngine/tree/v0.51.0/qcengine/programs/cfour",
+    "https://github.com/RagnarB83/ash-documentation/blob/1230964f43ebe62fa894527794d9b85b39ecbf96/docs/CFour-interface.rst#L120-L134",
 ]
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 _BASIS = re.compile(r"[A-Za-z0-9][A-Za-z0-9+*()._-]{0,79}\Z")
-_CFOUR_METHODS = {"HF": "SCF", "MP2": "MP2", "CCSD": "CCSD", "CCSD(T)": "CCSD[T]", "CCSDT": "CCSDT"}
+_CFOUR_METHODS = {"HF": "SCF", "MP2": "MP2", "CCSD": "CCSD", "CCSD(T)": "CCSD[T]", "CCSDT": "CCSDT", "CCSDTQ": "CCSDTQ"}
 
 
 class ExternalProtocol(Contract):
@@ -71,6 +72,8 @@ class ExternalProtocol(Contract):
                 raise ValueError("Unsupported CFOUR method/operation; higher increments require their own verified adapter")
             if self.auxiliary_scf_basis or self.auxiliary_sapt_basis:
                 raise ValueError("The CFOUR conventional-integral profile does not use fitting bases")
+            if self.method == "CCSDTQ" and (self.operation != "energy" or self.engine_version != "2.1"):
+                raise ValueError("Public CFOUR 2.1 NCC full quadruples are energy-only here; no analytic derivative is inferred")
         elif self.engine == "psi4":
             if self.method != "SAPT2+3" or self.operation != "sapt-decomposition":
                 raise ValueError("This Psi4 adapter supports the explicit SAPT2+3 branch only")
@@ -108,10 +111,13 @@ def cfour_input(molecule: Molecule, protocol: ExternalProtocol, resources: Resou
     options = [f"CALC_LEVEL={_CFOUR_METHODS[protocol.method]}", f"BASIS={protocol.orbital_basis}",
                "REFERENCE=RHF", f"CHARGE={molecule.charge}", "MULTIPLICITY=1",
                "COORDINATES=CARTESIAN", "UNITS=ANGSTROM", "SYMMETRY=OFF", "SPHERICAL=ON",
-               "ABCDTYPE=AOBASIS", f"FROZEN_CORE={'ON' if protocol.frozen_core else 'OFF'}",
+               "ABCDTYPE=" + ("STANDARD" if protocol.method in {"CCSDT", "CCSDTQ"} else "AOBASIS"),
+               f"FROZEN_CORE={'ON' if protocol.frozen_core else 'OFF'}",
                f"SCF_CONV={protocol.scf_convergence}", f"CC_CONV={protocol.cc_convergence}",
                f"LINEQ_CONV={protocol.cc_convergence}", "MEM_UNIT=INTEGERWORDS",
                f"MEMORY_SIZE={int(resources.memory_mb * 1024**2 * .75 / 8)}"]
+    if protocol.method in {"CCSDT", "CCSDTQ"}:
+        options.append("CC_PROG=" + ("NCC" if protocol.method == "CCSDTQ" else "ECC"))
     options.append("PROPS=FIRST_ORDER" if properties else f"DERIV_LEVEL={'FIRST' if gradient else 'ZERO'}")
     lines.extend(["", "*CFOUR(" + ",\n".join(options) + ")", ""])
     return "\n".join(lines)
@@ -132,13 +138,39 @@ def _proper_rotation(native: np.ndarray, requested: np.ndarray) -> np.ndarray:
     return rotation
 
 
+def _dipole_in_requested_frame(vector_atomic_units: list[float], native_angstrom: np.ndarray,
+                               molecule: Molecule) -> list[float]:
+    """A charged molecule's total dipole also changes with the coordinate origin."""
+    requested = np.asarray(molecule.coordinates)
+    rotation = _proper_rotation(native_angstrom, requested)
+    shift_bohr = (requested.mean(axis=0) - native_angstrom.mean(axis=0) @ rotation) / BOHR_ANGSTROM
+    return (np.asarray(vector_atomic_units) @ rotation + molecule.charge * shift_bohr).tolist()
+
+
+def _cfour_cc_converged(raw: str, method: str) -> bool:
+    """Accept native VCC/ECC or the exact requested NCC iteration completion."""
+    ncc = re.search(r"(?m)^\s*" + re.escape(method) + r" iterations converged in\s+\d+\s+cycles\b", raw)
+    if method == "CCSDTQ":
+        return ncc is not None
+    return ncc is not None or re.search(r"Amplitude equations converged|CC iterations have converged", raw) is not None
+
+
+def _ncc_total_energy(raw: str, method: str) -> float:
+    """Exact native NCC total after converged iterations; never an MRCC label."""
+    convergence = r"(?m)^\s*" + re.escape(method) + r" iterations converged in\s+\d+\s+cycles\b"
+    matches = re.findall(r"(?m)^\s*Total " + re.escape(method) + r" energy:\s*(" + _FLOAT + r")\s*$", raw)
+    if len(matches) != 1 or not re.search(convergence, raw):
+        raise EngineParseError("The requested NCC method lacks one converged native total energy")
+    return _number(matches[0])
+
+
 def _native_completion(raw: str, protocol: ExternalProtocol) -> str:
     native_versions = re.findall(r"(?im)^\s*version\s+([\w.+-]+)\s*$", raw)
     if not native_versions or set(native_versions) != {protocol.engine_version}:
         raise EngineParseError("CFOUR output does not establish the exact requested native version")
     if "SCF has converged." not in raw or re.search(r"(?:SCF|CC|AMPLITUDE).*?(?:NOT CONVERGED|FAILED TO CONVERGE)", raw, re.I):
         raise EngineParseError("CFOUR SCF/correlation convergence was not established")
-    if protocol.method.startswith("CC") and not re.search(r"Amplitude equations converged|CC iterations have converged", raw):
+    if protocol.method.startswith("CC") and not _cfour_cc_converged(raw, protocol.method):
         raise EngineParseError("The requested coupled-cluster amplitude equations did not converge")
     invoked = Counter(re.findall(r"--invoking executable\s+(\S+)", raw))
     finished = re.findall(r"--executable\s+(\S+)\s+finished with status\s+(-?\d+)", raw)
@@ -170,9 +202,15 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         raise EngineParseError("The native electronic charge differs from the requested molecule")
     native_method = control("CALC_?LEVEL").upper()
     accepted_methods = {"HF": {"HF", "SCF"}, "MP2": {"MP2", "MBPT(2)"},
-                        "CCSD": {"CCSD"}, "CCSD(T)": {"CCSD(T)", "CCSD[T]"}, "CCSDT": {"CCSDT"}}
+                        "CCSD": {"CCSD"}, "CCSD(T)": {"CCSD(T)", "CCSD[T]"}, "CCSDT": {"CCSDT"}, "CCSDTQ": {"CCSDTQ"}}
     if native_method not in accepted_methods[protocol.method]:
         raise EngineParseError("Native CALC_LEVEL differs from the requested method; an intermediate energy is not the requested job")
+    if protocol.method in {"CCSDT", "CCSDTQ"}:
+        program = "NCC" if protocol.method == "CCSDTQ" else "ECC"
+        if control("CC_PROGRAM") != program or control("ABCDTYPE") != "STANDARD":
+            raise EngineParseError("Higher coupled-cluster calculation lacks the requested native solver and STANDARD integrals")
+        if protocol.method == "CCSDTQ" and not re.search(r"--invoking executable\s+xncc\b", raw):
+            raise EngineParseError("Full quadruples require the built-in NCC solver; an external MRCC result cannot impersonate it")
     if len(re.findall(r"SCF has converged\.", raw)) != 1:
         raise EngineParseError("Expected one CFOUR Cartesian evaluation, not concatenated jobs/optimization cycles")
     qcvars, native, stdout_gradient, _, _, error = harvest_outfile_pass(raw)
@@ -184,6 +222,8 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
     if key not in qcvars or "SCF TOTAL ENERGY" not in qcvars:
         raise EngineParseError("Requested correlated total energy absent; SCF/MP2 intermediate energies are insufficient")
     energy, reference = _number(str(qcvars[key])), _number(str(qcvars["SCF TOTAL ENERGY"]))
+    if protocol.method == "CCSDTQ" and abs(energy - _ncc_total_energy(raw, protocol.method)) > 1e-10:
+        raise EngineParseError("QCEngine's full-quadruples total differs from the exact native NCC total")
     gradient = None
     if protocol.operation in {"gradient", "optimize"}:
         if not grd:
@@ -208,12 +248,23 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
                    "frame_alignment": "indexed proper rotation only; no atom permutation or reflection",
                    "parser": {"qcengine": "0.51.0", "qcelemental": "0.51.2"}}
     if protocol.operation == "first-order-properties":
-        if not dipol or "FIRST_ORDER" not in raw:
+        if not dipol or control("PROPS") != "FIRST_ORDER":
             raise EngineParseError("First-order properties require native PROPS=FIRST_ORDER evidence and DIPOL")
         values = dipol.split()
         if len(values) != 3:
             raise EngineParseError("CFOUR DIPOL requires exactly three atomic-unit components")
-        observation["dipole_atomic_units"] = (np.array([_number(v) for v in values]) @ rotation).tolist()
+        dipole_xyz = native_xyz
+        if grd:
+            # QCEngine documents DIPOL in GRD's orientation when GRD exists.
+            try:
+                grd_molecule, _ = harvest_GRD(grd.replace("D", "E").replace("d", "e"))
+            except (ValueError, IndexError) as exc:
+                raise EngineParseError("DIPOL's GRD coordinate frame is malformed") from exc
+            if list(grd_molecule.symbols) != molecule.symbols:
+                raise EngineParseError("DIPOL's GRD coordinate frame changes molecular identities")
+            dipole_xyz = np.asarray(grd_molecule.geometry) * BOHR_ANGSTROM
+        observation["dipole_atomic_units"] = _dipole_in_requested_frame([_number(v) for v in values], dipole_xyz, molecule)
+        observation["dipole_origin"] = "requested Cartesian coordinate origin, including the charge-dependent translation term"
     return observation
 
 
@@ -302,7 +353,8 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                           metadata={"execution_kind": "not-executed", "adapter_validation": "conditional-not-live-validated",
                                     "requested_protocol": protocol.model_dump(mode="json"),
                                     "protocol_sha256": digest_json(protocol.model_dump(mode="json")), "sources": SOURCES,
-                                    "base_broker_selected_by_adapter": process_runner is None})
+                                    "execution_broker": "BASE" if process_runner is None or isinstance(getattr(process_runner, "__self__", None), BaseRuntime)
+                                    else "explicit caller-supplied development/test runner"})
     try:
         protocol = ExternalProtocol.model_validate(protocol.model_dump())
         _physical_input(molecule, resources)
@@ -373,6 +425,8 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                 evaluation = folder / f"evaluation-{len(evaluated):05d}"
                 evaluation.mkdir()
                 shutil.copyfile(genbas, evaluation / "GENBAS")
+                if file_digest(evaluation / "GENBAS") != protocol.genbas_sha256:
+                    raise EngineParseError("GENBAS changed during staging; the native input basis is not the pinned library")
                 (evaluation / "ZMAT").write_text(cfour_input(current, protocol, resources))
                 result.command = [str(binary)]
                 process = process_runner(result.command, evaluation, limits(), cancel_event=cancel_event,

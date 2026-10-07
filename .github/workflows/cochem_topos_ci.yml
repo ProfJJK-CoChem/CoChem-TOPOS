@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     env:
       # A missing executable is a CI failure, never a successful skipped test.
       TOPOS_REQUIRE_REAL_ENGINES: '1'
@@ -31,8 +31,23 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-      - name: Install package and verification tools
-        run: python -m pip install -e '.[dev,ui]'
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-BASE
+          ref: 705b9d54370d5089da286a02b7a1c4afdcbafec1
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/base
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-TORQ
+          ref: 79fbb111125e50627a1a2c129888a45496f368d4
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/torq
+          persist-credentials: false
+      - name: Install mandatory packages and verification tools
+        run: |
+          python -m pip install -e .cochem-dependencies/base -e .cochem-dependencies/torq -e '.[dev,ui,external]'
       - name: Install checksum-pinned genuine xTB
         run: |
           python scripts/install_xtb.py "$RUNNER_TEMP/topos-tools"

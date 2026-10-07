@@ -81,6 +81,7 @@ def parse_cartesian_dipole(text: str, engine: str) -> dict[str, Any] | None:
 
     atomic_unit_debye = (constants.physical_constants["atomic unit of electric dipole mom."][0]
                          * constants.c * 1e21)
+    printed_atomic_unit_debye = atomic_unit_debye
     if engine == "xtb":
         marker = "molecular dipole:"
         if marker not in text:
@@ -109,23 +110,43 @@ def parse_cartesian_dipole(text: str, engine: str) -> dict[str, Any] | None:
             raise EngineParseError("ORCA molecular dipole vector and explicit a.u./Debye magnitudes are required")
         vector = [_number(row.group(i)) for i in range(1, 4)]
         magnitude_debye = _number(norm_debye.group(1))
-        # Conservative bound for the documented six-decimal Cartesian table.
-        component_rounding = 0.000005
-        magnitude_rounding = 0.000005
-        if abs(_number(norm_au.group(1)) * atomic_unit_debye - magnitude_debye) > 5e-5:
+        def rounding(value: str) -> float:
+            mantissa, _, exponent = value.lower().replace("d", "e").partition("e")
+            decimals = len(mantissa.partition(".")[2])
+            return .5 * 10.0 ** (int(exponent or "0") - decimals)
+
+        component_errors = np.asarray([rounding(row.group(i)) for i in range(1, 4)])
+        component_rounding = float(np.max(component_errors))
+        magnitude_rounding = rounding(norm_debye.group(1))
+        norm_atomic_units = _number(norm_au.group(1))
+        norm_rounding = rounding(norm_au.group(1))
+        if (norm_atomic_units < 0 or abs(float(np.linalg.norm(vector)) - norm_atomic_units)
+                > float(np.linalg.norm(component_errors)) + norm_rounding):
+            raise EngineParseError("ORCA Cartesian dipole components and atomic-unit magnitude disagree")
+        # ORCA 6.1.1's retained native output uses its 2.541798 Debye/e a0
+        # convention, not current CODATA. Validate the engine's printed units
+        # separately; scientific Cartesian outputs below use current CODATA.
+        printed_atomic_unit_debye = 2.541798
+        if (abs(norm_atomic_units * printed_atomic_unit_debye - magnitude_debye)
+                > norm_rounding * printed_atomic_unit_debye + magnitude_rounding):
             raise EngineParseError("ORCA dipole magnitudes disagree between atomic units and Debye")
         definition = "ORCA total electronic plus nuclear Cartesian dipole"
         source = "ORCA final DIPOLE MOMENT block; explicit Magnitude (a.u.) and Magnitude (Debye) cross-check"
     else:
         raise ValueError("dipole parser supports xtb or orca only")
     vector_debye = np.asarray(vector) * atomic_unit_debye
-    tolerance = np.sqrt(3) * component_rounding * atomic_unit_debye + magnitude_rounding
-    if magnitude_debye < 0 or abs(float(np.linalg.norm(vector_debye)) - magnitude_debye) > tolerance:
+    tolerance = np.sqrt(3) * component_rounding * printed_atomic_unit_debye + magnitude_rounding
+    native_vector_debye = np.asarray(vector) * printed_atomic_unit_debye
+    if magnitude_debye < 0 or abs(float(np.linalg.norm(native_vector_debye)) - magnitude_debye) > tolerance:
         raise EngineParseError(f"{engine} Cartesian dipole components and printed magnitude disagree")
     return {"cartesian_debye": vector_debye.tolist(), "cartesian_atomic_units": vector,
             "printed_magnitude_debye": magnitude_debye, "units": "debye",
             "definition": definition, "parser": f"topos.engines/{engine}-dipole-v1",
             "source": source, "atomic_unit_debye": atomic_unit_debye,
+            "cartesian_conversion_convention": "current scipy CODATA atomic unit of electric dipole",
+            "printed_atomic_unit_debye": printed_atomic_unit_debye,
+            "printed_conversion_convention": "ORCA 6.1.1 native 2.541798 Debye/e a0" if engine == "orca" else "current CODATA",
+            "engine_native_cartesian_debye": native_vector_debye.tolist(),
             "printed_component_rounding_bound_debye": component_rounding * atomic_unit_debye,
             "selection": "last advertised molecular dipole block, without fallback to earlier incomplete results",
             "origin": "engine input/output Cartesian origin; charged-molecule origin dependence retained"}
@@ -280,7 +301,9 @@ def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimit
         if not basis_files or "auxiliary" not in basis_files:
             keywords.append("def2/J")
     if operation == "optimize":
-        keywords.extend(["Opt", "Engrad"])
+        # Run-type keywords are mutually exclusive: Engrad after Opt selects
+        # a single gradient in ORCA 6.1.1 and does not optimize the geometry.
+        keywords.append("Opt")
     elif operation == "gradient":
         keywords.append("Engrad")
     # ORCA MaxCore is per worker; reserve 25% for unaccounted structures/driver.
@@ -587,7 +610,7 @@ def run_engine(
             energy = _number(matches[-1])
             output_molecule = read_xyz(folder / "job.xyz", molecule) if operation == "optimize" else physical_molecule
             gradient = None
-            if operation != "energy":
+            if operation == "gradient":
                 derivative_energy, gradient = parse_orca_engrad(folder / "job.engrad", output_molecule)
                 if abs(energy - derivative_energy) > 2e-7:
                     raise EngineParseError("ORCA energy and derivative artifacts disagree")
@@ -596,9 +619,53 @@ def run_engine(
                 result.diagnostics["convergence"] = criteria
                 result.converged = ("THE OPTIMIZATION HAS CONVERGED" in raw and
                                     len(criteria) == 5 and all(criteria.values()))
+                if result.converged:
+                    # Opt and EnGrad are distinct native run types. Verify the
+                    # returned geometry with a fresh gradient instead of making
+                    # assumptions about optimizer scratch-file retention.
+                    remaining = resources.budget_seconds - (time.monotonic() - start)
+                    if remaining <= 0 or (cancel_event is not None and cancel_event.is_set()):
+                        result.status = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out"
+                        result.converged = False
+                        result.diagnostics["reason"] = "Final optimization gradient was not executed within the active attempt"
+                        return result
+                    final = run_engine(output_molecule, method, resources.model_copy(update={"budget_seconds": remaining}),
+                                       folder / "final-gradient", operation="gradient", cancel_event=cancel_event,
+                                       executable=binary, process_runner=execute_process)
+                    result.diagnostics["final_gradient"] = {"status": final.status, "diagnostics": final.diagnostics,
+                        "command": final.command, "elapsed_seconds": final.elapsed_seconds}
+                    if (final.status != "completed" or final.converged is not True
+                            or final.gradient_hartree_per_bohr is None or final.energy_hartree is None):
+                        result.status = final.status if final.status != "completed" else "failed"
+                        result.converged = False
+                        result.diagnostics["reason"] = "Independent final optimization gradient did not complete"
+                        return result
+                    if (final.engine_version != result.engine_version
+                            or final.metadata.get("executable_sha256") != result.metadata["executable_sha256"]
+                            or abs(energy - final.energy_hartree) > 2e-7):
+                        raise EngineParseError("Optimization and final gradient disagree in executable, version or energy")
+                    gradient = final.gradient_hartree_per_bohr
+                    strict = method.profile_id == "orca-vpt2-reference-v1"
+                    max_threshold, rms_threshold = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
+                    values = np.asarray(gradient, dtype=float)
+                    maximum = float(np.max(np.abs(values)))
+                    rms = float(np.sqrt(np.mean(values ** 2)))
+                    stationary = maximum <= max_threshold and rms <= rms_threshold
+                    result.diagnostics["independent_stationarity"] = {
+                        "max_gradient_hartree_per_bohr": maximum, "rms_gradient_hartree_per_bohr": rms,
+                        "max_gradient_threshold": max_threshold, "rms_gradient_threshold": rms_threshold,
+                        "passed": stationary, "scope": "independent final EnGrad; no Hessian classification"}
+                    result.converged = result.converged and stationary
+                    result.metadata["final_gradient_verification"] = {
+                        "execution_kind": "real", "method": method.model_dump(mode="json"),
+                        "directory": "final-gradient", "energy_hartree": final.energy_hartree,
+                        "energy_difference_hartree": final.energy_hartree - energy,
+                        "budget_scope": "remaining original attempt wall budget"}
             else:
                 result.converged = True
-        dipole = parse_cartesian_dipole(raw, method.engine)
+        dipole_output = (folder / "final-gradient" / "engine.stdout"
+                         if result.metadata.get("final_gradient_verification") else Path(process.stdout_path))
+        dipole = parse_cartesian_dipole(dipole_output.read_text(errors="replace"), method.engine)
         if dipole is not None:
             from .science import geometry_digest
 
@@ -606,9 +673,16 @@ def run_engine(
             result.metadata["dipole_provenance"] = {
                 **dipole, "geometry_digest": geometry_digest(output_molecule),
                 "method": method.method, "engine": method.engine, "engine_version": result.engine_version,
-                "raw_output": Path(process.stdout_path).name,
-                "raw_output_sha256": hashlib.sha256(Path(process.stdout_path).read_bytes()).hexdigest(),
+                "raw_output": dipole_output.relative_to(folder).as_posix(),
+                "raw_output_sha256": hashlib.sha256(dipole_output.read_bytes()).hexdigest(),
             }
+        if (result.metadata.get("final_gradient_verification")
+                and ((cancel_event is not None and cancel_event.is_set())
+                     or time.monotonic() - start >= resources.budget_seconds)):
+            result.status = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out"
+            result.converged = False
+            result.diagnostics["reason"] = "Optimization attempt stopped before final-gradient publication"
+            return result
         result.energy_hartree = energy
         result.gradient_hartree_per_bohr = gradient if operation != "energy" else None
         result.molecule = output_molecule
@@ -622,6 +696,7 @@ def run_engine(
         return result
     except (EngineParseError, OSError, ValueError) as exc:
         result.status = "failed"
+        result.converged = False
         result.diagnostics["reason"] = str(exc)
         return result
     finally:
@@ -630,4 +705,5 @@ def run_engine(
             result.artifacts = artifact_inventory(folder)
         except (OSError, EngineParseError) as exc:
             result.status = "failed"
+            result.converged = False
             result.diagnostics["artifact_error"] = str(exc)

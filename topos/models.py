@@ -176,13 +176,46 @@ class ThermalOptions(Contract):
     cutoff_cm1: float = Field(default=10, gt=0)
 
 
+class RigidmolAtomParameter(Contract):
+    atom_id: str = Field(min_length=1)
+    charge_e: float = Field(strict=True)
+    epsilon_kj_mol: float = Field(ge=0, strict=True)
+    sigma_angstrom: float = Field(ge=0, strict=True)
+
+    @model_validator(mode="after")
+    def repulsion_has_a_length(self):
+        if self.epsilon_kj_mol > 0 and self.sigma_angstrom <= 0:
+            raise ValueError("A nonzero Lennard-Jones well depth requires a positive sigma")
+        return self
+
+
+class RigidmolOptions(Contract):
+    atomic_parameters: list[RigidmolAtomParameter] = Field(min_length=1)
+    parameter_source: str = Field(min_length=1)
+    population: int = Field(default=20, ge=5, le=100000, strict=True)
+    generations: int = Field(default=20, ge=1, le=1000000, strict=True)
+    scout_limit: int = Field(default=3, ge=1, le=1000000, strict=True)
+    amplitude_angstrom: float = Field(default=4, gt=0, le=100, strict=True)
+    max_saved_minima: int = Field(default=30, ge=1, le=10000, strict=True)
+
+    @model_validator(mode="after")
+    def explicit_parameter_identity(self):
+        if not self.parameter_source.strip():
+            raise ValueError("ABCluster requires a nonempty cited force-field parameter source")
+        identities = [parameter.atom_id for parameter in self.atomic_parameters]
+        if len(set(identities)) != len(identities):
+            raise ValueError("ABCluster parameters must identify each input atom only once")
+        return self
+
+
 class RunRequest(Contract):
     molecule: Molecule
     engine: str = "xtb"
     method: str = "GFN2-xTB"
     engine_version: str | None = None
     purpose: str = "search"
-    search_algorithm: Literal["jiggle-quench", "crest", "union"] = "jiggle-quench"
+    search_algorithm: Literal["jiggle-quench", "crest", "union", "abcluster"] = "jiggle-quench"
+    abcluster_options: RigidmolOptions | None = None
     sampler_profile: Literal["crest-imtdgc-v1", "crest-mquick-v1", "crest-nci-v1"] = "crest-imtdgc-v1"
     sampler_nci: bool = False
     sampler_budget_fraction: float = Field(default=0.5, gt=0, lt=1)
@@ -224,6 +257,13 @@ class RunRequest(Contract):
 
     @model_validator(mode="after")
     def validate_sampling_options(self) -> RunRequest:
+        if self.search_algorithm == "abcluster":
+            if self.purpose not in {"search", "association"} or self.abcluster_options is None:
+                raise ValueError("ABCluster applies to search/association and requires explicit abcluster_options")
+            if {p.atom_id for p in self.abcluster_options.atomic_parameters} != set(self.molecule.atom_ids):
+                raise ValueError("ABCluster force-field parameters must match every input atom ID exactly")
+        elif self.abcluster_options is not None:
+            raise ValueError("ABCluster force-field options require an explicit abcluster sampler selection")
         if self.sampler_nci:
             if self.purpose not in {"search", "association"} or self.search_algorithm not in {"crest", "union"}:
                 raise ValueError("sampler_nci applies only to CREST or union searches")

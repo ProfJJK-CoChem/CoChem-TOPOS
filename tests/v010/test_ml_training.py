@@ -19,16 +19,20 @@ import numpy as np
 import pytest
 
 from topos.config import SystemConfig
-from topos.engines import EngineResult, run_engine
+from topos.engines import EngineResult, artifact_inventory, run_engine
 from topos.matrix_components import run_component
-from topos.ml import BOHR_ANGSTROM, HARTREE_EV, ModelManifest
+from topos.ml import BOHR_ANGSTROM, HARTREE_EV, ModelManifest, molecule_system_identity
 from topos.ml_training import (
     DFTSourcePoint,
     MACETrainingOptions,
     ReferenceFrame,
     ReplayFile,
     TrainingDatasetSpec,
+    _configuration_key,
+    _evaluate_heldout,
+    _trained_manifest,
     _validate_replay,
+    _verified_fitted_checkpoint,
     compile_mace_training_command,
     heldout_errors,
     import_dft_point,
@@ -37,6 +41,7 @@ from topos.ml_training import (
     reference_extxyz,
     run_mace_finetuning,
     validate_reference_partition,
+    validate_training_target,
 )
 from topos.models import MethodSpec, Molecule, ResourceLimits, RunRecord, RunRequest
 from topos.storage import IntegrityError, RunStore, digest_json, file_digest
@@ -125,6 +130,26 @@ def test_rotated_translated_duplicates_cannot_leak_into_holdout():
     frames[-1].molecule.coordinates = (np.asarray(frames[0].molecule.coordinates) @ rotation + [2, 3, 4]).tolist()
     with pytest.raises(ValueError, match="Duplicate configurations"):
         validate_reference_partition(frames)
+
+
+def test_identical_species_cloud_cannot_cross_holdout_by_equivalent_atom_exchange():
+    frames = [frame(index) for index in range(100)]
+    xyz = frames[0].molecule.coordinates
+    frames[-1].molecule.coordinates = [xyz[0], xyz[2], xyz[1]]
+    with pytest.raises(ValueError, match="Duplicate configurations"):
+        validate_reference_partition(frames)
+
+
+def test_leakage_fingerprint_ignores_atom_order_but_preserves_isotopes_and_state():
+    molecule = water()
+    permutation = [2, 0, 1]
+    reordered = Molecule(symbols=[molecule.symbols[i] for i in permutation],
+                         coordinates=[molecule.coordinates[i] for i in permutation])
+    assert _configuration_key(molecule) == _configuration_key(reordered)
+    isotope = molecule.model_copy(update={"isotopes": [None, 2, None]})
+    charged = molecule.model_copy(update={"charge": 2})
+    triplet = molecule.model_copy(update={"multiplicity": 3})
+    assert len({_configuration_key(m) for m in [molecule, isotope, charged, triplet]}) == 4
 
 
 @pytest.mark.parametrize("mutation", ["method", "basis", "state", "atom-mapping"])
@@ -241,6 +266,18 @@ def test_explicit_replay_does_not_overlap_system_specific_data(tmp_path):
         _validate_replay(settings, [frame(index) for index in range(100)])
 
 
+def test_reordered_replay_configuration_cannot_leak_into_the_heldout_system(tmp_path):
+    settings = options(tmp_path)
+    reference = frame(95)
+    order = [2, 0, 1]
+    reference.molecule = Molecule(symbols=[reference.molecule.symbols[i] for i in order],
+                                  coordinates=[reference.molecule.coordinates[i] for i in order])
+    reference.gradient_hartree_per_bohr = [reference.gradient_hartree_per_bohr[i] for i in order]
+    settings.replay_validation = replay(tmp_path / "reordered-overlap.extxyz", reference_extxyz([reference]))
+    with pytest.raises(ValueError, match="exclude all system-specific"):
+        _validate_replay(settings, [frame(index) for index in range(100)])
+
+
 def test_replay_partition_or_hash_changes_cannot_be_ignored(tmp_path):
     settings = options(tmp_path)
     data = settings.model_dump()
@@ -324,3 +361,129 @@ def test_training_cancellation_precedes_unavailable_runtime_and_preserves_reason
         ResourceLimits(device="gpu"), tmp_path / "training", runtime=None, cancel_event=event)
     assert result["status"] == "cancelled" and result["execution_kind"] == "not-executed"
     assert result["checkpoint"] is None and not (tmp_path / "training" / "dataset").exists()
+
+
+def test_training_target_allows_distorted_reference_geometries_and_names():
+    target = water().model_copy(update={"name": "requested water"})
+    frames = [frame(index) for index in range(100)]
+    # A distorted DFT point is not a different declared molecular graph.
+    frames[0].molecule.coordinates[1] = [2.5, .2, -.1]
+    frames[-1].molecule.name = "distorted reference"
+    domain = validate_training_target(frames, target)
+    assert domain["molecule_identity_sha256"] == molecule_system_identity(target)
+    assert domain["bound_to_requested_target"] is True
+    assert domain["transferability_outside_target_assessed"] is False
+    assert "coordinates" not in domain["molecule_identity"]
+    assert "name" not in domain["molecule_identity"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("symbols", ["S", "H", "H"]),
+    ("atom_ids", ["oxygen", "h1", "h2"]),
+    ("charge", 2), ("multiplicity", 3),
+    ("isotopes", [18, None, None]),
+    ("fragments", [[0, 1, 2]]),
+    ("bonds", [{"atom1": 0, "atom2": 1, "order": 1, "kind": "covalent"}]),
+    ("stereochemistry", {"declared_reference": "different"}),
+    ("environment", {"solvent": "water"}),
+])
+def test_training_target_rejects_each_changed_identity_even_with_same_coordinates(field, value):
+    data = water().model_dump(mode="json")
+    data[field] = value
+    target = Molecule.model_validate(data)
+    with pytest.raises(ValueError, match="dataset identity differs"):
+        validate_training_target([frame()], target)
+
+
+def test_training_target_preserves_explicit_fragment_state_and_declared_bond_order():
+    target_data = water().model_dump()
+    target_data.update(fragments=[[0, 1, 2]],
+        fragment_states=[{"atom_indices": [0, 1, 2], "charge": 0, "multiplicity": 1}])
+    target = Molecule.model_validate(target_data)
+    reference = frame().model_copy(update={"molecule": target.model_copy(deep=True)})
+    reference.molecule.fragment_states[0].multiplicity = 3
+    with pytest.raises(ValueError, match="dataset identity differs"):
+        validate_training_target([reference], target)
+    target_data = water().model_dump()
+    target_data["bonds"] = [{"atom1": 0, "atom2": 1, "order": 1, "kind": "covalent"}]
+    target = Molecule.model_validate(target_data)
+    reference.molecule = target.model_copy(deep=True)
+    reference.molecule.bonds[0].order = 2
+    with pytest.raises(ValueError, match="dataset identity differs"):
+        validate_training_target([reference], target)
+
+
+def test_saved_system_model_contract_does_not_inherit_foundation_transferability(tmp_path):
+    # Compile the manifest only; this fixture is never used as a native checkpoint.
+    original = manifest(tmp_path)
+    original.supported_elements = ["C", "H", "N", "O"]
+    checkpoint = tmp_path / "manifest-only-contract.model"
+    checkpoint.write_text("Manifest serialization fixture, not an executable model")
+    domain = validate_training_target([frame()], water())
+    prepared = {"reference_protocol": frame().method.model_dump(mode="json"),
+                "specification_sha256": digest_json(specification().model_dump(mode="json"))}
+    trained = _trained_manifest(original, checkpoint, {"contract_fixture_only": True}, prepared, domain, tmp_path)
+    assert trained.head == "Default"
+    assert trained.supported_elements == ["H", "O"]
+    assert trained.system_identity_sha256 == molecule_system_identity(water())
+    assert domain["molecule_identity_sha256"] in trained.domain_reference
+    assert prepared["specification_sha256"] in trained.domain_reference
+    assert "transferability outside this target is unassessed" in trained.domain_reference
+    trained.validate_molecule(water(1.05))
+    with pytest.raises(ValueError, match="system-specific"):
+        trained.validate_molecule(Molecule(symbols=["O", "H", "H", "O", "H", "H"],
+            coordinates=water().coordinates + [[3, 0, 0], [3.96, 0, 0], [2.76, .93, 0]]))
+
+
+@pytest.mark.parametrize("mutation", ["no-inventory", "changed-bytes", "symlink", "duplicate", "not-native"])
+def test_checkpoint_recovery_rejects_unverified_storage_before_training_or_inference(tmp_path, mutation):
+    evidence = tmp_path / "original-evidence"
+    evidence.mkdir()
+    raw = evidence / "non-native.txt"
+    raw.write_text("Storage integrity fixture only, no model or scientific execution")
+    inventory = [item.model_dump(mode="json") for item in artifact_inventory(evidence)]
+    previous = {"status": "partial", "artifacts": inventory}
+    if mutation == "no-inventory":
+        previous["artifacts"] = []
+    elif mutation == "changed-bytes":
+        raw.write_text("Changed bytes")
+    elif mutation == "symlink":
+        raw.rename(evidence / "target.txt")
+        raw.symlink_to(evidence / "target.txt")
+    elif mutation == "duplicate":
+        previous["artifacts"] = inventory + inventory
+    with pytest.raises(IntegrityError):
+        _verified_fitted_checkpoint(previous, manifest(tmp_path), specification(), options(tmp_path), water(),
+            deadline=time.monotonic() + 30, cancel_event=None)
+
+
+def test_invalid_checkpoint_recovery_never_starts_another_fit(tmp_path):
+    class MustNotTrain:
+        def run_mace_training_process(self, *args, **kwargs):
+            raise AssertionError("A recovery request must never launch fitting")
+    result = run_mace_finetuning(manifest(tmp_path), specification(), options(tmp_path),
+        ResourceLimits(device="gpu"), tmp_path / "retry", runtime=MustNotTrain(),
+        expected_molecule=water(), resume_report={"status": "partial"})
+    assert result["status"] == "unsupported"
+    assert result["training_performed"] is False
+    assert result["heldout_errors"] is None and result["checkpoint"] is None
+    assert not (tmp_path / "retry" / "dataset").exists()
+    assert not (tmp_path / "retry" / "native").exists()
+
+
+@pytest.mark.parametrize("stop", ["cancelled", "budget"])
+def test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success(tmp_path, stop):
+    # Control-flow test stops before model loading; no native model is simulated.
+    marker = {"contract_fixture_only": "retained checkpoint identity"}
+    report = {"checkpoint": marker, "training_performed": False, "resumed_checkpoint": True,
+              "heldout_errors": None}
+    event = Event()
+    if stop == "cancelled":
+        event.set()
+    result = _evaluate_heldout({}, manifest(tmp_path), ResourceLimits(device="gpu"), options(tmp_path),
+        tmp_path / "retry", None, report, cancel_event=event,
+        deadline=time.monotonic() + (30 if stop == "cancelled" else -1))
+    assert result["status"] == ("cancelled" if stop == "cancelled" else "partial")
+    assert result["checkpoint"] == marker and result["heldout_errors"] is None
+    assert result["training_performed"] is False
+    assert not (tmp_path / "retry").exists()

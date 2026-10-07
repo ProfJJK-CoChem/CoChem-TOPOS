@@ -60,14 +60,14 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-BASE
-          ref: c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86
+          ref: 705b9d54370d5089da286a02b7a1c4afdcbafec1
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/base
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-TORQ
-          ref: d7a4739a5f7d6f22ed659b32eeb4706bef16225e
+          ref: 79fbb111125e50627a1a2c129888a45496f368d4
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/torq
           persist-credentials: false

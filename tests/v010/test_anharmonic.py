@@ -66,6 +66,17 @@ def test_incompatible_vpt2_method_rejected(change):
         orca_vpt2_input(water(), method().model_copy(update=change), ResourceLimits())
 
 
+@pytest.mark.parametrize('functional', ['wB97X-V', 'wB97M-V'])
+def test_vv10_native_analytic_derivatives_are_explicitly_unavailable(functional, tmp_path):
+    spec = method().model_copy(update={'method': functional, 'dispersion': None})
+    with pytest.raises(ValueError, match='VV10/NL second derivatives'):
+        orca_vpt2_input(water(), spec, ResourceLimits())
+    result = run_orca_vpt2(water(), spec, ResourceLimits(), tmp_path / 'must-not-execute', semirigid_modes=True)
+    assert result.status == 'unsupported'
+    assert 'dispersioncorrections.html' in result.diagnostics['reason']
+    assert not result.command and not (tmp_path / 'must-not-execute').exists()
+
+
 def test_linear_and_isotope_references_fail_closed():
     linear = Molecule(symbols=['O','C','O'], coordinates=[[0,0,-1.16],[0,0,0],[0,0,1.16]])
     with pytest.raises(ValueError, match='nonlinear'):
@@ -127,6 +138,18 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     assert len(native['fundamental_transitions']) == 3
     assert native['zero_point_energy']['total_cm1'] > 0
     assert all(value > 0 for value in native['rotational_constants_cm1']['B_0'])
+    from topos.rotational_transfer import RotationalTransferOptions, transfer_rotational_correction
+
+    # Actual native derivative evidence drives transfer onto the same geometry
+    # here. This validates the mass/frame/algebra boundary, not an R2 optimization.
+    transferred = transfer_rotational_correction(optimized.molecule, result,
+                                                RotationalTransferOptions(semirigid_same_basin=True))
+    assert transferred['native_execution_verified'] is True
+    assert len(transferred['constants_ghz']) == 3
+    altered = result.model_copy(deep=True)
+    altered.metadata['reference_hessian_result']['metadata']['hessian_hartree_per_bohr2'][0][0] += .01
+    with pytest.raises(ValueError, match='raw derivatives'):
+        transfer_rotational_correction(optimized.molecule, altered, RotationalTransferOptions(semirigid_same_basin=True))
     replay = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
                            executable=binary, semirigid_modes=True, process_runner=process_runner)
     assert replay.metadata['reused_completed_vpt2']

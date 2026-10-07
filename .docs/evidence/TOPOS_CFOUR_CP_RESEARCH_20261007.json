@@ -1,0 +1,127 @@
+{
+  "schema_version": "topos-cfour-counterpoise-research/1",
+  "created_at": "2026-10-07T14:45:49.852859+00:00",
+  "matrix_row": "T3O-1w",
+  "status": "native-contract-incomplete",
+  "native_calculation_performed": false,
+  "sources": [
+    {
+      "name": "official-ghost",
+      "url": "https://cfour.uni-mainz.de/cfour/index.php?n=Main.GhostAtoms",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "name": "official-cp",
+      "url": "https://cfour.uni-mainz.de/cfour/index.php?n=Main.CounterpoiseCalculations",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "name": "psi4-cfour",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/doc/sphinxman/source/cfour.rst",
+      "status": 200,
+      "bytes": 59977,
+      "sha256": "eb9b50d672ccff953fa191c904c7fdbf6a565f883b2633076b3e28b49abae6c8"
+    },
+    {
+      "name": "ash-cfour",
+      "url": "https://raw.githubusercontent.com/RagnarB83/ash/master/ash/interfaces/interface_CFour.py",
+      "status": 200,
+      "bytes": 37094,
+      "sha256": "507dde39ff974919da9a78deb895a1efde09bde2b08ba3e798c6df296d8859af"
+    },
+    {
+      "name": "qcengine-cfour",
+      "url": "https://raw.githubusercontent.com/MolSSI/QCEngine/v0.51.0/qcengine/programs/cfour/runner.py",
+      "status": 200,
+      "bytes": 8637,
+      "sha256": "31e730681b8ef6e6fb565b7f6fdfad697a880c46302b4cc0df00b49c84f780e6"
+    },
+    {
+      "name": "psi-ghost-grad",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/psi-ghost-grad/input.dat",
+      "status": 200,
+      "bytes": 1776,
+      "sha256": "bf8fa7939610cf95a8e5850fd476020d8d2eefa9601a9d57ab856248a8d8784f"
+    },
+    {
+      "name": "ghost-grad",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/ghost-grad/input.dat",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "dfmp2-1",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/dfmp2-1/input.dat",
+      "status": 200,
+      "bytes": 953,
+      "sha256": "4d039b6112eecd0e4025ecc7166b535594617cd27116f463cdbbe7952bc7290f"
+    },
+    {
+      "name": "psi-manybody",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/psi-manybody/input.dat",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "psi-ghost-grad-output",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/psi-ghost-grad/output.ref",
+      "status": 200,
+      "bytes": 494484,
+      "sha256": "f438bcb0f7651a4738663c869f436994af6b3c365794a49b0ecec398927b3495"
+    },
+    {
+      "name": "psi-ghost-grad-json",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/psi-ghost-grad/output.json",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "ash-cfour-pinned",
+      "url": "https://raw.githubusercontent.com/RagnarB83/ash/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py",
+      "bytes": 37094,
+      "sha256": "507dde39ff974919da9a78deb895a1efde09bde2b08ba3e798c6df296d8859af"
+    },
+    {
+      "name": "qcelemental-cfour",
+      "url": "https://raw.githubusercontent.com/MolSSI/QCElemental/v0.51.2/qcelemental/molparse/to_string.py",
+      "bytes": 19976,
+      "sha256": "7efe4a27555e43d41cfa4a8e68ff0b8d8f7c3e684553acbd972042e24a7bafdb"
+    },
+    {
+      "name": "qcengine-ghost-tests",
+      "url": "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/tests/test_ghost.py",
+      "bytes": 14530,
+      "sha256": "91a66ce32433837198a18d2845a1c42df03963f85c039145144826cbf602782c"
+    },
+    {
+      "name": "qcengine-keywords",
+      "url": "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/keywords.py",
+      "bytes": 2731,
+      "sha256": "a7dfdf574930f10aa96cae13f2c671d6bdfecc1149b38d876a35af8e9e0b8d59"
+    }
+  ],
+  "installed_parser_versions": {
+    "qcengine": "0.51.0",
+    "qcelemental": "0.51.2"
+  },
+  "historical_output_parser_observation": {
+    "status": "rejected",
+    "exception_type": "NotAnElementError",
+    "reason": "GH",
+    "native_version": "1.2",
+    "native_core_setting": "OFF",
+    "selection": "unchanged bytes from first version 1.2 heading to immediately before second version 1.2 heading",
+    "selected_utf8_sha256": "f11b7124cd2ca12004334cdf6465139c180e5a72b1564d7d3ca6206d0f11c3bd",
+    "scope": "Only this authentic historical output; not evidence that all modern CFOUR ghosts fail"
+  },
+  "current_cfour_authority": {
+    "available": false,
+    "reason": "Execution authority denied by /workspace/.cochem-base-runtime/Registry/cochem_system_config.json: Engine 'cfour' is not available in the Golden Registry",
+    "exception_type": "BaseIntegrationError",
+    "registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json"
+  },
+  "required_contracts": [
+    "CFOUR2.1 real/ghost per-center basis and physical electron/core-space validation",
+    "Native CCSD(T), ECC CCSDT and NCC CCSDTQ ghost result identity",
+    "Both raw and relaxed-total counterpoise geometry component branches",
+    "Whole-complex displacements of each ghost and own-basis leg with step sensitivity",
+    "No FCMFINAL or minimum-Hessian claim without actual Hessian evidence"
+  ]
+}

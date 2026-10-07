@@ -556,8 +556,11 @@ print(json.dumps(result,sort_keys=True))
                 or arguments[-4:-1] != ["-f", "GAMESS-US", "-o"]):
             raise BaseIntegrationError("Only explicit -b BASIS -a ELEMENTS -f GAMESS-US -o BASENAME basis export is supported")
         basis, elements, output_name = arguments[1], arguments[3:-4], arguments[-1]
-        if not re.fullmatch(r"def2-(?:SVP|SVPD|TZVP|TZVPD|TZVPP|TZVPPD|QZVP|QZVPD|QZVPP|QZVPPD)|def2/J|def2/JK", basis):
-            raise BaseIntegrationError("Basis export requires an explicitly supported def2 basis identity")
+        from .correlated import AUXILIARY_BASES, ORBITAL_BASES
+
+        if (not re.fullmatch(r"def2-(?:SVP|SVPD|TZVP|TZVPD|TZVPP|TZVPPD|QZVP|QZVPD|QZVPP|QZVPPD)|def2/J|def2/JK", basis)
+                and basis not in ORBITAL_BASES | AUXILIARY_BASES):
+            raise BaseIntegrationError("Basis export requires an explicitly supported fixed basis identity")
         supported = set("H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr".split())
         if not elements or elements != sorted(set(elements)) or not set(elements) <= supported:
             raise BaseIntegrationError("Basis export elements must be sorted, unique H–Kr symbols in separate arguments")

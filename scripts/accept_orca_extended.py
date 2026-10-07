@@ -21,8 +21,65 @@ from topos.native_hessian import run_orca_hessian
 from topos.storage import atomic_json, file_digest
 from topos.workflow import software_provenance
 
-CASES = ("native-hessian", "native-vpt2", "MP2", "CCSD(T)", "AUTOCI-CCSD(T)",
-         "DLPNO-CCSD(T1)", "CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2")
+CASES = ("native-hessian", "native-vpt2", "MP2", "MP2-optimization", "CCSD(T)", "AUTOCI-CCSD(T)",
+         "DLPNO-CCSD(T1)", "CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2", "DLPNO-counterpoise", "F12-composite",
+         "R2-composite")
+
+
+
+def correlated_cp_case(runtime: BaseRuntime, folder: Path, resources: ResourceLimits) -> dict:
+    """Exercise exact native exports and ghost centers; no full-R2 completion claim."""
+    from topos.config import SystemConfig
+    from topos.correlated_counterpoise import (
+        R2_ENERGY_RESOLUTION,
+        CorrelatedCounterpoiseProtocol,
+        run_r2_counterpoise,
+    )
+    from topos.models import RunRecord, RunRequest
+    from topos.storage import RunStore
+    from topos.workflow import Workflow
+
+    molecule = Molecule(symbols=["O", "H", "H", "O", "H", "H"],
+        coordinates=[[0, 0, 0], [.96, 0, 0], [-.24, .93, 0],
+                     [3, 0, 0], [3.96, 0, 0], [2.76, .93, 0]],
+        fragments=[[0, 1, 2], [3, 4, 5]], fragment_states=[
+            {"atom_indices": [0, 1, 2], "charge": 0, "multiplicity": 1},
+            {"atom_indices": [3, 4, 5], "charge": 0, "multiplicity": 1}])
+    native = CorrelatedMethod(method="DLPNO-CCSD(T1)", operation="energy", orbital_basis="cc-pVDZ-F12",
+        auxiliary_c="cc-pVTZ/C", auxiliary_jk="cc-pVTZ/JK", scf_integrals="RIJK", frozen_core=True,
+        pno_profile="TightPNO", tcutpno=1e-7)
+    protocol = CorrelatedCounterpoiseProtocol(native=native, source_resolution=R2_ENERGY_RESOLUTION)
+    request = RunRequest(molecule=molecule, purpose="energy", engine="orca", method=native.method,
+        basis=native.orbital_basis, auxiliary_basis=native.auxiliary_c,
+        budget_seconds=resources.budget_seconds, threads=resources.threads, memory_mb=resources.memory_mb)
+    record = RunRecord(request=request, status="running", metadata={"run_dir": str(folder / "run"),
+        "scope": "native frozen counterpoise interaction contribution; no full R2, optimization or thermochemistry claim"})
+    store = RunStore(folder / "run")
+    store.commit(record)
+    workflow = Workflow(folder / "runs", config=SystemConfig(execution_backend="base", base_registry_path=runtime.registry_path))
+    workflow.base_runtime = runtime
+    deadline = time.monotonic() + resources.budget_seconds
+    result = run_r2_counterpoise(workflow, record, store, molecule, protocol, deadline)
+    if result is None:
+        raise RuntimeError(f"Native correlated counterpoise did not complete: {record.status}; {record.metadata.get('termination_reason')}")
+    if (len(record.attempts) != 3 or result["full_R2_recipe_completed"] is not False
+            or result["f12_hamiltonian"] is not False or result["basis_identity"] != "native-export-verified"
+            or any(a.status != "completed" or a.metadata.get("execution_kind") != "real" for a in record.attempts)):
+        raise RuntimeError("Native three-leg counterpoise evidence is incomplete or overstates its scope")
+    count = len(record.attempts)
+    replay = run_r2_counterpoise(workflow, record, store, molecule, protocol, deadline)
+    if replay != result or len(record.attempts) != count:
+        raise RuntimeError("Correlated counterpoise replay did not reuse all exact completed native legs")
+    record.status, record.validation_status = "completed", "validated-for-protocol"
+    record.metadata["correlated_cp_acceptance"] = result
+    store.commit(record)
+    snapshot = store.verify()
+    atomic_json(folder / "native-result.json", result)
+    return {"recovery_verified": True, "protocol": protocol.model_dump(mode="json"),
+            "interaction_energy_hartree": result["cp_interaction_energy_hartree"],
+            "native_leg_count": count, "native_basis_exports": sorted(protocol.basis_names().values()),
+            "scope": "frozen interaction-energy contribution only; no full R2 or vibrational correction",
+            "snapshot_id": snapshot["snapshot_id"], "result_sha256": file_digest(folder / "native-result.json")}
 
 
 def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=7200,
@@ -56,11 +113,11 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
         return report, 3
     molecule = Molecule(symbols=["O", "H", "H"], coordinates=[[0, 0, 0], [.96, 0, 0], [-.24, .93, 0]])
 
-    def remaining():
+    def remaining(maximum: float = 1200):
         seconds = deadline - time.monotonic()
         if seconds <= 0:
             raise TimeoutError("Extended native acceptance budget exhausted")
-        return resources.model_copy(update={"budget_seconds": min(seconds, 1200)})
+        return resources.model_copy(update={"budget_seconds": min(seconds, maximum)})
 
     def retain(result: EngineResult, folder: Path, label: str):
         atomic_json(folder / (label + "-result.json"), result.model_dump(mode="json"))
@@ -80,7 +137,17 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
         report["cases"][case] = {"status": "running", "started_at": utc_now()}
         atomic_json(receipt, report)
         try:
-            if case in {"native-hessian", "native-vpt2"}:
+            if case == "R2-composite":
+                from orca_r2_acceptance_case import r2_composite_case
+
+                details = r2_composite_case(runtime, folder, remaining(5400))
+            elif case == "F12-composite":
+                from orca_f12_acceptance_case import f12_composite_case
+
+                details = f12_composite_case(runtime, folder, remaining(2400))
+            elif case == "DLPNO-counterpoise":
+                details = correlated_cp_case(runtime, folder, remaining())
+            elif case in {"native-hessian", "native-vpt2"}:
                 method = (MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.1")
                           if case == "native-hessian" else MethodSpec(engine="orca", method="B3LYP", basis="def2-TZVPP",
                               auxiliary_basis="def2/J", dispersion="D4", profile_id="orca-vpt2-reference-v1"))
@@ -105,8 +172,8 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
             else:
                 f12 = case in {"CCSD(T)-F12D/RI", "F12-MP2", "F12-RI-MP2"}
                 local = case == "DLPNO-CCSD(T1)"
-                protocol = CorrelatedMethod(method=case,
-                    operation="gradient" if case == "AUTOCI-CCSD(T)" else "energy",
+                protocol = CorrelatedMethod(method="MP2" if case == "MP2-optimization" else case,
+                    operation="optimize" if case == "MP2-optimization" else "gradient" if case == "AUTOCI-CCSD(T)" else "energy",
                     orbital_basis="cc-pVDZ-F12" if f12 or local else "cc-pVDZ", frozen_core=True,
                     auxiliary_c="cc-pVTZ/C" if local or case in {"CCSD(T)-F12D/RI", "F12-RI-MP2"} else None,
                     cabs="cc-pVDZ-F12-CABS" if f12 else None,
@@ -115,6 +182,11 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
                                                 process_runner=runtime.run_process), folder, "native")
                 if case == "AUTOCI-CCSD(T)" and result.gradient_hartree_per_bohr is None:
                     raise RuntimeError("Native AUTOCI gradient is missing")
+                if case == "MP2-optimization":
+                    if (result.gradient_hartree_per_bohr is None or result.molecule is None
+                            or not (folder / "native" / "final-gradient" / "job.engrad").is_file()
+                            or not result.diagnostics.get("independent_stationarity", {}).get("passed")):
+                        raise RuntimeError("Native MP2 optimization lacks independently verified final gradient/stationarity")
                 details = {"protocol": protocol.model_dump(mode="json"), "energy_hartree": result.energy_hartree,
                            "result_sha256": file_digest(folder / "native-result.json")}
             report["cases"][case].update(status="passed", **details)

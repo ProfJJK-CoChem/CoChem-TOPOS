@@ -1,0 +1,28 @@
+diff --git a/src/calculator/generic_sc.f90 b/src/calculator/generic_sc.f90
+index b9ceb84..0b4194e 100644
+--- a/src/calculator/generic_sc.f90
++++ b/src/calculator/generic_sc.f90
+@@ -147,6 +147,11 @@ contains  !>--- Module routines start here
+     end do
+     deallocate (cpath)
+ 
++    !>--- TOPOS generic-paths-v1: parallel jobs copy initialized calculators
++    !>     before changing calcspace. Rebuild both cached paths for this job.
++    if (allocated(calc%calcfile)) deallocate (calc%calcfile)
++    if (allocated(calc%systemcall)) deallocate (calc%systemcall)
++
+     !>--- construct path information and write coord file
+     if (.not.allocated(calc%calcfile)) then
+       if (allocated(calc%calcspace)) then
+diff --git a/src/printouts.f90 b/src/printouts.f90
+index 6cc8e4c..b05df5a 100644
+--- a/src/printouts.f90
++++ b/src/printouts.f90
+@@ -33,6 +33,7 @@ subroutine confscript_head(vers)
+ 
+   niceprint = .true.
+   call box3(version,date,commit,author)
++  write (*,'(1x,a)') "TOPOS patch: crest-3.0.2-generic-paths-v1"
+   write (*,*)
+ 
+   if (vers) then

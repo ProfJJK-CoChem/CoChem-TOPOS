@@ -204,7 +204,7 @@ def test_unregistered_matrix_route_is_rejected_before_any_network_call(submitted
     client, transport, receipt = submitted
     transport.calls.clear()
     with pytest.raises(ValueError, match="registered"):
-        client.dispatch_request({**receipt.inputs, "purpose": "matrix", "matrix_row_id": "T1-30min"})
+        client.dispatch_request({**receipt.inputs, "purpose": "matrix", "matrix_row_id": "T3C-10s"})
     assert transport.calls == []
 
 
@@ -436,3 +436,20 @@ def test_queue_request_requires_valid_server_creation_time(submitted):
     transport.run.pop("created_at")
     with pytest.raises(RemoteExecutionError, match="server creation timestamp"):
         client.poll(receipt)
+
+
+def test_abcluster_cannot_dispatch_without_a_hosted_rigidmol_installation(submitted):
+    client, transport, receipt = submitted
+    transport.calls.clear()
+    molecule = Molecule(symbols=["Ne", "Ne"], coordinates=[[0, 0, 0], [4, 0, 0]],
+                        fragments=[[0], [1]], fragment_states=[
+                            {"atom_indices": [0], "charge": 0, "multiplicity": 1},
+                            {"atom_indices": [1], "charge": 0, "multiplicity": 1}])
+    request = {**receipt.inputs, "purpose": "search", "molecule": molecule.model_dump(mode="json"),
+               "search_algorithm": "abcluster", "abcluster_options": {
+                   "atomic_parameters": [{"atom_id": atom, "charge_e": 0, "epsilon_kj_mol": .1848,
+                                          "sigma_angstrom": 2.9223} for atom in molecule.atom_ids],
+                   "parameter_source": "ABCluster 3.4 supplied neon parameters; transport-only request"}}
+    with pytest.raises(ValueError, match="ABCluster.*unsupported hosted"):
+        client.dispatch_request(request)
+    assert transport.calls == []

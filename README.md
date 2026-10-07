@@ -11,9 +11,10 @@ The [SRS](.docs/CoChem-TOPOS_SRS.md) defines the requirements, and the
 validation. Numerical completion does not establish exhaustive conformer sampling,
 experimental accuracy, or publication readiness.
 
-The [current completion status](.docs/TOPOS_COMPLETION_STATUS.md) records **907
-passing local tests with zero skips**, supported routes, and the remaining matrix
-implementation and live ORCA acceptance work.
+The [current completion status](.docs/TOPOS_COMPLETION_STATUS.md) and
+[requirement acceptance ledger](.docs/TOPOS_SRS_ACCEPTANCE.json) distinguish
+implemented routes, genuine native validation and remaining release conditions.
+The package is a release candidate until its source-bound release gate passes.
 
 ## Calculation and analysis pathways
 
@@ -25,7 +26,10 @@ implementation and live ORCA acceptance work.
 | Explicit counterpoise | Five actual ORCA energy legs, physical fragment versus ghost-basis separation, BASE-authorized native basis exports, raw/CP/half-CP energies and verified checkpoint reuse. See the [counterpoise contract](.docs/TOPOS_COUNTERPOISE.md). |
 | Constrained structures | Rigid-fragment optimization with explicit convergence gates, intrafragment drift, and residual frozen-force diagnostics. |
 | Monomer-first association | Separate monomer searches and complex calculations, balanced common-method interaction/binding/deformation energies, and explicit BSSE policy. |
-| Frequencies and thermochemistry | Physical Hessians from actual central finite differences of engine gradients; stationary-point classification; separated ZPE, thermal enthalpy, entropy, standard-state correction and Gibbs energy. |
+| Frequencies and thermochemistry | Native ORCA analytic Hessians or explicitly selected central differences of real gradients; stationary-point classification; separate ZPE, thermal enthalpy, entropy, standard-state correction and Gibbs energy. |
+| ABCluster 3.4 | Native rigid packing with explicit cited force-field parameters, followed by independent quantum refinement; classical scores remain sampling evidence. |
+| Molecular ML | Hash-bound AIMNet2/MACE predictions, paired committee interaction energies, rigid grids and persistent native callbacks. GPU fine-tuning and compound searches require their audited runtime and explicit model/data domains. |
+| Advanced protocols | Typed ORCA/CFOUR correlated and composite routes with explicit derivative, basis and core conventions. Availability and native verification are reported per protocol. |
 | Symmetry and deduplication | Isotope-aware point-group proposals with independently checked operations and tolerance sensitivity; generation/reporting stages; explicit enantiomer-grouping conditions; unresolved chemistry retained. |
 | Review and export | Immutable HDF5 snapshots, scoped decision histories, versioned TORQ producer handoffs, external consumption-receipt validation, and reproducible tables/figures. |
 
@@ -49,23 +53,26 @@ catalog with **140 rows**, source SHA-256 and line references, CPU/GPU allocatio
 checks, dependencies, capability requirements, and unresolved source conflicts.
 Catalog coverage is distinct from executable recipe coverage.
 
-The current TOPOS recipe adapters cover **15 rows**, including one conditional
-derivative resolution:
-`T1-10s`, `T1-1min`, `T1-1h`, `T1-3h`, `T1-12h`, `T1-3d`, `T2-10s`, `T2-30min`, `T2-1h`,
-`T3O-10s`, `T3O-1min`, `T3O-30min`, `T3O-1h`, `T5-10s`, and `T5-1h`.
-Of 44 TOPOS-owned rows, two are source track gaps and 27 require
-additional complete recipe adapters. The remaining 96 catalog rows belong to
-TORQ. Typed plans preserve those requirements and refuse execution when required
-methods, inputs or adapters are absent. Native GOAT rows require the versioned
-ORCA adapter and retained sampling/refinement evidence. GPU/ML, higher-level
-composite recipes and TORQ spectroscopy are not made available by a catalog entry.
+The executable support inventory is produced directly from the compiled recipes:
+`cochem-topos matrix support`. It distinguishes complete recipes, partial branches,
+source track gaps and conditional variants. Of the 140 catalog rows, 44 belong to
+TOPOS and 96 belong to TORQ. Required inputs, installed engines and resource
+allocations are checked before execution. A time-tier label is not a measured
+runtime or an accuracy guarantee.
 
-`T1-3h` requires verified native GOAT and CREST source ensembles and the explicit
-`physical-central-gradient-hessian-v1` derivative resolution. It uses actual
-r²SCAN-3c gradients to construct a numerical Hessian; the matrix's literal native
-analytic `Freq` is not claimed. CREST screening loses individual input origins,
-so TOPOS retains original search evidence and reports combined-union provenance
-for screened frames. The complete licensed route still needs live ORCA acceptance.
+Reviewed 0.1.0 alternatives retain the original matrix identity and explicitly name
+the executed ORCA approximation. The original MPQC/Molpro method names and accuracy
+claims are not inherited by an ORCA replacement. See the
+[recipe contracts](.docs/TOPOS_MATRIX_RECIPES.md) and
+[scientific source resolutions](.docs/TOPOS_R2_MPQC_RESOLUTIONS.md).
+
+`T1-3h` accepts retained native GOAT and CREST ensembles, uses actual r²SCAN-3c
+refinement and native analytic `Freq`, and also exposes a separately named
+central-gradient numerical-Hessian alternative. CREST screening loses individual
+input origins, so TOPOS retains original search evidence and reports combined
+union provenance for screened frames. Model-driven CREST sampling requires the
+explicit source-pinned generic-calculator repair described in the
+[ML pathway guide](.docs/TOPOS_ML_PATHWAYS.md).
 
 ```bash
 cochem-topos matrix support

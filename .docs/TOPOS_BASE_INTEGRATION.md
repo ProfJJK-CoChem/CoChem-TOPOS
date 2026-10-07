@@ -9,8 +9,8 @@ This integration uses the reviewed source revisions:
 
 | Component | GitHub Actions source revision |
 |---|---|
-| CoChem-BASE | `c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86` |
-| CoChem-TORQ | `d7a4739a5f7d6f22ed659b32eeb4706bef16225e` |
+| CoChem-BASE | `705b9d54370d5089da286a02b7a1c4afdcbafec1` |
+| CoChem-TORQ | `79fbb111125e50627a1a2c129888a45496f368d4` |
 | CoChem-TOPOS | The dispatched controller workflow revision, recorded with the request/result correlation |
 
 Pinning a TORQ checkout makes package identity explicit. It does not certify that
@@ -132,12 +132,66 @@ claim that BASE's browser automatically dispatches a calculation.
 The BASE workstream has reported a successful ORCA calculation on GitHub Actions.
 This TOPOS integration is separate code and needs its own live hosted validation.
 No TOPOS-hosted calculation is claimed here merely because BASE succeeded or
-because a local transport/worker test passed. The present environment cannot
-complete that live dispatch without the configured private repository access,
-secrets and protected environment.
+because a local transport/worker test passed. Live acceptance requires the configured private repository access, source and
+licensed distribution credentials, and the workflow protection settings. Retained
+job receipts identify the exact candidate commits and the stages that actually ran.
 
 Actual local BASE-native tests and transport/worker contract tests are separate
 evidence categories. The validation receipt records their outcomes and source
 identities. TOPOS/TORQ handoff consumption remains subject to the
 [versioned producer contract](TOPOS_TORQ_HANDOFF.md); the legacy TORQ reader is not
 a substitute for that contract.
+
+
+## Queue-inclusive deadlines
+
+With `include_queue_in_budget: true`, the worker reads its own authenticated
+GitHub run `created_at` timestamp and subtracts queueing and installation from the
+original scientific budget. The original request remains unchanged in the receipt;
+the local worker request records only the remaining execution allowance. A separate
+deadline cancels native processes if that allowance expires. When queueing/setup
+already exhaust the budget, TOPOS commits a timed-out record with no scientific
+attempts. Retrieval independently checks the server timestamp, request adaptation,
+and recorded accounting. This assumes GitHub server and hosted-runner UTC clocks
+are synchronized; artifact transfer time is not scientific execution time.
+
+## Audited machine-learning workers
+
+A separate `cochem-topos-ml-worker` wheel installs exact TOPOS source bytes into the
+BASE MACE silo. Its dependency lock does not install the controller or GUI there;
+the controller environment still requires BASE, TOPOS, and TORQ. The reproducible
+builder and installer are `scripts/build_ml_worker.py` and
+`scripts/install_ml_worker.py`. The installer refuses overlap with the full TOPOS
+distribution, checks pinned dependencies, and records the worker wheel/source
+hashes. BASE authority checks the isolated interpreter/package lock, installed
+worker source manifest, immutable model/request files, and allocation before
+launch. The supplied verified MACE profile uses MACE 0.3.16 and CPU Torch 2.8.0;
+CUDA execution additionally requires an audited CUDA-capable package profile and
+actual measured device memory. A CPU lock never establishes GPU capability.
+
+Psi4 registration includes a bounded native He/HF calculation and hashes its
+compiled core and interpreter. A successful `psi4 --version` alone is insufficient.
+
+
+The BASE companion now provides two explicit MACE profiles. `COCHEM_ML_TORCH_PROFILE=cpu`
+uses the genuinely tested Torch 2.8.0+cpu/MACE 0.3.16 environment. `cuda128` selects
+an independent Linux x86-64 CPython 3.12 lock with official Torch 2.8.0 and its
+15 exact NVIDIA/Triton dependencies, each downloaded by pinned wheel URL and
+SHA-256. Selecting another profile for an existing silo fails verification;
+it does not replace that environment. The CUDA wheel set is approximately
+3.9 GB compressed. CUDA installation and native GPU calculations have not been
+verified on this CPU-only development machine. Device authority still requires
+the actual BASE hardware audit and a successful native Torch CUDA probe.
+
+AIMNet2 has its own isolated CPU silo (`cochem_aimnet2_silo`), with actual
+`aimnet==0.2.0`, Warp 1.18.0 and nvalchemi-toolkit-ops 0.4.1 imports and an exact
+52-package lock. Its provisioner does not install models or claim GPU readiness.
+Both ML silos require the separate source-bound TOPOS worker wheel before use.
+
+The reviewed CREST generic-calculator repair is selected explicitly with
+`COCHEM_CREST_BIN`. BASE records `3.0.2+topos-generic-paths-v1` and binds its
+upstream commit, source patch, native banner, binary, installation manifest and
+shared libraries. The original upstream installation remains separate. ABCluster
+is audited as `abcluster`, resolving its actual `rigidmol` executable and component
+version; the current generic hosted TOPOS worker rejects ABCluster requests until
+that hosted installation is explicitly provisioned.

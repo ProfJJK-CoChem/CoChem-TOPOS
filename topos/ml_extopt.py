@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import socket
 import stat
 import struct
@@ -187,6 +188,238 @@ def extopt_client(config_path: str | Path, config_sha256: str, input_path: str |
         Path(temporary).unlink(missing_ok=True)
 
 
+def crest_client(config_path: str | Path, config_sha256: str, xyz_path: str | Path) -> None:
+    """CREST3.0.2 genericinp.xyz -> genericinp.engrad using the same model server."""
+    config_path = Path(config_path)
+    if not config_path.is_absolute() or config_path.is_symlink() or not config_path.is_file():
+        raise ValueError("CREST client configuration must be an absolute regular file")
+    content = config_path.read_bytes()
+    if hashlib.sha256(content).hexdigest() != config_sha256:
+        raise ValueError("CREST client configuration changed")
+    config = json.loads(content)
+    if config.get("schema_version") != SOCKET_SCHEMA:
+        raise ValueError("Unsupported CREST client contract")
+    root = Path(config["native_root"]).resolve()
+    source = Path(xyz_path)
+    source = source if source.is_absolute() else Path.cwd() / source
+    source = _confined_regular(source, root)
+    if source.name != "genericinp.xyz":
+        raise ValueError("CREST generic client requires its fixed genericinp.xyz filename")
+    output = source.parent / "genericinp.engrad"
+    if output.is_symlink() or output.exists() and not output.is_file():
+        raise ValueError("CREST gradient output must be a regular file")
+    # Native CREST reuses this basename. On any later failure, a prior geometry's
+    # gradient must not remain available to its generic reader.
+    output.unlink(missing_ok=True)
+    raw = source.read_text(encoding="utf-8")
+    rows = raw.splitlines()
+    reference = config["reference_molecule"]
+    count = len(reference["symbols"])
+    if len(rows) < 2 or rows[0].strip() != str(count):
+        raise ValueError("CREST generic XYZ atom count changed")
+    atoms = [line.split() for line in rows[2:] if line.strip()]
+    if len(atoms) != count or any(len(row) != 4 for row in atoms) or [row[0] for row in atoms] != reference["symbols"]:
+        raise ValueError("CREST generic XYZ atom identity/order changed")
+    coordinates = [[float(v) for v in row[1:]] for row in atoms]
+    if any(not math.isfinite(v) for row in coordinates for v in row):
+        raise ValueError("CREST generic XYZ coordinates must be finite angstrom values")
+    message = {"schema_version": SOCKET_SCHEMA, "action": "evaluate", "manifest_sha256": config["manifest_sha256"],
+               "molecule": {**reference, "coordinates": coordinates},
+               "external_input": {"format": "CREST3.0.2 generic XYZ/engrad", "xyz_relative": source.relative_to(root).as_posix(),
+                                  "xyz_text": raw, "xyz_sha256": hashlib.sha256(raw.encode()).hexdigest(),
+                                  "coordinate_units": "angstrom", "gradient_requested": True,
+                                  "charge": reference["charge"], "multiplicity": reference["multiplicity"]}}
+    with connect_server(config["server_folder"], timeout=config["timeout_seconds"]) as connection:
+        send_json(connection, message)
+        response = receive_json(connection)
+    if response.get("status") != "completed" or response.get("manifest_sha256") != config["manifest_sha256"]:
+        raise ValueError("Persistent CREST callback failed: " + str(response.get("reason", "identity/status mismatch")))
+    frame = response["frame"]
+    energy, gradients = frame["energy_hartree"], frame["gradient_hartree_per_bohr"]
+    if (frame.get("units") != {"energy": "hartree", "gradient": "hartree/bohr"} or not math.isfinite(energy)
+            or len(gradients) != count or any(len(row) != 3 or any(not math.isfinite(v) for v in row) for row in gradients)):
+        raise ValueError("Persistent CREST result lacks finite energy/gradient in native units")
+    lines = ["# CREST generic: model energy Eh and gradient Eh/bohr", str(count), f"{energy:.17g}"]
+    lines.extend(f"{value:.17g}" for row in gradients for value in row)
+    descriptor, temporary = tempfile.mkstemp(prefix=".engrad-", dir=source.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write("\n".join(lines) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        if output.is_symlink():
+            raise ValueError("CREST generic output changed into a symlink")
+        os.replace(temporary, output)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+class PersistentMLServer:
+    """Reusable BASE-authorized inference lifetime for fixed native wrappers."""
+
+    def __init__(self, runtime, manifest: ModelManifest, reference: Molecule, resources: ResourceLimits,
+                 workdir: str | Path, *, gpu_index: int | None = None, gpu_memory_mb: int | None = None,
+                 max_requests: int = 10000, max_receipt_mb: int = 1024, cancel_event: Event | None = None):
+        self.runtime, self.manifest, self.reference, self.resources = runtime, manifest, reference, resources
+        self.folder = Path(workdir).resolve()
+        self.gpu_index, self.gpu_memory_mb = gpu_index, gpu_memory_mb
+        self.max_requests, self.cancel_event = max_requests, cancel_event
+        self.max_receipt_mb = max_receipt_mb
+        self.command, self.binding, self.ready, self.summary = [], {}, {}, {}
+        self.process = None
+        self._executor, self._future = None, None
+        self._cancel, self._closed = Event(), Event()
+        self._watcher = None
+        self._started = None
+
+    def start(self):
+        from threading import Thread
+
+        from .ml import ML_SCHEMA
+        from .storage import atomic_json, digest_json, file_digest, read_json
+
+        if self._started is not None:
+            raise ValueError("Persistent ML server cannot be started twice")
+        if self.runtime is None or not hasattr(self.runtime, "run_ml_process"):
+            raise ValueError("Persistent ML requires mandatory BASE execution authority")
+        if type(self.max_requests) is not int or not 1 <= self.max_requests <= 1_000_000:
+            raise ValueError("Persistent request bound must be an integer from 1 to 1000000")
+        if type(self.max_receipt_mb) is not int or not 4 <= self.max_receipt_mb <= 65536:
+            raise ValueError("Persistent receipt allocation must be 4..65536 MiB")
+        self.manifest.validate_molecule(self.reference)
+        models = {str(member.verify()): member.sha256 for member in self.manifest.members}
+        if self.folder.exists() and any(self.folder.iterdir()):
+            raise ValueError("Persistent ML requires a fresh attempt directory")
+        self.folder.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self.folder.chmod(0o700)
+        self._started = time.monotonic()
+        self.python = self.runtime.resolve_executable(self.manifest.backend)
+        worker = Path(__file__).with_name("ml_worker.py")
+        request = {"schema_version": ML_SCHEMA, "manifest": self.manifest.model_dump(mode="json"),
+                   "molecules": [self.reference.model_dump(mode="json")], "resources": self.resources.model_dump(mode="json"),
+                   "gpu_memory_mb": self.gpu_memory_mb, "mode": "server",
+                   "server": {"socket_name": "s", "max_requests": self.max_requests, "max_receipt_mb": self.max_receipt_mb,
+                              "client_module_sha256": file_digest(Path(__file__)),
+                              "request_timeout_seconds": min(600, self.resources.budget_seconds)}}
+        request_path = self.folder / "ml-request.json"
+        atomic_json(request_path, request)
+        self.command = [self.python, "-m", "topos.ml_worker", "--request", str(request_path)]
+        self.binding = {"request_sha256": file_digest(request_path), "worker_sha256": file_digest(worker),
+                        "client_module_sha256": file_digest(Path(__file__)), "model_files": models,
+                        "manifest_sha256": digest_json(request["manifest"]), "interpreter": self.python,
+                        "server_folder": str(self.folder)}
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="topos-persistent-model")
+        self._future = self._executor.submit(self.runtime.run_ml_process, self.command, self.folder, self.resources,
+            engine=self.manifest.backend, request_sha256=self.binding["request_sha256"],
+            worker_sha256=self.binding["worker_sha256"], model_files=models, gpu_index=self.gpu_index,
+            gpu_memory_mb=self.gpu_memory_mb, cancel_event=self._cancel, log_prefix="ml-server")
+
+        def watch():
+            while not self._closed.wait(.05):
+                if self.cancel_event is not None and self.cancel_event.is_set():
+                    self._cancel.set()
+                    return
+
+        self._watcher = Thread(target=watch, name="topos-ml-cancellation", daemon=True)
+        self._watcher.start()
+        try:
+            while not (self.folder / "ready.json").is_file():
+                self.remaining()
+                if self._future.done():
+                    self.process = self._future.result()
+                    raise ValueError("Persistent BASE ML process failed before readiness; inspect retained native streams")
+                time.sleep(.02)
+            self.ready = read_json(self.folder / "ready.json")
+            if self.ready.get("manifest_sha256") != self.binding["manifest_sha256"]:
+                raise ValueError("Persistent model ready receipt differs from bound manifest")
+            return self
+        except BaseException:
+            self.close(cancel=True)
+            raise
+
+    def remaining(self) -> float:
+        if self._started is None:
+            raise ValueError("Persistent ML server has not started")
+        if self.cancel_event is not None and self.cancel_event.is_set():
+            raise InterruptedError("Persistent ML server cancelled")
+        seconds = self.resources.budget_seconds - (time.monotonic() - self._started)
+        if seconds <= 0:
+            raise TimeoutError("Persistent ML lifetime budget exhausted")
+        return seconds
+
+    def make_client(self, native_root: str | Path, wrapper_path: str | Path, *, mode: str = "orca",
+                    maximum_external_cores: int = 1) -> Path:
+        from .storage import atomic_json, file_digest
+
+        self.remaining()
+        if mode not in {"orca", "crest"} or type(maximum_external_cores) is not int or maximum_external_cores < 1:
+            raise ValueError("Invalid fixed client mode/core allocation")
+        if not self.ready or self._future is None or self._future.done():
+            raise ValueError("Persistent model server is not ready/running")
+        root, wrapper = Path(native_root).resolve(), Path(wrapper_path).resolve()
+        if (not root.is_dir() or not wrapper.is_relative_to(root) or wrapper.exists()
+                or not re.fullmatch(r"[/A-Za-z0-9_.+-]+", str(wrapper))):
+            raise ValueError("Fixed native wrapper must be a fresh path inside its native attempt")
+        if any(c.isspace() for c in self.python) or not Path(self.python).is_absolute():
+            raise ValueError("Audited interpreter cannot be represented by a fixed executable shebang")
+        config_path = wrapper.with_name(wrapper.name + "-config.json")
+        if config_path.exists():
+            raise ValueError("Fixed client configuration already exists")
+        config = {"schema_version": SOCKET_SCHEMA, "server_folder": str(self.folder), "native_root": str(root),
+                  "reference_molecule": self.reference.model_dump(mode="json"), "manifest_sha256": self.binding["manifest_sha256"],
+                  "maximum_external_cores": maximum_external_cores, "timeout_seconds": min(600, self.remaining())}
+        atomic_json(config_path, config)
+        function = "extopt_client" if mode == "orca" else "crest_client"
+        wrapper.write_text(f"#!{self.python} -I\nfrom topos.ml_extopt import {function}\nimport sys\n"
+                           f"{function}({str(config_path)!r}, {file_digest(config_path)!r}, sys.argv[1])\n")
+        wrapper.chmod(0o700)
+        return wrapper
+
+    def close(self, *, cancel: bool = False):
+        from .storage import read_json
+
+        if self._closed.is_set():
+            return self.process
+        self._closed.set()
+        try:
+            if self._future is not None and not self._future.done():
+                if not cancel and self.ready:
+                    try:
+                        with connect_server(self.folder, timeout=2) as connection:
+                            send_json(connection, {"schema_version": SOCKET_SCHEMA, "action": "stop", "manifest_sha256": self.binding["manifest_sha256"]})
+                            receive_json(connection)
+                    except (ValueError, OSError, TimeoutError):
+                        self._cancel.set()
+                else:
+                    self._cancel.set()
+            if self._future is not None:
+                try:
+                    self.process = self._future.result(timeout=10)
+                except TimeoutError:
+                    self._cancel.set()
+                    self.process = self._future.result(timeout=10)
+            output = self.folder / "ml-result.json"
+            if output.is_file():
+                self.summary = read_json(output)
+                if (self.summary.get("request_sha256") != self.binding["request_sha256"]
+                        or self.summary.get("manifest_sha256") != self.binding["manifest_sha256"]):
+                    raise ValueError("Persistent ML final receipt does not match the immutable request")
+            return self.process
+        finally:
+            self._cancel.set()
+            if self._watcher is not None:
+                self._watcher.join(timeout=1)
+            if self._executor is not None:
+                self._executor.shutdown(wait=True, cancel_futures=True)
+
+    def __enter__(self):
+        return self.start()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close(cancel=exc_type is not None)
+        return False
+
+
 @dataclass(frozen=True)
 class ExtOptAllocation:
     ml_threads: int
@@ -204,14 +437,17 @@ class ExtOptAllocation:
 
 
 def goat_extopt_input(molecule: Molecule, wrapper: str | Path, resources: ResourceLimits, *,
-                      energy_window_kcal_mol: float = 12, max_global_iterations: int = 100) -> str:
+                      energy_window_kcal_mol: float = 12, max_global_iterations: int = 100,
+                      deterministic: bool = False) -> str:
     path = str(wrapper)
-    if not Path(path).is_absolute() or any(character in path for character in '\n\r"\x00'):
+    if not Path(path).is_absolute() or not re.fullmatch(r'[/A-Za-z0-9_.+-]+', path):
         raise ValueError('ExtOpt wrapper must have a safe absolute path')
     if not math.isfinite(energy_window_kcal_mol) or energy_window_kcal_mol <= 0:
         raise ValueError('Explicit positive native energy window required')
     if type(max_global_iterations) is not int or not 3 <= max_global_iterations <= 1000:
         raise ValueError('GOAT iteration bound must be an integer from 3 to 1000')
+    if type(deterministic) is not bool:
+        raise ValueError('GOAT deterministic option must be boolean')
     if resources.device != 'cpu':
         raise ValueError('ORCA driver allocation must be CPU; only the model server may use GPU')
     lines = ['! GOAT-EXPLORE ExtOpt TightOpt', f'%pal nprocs {resources.threads} end',
@@ -219,6 +455,7 @@ def goat_extopt_input(molecule: Molecule, wrapper: str | Path, resources: Resour
              '%method', f'  ProgExt "{path}"', 'end', '%scf', '  TolE 1e-5', 'end',
              '%geom', '  TolE 1e-5', '  EnforceStrictConvergence true', 'end',
              '%goat', f'  NWORKERS {resources.threads}', f'  MAXEN {energy_window_kcal_mol:.12g}',
+             f"  RANDOMSEED {'false' if deterministic else 'true'}",
              '  MINGLOBALITER 3', f'  MAXGLOBALITER {max_global_iterations}', '  KEEPWORKERDATA true',
              'end', f'* xyz {molecule.charge} {molecule.multiplicity}']
     lines.extend(f'{s} {r[0]:.16g} {r[1]:.16g} {r[2]:.16g}' for s, r in zip(molecule.symbols, molecule.coordinates, strict=True))
@@ -229,10 +466,9 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
                     workdir: str | Path, *, runtime, allocation: ExtOptAllocation,
                     gpu_index: int | None = None, gpu_memory_mb: int | None = None,
                     energy_window_kcal_mol: float = 12, max_global_iterations: int = 100,
-                    max_requests: int = 10000, cancel_event: Event | None = None) -> SamplingResult:
+                    max_requests: int = 10000, max_receipt_mb: int = 1024, deterministic: bool = False,
+                    cancel_event: Event | None = None) -> SamplingResult:
     """Execute the native enumerator and persistent model via mandatory BASE."""
-    import re
-
     from .engines import (
         ORCA_VERSION,
         _engine_version,
@@ -254,7 +490,8 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
                                       'energy_definition': 'explicit ML checkpoint enumeration potential, not executed DFT',
                                       'refinement_required': True, 'exhaustive': False, 'manual': EXTERNAL_MANUAL,
                                       'topology_policy': 'native GOAT-EXPLORE may break bonds; every frame requires explicit chemistry validation',
-                                      'randomness': 'native GOAT engine-controlled independent initialization',
+                                      'randomness': ('native RANDOMSEED false; numerical differences may remain'
+                                                     if deterministic else 'native GOAT engine-controlled independent initialization'),
                                       'concurrent_allocations': allocation.__dict__})
     folder = Path(workdir).resolve()
     internal_cancel = Event()
@@ -267,8 +504,10 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
         manifest.validate_molecule(molecule)
         if any(isotope is not None for isotope in molecule.isotopes):
             raise ValueError('GOAT ML isotope-dependent filtering is not validated')
-        if type(max_requests) is not int or not 1 <= max_requests <= 10000:
-            raise ValueError('Persistent ML request count must be bounded at 10000')
+        if type(max_requests) is not int or not 1 <= max_requests <= 1_000_000:
+            raise ValueError('Persistent ML request count must be bounded at 1000000')
+        if type(max_receipt_mb) is not int or not 4 <= max_receipt_mb <= 65536:
+            raise ValueError('Persistent receipt allocation must be 4..65536 MiB')
         if folder.exists() and any(folder.iterdir()):
             raise ValueError('GOAT ExtOpt requires a fresh attempt directory')
         folder.mkdir(parents=True, exist_ok=True)
@@ -308,7 +547,7 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
         request = {'schema_version': ML_SCHEMA, 'manifest': manifest.model_dump(mode='json'),
                    'molecules': [molecule.model_dump(mode='json')], 'resources': ml_resources.model_dump(mode='json'),
                    'gpu_memory_mb': gpu_memory_mb, 'mode': 'server',
-                   'server': {'socket_name': 's', 'max_requests': max_requests,
+                   'server': {'socket_name': 's', 'max_requests': max_requests, 'max_receipt_mb': max_receipt_mb,
                               'client_module_sha256': file_digest(Path(__file__)), 'request_timeout_seconds': min(600, remaining())}}
         request_path = server / 'ml-request.json'
         atomic_json(request_path, request)
@@ -341,7 +580,7 @@ def run_goat_extopt(molecule: Molecule, manifest: ModelManifest, resources: Reso
                            f'extopt_client({str(config_path)!r}, {file_digest(config_path)!r}, sys.argv[1])\n')
         wrapper.chmod(0o700)
         deck = goat_extopt_input(molecule, wrapper, orca_resources, energy_window_kcal_mol=energy_window_kcal_mol,
-                                max_global_iterations=max_global_iterations)
+                                max_global_iterations=max_global_iterations, deterministic=deterministic)
         (native / 'goat.inp').write_text(deck)
         result.command = [orca, 'goat.inp']
         result.metadata.update(execution_kind='real', server_command=server_command,

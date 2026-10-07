@@ -1,6 +1,6 @@
 {
   "schema_version": "topos-srs-acceptance/0.1.0",
-  "generated_at": "2026-10-07T13:22:50.375721+00:00",
+  "generated_at": "2026-10-07T13:40:54.064645+00:00",
   "srs_sha256": "8e1c34348601be4eb25ee01c38a754998e1295ee5e32e6cfb6b133f9c8fe462d",
   "status": "incomplete",
   "interpretation": "Requirement-by-requirement implementation audit. Verified means the stated supported-profile behavior has retained concrete tests with matching listed sources; it is not full engine/domain or complete release certification. Native/external conditions and code gaps remain explicit.",
@@ -64,7 +64,7 @@
     "TOPOS-010-002": {
       "chapter": "3. System boundaries and execution contract",
       "requirement_source": "| **TOPOS-010-002** | Presentation environment, calculation environment, engine, method, basis/composite model, purpose, and budget shall be separate validated selections. | Codespaces + Actions + xTB + GFN2-xTB remains distinguishable from local execution; serialization preserves choices. |",
-      "status": "verified",
+      "status": "verification-pending",
       "assessment": "Typed selections preserve presentation/calculation environment, engine, recipe, purpose, budget and matrix identity.",
       "implementation": [
         {
@@ -112,6 +112,8 @@
           "test_functions": [
             "test_complete_catalog_matches_source_identity_and_all_fourteen_tables",
             "test_source_revision_drift_is_a_failure",
+            "test_higher_quadruples_plan_records_energy_difference_derivatives",
+            "test_model_training_plan_requires_exact_patched_native_build_and_mixed_devices",
             "test_only_documented_decision_card_aliases",
             "test_invalid_row_identifiers_rejected",
             "test_purpose_product_and_track_are_separate_selections",
@@ -154,7 +156,7 @@
         "historical_suite_tests": 907,
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
-        "pending_current_source_regression": false
+        "pending_current_source_regression": true
       },
       "evidence": [
         {
@@ -763,8 +765,8 @@
     "TOPOS-010-011": {
       "chapter": "4. Scientific inputs and fragment triage",
       "requirement_source": "**TOPOS-010-011.** Rigid packing, flexible search, and frozen-monomer refinement shall state movable coordinates, confinement, clash handling, and deformation policy. ABCluster, ORCA GOAT, CREST, and internal jiggle\u2013quench routines retain their actual algorithm identities.",
-      "status": "partial",
-      "assessment": "Rigid-body movable subspaces, confinement/clash decisions and real sampler identities are preserved; unsupported samplers fail explicitly.",
+      "status": "verification-pending",
+      "assessment": "Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. Current whole-suite and mandatory BASE authority evidence must still be retained; development-backend native success does not establish BASE authorization.",
       "implementation": [
         {
           "path": "topos/constraints.py",
@@ -777,6 +779,22 @@
         {
           "path": "topos/goat.py",
           "sha256": "734cdf49b35e0ab4a74c2567dcd08bd5171472162941ee8909edce23d39f59f9"
+        },
+        {
+          "path": "topos/abcluster.py",
+          "sha256": "224ff6299b7970e03a14b6413300babd62b5aa498d6e8e00940c962dbcd4eb1b"
+        },
+        {
+          "path": "topos/models.py",
+          "sha256": "c1e5c4240942ffb03edde0869473418aba90cc396ffabb1f396f29150a9de205"
+        },
+        {
+          "path": "topos/workflow.py",
+          "sha256": "b00fa17e474d64003605666b91a52223b17e2c0e27d487f441a369479bd46d61"
+        },
+        {
+          "path": "topos/advanced_workflow.py",
+          "sha256": "2d81ddff5a0b36e365d69602dad675dc12869a09861a659859173f172ba8b7a6"
         }
       ],
       "acceptance_tests": [
@@ -836,13 +854,35 @@
             "test_native_stop_and_truncated_ensemble_do_not_become_success",
             "test_missing_orca_and_numeric_seed_have_no_fabricated_ensemble"
           ]
+        },
+        {
+          "path": "tests/v010/test_abcluster.py",
+          "sha256": "1abe514d368066644f8216ea81bab51fb5ce144bcda0e0e5f78ffea1278e6f9d",
+          "test_functions": [
+            "test_input_contains_explicit_native_units_and_no_electronic_method",
+            "test_force_field_state_and_repulsion_are_explicit",
+            "test_no_undeclared_fragment_or_environment_substitution",
+            "test_genuine_neon_dimer_analytic_lj_limit_resume_and_tamper",
+            "test_genuine_methanol_dimer_preserves_monomers_and_interleaved_atom_ids",
+            "test_cancelled_search_retains_raw_evidence_then_can_retry"
+          ]
+        },
+        {
+          "path": "tests/v010/test_abcluster_workflow.py",
+          "sha256": "43ec605242ad2db3a5c8b3ee501de41e5b8588f0cd04b0478c1aeed03e4fdf07",
+          "test_functions": [
+            "test_abcluster_schema_requires_explicit_parameter_source_and_atom_mapping",
+            "test_abcluster_controls_are_explicit_finite_and_bounded",
+            "test_missing_abcluster_cannot_silently_switch_sampler",
+            "test_actual_abcluster_scores_are_never_quantum_candidate_energies",
+            "test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages"
+          ]
         }
       ],
-      "coding_gaps": [
-        "Native ABCluster adapter is absent."
-      ],
+      "coding_gaps": [],
       "additional_acceptance_conditions": [
-        "hosted_orca"
+        "hosted_orca",
+        "base_abcluster_authority"
       ],
       "verification": {
         "historical_suite_tests": 907,
@@ -861,23 +901,67 @@
       "chapter": "5. Method matrix, purpose, and hardware",
       "requirement_source": "**TOPOS-010-012.** Bind each route to a versioned matrix row specifying purpose, chemical domain, engine/version, method, orbital/auxiliary basis or composite, dispersion, solvent, derivatives, convergence, resources, device, outputs, and alternatives. Validate combinations and archive engine inputs. Presets shall not silently change chemistry state, constraints, method, or reference state.",
       "status": "partial",
-      "assessment": "The source matrix has versioned row/source identities and explicit plans; completed recipes and prerequisite/source-conflict refusals are distinct.",
+      "assessment": "The immutable original matrix has 140 rows, including 44 TOPOS-owned rows. The reviewed ORCA overlay adds explicitly named F12D/RI numerical geometries and a distinct F12D/CBS/CV interaction composite without relabeling them MPQC, Molpro or F12b. The conditional CFOUR raw/relaxed-CP high-order geometry adapter is now coded; its native correlated2.1 execution remains unverified. The current compiler has 41 complete recipes, including the explicitly selected B3LYP-D4 VPT2 rotational-correction R2 approximation. The full original isotope-resolved month row remains incomplete; its narrower branch and two intentionally unavailable CFOUR time tiers are recorded separately. Native acceptance and literature accuracy are separate from compilation.",
       "implementation": [
         {
           "path": "topos/method_matrix.py",
-          "sha256": "59b4d9869bdab7567a29ec3d8b5150d638341b0c29b5996e400afff2fd6e59ac"
+          "sha256": "4b06cc2106bc97426ea94ab64bbc01d28448b5f0d6e5a5c9f67772c3be140bd4"
         },
         {
           "path": "topos/matrix_workflow.py",
-          "sha256": "4bb867877d4cfb31497b833eb4b38df81620720bd958ac94afd3dce2cc116cc1"
+          "sha256": "d729c7444d2c89751b54e1147fe2637ddbf26b696c52256e11444c9d058778ce"
         },
         {
           "path": "topos/matrix_components.py",
-          "sha256": "7de09a8b77260a61dd48d7aa70ef1112d84a17df48100b8099c06ea905e25fdb"
+          "sha256": "84f2d05877fb7952cf96e3be0275840c5abd0d6f2700573e6edf1111bc8e26b6"
         },
         {
           "path": "topos/data/runtime_recipes.py",
-          "sha256": "0acd489fefe4346fb15e104c66fb81039af459d3ccc1a0cac23f483e668b54f0"
+          "sha256": "48f4ec1c11da5d6944b9b02476a2d3fd7726a8bf80a190a8d81e2a5a89cebf8c"
+        },
+        {
+          "path": "topos/data/reviewed_matrix_v010.py",
+          "sha256": "d5cef661e226eb0d2ca8637df25f7cb9fa79e3af1bd6be338973c0a646aa6633"
+        },
+        {
+          "path": "topos/orca_numerical_geometry.py",
+          "sha256": "0657b11f8300573efb38426479c3a930baf59ddc5a7e5bc967b12edc01aac47f"
+        },
+        {
+          "path": "topos/orca_f12_composite.py",
+          "sha256": "6b11e7da64d84d13b675c4534233036d3fa68f2564e49e0b356c7fe152781e5f"
+        },
+        {
+          "path": "topos/higher_composite.py",
+          "sha256": "8f3ad3f66342822372b1e51d883ce476f9c177cc907d0566bca8e557d2994e0f"
+        },
+        {
+          "path": "topos/cfour_corrections.py",
+          "sha256": "efc38dbb61e2c55fc0e00d8176bc8c9aab1dd675d39eadc3e7f5dfcb034df09c"
+        },
+        {
+          "path": "topos/matrix_ml_search.py",
+          "sha256": "5da93348b3142324cd07e8d152f090dde46ca9e344c68b7b59e272de5532c6d2"
+        },
+        {
+          "path": "topos/matrix_ml_training.py",
+          "sha256": "10849ff3c14192998d3ae1d684fcbb3a1ca4a7f81143d17203e6c388e2fd40bd"
+        },
+        {
+          "path": "topos/cfour_counterpoise.py",
+          "sha256": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143"
+        },
+        {
+          "path": "topos/rotational_transfer.py",
+          "sha256": "92616cc5cc6af134e59f0241d5a512f2c15850375843c2d02a09504761ad3c7c"
+        },
+        {
+          "path": "topos/matrix_r2.py",
+          "sha256": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32"
+        },
+        {
+          "path": "topos/anharmonic.py",
+          "sha256": "7a4de95b9ef667f7758f29fb6561d6de731056eb244511743a766e8ae51f2835"
         }
       ],
       "acceptance_tests": [
@@ -887,6 +971,8 @@
           "test_functions": [
             "test_complete_catalog_matches_source_identity_and_all_fourteen_tables",
             "test_source_revision_drift_is_a_failure",
+            "test_higher_quadruples_plan_records_energy_difference_derivatives",
+            "test_model_training_plan_requires_exact_patched_native_build_and_mixed_devices",
             "test_only_documented_decision_card_aliases",
             "test_invalid_row_identifiers_rejected",
             "test_purpose_product_and_track_are_separate_selections",
@@ -924,7 +1010,7 @@
         },
         {
           "path": "tests/v010/test_matrix_workflow.py",
-          "sha256": "e34325c47e3c35ab05156ccae238784867d2157fe0173c446c0853f3d95820e6",
+          "sha256": "a896a69444d11a91ba6a1a6d738b20caad43295e3ca300b8934cd38a8f952cb5",
           "test_functions": [
             "test_unimplemented_full_campaign_does_not_execute_a_cheap_component",
             "test_missing_binary_produces_no_matrix_completion_or_fabricated_energy",
@@ -948,7 +1034,7 @@
         },
         {
           "path": "tests/v010/test_external_matrix_workflow.py",
-          "sha256": "0dbe6fd8c5d8a40ee1aa3901dbdacfd38ec04234283c6558d9fb9027e717a4e4",
+          "sha256": "03997c6e236d01ba05096bb7a83ffd390f26376ef32f2d480d1670f960aaad95",
           "test_functions": [
             "test_row_method_basis_core_operation_exact_binding",
             "test_wrong_or_incomplete_recipes_cannot_borrow_external_adapter",
@@ -957,10 +1043,140 @@
             "test_cfour_junchs_rejects_missing_resolution_or_incomplete_chart_before_compute",
             "test_genuine_psi4_public_matrix_request_and_verified_resume"
           ]
+        },
+        {
+          "path": "tests/v010/test_orca_numerical_geometry.py",
+          "sha256": "95401685f4039f52cc61d2cc06df15d2a47b3505523301cd0081a5669e6e3e2c",
+          "test_functions": [
+            "test_reviewed_geometry_protocol_preserves_archived_source",
+            "test_no_basis_core_or_convergence_substitution",
+            "test_stationarity_includes_displacement_sensitivity_and_topology",
+            "test_geometry_cancel_and_missing_licensed_engine_never_produce_quantities",
+            "test_public_revised_route_retains_binding_and_rejects_changed_revision_on_resume",
+            "test_generic_energy_difference_optimizer_matches_genuine_xtb_gradient"
+          ]
+        },
+        {
+          "path": "tests/v010/test_orca_f12_composite.py",
+          "sha256": "c5c65c6d413e0496e96802116dd8f7358bdde2e4aae447df6a8e89fb9a2d43ea",
+          "test_functions": [
+            "test_split_extrapolation_recovers_its_declared_asymptotes_and_cv_sign",
+            "test_manual_native_partition_keeps_cabs_singles_out_of_correlation",
+            "test_incomplete_duplicate_or_inconsistent_partition_is_rejected",
+            "test_exact_method_basis_core_and_reference_choices_cannot_drift",
+            "test_exponents_and_scientific_definition_are_not_silently_guessed",
+            "test_conventional_f12_mp2_is_explicitly_distinct_from_ri_mp2",
+            "test_composite_requires_every_consistent_finite_component",
+            "test_partition_requires_unchanged_native_artifact_identity",
+            "test_missing_fragment_partition_rejected_before_any_executor_call"
+          ]
+        },
+        {
+          "path": "tests/v010/test_higher_composite.py",
+          "sha256": "5533a0301eaf10d88bbaea96f795003f7def6f53fbf9d5fcfd74d3acf8b244d4",
+          "test_functions": [
+            "test_parameterwise_geometry_cbs_and_full_quadruples_have_correct_signs",
+            "test_geometry_arithmetic_independent_of_component_cartesian_frames",
+            "test_unspecified_or_incompatible_family_choices_rejected",
+            "test_missing_component_and_isotope_changes_rejected",
+            "test_complete_independent_chart_cannot_be_omitted",
+            "test_extrapolation_cannot_break_bond_despite_individually_preserved_components",
+            "test_same_basis_core_and_full_t_q_protocols_and_native_integral_restriction",
+            "test_full_quadruples_never_claims_analytic_derivative",
+            "test_authentic_ncc_convergence_and_total_grammar_has_immutable_provenance",
+            "test_checked_central_derivative_against_exact_quadratic_and_quartic_math",
+            "test_step_instability_and_fabricated_nonfinite_energies_rejected",
+            "test_numerical_optimizer_against_explicit_isotropic_harmonic_bond_model",
+            "test_numerical_campaign_stops_before_any_component_when_cancelled_or_expired",
+            "test_missing_cp_or_small_corrections_cannot_claim_other_complete_rows"
+          ]
+        },
+        {
+          "path": "tests/v010/test_cfour_corrections.py",
+          "sha256": "ad3853652f5ba64a30e4da96f5a3d139d879a3a2689eb9a13f25031fb71bb396",
+          "test_functions": [
+            "test_native_input_changes_only_the_explicit_scalar_hamiltonian_between_paired_legs",
+            "test_unsupported_hamiltonians_or_analytic_derivatives_cannot_enter_profile",
+            "test_historical_native_provenance_and_real_x2c_control_grammar",
+            "test_partial_x2c_native_program_cannot_be_accepted_from_echoed_keyword",
+            "test_actual_historical_dboc_number_with_crashed_mass_evaluation_is_rejected",
+            "test_parameterwise_scalar_increment_preserves_sign_units_and_frame_invariance",
+            "test_isotope_changes_and_broken_reconstructed_topology_are_rejected",
+            "test_harmonic_model_energy_derivatives_are_checked_without_engine_claims",
+            "test_durable_scalar_campaign_stops_before_any_native_job",
+            "test_absent_cfour_returns_no_energy_and_never_executes_supplied_runner",
+            "test_paired_correction_cannot_be_requested_as_nonrelativistic_only"
+          ]
+        },
+        {
+          "path": "tests/v010/test_matrix_ml_training.py",
+          "sha256": "9b1c44fa51d3563fa1b6f13a19d266c874a159ce5f2af6f0e80a3146eb584ec3",
+          "test_functions": [
+            "test_campaign_cache_checks_identity_and_digest",
+            "test_campaign_cache_rejects_missing_or_changed_evidence",
+            "test_unexpected_failure_is_committed_with_retained_raw_bytes",
+            "test_missing_training_inputs_cannot_start_or_publish_a_campaign",
+            "test_retained_checkpoint_does_not_pretend_heldout_completion"
+          ]
+        },
+        {
+          "path": "tests/v010/test_cfour_counterpoise.py",
+          "sha256": "9d7eeb23b753ee98af53f1236f7e33d7dd7cb52841ed762abe3cc0c03cb74638",
+          "test_functions": [
+            "test_leg_inventory_balances_relaxed_total_and_keeps_ghosts_out_of_physical_molecule",
+            "test_all_ghost_centers_follow_every_whole_complex_displacement_and_cache_identity",
+            "test_only_physical_nuclei_contribute_core_orbitals",
+            "test_explicit_high_solver_and_scalar_energies",
+            "test_core_choices_cannot_be_coerced_or_guessed",
+            "test_core_counts_need_correlated_electrons_and_complete_physical_inventory",
+            "test_wrong_scientific_convention_or_missing_core_choices_rejected",
+            "test_ghost_centers_are_separate_from_physical_atom_identity",
+            "test_historical_fixture_hash_geometry_only_and_exact_version_rejection",
+            "test_explicit_native_drop_selection_grammar",
+            "test_unknown_native_core_grammar_is_rejected",
+            "test_relaxed_surface_optimizer_includes_ghost_basis_motion",
+            "test_campaign_boundary_stops_before_any_native_displacement",
+            "test_whole_recipe_runs_sixteen_component_optimizations_without_averaging",
+            "test_native_leg_unavailable_cannot_produce_science",
+            "test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo",
+            "test_real_process_boundary_rejects_input_or_executable_mutation",
+            "test_reviewed_counterpoise_resolution_is_required_before_any_engine"
+          ]
+        },
+        {
+          "path": "tests/v010/test_rotational_transfer.py",
+          "sha256": "4fcf437c5fb5c93890294fd022045346f89f7704c079ab0c29ce571c98bfad04",
+          "test_functions": [
+            "test_public_native_masses_and_same_geometry_transfer_formula",
+            "test_independent_rigid_rotations_translations_and_native_axis_reordering",
+            "test_distinct_target_keeps_its_equilibrium_geometry_and_native_correction",
+            "test_identity_change_rejected",
+            "test_reject_mass_be_and_geometry_mismatch",
+            "test_basin_degeneracy_and_perturbative_limits",
+            "test_small_deformation_with_large_principal_axis_rotation_is_rejected",
+            "test_native_geometry_mass_table_rejects_missing_or_invalid_rows",
+            "test_proper_alignment_cannot_accept_reflected_tetrahedron",
+            "test_cartesian_hessian_rotation_preserves_energy_and_gradient_quadratic_form",
+            "test_pure_math_and_public_grammar_cannot_claim_native_execution"
+          ]
+        },
+        {
+          "path": "tests/v010/test_matrix_r2.py",
+          "sha256": "b3dd46abc80c4087f6bdef634309ce94930c84d5b09fe519727116039c8b4312",
+          "test_functions": [
+            "test_r2_geometry_uses_exact_frozen_qz_method_and_auxiliary_without_completing_row",
+            "test_r2_monomer_provenance_binds_exact_supplied_geometry_before_engine_launch",
+            "test_named_reference_change_is_explicit_and_strictly_unconstrained",
+            "test_transfer_requires_explicit_semirigid_and_same_basin_declaration",
+            "test_reviewed_plan_preserves_unavailable_vv10_and_names_supported_alternative",
+            "test_reviewed_r2_cancel_preserves_no_execution",
+            "test_reviewed_r2_missing_transfer_protocol_rejected_before_geometry",
+            "test_public_reviewed_r2_checks_base_export_authority_before_expensive_geometry"
+          ]
         }
       ],
       "coding_gaps": [
-        "Not every TOPOS-owned matrix row has a complete executable recipe; current support inventory is authoritative."
+        "Full original T3C-1mo mass-bound isotopic rotor scope remains incomplete; the explicitly narrower native-default-mass contribution is not full-row completion."
       ],
       "additional_acceptance_conditions": [
         "all_matrix_recipes",
@@ -978,6 +1194,10 @@
         {
           "path": "../.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
+        },
+        {
+          "path": "evidence/TOPOS_CFOUR_CP_RESEARCH_20261007.json",
+          "sha256": "ca2438c2a40173382911f115e36c11178f94065675b0c7255ca8da9d6003015c"
         }
       ]
     },
@@ -1067,7 +1287,7 @@
       "chapter": "5. Method matrix, purpose, and hardware",
       "requirement_source": "**TOPOS-010-014.** Select hardware after scientific applicability and backend verification. Record allocated cores/threads, RAM, GPU/VRAM, runtime, precision, elapsed/queue time. Bound workers \u00d7 per-worker threads/memory. Do not transplant fixed P/E-core indices between machines. CPU execution of the same validated model may be allowed; replacing its Hamiltonian with xTB/LJ is a separate method decision. [S07](TOPOS_0.1.0_REFERENCES.md#s07)",
       "status": "verification-pending",
-      "assessment": "BASE provides audited CPU/thread/memory authority; hardware selection follows scientific recipe and model-domain checks; GPU worker path records dtype/device and memory requests.",
+      "assessment": "BASE enforces audited CPU/thread/memory allocations and isolated model workers. Genuine MACE and AIMNet2 CPU inference and worker packaging have focused evidence. CUDA package profiles and device checks are implemented, but no physical GPU execution or broad hardware timing calibration is claimed.",
       "implementation": [
         {
           "path": "topos/runtime.py",
@@ -1075,11 +1295,19 @@
         },
         {
           "path": "topos/base_integration.py",
-          "sha256": "726f5c1a6ebc6c10b644ca01c121bead1fca2f821e81c97de9a502268c48c7e5"
+          "sha256": "62799cbd458c1b8f92297afe4bc2d45d2450674bb2e7d58d6eed0159db4d3437"
         },
         {
           "path": "topos/ml.py",
-          "sha256": "152cbe7f14d35025936d5fb6b5fd4093e51fae6e049e87adeab55ed74274edc1"
+          "sha256": "f1abf663588e9641e27361b3e84202a6695df79c91ec13f8678ca2cfc39e894b"
+        },
+        {
+          "path": "topos/ml_worker.py",
+          "sha256": "0e5d47a34cba9e8a855054d32ba51ee0dadbbe724ae571ddde9a8e8f60d72087"
+        },
+        {
+          "path": "topos/ml_workflow.py",
+          "sha256": "70eb2985bd6fa247c4c1267cec13f7e0caad5186531871e18a643dfd472aae5e"
         }
       ],
       "acceptance_tests": [
@@ -1093,7 +1321,7 @@
         },
         {
           "path": "tests/v010/test_base_integration.py",
-          "sha256": "54317cedc3b4d1e4207c64102b77bb382cc9b79a56dfda3cda1d6689322130a5",
+          "sha256": "e87e975262a77d9a4fc1b5df2dd255243d0af841a8a9a1b95e8ab9bbcdb9e4f4",
           "test_functions": [
             "test_missing_torq_is_not_replaced_by_base_bundled_namespace",
             "test_explicit_torq_source_is_discovered_without_bootstrap",
@@ -1117,21 +1345,40 @@
             "test_python_ml_worker_cannot_claim_an_unaudited_silo",
             "test_ml_python_authority_does_not_allow_arbitrary_code",
             "test_real_xtb_water_through_base_registry_and_broker",
-            "test_actual_stage0_and_mandatory_ecosystem_workflow"
+            "test_actual_stage0_and_mandatory_ecosystem_workflow",
+            "test_training_cannot_silently_fall_back_to_cpu",
+            "test_export_manifest_is_found_for_actual_base_namespace_package",
+            "test_orca_environment_adds_reauthorized_mpi_outside_controller_path",
+            "test_training_engine_guard_uses_actual_base_dictionary_schema"
           ]
         },
         {
           "path": "tests/v010/test_ml.py",
-          "sha256": "552de7cc685b960dab35204cd347b567a38ebc55e22fa0c366c38cf992bc358d",
+          "sha256": "867f3135c60e0525d3e8fbdff04fe5b965eea30ab6ba56af6badf21baf35b331",
           "test_functions": [
             "test_force_to_gradient_sign_and_length_unit",
             "test_committee_sample_spread_is_not_zero_or_standard_error",
             "test_incomplete_or_nonfinite_prediction_refused",
             "test_repeated_committee_member_refused",
             "test_mace_cannot_ignore_charge_or_spin",
+            "test_aimnet_cannot_silently_ignore_a_mace_head_selection",
+            "test_system_specific_checkpoint_retains_identity_but_allows_new_coordinates",
             "test_domain_rejects_collision_and_embedding",
             "test_rigid_grid_preserves_every_internal_distance_and_fixed_fragment",
-            "test_grid_rejects_repeated_and_excessive_points"
+            "test_grid_rejects_repeated_and_excessive_points",
+            "test_actual_aimnet_committee_derivative_and_rigid_invariance"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_workflow.py",
+          "sha256": "35372e92d7b4c16b77b6a78ff1f5c13505b164d702eb9c97f39db6faf161267b",
+          "test_functions": [
+            "test_actual_committee_campaign_resumes_only_after_complete_evidence",
+            "test_completed_cache_cannot_accept_damaged_genuine_campaign",
+            "test_failure_after_actual_inference_never_persists_completed_attempt",
+            "test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+            "test_commit_acknowledgement_loss_recovers_the_verified_publication",
+            "test_actual_surface_publication_and_semantic_hdf5_resume_validation"
           ]
         }
       ],
@@ -1149,7 +1396,18 @@
         {
           "path": "../.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
         }
+      ],
+      "observed_native_evidence": [
+        "AIMNet2 0.2.0 genuine four-member CPU committee, 75 frames; derivative/rigid-transformation checks passed, not BASE/GPU/accuracy certification"
       ]
     },
     "TOPOS-010-015": {
@@ -1230,7 +1488,7 @@
       "chapter": "5. Method matrix, purpose, and hardware",
       "requirement_source": "**TOPOS-010-016.** Model metadata shall include artifact/hash, license, reference Hamiltonian, supported elements/charge/spin/system class, solvent, API, units, device/dtype. Out-of-domain use is unsupported or explicitly experimental. Verified MACE-OFF23 sources do not validate MACE-OFF24m imports; do not silently rename models. ALPB, CPCM, and SMD may describe the same solvent without being identical models. Solvent keywords and compatibility require validation against the selected engine version. [S01](TOPOS_0.1.0_REFERENCES.md#s01), [S07](TOPOS_0.1.0_REFERENCES.md#s07)",
       "status": "verification-pending",
-      "assessment": "Hash-bound ML manifests declare license/source/training Hamiltonian/elements/charge/spin/API/dtype; out-of-domain and unvalidated solvent requests are refused.",
+      "assessment": "Hash-bound MACE/AIMNet manifests declare source/license/training Hamiltonian/domain/units/API/dtype; actual CPU inference is implemented and tested. Committee disagreement is not calibrated accuracy; ORCA-labelled active-learning acquisition requires real matching-method calculations. Solvation and incompatible model/domain requests remain refused.",
       "implementation": [
         {
           "path": "topos/ml.py",
@@ -1243,6 +1501,22 @@
         {
           "path": "topos/capabilities.py",
           "sha256": "d430bd9ada64a95a1b1b8ab1caeb70fb9cbd3a49b64fb068fcd8953ca40b07e3"
+        },
+        {
+          "path": "topos/ml_training.py",
+          "sha256": "8dd71fd5a2f86469c73d77a654f061c6544ca831a3a1850c6e0b3bc71d2c986e"
+        },
+        {
+          "path": "topos/ml_workflow.py",
+          "sha256": "70eb2985bd6fa247c4c1267cec13f7e0caad5186531871e18a643dfd472aae5e"
+        },
+        {
+          "path": "topos/ml_crest.py",
+          "sha256": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e"
+        },
+        {
+          "path": "topos/ml_extopt.py",
+          "sha256": "1ce618c8d8cc83c4e8c964164a4e568c4750ce06b356035a06ed4721286d8136"
         }
       ],
       "acceptance_tests": [
@@ -1255,9 +1529,12 @@
             "test_incomplete_or_nonfinite_prediction_refused",
             "test_repeated_committee_member_refused",
             "test_mace_cannot_ignore_charge_or_spin",
+            "test_aimnet_cannot_silently_ignore_a_mace_head_selection",
+            "test_system_specific_checkpoint_retains_identity_but_allows_new_coordinates",
             "test_domain_rejects_collision_and_embedding",
             "test_rigid_grid_preserves_every_internal_distance_and_fixed_fragment",
-            "test_grid_rejects_repeated_and_excessive_points"
+            "test_grid_rejects_repeated_and_excessive_points",
+            "test_actual_aimnet_committee_derivative_and_rigid_invariance"
           ]
         },
         {
@@ -1285,6 +1562,81 @@
             "test_authentic_xtb_gradient_matches_finite_difference",
             "test_authentic_xtb_charge_and_spin_propagate"
           ]
+        },
+        {
+          "path": "tests/v010/test_ml_training.py",
+          "sha256": "df502d4844fe28a9f59d3cc7572157a31addc65f4fb3d5df7c68bc0ec924e8ea",
+          "test_functions": [
+            "test_explicit_three_way_group_partition_and_cardinality",
+            "test_same_trajectory_group_cannot_cross_partitions_and_holdout_cannot_be_omitted",
+            "test_same_immutable_dft_attempt_cannot_be_duplicated",
+            "test_rotated_translated_duplicates_cannot_leak_into_holdout",
+            "test_reference_labels_must_share_exact_system_and_hamiltonian",
+            "test_incomplete_or_nonfinite_gradients_cannot_be_reference_labels",
+            "test_ase_reads_exact_energy_and_opposite_signed_force_unit_conversion",
+            "test_heldout_error_metrics_use_absolute_offsets_per_atom_and_all_force_components",
+            "test_error_metrics_reject_missing_or_nonfinite_observations",
+            "test_unexecuted_predictions_and_training_frames_cannot_be_reported_as_holdout",
+            "test_official_cli_pins_multihead_gpu_local_replay_and_excludes_test_set",
+            "test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol",
+            "test_explicit_replay_does_not_overlap_system_specific_data",
+            "test_replay_partition_or_hash_changes_cannot_be_ignored",
+            "test_missing_training_authority_never_uses_generic_runner_or_creates_checkpoint",
+            "test_real_xtb_gradient_cannot_be_imported_as_dft_training_data",
+            "test_reference_source_must_be_explicit_local_absolute_snapshot",
+            "test_dataset_preparation_refuses_existing_output_before_native_import",
+            "test_reference_verification_honors_preexisting_stop_before_import",
+            "test_training_cancellation_precedes_unavailable_runtime_and_preserves_reason",
+            "test_training_target_allows_distorted_reference_geometries_and_names",
+            "test_training_target_rejects_each_changed_identity_even_with_same_coordinates",
+            "test_training_target_preserves_explicit_fragment_state_and_declared_bond_order",
+            "test_saved_system_model_contract_does_not_inherit_foundation_transferability",
+            "test_checkpoint_recovery_rejects_unverified_storage_before_training_or_inference",
+            "test_invalid_checkpoint_recovery_never_starts_another_fit",
+            "test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_workflow.py",
+          "sha256": "35372e92d7b4c16b77b6a78ff1f5c13505b164d702eb9c97f39db6faf161267b",
+          "test_functions": [
+            "test_actual_committee_campaign_resumes_only_after_complete_evidence",
+            "test_completed_cache_cannot_accept_damaged_genuine_campaign",
+            "test_failure_after_actual_inference_never_persists_completed_attempt",
+            "test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+            "test_commit_acknowledgement_loss_recovers_the_verified_publication",
+            "test_actual_surface_publication_and_semantic_hdf5_resume_validation"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_crest.py",
+          "sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+          "test_functions": [
+            "test_native_generic_deck_preserves_state_and_initial_preoptimization",
+            "test_native_shell_interpolation_is_rejected",
+            "test_exact_native_command_has_no_potential_substitution",
+            "test_invalid_native_window",
+            "test_no_base_authority_no_native_result",
+            "test_unsupported_inputs_cannot_start_inference",
+            "test_cancel_before_authority_validation",
+            "test_actual_native_crest_reads_actual_mace_energy_and_gradient",
+            "test_actual_native_sampler_callback_bound_never_claims_completion",
+            "test_stock_native_crest_is_rejected_before_model_search",
+            "test_actual_patched_binary_requires_matching_source_provenance"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_extopt.py",
+          "sha256": "f9e9c349054d4564669d124934418778b482d24f1bdb7456b343b816d743fc55",
+          "test_functions": [
+            "test_documented_external_contract_keeps_state_units_and_raw_bytes",
+            "test_embedding_cannot_be_silently_ignored",
+            "test_external_identity_and_filesystem_boundaries",
+            "test_message_size_bound_precedes_payload_allocation",
+            "test_concurrent_allocations_and_native_deck_are_explicit",
+            "test_endpoint_rejects_nonprivate_socket",
+            "test_authentic_persistent_mace_extopt_callback_and_unit_conversion"
+          ]
         }
       ],
       "coding_gaps": [],
@@ -1301,7 +1653,18 @@
         {
           "path": "../.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
         }
+      ],
+      "observed_native_evidence": [
+        "AIMNet2 0.2.0 genuine four-member CPU committee, 75 frames; derivative/rigid-transformation checks passed, not BASE/GPU/accuracy certification"
       ]
     },
     "TOPOS-010-017": {
@@ -1578,8 +1941,8 @@
     "TOPOS-010-020": {
       "chapter": "6. Search, refinement, and union",
       "requirement_source": "**TOPOS-010-020.** CREST/GOAT/ABCluster adapters shall retain actual commands/inputs, versions, logs, and ensembles. Resolve CREST option semantics: NCI confinement biases sampling; `--noreftopo` disables only initial topology checking; `--bthr 0.001` sets a lower bound for a dynamically adjusted rotational-constant threshold, not fixed identity proof. Another sampler on the same potential tests discovery robustness, not independent electronic accuracy. [S02](TOPOS_0.1.0_REFERENCES.md#s02), [S03](TOPOS_0.1.0_REFERENCES.md#s03)",
-      "status": "partial",
-      "assessment": "Actual CREST commands/versions/ensembles are exercised, including entropy and confinement; GOAT/GOAT-entropy adapters retain native evidence.",
+      "status": "verification-pending",
+      "assessment": "Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. Current whole-suite and mandatory BASE authority evidence must still be retained; development-backend native success does not establish BASE authorization.",
       "implementation": [
         {
           "path": "topos/sampling.py",
@@ -1592,6 +1955,26 @@
         {
           "path": "topos/entropy.py",
           "sha256": "6012bd2c8cb985f2ae91019cdaae75ae4bb998432f2c7c6a4c1ee9953a5fda39"
+        },
+        {
+          "path": "topos/abcluster.py",
+          "sha256": "224ff6299b7970e03a14b6413300babd62b5aa498d6e8e00940c962dbcd4eb1b"
+        },
+        {
+          "path": "topos/models.py",
+          "sha256": "c1e5c4240942ffb03edde0869473418aba90cc396ffabb1f396f29150a9de205"
+        },
+        {
+          "path": "topos/workflow.py",
+          "sha256": "b00fa17e474d64003605666b91a52223b17e2c0e27d487f441a369479bd46d61"
+        },
+        {
+          "path": "topos/advanced_workflow.py",
+          "sha256": "2d81ddff5a0b36e365d69602dad675dc12869a09861a659859173f172ba8b7a6"
+        },
+        {
+          "path": "topos/ml_crest.py",
+          "sha256": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e"
         }
       ],
       "acceptance_tests": [
@@ -1649,13 +2032,52 @@
             "test_authentic_completed_crest_entropy_reused_when_partner_unavailable",
             "test_later_engine_provisioning_preserves_protocol_without_executing_marker"
           ]
+        },
+        {
+          "path": "tests/v010/test_abcluster.py",
+          "sha256": "1abe514d368066644f8216ea81bab51fb5ce144bcda0e0e5f78ffea1278e6f9d",
+          "test_functions": [
+            "test_input_contains_explicit_native_units_and_no_electronic_method",
+            "test_force_field_state_and_repulsion_are_explicit",
+            "test_no_undeclared_fragment_or_environment_substitution",
+            "test_genuine_neon_dimer_analytic_lj_limit_resume_and_tamper",
+            "test_genuine_methanol_dimer_preserves_monomers_and_interleaved_atom_ids",
+            "test_cancelled_search_retains_raw_evidence_then_can_retry"
+          ]
+        },
+        {
+          "path": "tests/v010/test_abcluster_workflow.py",
+          "sha256": "43ec605242ad2db3a5c8b3ee501de41e5b8588f0cd04b0478c1aeed03e4fdf07",
+          "test_functions": [
+            "test_abcluster_schema_requires_explicit_parameter_source_and_atom_mapping",
+            "test_abcluster_controls_are_explicit_finite_and_bounded",
+            "test_missing_abcluster_cannot_silently_switch_sampler",
+            "test_actual_abcluster_scores_are_never_quantum_candidate_energies",
+            "test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_crest.py",
+          "sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+          "test_functions": [
+            "test_native_generic_deck_preserves_state_and_initial_preoptimization",
+            "test_native_shell_interpolation_is_rejected",
+            "test_exact_native_command_has_no_potential_substitution",
+            "test_invalid_native_window",
+            "test_no_base_authority_no_native_result",
+            "test_unsupported_inputs_cannot_start_inference",
+            "test_cancel_before_authority_validation",
+            "test_actual_native_crest_reads_actual_mace_energy_and_gradient",
+            "test_actual_native_sampler_callback_bound_never_claims_completion",
+            "test_stock_native_crest_is_rejected_before_model_search",
+            "test_actual_patched_binary_requires_matching_source_provenance"
+          ]
         }
       ],
-      "coding_gaps": [
-        "Native ABCluster adapter is absent."
-      ],
+      "coding_gaps": [],
       "additional_acceptance_conditions": [
-        "hosted_orca"
+        "hosted_orca",
+        "base_abcluster_authority"
       ],
       "verification": {
         "historical_suite_tests": 907,
@@ -1682,7 +2104,7 @@
         },
         {
           "path": "topos/matrix_union.py",
-          "sha256": "02c63d21131f11236f572deeb199b8cbaf9fef61fe48126ff15e49d97a500436"
+          "sha256": "9ae8015cd605c954d6fc51f9923ddd9c628665b5a25c87352ca3364cf3809117"
         },
         {
           "path": "topos/matrix_sources.py",
@@ -1777,6 +2199,14 @@
         {
           "path": "topos/counterpoise.py",
           "sha256": "6c5667844e8673714c328bcb519d805eb489eee497f0548bdf8b2bb7fed5e4c9"
+        },
+        {
+          "path": "topos/ml_workflow.py",
+          "sha256": "70eb2985bd6fa247c4c1267cec13f7e0caad5186531871e18a643dfd472aae5e"
+        },
+        {
+          "path": "topos/ml_training.py",
+          "sha256": "8dd71fd5a2f86469c73d77a654f061c6544ca831a3a1850c6e0b3bc71d2c986e"
         }
       ],
       "acceptance_tests": [
@@ -1831,6 +2261,51 @@
             "test_correlated_parser_arithmetic_contract_does_not_claim_native_execution",
             "test_led_full_sum_keeps_interfragment_energy_distinct_from_binding_energy",
             "test_missing_licensed_binary_has_no_energy_or_fake_artifacts"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_workflow.py",
+          "sha256": "35372e92d7b4c16b77b6a78ff1f5c13505b164d702eb9c97f39db6faf161267b",
+          "test_functions": [
+            "test_actual_committee_campaign_resumes_only_after_complete_evidence",
+            "test_completed_cache_cannot_accept_damaged_genuine_campaign",
+            "test_failure_after_actual_inference_never_persists_completed_attempt",
+            "test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+            "test_commit_acknowledgement_loss_recovers_the_verified_publication",
+            "test_actual_surface_publication_and_semantic_hdf5_resume_validation"
+          ]
+        },
+        {
+          "path": "tests/v010/test_ml_training.py",
+          "sha256": "df502d4844fe28a9f59d3cc7572157a31addc65f4fb3d5df7c68bc0ec924e8ea",
+          "test_functions": [
+            "test_explicit_three_way_group_partition_and_cardinality",
+            "test_same_trajectory_group_cannot_cross_partitions_and_holdout_cannot_be_omitted",
+            "test_same_immutable_dft_attempt_cannot_be_duplicated",
+            "test_rotated_translated_duplicates_cannot_leak_into_holdout",
+            "test_reference_labels_must_share_exact_system_and_hamiltonian",
+            "test_incomplete_or_nonfinite_gradients_cannot_be_reference_labels",
+            "test_ase_reads_exact_energy_and_opposite_signed_force_unit_conversion",
+            "test_heldout_error_metrics_use_absolute_offsets_per_atom_and_all_force_components",
+            "test_error_metrics_reject_missing_or_nonfinite_observations",
+            "test_unexecuted_predictions_and_training_frames_cannot_be_reported_as_holdout",
+            "test_official_cli_pins_multihead_gpu_local_replay_and_excludes_test_set",
+            "test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol",
+            "test_explicit_replay_does_not_overlap_system_specific_data",
+            "test_replay_partition_or_hash_changes_cannot_be_ignored",
+            "test_missing_training_authority_never_uses_generic_runner_or_creates_checkpoint",
+            "test_real_xtb_gradient_cannot_be_imported_as_dft_training_data",
+            "test_reference_source_must_be_explicit_local_absolute_snapshot",
+            "test_dataset_preparation_refuses_existing_output_before_native_import",
+            "test_reference_verification_honors_preexisting_stop_before_import",
+            "test_training_cancellation_precedes_unavailable_runtime_and_preserves_reason",
+            "test_training_target_allows_distorted_reference_geometries_and_names",
+            "test_training_target_rejects_each_changed_identity_even_with_same_coordinates",
+            "test_training_target_preserves_explicit_fragment_state_and_declared_bond_order",
+            "test_saved_system_model_contract_does_not_inherit_foundation_transferability",
+            "test_checkpoint_recovery_rejects_unverified_storage_before_training_or_inference",
+            "test_invalid_checkpoint_recovery_never_starts_another_fit",
+            "test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success"
           ]
         }
       ],
@@ -2364,15 +2839,27 @@
       "chapter": "7. Deduplication, chirality, and spectroscopy",
       "requirement_source": "**TOPOS-010-029.** Distinguish equilibrium `Ae,Be,Ce` from averaged `A0,B0,C0`; record units, isotopes, geometry level, correction model, uncertainty. The semi-rigid expression `B0=Be\u2212\u00bd\u03a3r \u03b1rB` has different mode/validity assumptions for linear, constrained, and large-amplitude systems. Uncorrected `Be` is not experimental `B0`; empirical scaling needs independent validation.",
       "status": "verification-pending",
-      "assessment": "Equilibrium rotational constants are distinct from optional supplied/native VPT2 alpha corrections; units/isotopes/validity and missing corrections remain explicit.",
+      "assessment": "Equilibrium rotational constants remain distinct from native ORCA VPT2 vibration-rotation corrections and explicitly supplied corrections. Literal native analytic Hessian/VPT2 adapters are implemented with method and stationarity restrictions; licensed current-source acceptance remains separate. TORQ-owned DVR/large-amplitude spectroscopy is not claimed. The conditional CFOUR raw/CP geometry bracket preserves two derived structures and their separate equilibrium rotational constants; it does not infer a confidence interval or a single composite-potential minimum. The reviewed R2 B3LYP-D4/def2-TZVPP VPT2 correction transfer is implemented with two retained geometries, native-mass inertia checks, proper-axis alignment, basin/topology guards and explicit approximate-composite labeling; its full native campaign remains unverified.",
       "implementation": [
         {
           "path": "topos/symmetry.py",
           "sha256": "9a5db0424a0d4a0cd93ffe3328f0fd94bffe0d29010a9077dabb9b316e5e3fd7"
         },
         {
+          "path": "topos/cfour_counterpoise.py",
+          "sha256": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143"
+        },
+        {
+          "path": "topos/rotational_transfer.py",
+          "sha256": "92616cc5cc6af134e59f0241d5a512f2c15850375843c2d02a09504761ad3c7c"
+        },
+        {
+          "path": "topos/matrix_r2.py",
+          "sha256": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32"
+        },
+        {
           "path": "topos/anharmonic.py",
-          "sha256": "72b785b5a57bf2cfc7405276492bf54438184d3aedb9a1c820df784b5eab00ff"
+          "sha256": "7a4de95b9ef667f7758f29fb6561d6de731056eb244511743a766e8ae51f2835"
         }
       ],
       "acceptance_tests": [
@@ -2399,7 +2886,7 @@
         },
         {
           "path": "tests/v010/test_anharmonic.py",
-          "sha256": "14e18e1a5837ee5858cbccea59a474e646b5e569541662e1f9a32a7429f5e3bd",
+          "sha256": "4f21c9e1ec3053488310668a7beff640af3652d9b9e4798838ba89e924f7ad51",
           "test_functions": [
             "test_public_native_vpt2_tables_preserve_rovibration_and_zero_point",
             "test_inconsistent_or_missing_anharmonic_tables_rejected",
@@ -2410,11 +2897,67 @@
             "test_anharmonic_and_dispersion_citations_require_actual_execution",
             "test_authentic_orca_vpt2_water_and_completed_recovery"
           ]
+        },
+        {
+          "path": "tests/v010/test_cfour_counterpoise.py",
+          "sha256": "9d7eeb23b753ee98af53f1236f7e33d7dd7cb52841ed762abe3cc0c03cb74638",
+          "test_functions": [
+            "test_leg_inventory_balances_relaxed_total_and_keeps_ghosts_out_of_physical_molecule",
+            "test_all_ghost_centers_follow_every_whole_complex_displacement_and_cache_identity",
+            "test_only_physical_nuclei_contribute_core_orbitals",
+            "test_explicit_high_solver_and_scalar_energies",
+            "test_core_choices_cannot_be_coerced_or_guessed",
+            "test_core_counts_need_correlated_electrons_and_complete_physical_inventory",
+            "test_wrong_scientific_convention_or_missing_core_choices_rejected",
+            "test_ghost_centers_are_separate_from_physical_atom_identity",
+            "test_historical_fixture_hash_geometry_only_and_exact_version_rejection",
+            "test_explicit_native_drop_selection_grammar",
+            "test_unknown_native_core_grammar_is_rejected",
+            "test_relaxed_surface_optimizer_includes_ghost_basis_motion",
+            "test_campaign_boundary_stops_before_any_native_displacement",
+            "test_whole_recipe_runs_sixteen_component_optimizations_without_averaging",
+            "test_native_leg_unavailable_cannot_produce_science",
+            "test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo",
+            "test_real_process_boundary_rejects_input_or_executable_mutation",
+            "test_reviewed_counterpoise_resolution_is_required_before_any_engine"
+          ]
+        },
+        {
+          "path": "tests/v010/test_rotational_transfer.py",
+          "sha256": "4fcf437c5fb5c93890294fd022045346f89f7704c079ab0c29ce571c98bfad04",
+          "test_functions": [
+            "test_public_native_masses_and_same_geometry_transfer_formula",
+            "test_independent_rigid_rotations_translations_and_native_axis_reordering",
+            "test_distinct_target_keeps_its_equilibrium_geometry_and_native_correction",
+            "test_identity_change_rejected",
+            "test_reject_mass_be_and_geometry_mismatch",
+            "test_basin_degeneracy_and_perturbative_limits",
+            "test_small_deformation_with_large_principal_axis_rotation_is_rejected",
+            "test_native_geometry_mass_table_rejects_missing_or_invalid_rows",
+            "test_proper_alignment_cannot_accept_reflected_tetrahedron",
+            "test_cartesian_hessian_rotation_preserves_energy_and_gradient_quadratic_form",
+            "test_pure_math_and_public_grammar_cannot_claim_native_execution"
+          ]
+        },
+        {
+          "path": "tests/v010/test_matrix_r2.py",
+          "sha256": "b3dd46abc80c4087f6bdef634309ce94930c84d5b09fe519727116039c8b4312",
+          "test_functions": [
+            "test_r2_geometry_uses_exact_frozen_qz_method_and_auxiliary_without_completing_row",
+            "test_r2_monomer_provenance_binds_exact_supplied_geometry_before_engine_launch",
+            "test_named_reference_change_is_explicit_and_strictly_unconstrained",
+            "test_transfer_requires_explicit_semirigid_and_same_basin_declaration",
+            "test_reviewed_plan_preserves_unavailable_vv10_and_names_supported_alternative",
+            "test_reviewed_r2_cancel_preserves_no_execution",
+            "test_reviewed_r2_missing_transfer_protocol_rejected_before_geometry",
+            "test_public_reviewed_r2_checks_base_export_authority_before_expensive_geometry"
+          ]
         }
       ],
       "coding_gaps": [],
       "additional_acceptance_conditions": [
-        "hosted_orca"
+        "hosted_orca",
+        "external_engines"
       ],
       "verification": {
         "historical_suite_tests": 907,
@@ -2446,6 +2989,10 @@
         {
           "path": "topos/review.py",
           "sha256": "0b126bc9e325b9cbcefc71921545117acc026c76b308eb22e4a9248dba2aecbb"
+        },
+        {
+          "path": "topos/cfour_counterpoise.py",
+          "sha256": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143"
         }
       ],
       "acceptance_tests": [
@@ -2526,6 +3073,30 @@
             "test_explicit_derived_optimizer_uses_accepted_real_derivative",
             "test_invalid_accepted_derivative_cannot_support_derived_result"
           ]
+        },
+        {
+          "path": "tests/v010/test_cfour_counterpoise.py",
+          "sha256": "9d7eeb23b753ee98af53f1236f7e33d7dd7cb52841ed762abe3cc0c03cb74638",
+          "test_functions": [
+            "test_leg_inventory_balances_relaxed_total_and_keeps_ghosts_out_of_physical_molecule",
+            "test_all_ghost_centers_follow_every_whole_complex_displacement_and_cache_identity",
+            "test_only_physical_nuclei_contribute_core_orbitals",
+            "test_explicit_high_solver_and_scalar_energies",
+            "test_core_choices_cannot_be_coerced_or_guessed",
+            "test_core_counts_need_correlated_electrons_and_complete_physical_inventory",
+            "test_wrong_scientific_convention_or_missing_core_choices_rejected",
+            "test_ghost_centers_are_separate_from_physical_atom_identity",
+            "test_historical_fixture_hash_geometry_only_and_exact_version_rejection",
+            "test_explicit_native_drop_selection_grammar",
+            "test_unknown_native_core_grammar_is_rejected",
+            "test_relaxed_surface_optimizer_includes_ghost_basis_motion",
+            "test_campaign_boundary_stops_before_any_native_displacement",
+            "test_whole_recipe_runs_sixteen_component_optimizations_without_averaging",
+            "test_native_leg_unavailable_cannot_produce_science",
+            "test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo",
+            "test_real_process_boundary_rejects_input_or_executable_mutation",
+            "test_reviewed_counterpoise_resolution_is_required_before_any_engine"
+          ]
         }
       ],
       "coding_gaps": [],
@@ -2551,19 +3122,19 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-031.** Validate finite values, atom order, `N\u00d73` gradients, `3N\u00d73N` Cartesian Hessians, symmetry tolerance, and derivative consistency. Missing is not zero. Zero gradients can be physical; detect fabrication through provenance/numerical checks, not a nonzero rule. Label projected/constrained quantities separately.",
       "status": "verification-pending",
-      "assessment": "Finite/shape/order checks and physical central-gradient Hessians validate derivative consistency; real xTB Hessians and tamper tests distinguish missing, zero, projected and unstable modes.",
+      "assessment": "Physical central-gradient Hessians preserve displaced native evidence, step-size consistency, modes and stationarity. A native ORCA analytic-Hessian reader/compiler is also implemented and refuses unsupported correlated methods. Real xTB numerical evidence, authentic parser tests and pending licensed ORCA execution are distinguished.",
       "implementation": [
         {
           "path": "topos/thermochemistry.py",
           "sha256": "4b1b5a7907407b024d779b9d827703e5c8ef8fff347d2ffb23ce4ba0178060d1"
         },
         {
-          "path": "topos/native_hessian.py",
-          "sha256": "2c5b7ed59d8380e9e26581f979304b1b9ca151cbdecbf84b748cecd7c99e710a"
-        },
-        {
           "path": "topos/review.py",
           "sha256": "0b126bc9e325b9cbcefc71921545117acc026c76b308eb22e4a9248dba2aecbb"
+        },
+        {
+          "path": "topos/native_hessian.py",
+          "sha256": "2c5b7ed59d8380e9e26581f979304b1b9ca151cbdecbf84b748cecd7c99e710a"
         }
       ],
       "acceptance_tests": [
@@ -2594,7 +3165,7 @@
         },
         {
           "path": "tests/v010/test_native_hessian.py",
-          "sha256": "e18e2472f7e75e768a0216fb1a60e630681075bea14ea96a89dce05dbf96f275",
+          "sha256": "7470d60b91a43f7a20b47638dbef7d16f0d30496c2d2fc899c9346a21f985e25",
           "test_functions": [
             "test_blocked_hessian_retains_mass_provenance_and_exact_mapping",
             "test_incomplete_or_wrong_hessian_never_supplies_modes",
@@ -2722,7 +3293,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-033.** Specify whole-method BSSE policy, fragments/states, observable, and sign. For two fragments at complex geometry:",
       "status": "verification-pending",
-      "assessment": "Five-leg Boys-Bernardi algebra, explicit fragment states, own/ghost bases and raw/CP/half-CP quantities are implemented; exact named-basis identity requires native BASE exporter receipts.",
+      "assessment": "Five-leg Boys\u2013Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H\u2013Ne atoms. Native correlated CFOUR2.1 validation remains outstanding.",
       "implementation": [
         {
           "path": "topos/counterpoise.py",
@@ -2735,6 +3306,14 @@
         {
           "path": "topos/review.py",
           "sha256": "0b126bc9e325b9cbcefc71921545117acc026c76b308eb22e4a9248dba2aecbb"
+        },
+        {
+          "path": "topos/correlated_counterpoise.py",
+          "sha256": "d878abb97343304b5950f4c707b7aee159214b3ed90f5b6e307cafa1f2cb547c"
+        },
+        {
+          "path": "topos/cfour_counterpoise.py",
+          "sha256": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143"
         }
       ],
       "acceptance_tests": [
@@ -2799,11 +3378,53 @@
             "test_nonlinear_projection_and_unstable_mode_classification",
             "test_harmonic_analysis_rejects_nonfinite_classification_thresholds"
           ]
+        },
+        {
+          "path": "tests/v010/test_correlated_counterpoise.py",
+          "sha256": "fe22130040164dc92b6e64e3d198054bd84ca509e7201772750e53bd98570e82",
+          "test_functions": [
+            "test_three_physical_states_use_one_unchanged_full_basis_geometry",
+            "test_ghost_deck_uses_physical_charge_and_all_exported_orbital_and_fitting_centers",
+            "test_r2_energy_cannot_be_relabelled_as_f12_or_different_method",
+            "test_physical_atom_inventory_requires_exact_indices",
+            "test_ghost_state_cannot_replace_the_fragment_state",
+            "test_open_shell_fragments_are_not_silently_promoted_to_rhf",
+            "test_native_exports_require_exact_basis_names_distributions_and_bytes",
+            "test_missing_orca_cannot_produce_any_correlated_cp_energy",
+            "test_prelaunch_cancellation_or_deadline_produces_no_cp_sum",
+            "test_named_correlated_basis_export_still_requires_actual_distribution_authority",
+            "test_correlated_export_extension_does_not_accept_freeform_basis_or_shell_text"
+          ]
+        },
+        {
+          "path": "tests/v010/test_cfour_counterpoise.py",
+          "sha256": "9d7eeb23b753ee98af53f1236f7e33d7dd7cb52841ed762abe3cc0c03cb74638",
+          "test_functions": [
+            "test_leg_inventory_balances_relaxed_total_and_keeps_ghosts_out_of_physical_molecule",
+            "test_all_ghost_centers_follow_every_whole_complex_displacement_and_cache_identity",
+            "test_only_physical_nuclei_contribute_core_orbitals",
+            "test_explicit_high_solver_and_scalar_energies",
+            "test_core_choices_cannot_be_coerced_or_guessed",
+            "test_core_counts_need_correlated_electrons_and_complete_physical_inventory",
+            "test_wrong_scientific_convention_or_missing_core_choices_rejected",
+            "test_ghost_centers_are_separate_from_physical_atom_identity",
+            "test_historical_fixture_hash_geometry_only_and_exact_version_rejection",
+            "test_explicit_native_drop_selection_grammar",
+            "test_unknown_native_core_grammar_is_rejected",
+            "test_relaxed_surface_optimizer_includes_ghost_basis_motion",
+            "test_campaign_boundary_stops_before_any_native_displacement",
+            "test_whole_recipe_runs_sixteen_component_optimizations_without_averaging",
+            "test_native_leg_unavailable_cannot_produce_science",
+            "test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo",
+            "test_real_process_boundary_rejects_input_or_executable_mutation",
+            "test_reviewed_counterpoise_resolution_is_required_before_any_engine"
+          ]
         }
       ],
       "coding_gaps": [],
       "additional_acceptance_conditions": [
-        "hosted_orca"
+        "hosted_orca",
+        "external_engines"
       ],
       "verification": {
         "historical_suite_tests": 907,
@@ -2822,7 +3443,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-034.** Separate electronic energy, ZPE, thermal enthalpy, entropy, solvation, standard-state correction, and Gibbs energy. A justified mixed-level construction is `G=Ehigh+(Glow\u2212Elow)`, not `Ehigh+Glow`. Record scaling, imaginary-mode policy, quasi-RRHO/rotors, uncertainty. For frozen/constrained geometries, declare the Hessian subspace, constraints, and thermal model; do not automatically apply whole-molecule RRHO. Distinguish excluded rigid motions and numerical near-zero modes from genuine unstable modes. A full-dimensional minimum claim requires the appropriate stationary-point/mode validation; a constrained minimum establishes stability only in its allowed subspace. Electronic-energy weights are not full thermodynamic populations. [S06](TOPOS_0.1.0_REFERENCES.md#s06)",
       "status": "verification-pending",
-      "assessment": "Electronic, ZPE, enthalpy, entropy and standard-state terms remain separate; mixed-level Gibbs subtracts low-level E; constrained/unstable full RRHO is refused, and physical models are explicitly labelled.",
+      "assessment": "Electronic, ZPE, enthalpy, entropy and standard-state terms are separate. RRHO, labelled frequency-floor sensitivity and native VPT2 adapters exist; constrained full-dimensional RRHO/VPT2 is refused without a defined stationary model. Genuine CREST entropy and xTB thermal workflows have local evidence; native ORCA anharmonic acceptance remains separate.",
       "implementation": [
         {
           "path": "topos/thermochemistry.py",
@@ -2838,7 +3459,11 @@
         },
         {
           "path": "topos/anharmonic.py",
-          "sha256": "72b785b5a57bf2cfc7405276492bf54438184d3aedb9a1c820df784b5eab00ff"
+          "sha256": "4ad99b77180fa8d38c902f306de9eee7d7228bec06c20e21fa9cdc39a81be163"
+        },
+        {
+          "path": "topos/entropy.py",
+          "sha256": "6012bd2c8cb985f2ae91019cdaae75ae4bb998432f2c7c6a4c1ee9953a5fda39"
         }
       ],
       "acceptance_tests": [
@@ -2880,7 +3505,7 @@
         },
         {
           "path": "tests/v010/test_anharmonic.py",
-          "sha256": "14e18e1a5837ee5858cbccea59a474e646b5e569541662e1f9a32a7429f5e3bd",
+          "sha256": "4f21c9e1ec3053488310668a7beff640af3652d9b9e4798838ba89e924f7ad51",
           "test_functions": [
             "test_public_native_vpt2_tables_preserve_rovibration_and_zero_point",
             "test_inconsistent_or_missing_anharmonic_tables_rejected",
@@ -2890,6 +3515,21 @@
             "test_missing_declaration_and_binary_do_not_create_anharmonic_values",
             "test_anharmonic_and_dispersion_citations_require_actual_execution",
             "test_authentic_orca_vpt2_water_and_completed_recovery"
+          ]
+        },
+        {
+          "path": "tests/v010/test_entropy.py",
+          "sha256": "5e2c460db20227e95381a5c46ffc686265cd8c9e296cba222243bf6d54030461",
+          "test_functions": [
+            "test_equal_energy_distinct_microstates_have_r_log_n_entropy",
+            "test_partition_shift_invariance_and_cold_limit",
+            "test_no_invented_degeneracy",
+            "test_native_entropy_definitions_remain_separate_and_traceable",
+            "test_incomplete_or_inconsistent_entropy_rejected",
+            "test_entropy_native_keywords_and_unsupported_temperature",
+            "test_authentic_crest_entropy_water",
+            "test_authentic_completed_crest_entropy_reused_when_partner_unavailable",
+            "test_later_engine_provisioning_preserves_protocol_without_executing_marker"
           ]
         }
       ],
@@ -2994,7 +3634,7 @@
         },
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3014,7 +3654,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         }
       ],
@@ -3310,7 +3952,7 @@
         },
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3330,7 +3972,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         }
       ],
@@ -3413,7 +4057,7 @@
         },
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3433,7 +4077,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         }
       ],
@@ -3510,12 +4156,13 @@
             "test_artifact_redirect_rejects_unexpected_destinations",
             "test_queue_accounting_is_independently_bound_to_server_timestamp",
             "test_forged_queue_origin_cannot_extend_execution_budget",
-            "test_queue_request_requires_valid_server_creation_time"
+            "test_queue_request_requires_valid_server_creation_time",
+            "test_abcluster_cannot_dispatch_without_a_hosted_rigidmol_installation"
           ]
         },
         {
           "path": "tests/v010/test_compute_worker.py",
-          "sha256": "741438446cc083cd5fddd19b356dcd6070067b9ef738c57e9f83e6add850df87",
+          "sha256": "62558370bdc71495ba563a47308224eecf8a371d1239f2c950acba58b583b082",
           "test_functions": [
             "test_worker_preserves_original_and_explicitly_localizes_only_execution",
             "test_worker_rejects_out_of_contract_requests",
@@ -3527,7 +4174,8 @@
             "test_unknown_or_unregistered_matrix_row_cannot_reach_provisioning",
             "test_shared_preflight_cli_allows_free_matrix_without_license_and_gates_orca",
             "test_free_matrix_worker_does_not_require_orca_license",
-            "test_expired_queue_budget_commits_no_attempt_without_constructing_workflow"
+            "test_expired_queue_budget_commits_no_attempt_without_constructing_workflow",
+            "test_explicit_reference_energy_branch_requires_orca_without_claiming_geometry"
           ]
         },
         {
@@ -3657,7 +4305,7 @@
       "acceptance_tests": [
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3677,7 +4325,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         },
         {
@@ -3730,8 +4380,8 @@
     "TOPOS-010-044": {
       "chapter": "11. Human review and TORQ handoff",
       "requirement_source": "**TOPOS-010-044.** Handoff includes versioned member/geometry IDs, maps/states/protocols/constraints, review/uncertainty, digests. TORQ acknowledges the exact manifest/schema. Reject incompatible/incomplete handoffs; changes create a new ensemble version. Search provenance does not guarantee TORQ never needs more sampling.",
-      "status": "partial",
-      "assessment": "TOPOS emits a portable versioned producer manifest and verifies exact external member/geometry/schema acknowledgment without creating fake consumer success.",
+      "status": "verification-pending",
+      "assessment": "TOPOS emits a portable versioned producer manifest. The minimal TORQ companion patch now durably imports exact members and produces a real acknowledgment; actual installed-wheel xTB round trip and seven contract tests passed, with computation_performed=false.",
       "implementation": [
         {
           "path": "topos/review.py",
@@ -3745,7 +4395,7 @@
       "acceptance_tests": [
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3765,7 +4415,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         },
         {
@@ -3782,12 +4434,8 @@
           ]
         }
       ],
-      "coding_gaps": [
-        "The current TORQ companion does not yet implement the versioned consumer/acknowledgment contract."
-      ],
-      "additional_acceptance_conditions": [
-        "torq_consumer"
-      ],
+      "coding_gaps": [],
+      "additional_acceptance_conditions": [],
       "verification": {
         "historical_suite_tests": 907,
         "listed_files_match_historical_execution": false,
@@ -3798,8 +4446,20 @@
         {
           "path": "../.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
+        },
+        {
+          "path": "../.docs/evidence/TOPOS_TORQ_CONSUMPTION_20261007.json",
+          "sha256": "6967bfdd7ded0c577f3847802dabb15107411ca1a79510fba96761387bf9966f"
         }
-      ]
+      ],
+      "companion_implementation": {
+        "repository": "ProfJJK-CoChem/CoChem-TORQ",
+        "commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+        "pull_request": "https://github.com/ProfJJK-CoChem/CoChem-TORQ/pull/1",
+        "module": "Libraries/cochem_torq_topos_handoff.py",
+        "sha256": "fe7fb0c45d35c0190b42c948b790df4f92c447ab52b6185686b096426c293ca8",
+        "scope": "Actual durable consumer import and acknowledgment; no scientific TORQ calculation"
+      }
     },
     "TOPOS-010-045": {
       "chapter": "12. Publication and academic rigor",
@@ -3846,7 +4506,7 @@
         },
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3866,7 +4526,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         },
         {
@@ -3934,7 +4596,7 @@
         },
         {
           "path": "topos/references.py",
-          "sha256": "0a06a92263569b266cfc41b4994b5241013c0421146d585cc6251fb3f8311fad"
+          "sha256": "edeadb2519a9da12c107a74a3fb0fc515f846f331fb082b9ac9123a95e117f9b"
         }
       ],
       "acceptance_tests": [
@@ -3967,7 +4629,7 @@
         },
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -3987,7 +4649,9 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         }
       ],
@@ -4017,12 +4681,12 @@
     "TOPOS-010-047": {
       "chapter": "12. Publication and academic rigor",
       "requirement_source": "**TOPOS-010-047.** Cite actual software, numerical methods, basis/parameters/models, reference data, and observables. Distinguish peer review, preprints, documentation, policy, unverified manuscripts. Preserve software credit separately from preferred papers. CFF and optional validated RO-Crate/CodeMeta support discovery, not chemical validation. [S09](TOPOS_0.1.0_REFERENCES.md#s09), [S10](TOPOS_0.1.0_REFERENCES.md#s10)",
-      "status": "partial",
-      "assessment": "Executed attempts drive software/method/model citations and retain failed execution credit; bibliography presence never asserts execution. New correlated/ML/external recipes require complete actual-method coverage.",
+      "status": "verification-pending",
+      "assessment": "Actual executed attempts drive ORCA6, xTB, CREST, GOAT, ABCluster, MolSym, correlated/basis, external-engine and ML artifact citations. Configuring a method does not earn execution credit. Authors must still review scientific attribution and model/data rights; bibliography presence never proves computation.",
       "implementation": [
         {
           "path": "topos/references.py",
-          "sha256": "0a06a92263569b266cfc41b4994b5241013c0421146d585cc6251fb3f8311fad"
+          "sha256": "edeadb2519a9da12c107a74a3fb0fc515f846f331fb082b9ac9123a95e117f9b"
         },
         {
           "path": "topos/publication.py",
@@ -4032,7 +4696,7 @@
       "acceptance_tests": [
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -4052,13 +4716,13 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         }
       ],
-      "coding_gaps": [
-        "Citation audit for newly added ML/correlated/external methods is being completed."
-      ],
+      "coding_gaps": [],
       "additional_acceptance_conditions": [],
       "verification": {
         "historical_suite_tests": 907,
@@ -4089,13 +4753,13 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "f80d534abc86721015a6baf6a483b024646725caa5364e44cf6c7bb3e84c65da"
+          "sha256": "eef533f05e94a1deddcd5307216ca68449dfff401ddd5b80d29352f95b8a5ada"
         }
       ],
       "acceptance_tests": [
         {
           "path": "tests/v010/test_completion_io.py",
-          "sha256": "726333bad70bea784a8957e6ec266035ba2298a59b0346a563b1639322d5d044",
+          "sha256": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
           "test_functions": [
             "test_handoff_preserves_complete_state_and_does_not_acknowledge_consumer",
             "test_handoff_rejects_stale_corrupt_and_incomplete_content",
@@ -4115,15 +4779,18 @@
             "test_browser_exposes_advanced_protocols_and_matrix_without_engine_claims",
             "test_rehashed_outer_bundle_cannot_replace_original_scientific_evidence",
             "test_publication_sampling_sensitivity_uses_only_reviewed_members_and_unknown_missing_states",
-            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions"
+            "test_publication_sampling_sensitivity_missing_state_bound_requires_explicit_assumptions",
+            "test_model_credit_requires_execution_and_preserves_checkpoint_identity",
+            "test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
           ]
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "76977836e78cdfbfeddba00a336479e5a245866fd4c4975f238c1d73c426cd4e",
+          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
+            "test_native_provisioning_patch_is_distributed_and_binds_source_identity",
             "test_wheel_normalization_changes_metadata_not_payload_or_record",
             "test_source_archive_normalization_is_repeatable_and_preserves_bytes",
             "test_release_installation_verifies_all_local_wheels_and_ownership",
@@ -4131,7 +4798,12 @@
             "test_clean_install_inventory_detects_identical_shared_files_too",
             "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
-            "test_source_identity_is_content_based_and_ignores_local_caches"
+            "test_source_identity_is_content_based_and_ignores_local_caches",
+            "test_worker_source_inventory_rejects_namespace_symlinks",
+            "test_worker_installer_refuses_controller_ownership_before_pip",
+            "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
+            "test_release_gate_composes_only_exact_same_source_named_test_results",
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
           ]
         }
       ],
@@ -4166,7 +4838,7 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "f80d534abc86721015a6baf6a483b024646725caa5364e44cf6c7bb3e84c65da"
+          "sha256": "eef533f05e94a1deddcd5307216ca68449dfff401ddd5b80d29352f95b8a5ada"
         }
       ],
       "acceptance_tests": [
@@ -4252,10 +4924,11 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "76977836e78cdfbfeddba00a336479e5a245866fd4c4975f238c1d73c426cd4e",
+          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
+            "test_native_provisioning_patch_is_distributed_and_binds_source_identity",
             "test_wheel_normalization_changes_metadata_not_payload_or_record",
             "test_source_archive_normalization_is_repeatable_and_preserves_bytes",
             "test_release_installation_verifies_all_local_wheels_and_ownership",
@@ -4263,7 +4936,12 @@
             "test_clean_install_inventory_detects_identical_shared_files_too",
             "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
-            "test_source_identity_is_content_based_and_ignores_local_caches"
+            "test_source_identity_is_content_based_and_ignores_local_caches",
+            "test_worker_source_inventory_rejects_namespace_symlinks",
+            "test_worker_installer_refuses_controller_ownership_before_pip",
+            "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
+            "test_release_gate_composes_only_exact_same_source_named_test_results",
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
           ]
         }
       ],
@@ -4283,7 +4961,18 @@
         {
           "path": "../.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5"
+        },
+        {
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b"
         }
+      ],
+      "observed_native_evidence": [
+        "AIMNet2 0.2.0 genuine four-member CPU committee, 75 frames; derivative/rigid-transformation checks passed, not BASE/GPU/accuracy certification"
       ]
     },
     "TOPOS-010-050": {
@@ -4294,16 +4983,17 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "f80d534abc86721015a6baf6a483b024646725caa5364e44cf6c7bb3e84c65da"
+          "sha256": "eef533f05e94a1deddcd5307216ca68449dfff401ddd5b80d29352f95b8a5ada"
         }
       ],
       "acceptance_tests": [
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "76977836e78cdfbfeddba00a336479e5a245866fd4c4975f238c1d73c426cd4e",
+          "sha256": "5fa5b04183bcd6a61b80abb1596e69623631e449fd643c2b45fc102932dfdc30",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
+            "test_native_provisioning_patch_is_distributed_and_binds_source_identity",
             "test_wheel_normalization_changes_metadata_not_payload_or_record",
             "test_source_archive_normalization_is_repeatable_and_preserves_bytes",
             "test_release_installation_verifies_all_local_wheels_and_ownership",
@@ -4311,7 +5001,12 @@
             "test_clean_install_inventory_detects_identical_shared_files_too",
             "test_gate_refuses_missing_evidence_and_current_unimplemented_matrix",
             "test_forged_top_level_pass_flags_cannot_replace_source_and_native_evidence",
-            "test_source_identity_is_content_based_and_ignores_local_caches"
+            "test_source_identity_is_content_based_and_ignores_local_caches",
+            "test_worker_source_inventory_rejects_namespace_symlinks",
+            "test_worker_installer_refuses_controller_ownership_before_pip",
+            "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
+            "test_release_gate_composes_only_exact_same_source_named_test_results",
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
           ]
         }
       ],

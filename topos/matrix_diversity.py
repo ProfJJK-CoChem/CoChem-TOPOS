@@ -30,6 +30,8 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
     previous = [a for a in record.attempts if a.metadata.get("matrix_diversity_identity") == identity and a.status == "completed"]
     if previous:
         attempt = previous[-1]
+        if digest_json(attempt.metadata['native_sampling_result']) != attempt.metadata['native_sampling_result_sha256']:
+            raise IntegrityError('Completed diversity sampling result identity changed')
         for artifact in attempt.artifacts:
             path = store.run_dir / artifact.path
             if path.is_symlink() or not path.resolve().is_relative_to(store.run_dir) or not path.is_file() or file_digest(path) != artifact.sha256:
@@ -73,6 +75,7 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
     attempt.command, attempt.engine_version, attempt.diagnostics = result.command, result.engine_version, result.diagnostics
     attempt.metadata.update(result.metadata)
     attempt.metadata["native_sampling_result"] = result.model_dump(mode="json")
+    attempt.metadata["native_sampling_result_sha256"] = digest_json(attempt.metadata["native_sampling_result"])
     attempt.artifacts = [a.model_copy(update={"path": Path(a.path).relative_to(store.run_dir).as_posix()}) for a in result.artifacts]
     attempt.validation_status = "validated-for-protocol" if result.status == "completed" else "not-evaluated"
     store.commit(record)
@@ -84,7 +87,7 @@ def _sample(workflow, record, store, seed, index, engine, inputs, deadline, canc
 
 
 def execute_diversity_recipe(workflow, record, store, inputs, child, deadline: float, cancel_event: Event | None) -> bool:
-    from .matrix_workflow import _validate_ensemble
+    from .matrix_workflow import _validate_ensemble, _validate_sampled_geometry
 
     protocol = reranking_protocol(inputs.correlated_protocol)
     _validate_ensemble(record.request.molecule, inputs.topology_seeds, minimum=3, distinct=True)
@@ -96,6 +99,7 @@ def execute_diversity_recipe(workflow, record, store, inputs, child, deadline: f
                 return False
             counts.append({"seed_index": index, "engine": engine, "native_frames": len(sampled.ensemble)})
             for source in sampled.ensemble:
+                _validate_sampled_geometry(record.request.molecule, source.molecule)
                 # All native SloppyOpt/v4 structures acquire one common actual
                 # geometry/energy protocol before duplicate comparison.
                 task = f"diversity-refine-{index:04d}-{engine}-{source.source_index:06d}"

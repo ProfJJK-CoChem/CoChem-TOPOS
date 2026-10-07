@@ -1,0 +1,10 @@
+{
+  "url": "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/psi-ghost-grad/output.ref",
+  "source_sha256": "f438bcb0f7651a4738663c869f436994af6b3c365794a49b0ecec398927b3495",
+  "fixture": "historical-1.2-ghost.stdout",
+  "sha256": "f11b7124cd2ca12004334cdf6465139c180e5a72b1564d7d3ca6206d0f11c3bd",
+  "selection": "Unchanged bytes from first version 1.2 heading to immediately before second version 1.2 heading. Historical GH geometry grammar only, not a 2.1 correlated acceptance fixture.",
+  "native_version": "1.2",
+  "native_method": "MP2",
+  "native_calculation_performed_in_this_environment": false
+}

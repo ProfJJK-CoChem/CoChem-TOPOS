@@ -276,6 +276,8 @@ class Workflow:
                 engines = set() if request.purpose == "matrix" else {request.engine}
                 if request.search_algorithm in {"crest", "union"}:
                     engines.update({"crest", "xtb"})
+                elif request.search_algorithm == "abcluster":
+                    engines.add("abcluster")
                 for engine in engines:
                     self.config.executables[engine] = self.base_runtime.resolve_executable(
                         engine, self.config.executables.get(engine)
@@ -572,14 +574,16 @@ class Workflow:
                 }
                 for index in range(1, request.n_candidates)
             )
-        if request.search_algorithm in {"crest", "union"}:
+        if request.search_algorithm in {"crest", "union", "abcluster"}:
             from .sampling import run_crest
 
+            classical = request.search_algorithm == "abcluster"
+            sampler_name = "ABCluster" if classical else "CREST"
             old = [a for a in record.attempts if a.metadata.get("role") == "sampler"]
             attempt = Attempt(
                 run_id=record.run_id,
-                engine="crest",
-                method="GFN2-xTB",
+                engine="abcluster" if classical else "crest",
+                method="CHARMM-pairwise-rigid" if classical else "GFN2-xTB",
                 parent_attempt_id=old[-1].attempt_id if old else None,
                 status="running",
                 started_at=utc_now(),
@@ -597,24 +601,34 @@ class Workflow:
                 )
                 attempt.finished_at = utc_now()
                 record.status = attempt.status
-                record.metadata["termination_reason"] = "Stopped before CREST sampling"
+                record.metadata["termination_reason"] = "Stopped before " + sampler_name + " sampling"
                 return None
-            result = run_crest(
-                request.molecule,
-                request.method_spec,
-                request.resources.model_copy(
-                    update={"budget_seconds": remaining * request.sampler_budget_fraction}
-                ),
-                store.run_dir / "attempts" / attempt.attempt_id,
-                seed=None,
-                cancel_event=cancel_event,
-                executable=self.config.executables.get("crest"),
-                xtb_executable=self.config.executables.get("xtb"),
-                profile=request.sampler_profile,
-                nci=request.sampler_nci,
-                energy_window_kcal_mol=request.energy_window_kcal_mol,
-                process_runner=self.base_runtime.run_process if self.base_runtime else None,
-            )
+            if classical:
+                from .abcluster import run_rigidmol
+
+                result = run_rigidmol(
+                    request.molecule, request.abcluster_options,
+                    request.resources.model_copy(update={"budget_seconds": remaining * request.sampler_budget_fraction}),
+                    store.run_dir / "attempts" / attempt.attempt_id,
+                    executable=self.config.executables.get("abcluster"), cancel_event=cancel_event,
+                    process_runner=self.base_runtime.run_process if self.base_runtime else None)
+            else:
+                result = run_crest(
+                    request.molecule,
+                    request.method_spec,
+                    request.resources.model_copy(
+                        update={"budget_seconds": remaining * request.sampler_budget_fraction}
+                    ),
+                    store.run_dir / "attempts" / attempt.attempt_id,
+                    seed=None,
+                    cancel_event=cancel_event,
+                    executable=self.config.executables.get("crest"),
+                    xtb_executable=self.config.executables.get("xtb"),
+                    profile=request.sampler_profile,
+                    nci=request.sampler_nci,
+                    energy_window_kcal_mol=request.energy_window_kcal_mol,
+                    process_runner=self.base_runtime.run_process if self.base_runtime else None,
+                )
             attempt.status, attempt.converged = result.status, result.converged
             attempt.finished_at = utc_now()
             attempt.command, attempt.engine_version = result.command, result.engine_version
@@ -624,7 +638,7 @@ class Workflow:
             attempt.metadata["potential_engine_version"] = result.potential_engine_version
             attempt.metadata["raw_ensemble"] = [c.model_dump(mode="json") for c in result.ensemble]
             attempt.metadata["topos_seed_scope"] = (
-                "jiggle perturbations only; CREST randomness is engine-controlled"
+                "jiggle perturbations only; native " + sampler_name + " randomness is engine-controlled"
             )
             attempt.diagnostics = result.diagnostics
             attempt.artifacts = [
@@ -640,7 +654,7 @@ class Workflow:
             if result.status != "completed":
                 record.status = result.status
                 record.metadata["termination_reason"] = result.diagnostics.get(
-                    "reason", "CREST did not complete its native search protocol"
+                    "reason", sampler_name + " did not complete its native search protocol"
                 )
                 # Both sources were explicitly requested. A failed CREST search
                 # does not erase the separately requested jiggle–quench branch.
@@ -666,10 +680,11 @@ class Workflow:
             plans.extend(
                 {
                     "molecule": c.molecule.model_dump(mode="json"),
-                    "source": "CREST",
+                    "source": sampler_name.upper(),
                     "sampler_attempt_id": attempt.attempt_id,
                     "source_frame": c.source_index,
                     "search_energy_hartree": c.energy_hartree,
+                    "search_energy_definition": "classical intermolecular score, not electronic energy" if classical else "native GFN2-xTB search electronic energy",
                 }
                 for c in selected
             )
@@ -683,6 +698,10 @@ class Workflow:
                 if c.source_index not in included
             ]
             record.metadata["citations"].extend(
+                [{"kind": "software", "title": "ABCluster rigidmol", "version": result.engine_version,
+                  "url": result.metadata["manual"]},
+                 {"kind": "force-field-parameter-source", "title": request.abcluster_options.parameter_source,
+                  "url": result.metadata["force_field_manual"]}] if classical else
                 [
                     {
                         "kind": "software",
@@ -706,7 +725,7 @@ class Workflow:
             )
         record.metadata["sample_plan"] = plans
         record.metadata["refinement_cap_scope"] = (
-            "n_candidates total for jiggle-quench; up to n_candidates native lowest-energy CREST frames plus input; union contains both, without implicit completeness"
+            "n_candidates total for jiggle-quench; up to n_candidates native lowest-score sampler frames plus input; union contains jiggle and CREST, without implicit completeness"
         )
         return plans
 

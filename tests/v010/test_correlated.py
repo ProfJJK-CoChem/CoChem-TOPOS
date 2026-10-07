@@ -5,6 +5,7 @@ import pytest
 
 from topos.correlated import (
     CorrelatedMethod,
+    _stationarity,
     correlated_input,
     parse_correlated_output,
     parse_led,
@@ -55,10 +56,28 @@ def test_f12_orbital_basis_does_not_select_an_f12_hamiltonian():
 def test_canonical_analytic_gradient_selects_autoci_and_preserves_explicit_core():
     protocol = method(method="AUTOCI-CCSD(T)", operation="optimize", frozen_core=False)
     deck = correlated_input(water(), protocol, ResourceLimits(threads=1, memory_mb=2048))
-    assert "AUTOCI-CCSD(T)" in deck and "Opt Engrad" in deck
+    assert "AUTOCI-CCSD(T)" in deck and " Opt" in deck and "Engrad" not in deck
+    gradient = correlated_input(water(), protocol.model_copy(update={"operation": "gradient"}), ResourceLimits())
+    assert " Engrad" in gradient and " Opt" not in gradient
     assert "NoFrozenCore" in deck and "%mdci" not in deck
     assert "%maxcore 1536" in deck
     assert "TolMaxG 1e-5" in deck and "TolRMSG 3e-6" in deck
+
+
+def test_final_correlated_stationarity_checks_both_maximum_and_rms():
+    # Pure gradient mathematics, not a simulated engine or geometry acceptance.
+    assert _stationarity([[0., 0., 0.]])["passed"]
+    low_max_high_rms = _stationarity([[4e-6, 4e-6, 4e-6]])
+    assert low_max_high_rms["max_gradient_hartree_per_bohr"] < 1e-5
+    assert not low_max_high_rms["passed"]
+    sparse = [[0., 0., 0.] for _ in range(10)]
+    sparse[0][0] = 1.1e-5
+    high_max_low_rms = _stationarity(sparse)
+    assert high_max_low_rms["rms_gradient_hartree_per_bohr"] < 3e-6
+    assert not high_max_low_rms["passed"]
+    for malformed in ([], [[0., 0.]], [[float("nan"), 0., 0.]]):
+        with pytest.raises(EngineParseError):
+            _stationarity(malformed)
 
 
 def test_f12_never_exposes_unavailable_orca_gradient():

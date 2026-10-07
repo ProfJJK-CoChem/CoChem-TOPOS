@@ -132,6 +132,34 @@ def parse_orca_vpt2(text: str, *, vibrational_modes: int) -> dict[str, Any]:
             'manual': VPT2_MANUAL, 'parser_format_source': PARSER_SOURCE}
 
 
+def parse_orca_vpt2_geometry(text: str, *, natoms: int) -> dict[str, Any]:
+    """Read the equilibrium geometry in the VPT2 principal-axis frame.
+
+    ORCA explicitly rotates the input before building its force field. This
+    final Geometry table carries the updated VPT2 atomic masses, whereas a
+    preceding ordinary Freq calculation may use different default masses.
+    The run adapter separately proves rigid equivalence to its input.
+    """
+    if 'ORCA VPT2/GVPT2 Analysis' not in text:
+        raise EngineParseError('native VPT2 analysis missing')
+    analysis = text.rsplit('ORCA VPT2/GVPT2 Analysis', 1)[1]
+    match = re.search(r'Coordinates in Angstroem\s*\n-+\s*\nAtom\s+x\s+y\s+z\s+Mass \[u\]\s*\n-+\s*\n(.*?)\n-+', analysis, re.S)
+    if match is None:
+        raise EngineParseError('native VPT2 equilibrium geometry/mass table missing')
+    rows = [line.split() for line in match[1].splitlines() if line.strip()]
+    if len(rows) != natoms or any(len(row) != 5 or not re.fullmatch('[A-Z][a-z]?', row[0]) for row in rows):
+        raise EngineParseError('native VPT2 geometry atom count or row invalid')
+    masses = [_number(row[4]) for row in rows]
+    if min(masses) <= 0:
+        raise EngineParseError('native VPT2 masses must be positive')
+    return {'symbols': [row[0] for row in rows],
+            'coordinates_angstrom': [[_number(v) for v in row[1:4]] for row in rows],
+            'masses_amu': masses, 'coordinate_frame': 'native VPT2 principal axes',
+            'geometry_role': 'equilibrium input after rigid principal-axis transformation',
+            'mass_source': 'native VPT2 Geometry table Mass [u]',
+            'mass_precision_amu': 1e-6, 'coordinate_precision_angstrom': 1e-9}
+
+
 def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLimits,
                   workdir: str | Path, *, executable: str | Path | None = None,
                   process_runner: Callable[..., Any] | None = None, cancel_event: Event | None = None,
@@ -223,11 +251,25 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         force_field = native / 'anharmonic.vpt2'
         if not force_field.is_file() or force_field.stat().st_size == 0:
             raise EngineParseError('native VPT2 force-field artifact missing')
-        parsed_hessian = parse_orca_hessian(native / 'anharmonic.hess', molecule)
-        if not np.allclose(parsed_hessian['hessian_hartree_per_bohr2'], reference.metadata['hessian_hartree_per_bohr2'], atol=1e-7, rtol=1e-6):
+        from .rotational_transfer import proper_alignment, rotate_cartesian_hessian
+
+        geometry = parse_orca_vpt2_geometry(raw, natoms=len(molecule.symbols))
+        if geometry['symbols'] != molecule.symbols:
+            raise EngineParseError('native VPT2 atom order differs from reference')
+        alignment = proper_alignment(geometry['coordinates_angstrom'], molecule.coordinates, geometry['masses_amu'])
+        if alignment['max_atom_displacement_angstrom'] > 2e-7:
+            raise EngineParseError('native VPT2 geometry is not the reference under a proper rigid rotation')
+        native_molecule = molecule.model_copy(update={'coordinates': geometry['coordinates_angstrom']})
+        parsed_hessian = parse_orca_hessian(native / 'anharmonic.hess', native_molecule)
+        rotated_hessian = rotate_cartesian_hessian(parsed_hessian['hessian_hartree_per_bohr2'],
+                                                   alignment['rotation_source_to_target'])
+        if not np.allclose(rotated_hessian, reference.metadata['hessian_hartree_per_bohr2'], atol=1e-7, rtol=1e-6):
             raise EngineParseError('VPT2 native reference Hessian differs from its same-level stationary reference')
         result.metadata['vpt2'] = parse_orca_vpt2(raw, vibrational_modes=3 * len(molecule.symbols) - 6)
-        result.metadata['native_masses_amu'] = parsed_hessian['native_masses_amu']
+        result.metadata['vpt2_geometry'] = geometry
+        result.metadata['vpt2_reference_alignment'] = alignment
+        result.metadata['hessian_masses_amu'] = parsed_hessian['native_masses_amu']
+        result.metadata['native_masses_amu'] = geometry['masses_amu']
         result.metadata['native_force_field'] = str(force_field)
         pickett = native / 'pickett.txt'
         if not pickett.is_file() or pickett.stat().st_size == 0:

@@ -10,8 +10,15 @@ EXECUTABLE_ROWS = {
     "T1-1mo",
     "T5-1w",
     "T3C-3d",
+    "T1-30min",
+    "T3C-1w",
+    "T1-1w",
+    "T3O-1d", "T3O-1mo",
+    "T5-3h",
+    "T3O-1w",
+    "T3O-3h",
 }
 
 # Native reference-energy branch is useful, but does not implement the row's
 # alternative Molpro optimized reference geometry.
-IMPLEMENTED_BRANCH_ROWS = {"T3O-1mo"}
+IMPLEMENTED_BRANCH_ROWS = {"T3O-1mo", "T3C-1mo"}

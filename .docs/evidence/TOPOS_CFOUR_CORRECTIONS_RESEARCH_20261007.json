@@ -1,0 +1,65 @@
+{
+  "retrieved_date": "2026-10-07",
+  "sources": [
+    {
+      "name": "psi4-options.cc",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc",
+      "status": 200,
+      "bytes": 298984,
+      "sha256": "4c90f0223e9a0203b8dc626ec0976ccb27dbd555d0f2f7c2d5070d590c26f093"
+    },
+    {
+      "name": "ash-cfour.rst",
+      "url": "https://raw.githubusercontent.com/RagnarB83/ash-documentation/1230964f43ebe62fa894527794d9b85b39ecbf96/docs/CFour-interface.rst",
+      "status": 200,
+      "bytes": 14589,
+      "sha256": "d95290d53f62ef7b24e0def354e90eb26c246b2c58a1da2afc48302de19dd7b2"
+    },
+    {
+      "name": "carbon13-failed.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/C/DBOC/aug-cc-pCVDZ-NR/CFOUR_13C.txt",
+      "status": 200,
+      "bytes": 98426,
+      "sha256": "f3c1a1c6d36e5ba2b12b0635691231c1e7a295a203d414007908e74fdc855d4b"
+    },
+    {
+      "name": "manual-relativistic.html",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "name": "manual-dboc.html",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "name": "manual-isotopes.html",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+    },
+    {
+      "name": "ne-x2c.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/Ne/x2c-unc/2z/ccsd.txt",
+      "sha256": "9c4ff77c6bb6894171fae26ff7fcc3deaf896a435e97a60cf88f3717cc413e32",
+      "bytes": 42929
+    },
+    {
+      "name": "carbonplus13-dboc.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/C%2B/DBOC/aug-cc-pCV2Z-NR/CFOUR_CCSD_13C.txt",
+      "sha256": "1352cc3cf6b320d451b387789f84cc2622fb595e23c0748869633838f57bfaef",
+      "bytes": 97366
+    },
+    {
+      "name": "carbon12-dboc.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/C/DBOC/aug-cc-pCVDZ-NR/CFOUR.txt",
+      "sha256": "36769a2b979f080c9121be0ee2b4b68cc9f5109a52f127d93d8aa9ebaf6241b7",
+      "bytes": 97303
+    },
+    {
+      "name": "ash-interface-cfour.py",
+      "url": "https://raw.githubusercontent.com/RagnarB83/ash/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py",
+      "status": 200,
+      "sha256": "507dde39ff974919da9a78deb895a1efde09bde2b08ba3e798c6df296d8859af",
+      "bytes": 37094
+    }
+  ],
+  "native_cfour_2_1_executed": false,
+  "mass_resolved_dboc_executed": false
+}
