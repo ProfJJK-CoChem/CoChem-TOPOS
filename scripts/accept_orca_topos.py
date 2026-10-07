@@ -314,9 +314,12 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
             # 1,005 DFT gradients in only its first global cycle before timing
             # out in cycle two at 1,200 s. Three global cycles are not three
             # local optimizations; retain the native algorithm and finite gate.
+            # An actual subsequent cap=3 trial terminated normally after all
+            # three minimum cycles, before native global convergence. Permit
+            # checks beyond MINGLOBALITER within the same 4,800-second ceiling.
             native_budget = remaining(GOAT_ACCEPTANCE_BUDGET_SECONDS)
             result = run_goat(molecule, method, resources.model_copy(update={"budget_seconds": native_budget}), folder,
-                              executable=binary, process_runner=runtime.run_process, deterministic=True, max_global_iterations=3)
+                              executable=binary, process_runner=runtime.run_process, deterministic=True, max_global_iterations=8)
             payload = result.model_dump(mode="json")
             sealed = _archive_native(folder, molecule, method, payload, [{"role": "native-goat-search", "result": payload}])
             report["runs"].append(_verify_run(sealed, identity))
