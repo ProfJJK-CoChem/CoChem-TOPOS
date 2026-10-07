@@ -1,0 +1,17 @@
+{
+  "scope": "Preserved mutable aliases before current-source refresh; original historical receipt bytes retained unchanged",
+  "files": [
+    {
+      "original_path": "TOPOS_COMPLETION_VALIDATION.json",
+      "retained_path": "TOPOS_COMPLETION_VALIDATION_ALIAS_65af1e0.json",
+      "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e",
+      "copy": "exact-original-bytes"
+    },
+    {
+      "original_path": "TOPOS_SRS_ACCEPTANCE.json",
+      "retained_path": "TOPOS_SRS_ACCEPTANCE_PRE_053c827.json",
+      "sha256": "5411588acdf377576f356225f43ea785daac9952d668620b11de22bd88684541",
+      "copy": "exact-original-bytes"
+    }
+  ]
+}

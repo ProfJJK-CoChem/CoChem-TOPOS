@@ -1,7 +1,7 @@
 {
   "schema_version": "topos-srs-acceptance/0.1.0",
-  "generated_at": "2026-10-07T19:49:26.281618+00:00",
-  "srs_sha256": "3332a8fa45f50815c941d559a64ba48dd7feec4591892d3967bc0ae440f68fa9",
+  "generated_at": "2026-10-07T18:40:08.430383+00:00",
+  "srs_sha256": "8e1c34348601be4eb25ee01c38a754998e1295ee5e32e6cfb6b133f9c8fe462d",
   "status": "incomplete",
   "interpretation": "Requirement-by-requirement implementation audit. Verified means the stated supported-profile behavior has retained concrete tests with matching listed sources; it is not full engine/domain or complete release certification. Native/external conditions and code gaps remain explicit.",
   "requirements": {
@@ -53,7 +53,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -68,8 +68,8 @@
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved",
           "tests.v010.test_schema_evolution::test_new_optional_request_defaults_preserve_old_document_identity"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -78,7 +78,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -178,7 +178,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -290,8 +290,8 @@
           "tests.v010.test_method_matrix::test_runtime_problem_features_must_be_valid_explicit_scientific_context[operation-]",
           "tests.v010.test_method_matrix::test_runtime_problem_features_must_be_valid_explicit_scientific_context[constraints_sha256-unspecified]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -300,7 +300,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -374,7 +374,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -417,8 +417,8 @@
           "tests.v010.test_base_provider::test_actual_base_handoff_executes_real_xtb_and_retains_consumption_receipt",
           "tests.v010.test_base_provider::test_base_receiver_refuses_development_execution"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -438,6 +438,10 @@
           "sha256": "393715f1221c1e72d318d721960ad0619ed17c0eecbc685d9c4817ca959e393e"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         },
@@ -448,10 +452,6 @@
         {
           "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
           "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ]
     },
@@ -467,7 +467,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/workflow.py",
@@ -522,7 +522,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -570,8 +570,8 @@
           "tests.v010.test_workflow::test_unavailable_resume_creates_new_linked_real_attempt",
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -580,7 +580,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -645,7 +645,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -703,8 +703,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -713,7 +713,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -774,7 +774,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -832,8 +832,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -842,7 +842,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -907,7 +907,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -965,8 +965,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -975,7 +975,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1063,7 +1063,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1147,8 +1147,8 @@
           "tests.v010.test_sampling::test_authentic_cancelled_preflight_does_not_claim_an_ensemble",
           "tests.v010.test_sampling::test_authentic_matrix_nci_profile"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -1157,7 +1157,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1242,7 +1242,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1326,8 +1326,8 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -1336,7 +1336,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1388,7 +1388,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1421,8 +1421,8 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -1431,7 +1431,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -1561,7 +1561,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -1649,8 +1649,8 @@
           "tests.v010.test_abcluster_workflow::test_actual_abcluster_scores_are_never_quantum_candidate_energies",
           "tests.v010.test_abcluster_workflow::test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression",
         "base_abcluster_authority": {
           "status": "passed",
           "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
@@ -1669,12 +1669,12 @@
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b"
         },
         {
-          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
-          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
         }
       ]
     },
@@ -2023,7 +2023,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2368,8 +2368,8 @@
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -2382,7 +2382,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2460,7 +2460,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2514,8 +2514,8 @@
           "tests.v010.test_search_control::test_nci_needs_an_explicit_search_and_fragment_partition[options1]",
           "tests.v010.test_search_control::test_nci_needs_an_explicit_search_and_fragment_partition[options2]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -2524,7 +2524,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2636,7 +2636,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2730,8 +2730,8 @@
           "tests.v010.test_ml_workflow::test_commit_acknowledgement_loss_recovers_the_verified_publication",
           "tests.v010.test_ml_workflow::test_actual_surface_publication_and_semantic_hdf5_resume_validation"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -2767,6 +2767,10 @@
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         },
@@ -2789,10 +2793,6 @@
         {
           "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
           "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ],
       "observed_native_evidence": [
@@ -2807,7 +2807,7 @@
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/capabilities.py",
@@ -2865,7 +2865,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -2927,8 +2927,8 @@
           "tests.v010.test_dipoles::test_auxiliary_override_does_not_leak_into_incompatible_methods[wB97X-V-def2-TZVPP-def2/JK]",
           "tests.v010.test_dipoles::test_genuine_xtb_dipole_is_bound_to_geometry_and_raw_artifact"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -2937,7 +2937,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -2953,7 +2953,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/capabilities.py",
@@ -2961,7 +2961,7 @@
         },
         {
           "path": "topos/ml_training.py",
-          "sha256": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377"
+          "sha256": "597c70bae91dd41dafecb9a46207b1c12aa71f2d951b776e57d201dec7afbc68"
         },
         {
           "path": "topos/ml_workflow.py",
@@ -3105,7 +3105,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3277,8 +3277,8 @@
           "tests.v010.test_ml_extopt::test_endpoint_rejects_nonprivate_socket",
           "tests.v010.test_ml_extopt::test_authentic_persistent_mace_extopt_callback_and_unit_conversion"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -3314,6 +3314,10 @@
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
           "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a"
         },
@@ -3332,10 +3336,6 @@
         {
           "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ],
       "observed_native_evidence": [
@@ -3344,13 +3344,13 @@
     },
     "TOPOS-010-017": {
       "chapter": "5. Method matrix, purpose, and hardware",
-      "requirement_source": "**TOPOS-010-017.** Record the resolved convergence/grid profile and verify all criteria, including free-coordinate convergence under constraints. Ambiguity blocks production execution. Coarse-to-fine protocols must recompute/reconverge on the final grid. Syntax and derivative support require engine-version-specific validation.\n\nFor ORCA, request its documented `EnforceStrictConvergence` optimizer policy and retain the separate final-gradient check. A missing first-cycle energy-change row remains `NOT_EVALUATED` as a native printed diagnostic. The numerical energy-change condition may instead be established from an unambiguous pair of actual initial/final native energy evaluations for that single step, using the unchanged requested tolerance and a conservative bound for printed precision. Archive this as a separately identified computed condition, including source energies and output references; absence alone never passes a condition. The [native optimizer policy](TOPOS_ORCA_OPTIMIZER_POLICY.md) documents observed failures, the official manual and the execution/import validation contract.",
+      "requirement_source": "**TOPOS-010-017.** Record the resolved convergence/grid profile and verify all criteria, including free-coordinate convergence under constraints. Ambiguity blocks production execution. Coarse-to-fine protocols must recompute/reconverge on the final grid. Syntax and derivative support require engine-version-specific validation.",
       "status": "verification-pending",
-      "assessment": "Resolved convergence profiles and projected free gradients are explicit; only genuine engine output proves convergence; native ORCA final profile requires live acceptance. Ordinary and strict VPT2 ORCA optimizer decks now request EnforceStrictConvergence without changing the five requested numerical tolerances. For an unambiguous one-cycle endpoint, four passing printed geometry rows plus the conservative difference bound of two actual native total energies can establish the energy condition. The missing printed energy row stays NOT_EVALUATED; malformed, incomplete or ambiguous evidence never passes. The independent final gradient remains mandatory. Authentic retained outputs exercise both a passing energy bound and a failing hybrid energy bound; these parser results do not establish completed current-source native optimizations.",
+      "assessment": "Resolved convergence profiles and projected free gradients are explicit; only genuine engine output proves convergence; native ORCA final profile requires live acceptance.",
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/constraints.py",
@@ -3359,10 +3359,6 @@
         {
           "path": "topos/native_hessian.py",
           "sha256": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b"
-        },
-        {
-          "path": "topos/orca_geometry_evidence.py",
-          "sha256": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814"
         }
       ],
       "acceptance_tests": [
@@ -3419,27 +3415,6 @@
             "test_absent_binary_never_creates_hessian_evidence",
             "test_authentic_orca_native_hessian_and_verified_recovery"
           ]
-        },
-        {
-          "path": "tests/v010/test_orca_geometry_evidence.py",
-          "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-          "test_functions": [
-            "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-            "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-            "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-            "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-            "test_caller_threshold_must_equal_native_optimizer_threshold",
-            "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-            "test_nonphysical_requested_energy_threshold_is_rejected"
-          ]
-        },
-        {
-          "path": "tests/v010/test_orca_native_refinement.py",
-          "sha256": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
-          "test_functions": [
-            "test_native_optimizer_requires_strict_policy_without_changing_tolerances",
-            "test_actual_native_overachieved_stop_remains_scientifically_partial"
-          ]
         }
       ],
       "coding_gaps": [],
@@ -3451,7 +3426,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3512,48 +3487,10 @@
           "tests.v010.test_native_hessian::test_incomplete_or_wrong_hessian_never_supplies_modes[nonfinite]",
           "tests.v010.test_native_hessian::test_incomplete_or_wrong_hessian_never_supplies_modes[duplicatesection]",
           "tests.v010.test_native_hessian::test_frequency_input_is_analytic_scf_not_engrad_or_numfreq",
-          "tests.v010.test_native_hessian::test_absent_binary_never_creates_hessian_evidence",
-          "tests.v010.test_orca_geometry_evidence::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-          "tests.v010.test_orca_geometry_evidence::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-          "tests.v010.test_orca_geometry_evidence::test_caller_threshold_must_equal_native_optimizer_threshold",
-          "tests.v010.test_orca_geometry_evidence::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[inf]",
-          "tests.v010.test_orca_native_refinement::test_native_optimizer_requires_strict_policy_without_changing_tolerances[orca-mapping-v4.1]",
-          "tests.v010.test_orca_native_refinement::test_native_optimizer_requires_strict_policy_without_changing_tolerances[orca-vpt2-reference-v1]",
-          "tests.v010.test_orca_native_refinement::test_actual_native_overachieved_stop_remains_scientifically_partial"
+          "tests.v010.test_native_hessian::test_absent_binary_never_creates_hessian_evidence"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -3561,20 +3498,8 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
-          "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9"
-        },
-        {
-          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
-          "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7"
-        },
-        {
-          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-          "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7"
-        },
-        {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -3586,7 +3511,7 @@
       "implementation": [
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/constraints.py",
@@ -3674,7 +3599,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3751,8 +3676,8 @@
           "tests.v010.test_thermochemistry::test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance",
           "tests.v010.test_thermochemistry::test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -3761,7 +3686,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -3832,7 +3757,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -3880,8 +3805,8 @@
           "tests.v010.test_sampling::test_authentic_cancelled_preflight_does_not_claim_an_ensemble",
           "tests.v010.test_sampling::test_authentic_matrix_nci_profile"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -3890,7 +3815,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4039,7 +3964,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4158,8 +4083,8 @@
           "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[patch-bytes]",
           "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[binary-binding]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions",
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression",
         "base_abcluster_authority": {
           "status": "passed",
           "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
@@ -4178,12 +4103,12 @@
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b"
         },
         {
-          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
-          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444"
         }
       ]
     },
@@ -4269,7 +4194,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4314,8 +4239,8 @@
           "tests.v010.test_matrix_sources::test_urls_are_not_treated_as_authorized_local_native_sources[file:///tmp/run]",
           "tests.v010.test_matrix_sources::test_urls_are_not_treated_as_authorized_local_native_sources[s3://bucket/run]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -4324,7 +4249,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4332,7 +4257,7 @@
       "chapter": "6. Search, refinement, and union",
       "requirement_source": "**TOPOS-010-022.** Rescue/restart shall create traceable attempts, check geometry/state/basis/version compatibility, and verify final requested method/convergence. Missing diagnostics are `NOT_EVALUATED`. T1/D1 thresholds are domain-dependent warnings, not universal multireference proof or active-space prescriptions. Automatic AutoCAS/method changes remain separate proposals.",
       "status": "verification-pending",
-      "assessment": "Restart checks state/protocol/input and completed raw artifacts; retries are immutable linked attempts. Missing electronic diagnostics are not inferred; automatic active-space/method changes are not enabled. Same-protocol ORCA continuation retains its existing maximum of three restarts and original wall budget. Explicit one-cycle energy-change evidence is bound to each immutable stage receipt, compared through the refinement history, and independently recomputed by the DFT importer from raw output and the exact profile. An absent native printed energy diagnostic remains NOT_EVALUATED, separately from its computed numerical condition. Current import requires the exact new optimizer deck, so historical pre-switch optimizer decks cannot be newly imported; their snapshots remain unchanged. Genuine failing energy bounds can request another bounded native stage, never automatic success.",
+      "assessment": "Restart checks state/protocol/input and completed raw artifacts; retries are immutable linked attempts. Missing electronic diagnostics are not inferred; automatic active-space/method changes are not enabled.",
       "implementation": [
         {
           "path": "topos/workflow.py",
@@ -4352,15 +4277,7 @@
         },
         {
           "path": "topos/ml_training.py",
-          "sha256": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377"
-        },
-        {
-          "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
-        },
-        {
-          "path": "topos/orca_geometry_evidence.py",
-          "sha256": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814"
+          "sha256": "597c70bae91dd41dafecb9a46207b1c12aa71f2d951b776e57d201dec7afbc68"
         }
       ],
       "acceptance_tests": [
@@ -4461,34 +4378,6 @@
             "test_invalid_checkpoint_recovery_never_starts_another_fit",
             "test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success"
           ]
-        },
-        {
-          "path": "tests/v010/test_orca_geometry_evidence.py",
-          "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-          "test_functions": [
-            "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-            "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-            "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-            "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-            "test_caller_threshold_must_equal_native_optimizer_threshold",
-            "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-            "test_nonphysical_requested_energy_threshold_is_rejected"
-          ]
-        },
-        {
-          "path": "tests/v010/test_dft_native_stage_binding.py",
-          "sha256": "2677923d36bfb0a3ec0dc0694d728d05026c81e93a6f115d9c13335089bcd486",
-          "test_functions": [
-            "test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory"
-          ]
-        },
-        {
-          "path": "tests/v010/test_orca_native_refinement.py",
-          "sha256": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
-          "test_functions": [
-            "test_native_continuations_exhaust_finite_limit_preserve_partial_and_receipts",
-            "test_refinement_never_restarts_after_cancel_deadline_or_identity_change"
-          ]
         }
       ],
       "coding_gaps": [],
@@ -4500,7 +4389,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4642,61 +4531,10 @@
           "tests.v010.test_ml_training::test_checkpoint_recovery_rejects_unverified_storage_before_training_or_inference[not-native]",
           "tests.v010.test_ml_training::test_invalid_checkpoint_recovery_never_starts_another_fit",
           "tests.v010.test_ml_training::test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success[cancelled]",
-          "tests.v010.test_ml_training::test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success[budget]",
-          "tests.v010.test_orca_geometry_evidence::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-          "tests.v010.test_orca_geometry_evidence::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-          "tests.v010.test_orca_geometry_evidence::test_caller_threshold_must_equal_native_optimizer_threshold",
-          "tests.v010.test_orca_geometry_evidence::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[inf]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[changed-bytes]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[renamed]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[missing-artifact]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[duplicate]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[receipt-hash]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[process]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[geometry]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[convergence]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[energy-change]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[method]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[gradient]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[elapsed-budget]",
-          "tests.v010.test_orca_native_refinement::test_native_continuations_exhaust_finite_limit_preserve_partial_and_receipts",
-          "tests.v010.test_orca_native_refinement::test_refinement_never_restarts_after_cancel_deadline_or_identity_change[cancel-cancelled]",
-          "tests.v010.test_orca_native_refinement::test_refinement_never_restarts_after_cancel_deadline_or_identity_change[deadline-timed-out]",
-          "tests.v010.test_orca_native_refinement::test_refinement_never_restarts_after_cancel_deadline_or_identity_change[changed-binary-failed]"
+          "tests.v010.test_ml_training::test_heldout_stop_preserves_checkpoint_without_retraining_or_scientific_success[budget]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -4704,20 +4542,8 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
-          "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9"
-        },
-        {
-          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
-          "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7"
-        },
-        {
-          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-          "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7"
-        },
-        {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4786,7 +4612,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4830,8 +4656,8 @@
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[monomer-partial]",
           "tests.v010.test_fragments::test_association_resume_reuses_completed_child_jobs_and_raw_evidence[frozen-fragment-completed]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -4840,7 +4666,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4892,7 +4718,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -4911,8 +4737,8 @@
           "tests.v010.test_constraints::test_authentic_xtb_frozen_water_dimer_converges_without_internal_drift",
           "tests.v010.test_workflow_constraints::test_real_frozen_water_workflow_retains_derivative_proof_and_exports_reviewed_result"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -4921,7 +4747,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -4982,7 +4808,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5040,8 +4866,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -5050,7 +4876,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5148,7 +4974,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5234,8 +5060,8 @@
           "tests.v010.test_reporting::test_actual_stored_dipoles_are_checked_only_with_declared_method_error",
           "tests.v010.test_reporting::test_reporting_ensemble_does_not_bypass_enantiomer_dipole_disagreement"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -5244,7 +5070,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5326,7 +5152,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5389,8 +5215,8 @@
           "tests.v010.test_reporting::test_actual_stored_dipoles_are_checked_only_with_declared_method_error",
           "tests.v010.test_reporting::test_reporting_ensemble_does_not_bypass_enantiomer_dipole_disagreement"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -5399,7 +5225,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5522,7 +5348,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -5636,8 +5462,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -5646,7 +5472,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -5838,7 +5664,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6010,8 +5836,8 @@
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -6020,7 +5846,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6028,7 +5854,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-030.** Every quantity shall include value/units, definition, geometry/attempt, method/parser, and validity/convergence. Retain raw output; normalize once. Proposed exchange convention: coordinates \u00c5, energy Eh, gradient Eh/bohr, Hessian Eh/bohr\u00b2. Other internal conventions need boundary conversion.",
       "status": "verification-pending",
-      "assessment": "Structured quantities bind units, definition, method/parser, geometry/attempt and validation to retained actual raw artifacts; absent values remain absent. Supplementary one-cycle energy differences explicitly retain hartree units, literal source energies, raw-output SHA256 and line references, signed difference, printed-precision allowance, conservative absolute bound, unchanged threshold and pass/fail. The source is identified as computed from actual native evaluations; printed_energy_change_status remains NOT_EVALUATED. Execution and DFT import recompute the same evidence; neither an absent energy nor an unexecuted final gradient is synthesized.",
+      "assessment": "Structured quantities bind units, definition, method/parser, geometry/attempt and validation to retained actual raw artifacts; absent values remain absent.",
       "implementation": [
         {
           "path": "topos/models.py",
@@ -6036,7 +5862,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/review.py",
@@ -6057,14 +5883,6 @@
         {
           "path": "topos/month_geometry.py",
           "sha256": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92"
-        },
-        {
-          "path": "topos/ml_training.py",
-          "sha256": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377"
-        },
-        {
-          "path": "topos/orca_geometry_evidence.py",
-          "sha256": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814"
         }
       ],
       "acceptance_tests": [
@@ -6216,26 +6034,6 @@
             "test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages",
             "test_month_direct_adapter_does_not_relabel_another_requested_product"
           ]
-        },
-        {
-          "path": "tests/v010/test_orca_geometry_evidence.py",
-          "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-          "test_functions": [
-            "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-            "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-            "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-            "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-            "test_caller_threshold_must_equal_native_optimizer_threshold",
-            "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-            "test_nonphysical_requested_energy_threshold_is_rejected"
-          ]
-        },
-        {
-          "path": "tests/v010/test_dft_native_stage_binding.py",
-          "sha256": "2677923d36bfb0a3ec0dc0694d728d05026c81e93a6f115d9c13335089bcd486",
-          "test_functions": [
-            "test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory"
-          ]
         }
       ],
       "coding_gaps": [],
@@ -6249,7 +6047,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6438,57 +6236,10 @@
           "tests.v010.test_month_geometry::test_observed_mass_plan_requires_actual_per_evaluation_evidence_and_product_a_scope",
           "tests.v010.test_month_geometry::test_observed_mass_month_rejects_explicit_isotope_before_expensive_stages",
           "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[B]",
-          "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]",
-          "tests.v010.test_orca_geometry_evidence::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-          "tests.v010.test_orca_geometry_evidence::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-          "tests.v010.test_orca_geometry_evidence::test_caller_threshold_must_equal_native_optimizer_threshold",
-          "tests.v010.test_orca_geometry_evidence::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[inf]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[changed-bytes]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[renamed]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[missing-artifact]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[duplicate]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[receipt-hash]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[process]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[geometry]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[convergence]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[energy-change]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[method]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[gradient]",
-          "tests.v010.test_dft_native_stage_binding::test_stage_receipt_cannot_disagree_with_history_or_immutable_inventory[elapsed-budget]"
+          "tests.v010.test_month_geometry::test_month_direct_adapter_does_not_relabel_another_requested_product[C]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -6496,20 +6247,8 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
-          "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9"
-        },
-        {
-          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
-          "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7"
-        },
-        {
-          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-          "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7"
-        },
-        {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6579,7 +6318,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6622,8 +6361,8 @@
           "tests.v010.test_native_hessian::test_frequency_input_is_analytic_scf_not_engrad_or_numfreq",
           "tests.v010.test_native_hessian::test_absent_binary_never_creates_hessian_evidence"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -6632,7 +6371,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6725,7 +6464,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -6809,8 +6548,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -6819,7 +6558,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -6835,7 +6574,7 @@
         },
         {
           "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
+          "sha256": "b6ff89c4e249202e8dbca51eb905e72f409e6ee3dfd889a33e849ec4ccdab602"
         },
         {
           "path": "topos/review.py",
@@ -6965,7 +6704,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7125,8 +6864,8 @@
           "tests.v010.test_cfour_counterpoise::test_reviewed_counterpoise_resolution_is_required_before_any_engine[None]",
           "tests.v010.test_cfour_counterpoise::test_reviewed_counterpoise_resolution_is_required_before_any_engine[cfour-topos-cartesian-optimizer-v1]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -7135,7 +6874,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7143,7 +6882,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-034.** Separate electronic energy, ZPE, thermal enthalpy, entropy, solvation, standard-state correction, and Gibbs energy. A justified mixed-level construction is `G=Ehigh+(Glow\u2212Elow)`, not `Ehigh+Glow`. Record scaling, imaginary-mode policy, quasi-RRHO/rotors, uncertainty. For frozen/constrained geometries, declare the Hessian subspace, constraints, and thermal model; do not automatically apply whole-molecule RRHO. Distinguish excluded rigid motions and numerical near-zero modes from genuine unstable modes. A full-dimensional minimum claim requires the appropriate stationary-point/mode validation; a constrained minimum establishes stability only in its allowed subspace. Electronic-energy weights are not full thermodynamic populations. [S06](TOPOS_0.1.0_REFERENCES.md#s06)",
       "status": "verification-pending",
-      "assessment": "Electronic, ZPE, enthalpy, entropy and standard-state terms are separate. RRHO, labelled frequency-floor sensitivity and native VPT2 adapters exist; constrained full-dimensional RRHO/VPT2 is refused without a defined stationary model. Genuine CREST entropy and xTB thermal workflows have local evidence; native ORCA anharmonic acceptance remains separate. The updated ORCA convergence check applies to the stationary reference prerequisite only. A recovered one-cycle energy condition still requires the separately executed final gradient, and it proves neither a Hessian minimum nor valid frequencies, RRHO or VPT2. Existing full-dimensional/subspace, mode, semirigid and thermal-model checks remain required. Added gate tests are prerequisite evidence, not new thermochemistry or anharmonic native acceptance.",
+      "assessment": "Electronic, ZPE, enthalpy, entropy and standard-state terms are separate. RRHO, labelled frequency-floor sensitivity and native VPT2 adapters exist; constrained full-dimensional RRHO/VPT2 is refused without a defined stationary model. Genuine CREST entropy and xTB thermal workflows have local evidence; native ORCA anharmonic acceptance remains separate.",
       "implementation": [
         {
           "path": "topos/thermochemistry.py",
@@ -7164,14 +6903,6 @@
         {
           "path": "topos/entropy.py",
           "sha256": "6012bd2c8cb985f2ae91019cdaae75ae4bb998432f2c7c6a4c1ee9953a5fda39"
-        },
-        {
-          "path": "topos/engines.py",
-          "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6"
-        },
-        {
-          "path": "topos/orca_geometry_evidence.py",
-          "sha256": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814"
         }
       ],
       "acceptance_tests": [
@@ -7239,26 +6970,6 @@
             "test_authentic_completed_crest_entropy_reused_when_partner_unavailable",
             "test_later_engine_provisioning_preserves_protocol_without_executing_marker"
           ]
-        },
-        {
-          "path": "tests/v010/test_orca_geometry_evidence.py",
-          "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-          "test_functions": [
-            "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-            "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-            "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-            "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-            "test_caller_threshold_must_equal_native_optimizer_threshold",
-            "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-            "test_nonphysical_requested_energy_threshold_is_rejected"
-          ]
-        },
-        {
-          "path": "tests/v010/test_orca_native_refinement.py",
-          "sha256": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
-          "test_functions": [
-            "test_native_optimizer_requires_strict_policy_without_changing_tolerances"
-          ]
         }
       ],
       "coding_gaps": [],
@@ -7270,7 +6981,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": true,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7341,47 +7052,10 @@
           "tests.v010.test_entropy::test_entropy_native_keywords_and_unsupported_temperature",
           "tests.v010.test_entropy::test_authentic_crest_entropy_water",
           "tests.v010.test_entropy::test_authentic_completed_crest_entropy_reused_when_partner_unavailable",
-          "tests.v010.test_entropy::test_later_engine_provisioning_preserves_protocol_without_executing_marker",
-          "tests.v010.test_orca_geometry_evidence::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-          "tests.v010.test_orca_geometry_evidence::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-          "tests.v010.test_orca_geometry_evidence::test_caller_threshold_must_equal_native_optimizer_threshold",
-          "tests.v010.test_orca_geometry_evidence::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[inf]",
-          "tests.v010.test_orca_native_refinement::test_native_optimizer_requires_strict_policy_without_changing_tolerances[orca-mapping-v4.1]",
-          "tests.v010.test_orca_native_refinement::test_native_optimizer_requires_strict_policy_without_changing_tolerances[orca-vpt2-reference-v1]"
+          "tests.v010.test_entropy::test_later_engine_provisioning_preserves_protocol_without_executing_marker"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -7389,20 +7063,8 @@
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14"
         },
         {
-          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
-          "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9"
-        },
-        {
-          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
-          "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7"
-        },
-        {
-          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-          "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7"
-        },
-        {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7523,7 +7185,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7644,8 +7306,8 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -7658,7 +7320,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7744,7 +7406,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7821,8 +7483,8 @@
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
           "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -7831,7 +7493,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -7910,7 +7572,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -7954,8 +7616,8 @@
           "tests.v010.test_workflow::test_unavailable_resume_creates_new_linked_real_attempt",
           "tests.v010.test_workflow::test_real_crest_union_is_refined_and_all_sources_preserved"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -7964,7 +7626,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8015,7 +7677,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8051,8 +7713,8 @@
           "tests.v010.test_storage_publication::test_explicit_derived_optimizer_uses_accepted_real_derivative",
           "tests.v010.test_storage_publication::test_invalid_accepted_derivative_cannot_support_derived_result"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8061,7 +7723,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8143,7 +7805,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8217,8 +7879,8 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8231,7 +7893,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8328,7 +7990,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8407,8 +8069,8 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8424,12 +8086,12 @@
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
         },
         {
-          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
-          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -8541,7 +8203,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8646,8 +8308,8 @@
           "tests.v010.test_hosted_worker::test_solver_environment_prepends_verified_installation_helpers",
           "tests.v010.test_hosted_worker::test_evidence_finalization_failure_cannot_leave_success_claim_in_receipt"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8656,7 +8318,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -8721,7 +8383,7 @@
         "listed_files_match_historical_execution": true,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8773,8 +8435,8 @@
           "tests.v010.test_budget::test_constrained_optimizer_all_gradients_share_geometry_budget",
           "tests.v010.test_budget::test_physical_hessian_campaign_does_not_renew_geometry_budget_each_gradient"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8786,12 +8448,12 @@
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102"
         },
         {
-          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
-          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e"
         }
       ]
     },
@@ -8873,7 +8535,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -8947,8 +8609,8 @@
           "tests.v010.test_storage_publication::test_explicit_derived_optimizer_uses_accepted_real_derivative",
           "tests.v010.test_storage_publication::test_invalid_accepted_derivative_cannot_support_derived_result"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -8961,7 +8623,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -9029,7 +8691,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9083,8 +8745,8 @@
           "tests.v010.test_base_provider::test_actual_base_handoff_executes_real_xtb_and_retains_consumption_receipt",
           "tests.v010.test_base_provider::test_base_receiver_refuses_development_execution"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -9108,6 +8770,10 @@
           "sha256": "7e6735f8961885b672f5a8080b6c4940dfa8b00768f2660209ee994c5aa2f435"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         },
@@ -9118,10 +8784,6 @@
         {
           "path": "evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json",
           "sha256": "80b85af22a2812a5a88bfb513bfa33e5b2c3154f27c5de1e7d8c9094c68149c5"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ],
       "companion_implementation": {
@@ -9236,7 +8898,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9335,8 +8997,8 @@
           "tests.v010.test_thermochemistry::test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance",
           "tests.v010.test_thermochemistry::test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -9356,12 +9018,12 @@
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
         },
         {
-          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
-          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -9447,7 +9109,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9521,8 +9183,8 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -9542,12 +9204,12 @@
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5"
         },
         {
-          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
-          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         },
         {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         }
       ]
     },
@@ -9602,7 +9264,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9647,8 +9309,8 @@
           "tests.v010.test_completion_io::test_model_credit_requires_execution_and_preserves_checkpoint_identity",
           "tests.v010.test_completion_io::test_correlated_credit_uses_actual_native_protocol_basis_not_request_default"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -9661,7 +9323,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -9738,7 +9400,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -9799,8 +9461,8 @@
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
           "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -9817,7 +9479,7 @@
         },
         {
           "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
         }
       ]
     },
@@ -9825,15 +9487,11 @@
       "chapter": "13. Verification and acceptance",
       "requirement_source": "**TOPOS-010-049.** Distinguish deterministic algorithms, authentic parser fixtures, real-engine integration, end-to-end dispatch, and scientific references. Generated/test-double values cannot represent real chemistry. Council no-spoof/no-skip gates need exact engine/environment evidence; unavailable dependencies leave capabilities unverified.",
       "status": "verification-pending",
-      "assessment": "Deterministic, analytical, authentic fixture, genuine xTB/CREST, installed BASE and remote evidence are distinguished; unavailable licensed/model/external engines remain unverified. The new helper is tested against byte-identical r2SCAN-3c and wB97X-V one-cycle stdout from hosted diagnostic run 37671080822 on source 65af1e0. Seven named test functions expand to 35 parser/provenance cases; damaged variants exercise rejection only. The r2SCAN energy bound passes while the hybrid energy bound fails at the unchanged 1e-7 Eh limit. Both historical attempts remain partial because their separate final gradients were not executed. Neither these fixtures nor the new input keyword certify live ORCA behavior of source 053c827.",
+      "assessment": "Deterministic, analytical, authentic fixture, genuine xTB/CREST, installed BASE and remote evidence are distinguished; unavailable licensed/model/external engines remain unverified.",
       "implementation": [
         {
           "path": "topos/release.py",
           "sha256": "112ed5c3277b7d4de31642ac4e711234edfe6744cd1c6752e0b3b486714d8226"
-        },
-        {
-          "path": "topos/orca_geometry_evidence.py",
-          "sha256": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814"
         }
       ],
       "acceptance_tests": [
@@ -9938,26 +9596,6 @@
             "test_release_gate_composes_only_exact_same_source_named_test_results",
             "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
           ]
-        },
-        {
-          "path": "tests/v010/test_orca_geometry_evidence.py",
-          "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-          "test_functions": [
-            "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-            "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-            "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-            "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-            "test_caller_threshold_must_equal_native_optimizer_threshold",
-            "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-            "test_nonphysical_requested_energy_threshold_is_rejected"
-          ]
-        },
-        {
-          "path": "tests/v010/test_orca_native_refinement.py",
-          "sha256": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
-          "test_functions": [
-            "test_actual_native_overachieved_stop_remains_scientifically_partial"
-          ]
         }
       ],
       "coding_gaps": [],
@@ -9971,7 +9609,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -10081,46 +9719,10 @@
           "tests.v010.test_release::test_worker_installer_refuses_controller_ownership_before_pip",
           "tests.v010.test_release::test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
-          "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets",
-          "tests.v010.test_orca_geometry_evidence::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-          "tests.v010.test_orca_geometry_evidence::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-          "tests.v010.test_orca_geometry_evidence::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-          "tests.v010.test_orca_geometry_evidence::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-          "tests.v010.test_orca_geometry_evidence::test_caller_threshold_must_equal_native_optimizer_threshold",
-          "tests.v010.test_orca_geometry_evidence::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-          "tests.v010.test_orca_geometry_evidence::test_nonphysical_requested_energy_threshold_is_rejected[inf]",
-          "tests.v010.test_orca_native_refinement::test_actual_native_overachieved_stop_remains_scientifically_partial"
+          "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -10172,6 +9774,10 @@
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         },
@@ -10210,22 +9816,6 @@
         {
           "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
           "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a"
-        },
-        {
-          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
-          "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9"
-        },
-        {
-          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
-          "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7"
-        },
-        {
-          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-          "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ],
       "observed_native_evidence": [
@@ -10274,7 +9864,7 @@
         "listed_files_match_historical_execution": false,
         "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
         "pending_current_source_regression": false,
-        "current_suite_tests": 1814,
+        "current_suite_tests": 1776,
         "current_suite_skipped": 2,
         "current_receipt_missing_files": [],
         "missing_acceptance_tests": [],
@@ -10297,8 +9887,8 @@
           "tests.v010.test_release::test_release_gate_composes_only_exact_same_source_named_test_results",
           "tests.v010.test_release::test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
         ],
-        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-        "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+        "junit_sha256": "197b690092777275ccf86581a2f9773c2ebcb18321e7a4772fde7352827bcc89",
+        "source_assessment_reviewer": "Codex implementation review and source-bound regression"
       },
       "evidence": [
         {
@@ -10362,6 +9952,10 @@
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738"
         },
         {
+          "path": "TOPOS_COMPLETION_VALIDATION.json",
+          "sha256": "fd3eba818630eca99561fc9799e273679f8841c09afb0a656a2c744fee71925e"
+        },
+        {
           "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943"
         },
@@ -10416,10 +10010,6 @@
         {
           "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
           "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a"
-        },
-        {
-          "path": "TOPOS_COMPLETION_VALIDATION.json",
-          "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b"
         }
       ]
     }
@@ -10427,740 +10017,6 @@
   "notes": [
     "Historical regression receipt is preserved unchanged; its full source identity limits its applicability.",
     "The installed-wheel receipt belongs to its identified candidate wheel, not later source changes.",
-    "Current-source complete regression is bound to this ledger; matching-source hosted native acceptance remains required before release certification.",
-    "Source review 053c827 adds explicit actual one-cycle energy-difference evidence and keeps the absent native printed diagnostic NOT_EVALUATED; all external/native/GPU/queue acceptance conditions remain. This review was prepared independently before the genuine current-source whole suite. The completed receipt now binds 1,812 passes and two named licensed skips; no physical acceptance condition was cleared."
-  ],
-  "source_change_review": {
-    "schema": "topos-srs-source-diff-review/1",
-    "reviewed_at": "2026-10-07T19:44:19.729561+00:00",
-    "reviewer": "Codex strict_convergence_review: explicit 50-requirement SRS and source-diff review",
-    "previous_document_revision": "0a2ced2c15b00c995c1e350b0101f7f369650579",
-    "reviewed_source_revision": "053c827638b3481c5c3d645856b69d50c47b387f",
-    "previous_srs_sha256": "8e1c34348601be4eb25ee01c38a754998e1295ee5e32e6cfb6b133f9c8fe462d",
-    "reviewed_srs_sha256": "3332a8fa45f50815c941d559a64ba48dd7feec4591892d3967bc0ae440f68fa9",
-    "source_diff_sha256": "75aebea7ca191ded5bc1c8d78eecdb3d514f65e9effbc8e0af06dff362bf515c",
-    "review_scope": "Delta review of all 50 existing requirement assessments and all chapters against the localized SRS/source change. This is not a fresh execution of the entire scientific acceptance matrix or native ORCA certification.",
-    "srs_change": "One explanatory paragraph under TOPOS-010-017; all original requirement clauses remain, with unchanged numerical tolerances. Missing native first-cycle energy diagnostic remains NOT_EVALUATED; a separately archived actual-energy difference can establish the numerical condition.",
-    "chapters_without_numbered_requirements": [
-      "1. Purpose, scope, and interpretation: unchanged",
-      "2. Source authority and conflicts: unchanged"
-    ],
-    "chapter_review": [
-      {
-        "chapter": "3. System boundaries and execution contract",
-        "requirements_reviewed": [
-          "TOPOS-010-001",
-          "TOPOS-010-002",
-          "TOPOS-010-003",
-          "TOPOS-010-004"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Run/request identities, BASE authority, selectors and unsupported-capability behavior are unchanged. Shared engine source changes only ORCA optimization policy/evidence; no replacement engine or unsupported-capability promotion is introduced."
-      },
-      {
-        "chapter": "4. Scientific inputs and fragment triage",
-        "requirements_reviewed": [
-          "TOPOS-010-005",
-          "TOPOS-010-006",
-          "TOPOS-010-007",
-          "TOPOS-010-008",
-          "TOPOS-010-009",
-          "TOPOS-010-010",
-          "TOPOS-010-011"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied."
-      },
-      {
-        "chapter": "5. Method matrix, purpose, and hardware",
-        "requirements_reviewed": [
-          "TOPOS-010-012",
-          "TOPOS-010-013",
-          "TOPOS-010-014",
-          "TOPOS-010-015",
-          "TOPOS-010-016",
-          "TOPOS-010-017",
-          "TOPOS-010-018"
-        ],
-        "assessments_expanded": [
-          "TOPOS-010-017"
-        ],
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression."
-      },
-      {
-        "chapter": "6. Search, refinement, and union",
-        "requirements_reviewed": [
-          "TOPOS-010-019",
-          "TOPOS-010-020",
-          "TOPOS-010-021",
-          "TOPOS-010-022",
-          "TOPOS-010-023",
-          "TOPOS-010-024"
-        ],
-        "assessments_expanded": [
-          "TOPOS-010-022"
-        ],
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain."
-      },
-      {
-        "chapter": "7. Deduplication, chirality, and spectroscopy",
-        "requirements_reviewed": [
-          "TOPOS-010-025",
-          "TOPOS-010-026",
-          "TOPOS-010-027",
-          "TOPOS-010-028",
-          "TOPOS-010-029"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance."
-      },
-      {
-        "chapter": "8. Quantities, corrections, and thermodynamics",
-        "requirements_reviewed": [
-          "TOPOS-010-030",
-          "TOPOS-010-031",
-          "TOPOS-010-032",
-          "TOPOS-010-033",
-          "TOPOS-010-034",
-          "TOPOS-010-035",
-          "TOPOS-010-036"
-        ],
-        "assessments_expanded": [
-          "TOPOS-010-030",
-          "TOPOS-010-034"
-        ],
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged."
-      },
-      {
-        "chapter": "9. Persistence and recovery",
-        "requirements_reviewed": [
-          "TOPOS-010-037",
-          "TOPOS-010-038",
-          "TOPOS-010-039"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Storage schema, single-writer snapshots, recovery membership and original/rejected evidence preservation are unchanged. Import rejects mismatched current decks and verifies supplementary evidence without mutating archived snapshots."
-      },
-      {
-        "chapter": "10. Execution state and host protection",
-        "requirements_reviewed": [
-          "TOPOS-010-040",
-          "TOPOS-010-041",
-          "TOPOS-010-042"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Execution/validation state separation, process ownership, cancellation, queue identities and resource limits are unchanged. Above-threshold/ambiguous evidence still cannot yield success; same-protocol continuation remains capped at three restarts."
-      },
-      {
-        "chapter": "11. Human review and TORQ handoff",
-        "requirements_reviewed": [
-          "TOPOS-010-043",
-          "TOPOS-010-044"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Human review, append-only decisions and exact TORQ handoff contracts are unchanged. The new convergence evidence does not substitute for review or downstream TORQ calculation."
-      },
-      {
-        "chapter": "12. Publication and academic rigor",
-        "requirements_reviewed": [
-          "TOPOS-010-045",
-          "TOPOS-010-046",
-          "TOPOS-010-047",
-          "TOPOS-010-048"
-        ],
-        "assessments_expanded": [],
-        "rationale": "Eligibility, quantities, archive inventories, citation policy, licensing and explicit release/publication authority are unchanged. Historical partial observations remain partial and export/release claims still require eligible executed evidence."
-      },
-      {
-        "chapter": "13. Verification and acceptance",
-        "requirements_reviewed": [
-          "TOPOS-010-049",
-          "TOPOS-010-050"
-        ],
-        "assessments_expanded": [
-          "TOPOS-010-049"
-        ],
-        "rationale": "Requirement 049 gains authentic-parser scope and provenance for the new helper. Requirement 050 continues to require a source-bound current receipt; prior source 65af1e0 whole-suite/native evidence cannot certify 053c827."
-      }
-    ],
-    "requirement_review": {
-      "TOPOS-010-001": {
-        "impact": "assessment-unchanged",
-        "rationale": "Run/request identities, BASE authority, selectors and unsupported-capability behavior are unchanged. Shared engine source changes only ORCA optimization policy/evidence; no replacement engine or unsupported-capability promotion is introduced.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-002": {
-        "impact": "assessment-unchanged",
-        "rationale": "Run/request identities, BASE authority, selectors and unsupported-capability behavior are unchanged. Shared engine source changes only ORCA optimization policy/evidence; no replacement engine or unsupported-capability promotion is introduced.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-003": {
-        "impact": "assessment-unchanged",
-        "rationale": "Run/request identities, BASE authority, selectors and unsupported-capability behavior are unchanged. Shared engine source changes only ORCA optimization policy/evidence; no replacement engine or unsupported-capability promotion is introduced.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-004": {
-        "impact": "shared-file-regression-binding",
-        "rationale": "Run/request identities, BASE authority, selectors and unsupported-capability behavior are unchanged. Shared engine source changes only ORCA optimization policy/evidence; no replacement engine or unsupported-capability promotion is introduced.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-005": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-006": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-007": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-008": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-009": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-010": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-011": {
-        "impact": "assessment-unchanged",
-        "rationale": "Input chemistry, isotope/provider conventions, fragment mapping and movable-coordinate contracts are unchanged. Downstream ORCA refinement still needs native acceptance; no new sampling or chemical-domain proof is supplied.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-012": {
-        "impact": "assessment-unchanged",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-013": {
-        "impact": "assessment-unchanged",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-014": {
-        "impact": "assessment-unchanged",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-015": {
-        "impact": "shared-file-regression-binding",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-016": {
-        "impact": "shared-file-regression-binding",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py",
-          "topos/ml_training.py"
-        ],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-017": {
-        "impact": "assessment-expanded",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [
-          "tests/v010/test_orca_geometry_evidence.py",
-          "tests/v010/test_orca_native_refinement.py",
-          "topos/orca_geometry_evidence.py"
-        ],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-018": {
-        "impact": "shared-file-regression-binding",
-        "rationale": "Only requirement 017 gains a clarifying ORCA numerical-evidence paragraph. Matrix rows, Hamiltonians, hardware/domain restrictions, SCF/grid choice, Lindh initialization and all convergence thresholds remain unchanged. Shared engine/DFT-importer files need source-matched regression.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-019": {
-        "impact": "assessment-unchanged",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-020": {
-        "impact": "assessment-unchanged",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-021": {
-        "impact": "assessment-unchanged",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-022": {
-        "impact": "assessment-expanded",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [
-          "topos/ml_training.py"
-        ],
-        "new_evidence_targets": [
-          "tests/v010/test_dft_native_stage_binding.py",
-          "tests/v010/test_orca_geometry_evidence.py",
-          "tests/v010/test_orca_native_refinement.py",
-          "topos/engines.py",
-          "topos/orca_geometry_evidence.py"
-        ],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-023": {
-        "impact": "assessment-unchanged",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-024": {
-        "impact": "assessment-unchanged",
-        "rationale": "The new diagnostic affects requirement 022 restart/import evidence. Search algorithms, source attribution, windows, constrained/frozen-coordinate mechanics and bounded restart count/deadline remain unchanged; existing hosted conditions remain.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-025": {
-        "impact": "assessment-unchanged",
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-026": {
-        "impact": "assessment-unchanged",
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-027": {
-        "impact": "assessment-unchanged",
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-028": {
-        "impact": "assessment-unchanged",
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-029": {
-        "impact": "assessment-unchanged",
-        "rationale": "Identity, chirality, symmetry and rotor/VPT2 observable definitions are unchanged. A better established optimizer energy condition does not supply mode, rotational-transfer, CFOUR or spectroscopy acceptance.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-030": {
-        "impact": "assessment-expanded",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [
-          "tests/v010/test_dft_native_stage_binding.py",
-          "tests/v010/test_orca_geometry_evidence.py",
-          "topos/ml_training.py",
-          "topos/orca_geometry_evidence.py"
-        ],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-031": {
-        "impact": "assessment-unchanged",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-032": {
-        "impact": "assessment-unchanged",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-033": {
-        "impact": "shared-file-regression-binding",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [
-          "topos/engines.py"
-        ],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-034": {
-        "impact": "assessment-expanded",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [
-          "tests/v010/test_orca_geometry_evidence.py",
-          "tests/v010/test_orca_native_refinement.py",
-          "topos/engines.py",
-          "topos/orca_geometry_evidence.py"
-        ],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-035": {
-        "impact": "assessment-unchanged",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-036": {
-        "impact": "assessment-unchanged",
-        "rationale": "Requirements 030 and 034 require explicit derived-energy provenance and careful stationary-reference scope. Derivative shape/units, Hessian/mode validation, CP, balanced energies, thermodynamic terms/populations and kinetics are unchanged.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-037": {
-        "impact": "assessment-unchanged",
-        "rationale": "Storage schema, single-writer snapshots, recovery membership and original/rejected evidence preservation are unchanged. Import rejects mismatched current decks and verifies supplementary evidence without mutating archived snapshots.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-038": {
-        "impact": "assessment-unchanged",
-        "rationale": "Storage schema, single-writer snapshots, recovery membership and original/rejected evidence preservation are unchanged. Import rejects mismatched current decks and verifies supplementary evidence without mutating archived snapshots.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-039": {
-        "impact": "assessment-unchanged",
-        "rationale": "Storage schema, single-writer snapshots, recovery membership and original/rejected evidence preservation are unchanged. Import rejects mismatched current decks and verifies supplementary evidence without mutating archived snapshots.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-040": {
-        "impact": "assessment-unchanged",
-        "rationale": "Execution/validation state separation, process ownership, cancellation, queue identities and resource limits are unchanged. Above-threshold/ambiguous evidence still cannot yield success; same-protocol continuation remains capped at three restarts.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-041": {
-        "impact": "assessment-unchanged",
-        "rationale": "Execution/validation state separation, process ownership, cancellation, queue identities and resource limits are unchanged. Above-threshold/ambiguous evidence still cannot yield success; same-protocol continuation remains capped at three restarts.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-042": {
-        "impact": "assessment-unchanged",
-        "rationale": "Execution/validation state separation, process ownership, cancellation, queue identities and resource limits are unchanged. Above-threshold/ambiguous evidence still cannot yield success; same-protocol continuation remains capped at three restarts.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-043": {
-        "impact": "assessment-unchanged",
-        "rationale": "Human review, append-only decisions and exact TORQ handoff contracts are unchanged. The new convergence evidence does not substitute for review or downstream TORQ calculation.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-044": {
-        "impact": "assessment-unchanged",
-        "rationale": "Human review, append-only decisions and exact TORQ handoff contracts are unchanged. The new convergence evidence does not substitute for review or downstream TORQ calculation.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-045": {
-        "impact": "assessment-unchanged",
-        "rationale": "Eligibility, quantities, archive inventories, citation policy, licensing and explicit release/publication authority are unchanged. Historical partial observations remain partial and export/release claims still require eligible executed evidence.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-046": {
-        "impact": "assessment-unchanged",
-        "rationale": "Eligibility, quantities, archive inventories, citation policy, licensing and explicit release/publication authority are unchanged. Historical partial observations remain partial and export/release claims still require eligible executed evidence.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-047": {
-        "impact": "assessment-unchanged",
-        "rationale": "Eligibility, quantities, archive inventories, citation policy, licensing and explicit release/publication authority are unchanged. Historical partial observations remain partial and export/release claims still require eligible executed evidence.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-048": {
-        "impact": "assessment-unchanged",
-        "rationale": "Eligibility, quantities, archive inventories, citation policy, licensing and explicit release/publication authority are unchanged. Historical partial observations remain partial and export/release claims still require eligible executed evidence.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-049": {
-        "impact": "assessment-expanded",
-        "rationale": "Requirement 049 gains authentic-parser scope and provenance for the new helper. Requirement 050 continues to require a source-bound current receipt; prior source 65af1e0 whole-suite/native evidence cannot certify 053c827.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [
-          "tests/v010/test_orca_geometry_evidence.py",
-          "tests/v010/test_orca_native_refinement.py",
-          "topos/orca_geometry_evidence.py"
-        ],
-        "status_before_review": "verification-pending",
-        "status_at_preparation": "verification-pending",
-        "external_acceptance_conditions_preserved": true
-      },
-      "TOPOS-010-050": {
-        "impact": "assessment-unchanged",
-        "rationale": "Requirement 049 gains authentic-parser scope and provenance for the new helper. Requirement 050 continues to require a source-bound current receipt; prior source 65af1e0 whole-suite/native evidence cannot certify 053c827.",
-        "changed_previously_listed_sources": [],
-        "new_evidence_targets": [],
-        "status_before_review": "verified",
-        "status_at_preparation": "verified",
-        "external_acceptance_conditions_preserved": true
-      }
-    },
-    "changed_executable_and_test_paths": [
-      "tests/v010/fixtures/orca_one_cycle_native/provenance.json",
-      "tests/v010/fixtures/orca_one_cycle_native/r2scan-refinement-1.stdout",
-      "tests/v010/fixtures/orca_one_cycle_native/wb97xv-refinement-1.stdout",
-      "tests/v010/test_dft_native_stage_binding.py",
-      "tests/v010/test_orca_geometry_evidence.py",
-      "tests/v010/test_orca_native_refinement.py",
-      "topos/engines.py",
-      "topos/ml_training.py",
-      "topos/orca_geometry_evidence.py"
-    ],
-    "directly_expanded_assessments": [
-      "TOPOS-010-017",
-      "TOPOS-010-022",
-      "TOPOS-010-030",
-      "TOPOS-010-034",
-      "TOPOS-010-049"
-    ],
-    "pending_source_binding_at_preparation": [
-      "TOPOS-010-004",
-      "TOPOS-010-015",
-      "TOPOS-010-016",
-      "TOPOS-010-017",
-      "TOPOS-010-018",
-      "TOPOS-010-022",
-      "TOPOS-010-030",
-      "TOPOS-010-033",
-      "TOPOS-010-034",
-      "TOPOS-010-049"
-    ],
-    "whole_suite_state_at_preparation": "Current source-bound whole suite is in progress; this draft has not consumed a completed 053c827 receipt. Existing 1776-test/2-skip verification fields and executed test lists still describe the retained prior 65af1e0 receipt until refresh.",
-    "validation_work_directory": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z",
-    "new_helper_test_collection": {
-      "path": "tests/v010/test_orca_geometry_evidence.py",
-      "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
-      "named_test_functions": [
-        "test_retained_native_stdout_matches_unchanged_hosted_provenance",
-        "test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance",
-        "test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate",
-        "test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-        "test_caller_threshold_must_equal_native_optimizer_threshold",
-        "test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-        "test_nonphysical_requested_energy_threshold_is_rejected"
-      ],
-      "parameterized_test_cases": [
-        "tests/v010/test_orca_geometry_evidence.py::test_retained_native_stdout_matches_unchanged_hosted_provenance",
-        "tests/v010/test_orca_geometry_evidence.py::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[r2scan-True-1.04E-10-lines0]",
-        "tests/v010/test_orca_geometry_evidence.py::test_actual_one_cycle_energy_difference_can_pass_or_fail_unchanged_tolerance[wb97xv-False-5.69370E-7-lines1]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-initial-energy]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-energy]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-energy]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[nonfinite-energy]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-cycle]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-cycle]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-final-count]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-final-section]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-final-section]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-scf]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[extra-scf]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[scf-failed]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-termination]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-termination]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-banner]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-table]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-row]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[missing-geometry]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[version]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[energy-before-final-section]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[wrong-native-threshold]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[duplicate-threshold]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[failed-gradient]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[false-numeric-gradient]",
-        "tests/v010/test_orca_geometry_evidence.py::test_missing_ambiguous_or_failed_native_evidence_cannot_supply_energy_gate[malformed-energy-row]",
-        "tests/v010/test_orca_geometry_evidence.py::test_a_printed_energy_gate_is_never_replaced_by_another_energy_difference",
-        "tests/v010/test_orca_geometry_evidence.py::test_caller_threshold_must_equal_native_optimizer_threshold",
-        "tests/v010/test_orca_geometry_evidence.py::test_printed_precision_cannot_turn_an_uncertain_energy_gate_into_a_pass",
-        "tests/v010/test_orca_geometry_evidence.py::test_nonphysical_requested_energy_threshold_is_rejected[0.0]",
-        "tests/v010/test_orca_geometry_evidence.py::test_nonphysical_requested_energy_threshold_is_rejected[-1e-07]",
-        "tests/v010/test_orca_geometry_evidence.py::test_nonphysical_requested_energy_threshold_is_rejected[nan]",
-        "tests/v010/test_orca_geometry_evidence.py::test_nonphysical_requested_energy_threshold_is_rejected[inf]"
-      ],
-      "count": 35,
-      "scope": "Collection names and preceding focused parser validation only; no current whole-suite or native ORCA success asserted here."
-    },
-    "acceptance_conditions": "All pre-existing hosted ORCA, external-engine, GPU-model, matrix-campaign and queue-accounting conditions and skipped native test identities remain unchanged. No requirement is promoted by this source review.",
-    "next_step": "After the genuine source-stable whole-suite receipt is retained, apply this draft to the repository ledger and run scripts/refresh_srs_acceptance.py with the exact receipt/JUnit hashes and reviewer identity. The refresh must keep remaining licensed skips and external conditions; then annotate this review with the consumed receipt."
-  }
+    "The final current-source complete regression and hosted native acceptance must update this ledger before release certification."
+  ]
 }

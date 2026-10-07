@@ -1,0 +1,32 @@
+{
+  "schema_version": "topos-candidate-payload-verification/0.1.0",
+  "status": "passed",
+  "source_commit": "053c827638b3481c5c3d645856b69d50c47b387f",
+  "worker_source_file_count": 84,
+  "worker_matches_controller": true,
+  "native_fixture_count": 39,
+  "all_fixture_payloads_match": true,
+  "artifacts": [
+    {
+      "name": "cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b",
+      "file_count": 91,
+      "engine_binaries_included": false,
+      "model_weights_included": false
+    },
+    {
+      "name": "cochem_topos-0.1.0.tar.gz",
+      "sha256": "6094b42d45fb42489dac9cca3acd9146ec971ba7bf6ac286fbbbaa82f6c0054b",
+      "file_count": 415,
+      "engine_binaries_included": false,
+      "model_weights_included": false
+    },
+    {
+      "name": "ml-worker/cochem_topos_ml_worker-0.1.0-py3-none-any.whl",
+      "sha256": "7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71",
+      "file_count": 90,
+      "engine_binaries_included": false,
+      "model_weights_included": false
+    }
+  ]
+}

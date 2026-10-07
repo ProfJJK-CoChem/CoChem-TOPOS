@@ -1,0 +1,40 @@
+{
+  "schema_version": "topos-installed-ase-io/0.1.0",
+  "scope": "Installed dependency, unit-conversion and replay-separation I/O using explicitly mathematical fixtures; no DFT, ML inference or GPU execution",
+  "native_calculation_performed": false,
+  "status": "passed",
+  "checks": [
+    "ASE extended-XYZ energy/force units and coordinates round trip",
+    "Distinct replay/reference configurations accepted",
+    "Atom-reordered reference leakage rejected"
+  ],
+  "installed": {
+    "ase": "3.29.0",
+    "cochem-topos": "0.1.0",
+    "CoChem-BASE": "1.0.0",
+    "CoChem-TORQ": "0.1.0"
+  },
+  "source_sha256": {
+    "topos/ml_training.py": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377",
+    "topos/models.py": "c1e5c4240942ffb03edde0869473418aba90cc396ffabb1f396f29150a9de205",
+    "topos/ml.py": "f1abf663588e9641e27361b3e84202a6695df79c91ec13f8678ca2cfc39e894b"
+  },
+  "torch_imported": false,
+  "interpreter": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+  "topos_source": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/topos/__init__.py",
+  "ase_source": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/ase/__init__.py",
+  "files": [
+    {
+      "path": "overlap.extxyz",
+      "sha256": "060b95dd7c698fbc8e10aa572f7b5612803dc33d9e3866a8ca1c1e606dbdba14"
+    },
+    {
+      "path": "train.extxyz",
+      "sha256": "22abb64df7be43856121298d80de72281bfbeb41a3bcc0f72a945555cc4f3a7b"
+    },
+    {
+      "path": "validation.extxyz",
+      "sha256": "d61cfad1b81beb005b54c89764b993864cd3b78d472104936923df0b9c068424"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "source_commit": "053c827638b3481c5c3d645856b69d50c47b387f",
+  "registry_sha256": "8760cbe00b62af6f0d5336caa95bbda7328e5db8ff2e0c39129cc5dba9b0aa7d",
+  "registry_stable": true,
+  "all_eleven_receipt": "/workspace/.cochem-setup/refresh-20261007T193531516628469/all-eleven.json",
+  "all_eleven_status": "DEGRADED_OPERATIONAL",
+  "all_eleven_sha256": "0b59d54e95678ee159a6c47c8ef2c24121ff02aab523dd78b304127b3fd45822",
+  "missing_capabilities": [
+    "apptainer",
+    "c4cleanup",
+    "c4init",
+    "cfour",
+    "cochem_calc_silo",
+    "cuda",
+    "gxtb",
+    "mopac",
+    "mps",
+    "orca",
+    "orca_2mkl",
+    "orca_vpt2_prep",
+    "pyscf",
+    "qe",
+    "singularity"
+  ],
+  "worker_manifest_sha256": "60125e716c55e499d5ed14e8b426fd7a9962a81b9d72a4d5efd0bb852061930d",
+  "controller_dependency_versions_unchanged": true,
+  "companion_pins": {
+    "/workspace/CoChem-BASE": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "/workspace/CoChem-TORQ": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "reproducible_archives": true,
+  "worker_source_files": 84,
+  "worker_wheel_sha256": "7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71",
+  "native_scope": [
+    "21 MACE CPU frames",
+    "75 four-member AIMNet CPU frames",
+    "3 persistent MACE callbacks",
+    "one native ABCluster sampling plus two xTB refinements and durable replay"
+  ],
+  "physical_gpu_verified": false,
+  "local_orca_installed": false,
+  "evidence": {
+    "mace-installed.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/mace-installed.json",
+      "sha256": "fdda6a67acf88cd8f5d3cefbc36a4bf986ad4449ec06532ea2a56ad5cff9dd50"
+    },
+    "aimnet-installed.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/aimnet-installed.json",
+      "sha256": "400bd3b380f386f6e7ce2401cc7043a1dd05281ce65b02561b8082505ee9b8e4"
+    },
+    "mace-native/base-acceptance.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/mace-native/base-acceptance.json",
+      "sha256": "3c0a266b5bbadd53e06317aba4450f814f1e3571240000747ef145a6858c10f2"
+    },
+    "aimnet-native/base-acceptance.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/aimnet-native/base-acceptance.json",
+      "sha256": "a583f2b8c5a16ac69022c5cd35cfac3bef14e610efcb830ffbeda414a2704797"
+    },
+    "mace-persistent-native/acceptance.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/mace-persistent-native/acceptance.json",
+      "sha256": "7bd79477f4a22ea69ac896e86aff5cd54e3fe9c1927f4cf0b6ca8af8b1116b87"
+    },
+    "abcluster-native/acceptance.json": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/abcluster-native/acceptance.json",
+      "sha256": "ff132723dda41d4a856d9012cc0a7444eb9574b66a4c8258a1977fc1866662d4"
+    },
+    "final-readonly-check.log": {
+      "path": "/workspace/.cochem-setup/topos-ml-worker-08/final-readonly-check.log",
+      "sha256": "4128b8cce74f79da225930dd2795e7283ce13d255d1ebf31be4b3f71cdbe232d"
+    }
+  }
+}

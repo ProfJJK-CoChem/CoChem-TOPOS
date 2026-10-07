@@ -117,6 +117,16 @@ platform. Platform wheels and binary hashes remain part of the retained evidence
 Package functionality is separate from scientific classification: any unresolved
 symmetry, isotope or minimum-character notes remain in the scientific record.
 
+Candidate12 binds executable source commit
+`053c827638b3481c5c3d645856b69d50c47b387f` to controller wheel SHA-256
+`66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b`.
+The immutable [installed acceptance](evidence/TOPOS_CANDIDATE12_INSTALLED_ACCEPTANCE.json)
+records a fresh installed-wheel run with actual BASE-authorized xTB execution,
+result review and TORQ acknowledgment; no downstream TORQ solver was executed.
+The [fixture archive receipt](evidence/TOPOS_CANDIDATE12_FIXTURE_ARCHIVE.json)
+checks all 39 native fixture payloads. These receipts establish their recorded
+installation scope; full release certification remains a separate gate.
+
 ## Upgrade and rollback
 
 Keep existing calculations and immutable snapshot stores outside environments.
