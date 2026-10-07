@@ -1,0 +1,361 @@
+{
+  "current_source_native_pass_claimed": false,
+  "directory": "TOPOS_ORCA_FOCUSED_37685531027",
+  "files": {
+    "ORIGINAL_ARTIFACTS_API.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-github-artifacts.json",
+      "sha256": "650556140333d18f7afc1d24bf29985bc56689aacdc9780d70f15117de361ca8",
+      "size_bytes": 1863
+    },
+    "ORIGINAL_AUTHENTICATION_RECEIPT.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-final-authentication-receipt.json",
+      "sha256": "cfeabc3ef21db35f03a2336cafeefe431db9e42f151143fcb40e2ce376e20315",
+      "size_bytes": 2508
+    },
+    "ORIGINAL_DISPATCH.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-dispatch.json",
+      "sha256": "816304617a6b48de5604764580ec07b33a7e27e91b3e5800f5d75fde50dd737d",
+      "size_bytes": 939
+    },
+    "ORIGINAL_EXTENDED_ACCEPTANCE.json": {
+      "archive_member": "topos-orca-extended/acceptance.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "6b11b4c92f8d8745acdcea102e3da87895d6d76563c029c76e3080d53ae1a105",
+      "size_bytes": 29062
+    },
+    "ORIGINAL_HOSTED_STATUS.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-hosted-status.json",
+      "sha256": "a6baeaace571965b57b47fc5b97bcd6ee85711f1744fbe1fce74a2e726085821",
+      "size_bytes": 6025
+    },
+    "ORIGINAL_INDEPENDENT_SOURCE_PROOF.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-independent-source-proof.json",
+      "sha256": "118fa8e9336f8844b521778bfc4cb027e88202803833ff7ba5aacc18e0702257",
+      "size_bytes": 1281
+    },
+    "ORIGINAL_LICENSED_PYTEST_JUNIT.xml": {
+      "archive_member": "topos-orca-evidence/native-pytest.xml",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "7c68e83de0d8bfbef45689d99b3074715056a8aa362a149f237f621722f6e543",
+      "size_bytes": 9511
+    },
+    "ORIGINAL_LICENSED_PYTEST_LOG.txt": {
+      "archive_member": "topos-orca-evidence/native-pytest.log",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "4398a1fa31f5f12b01c73b1e11a77eb16bc402d48b2f2346ee26660f58725dc3",
+      "size_bytes": 4935
+    },
+    "ORIGINAL_LICENSED_PYTEST_RECEIPT.json": {
+      "archive_member": "topos-orca-evidence/pytest-receipt.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "bdc92cbdfdc958e81869185149076d8c473306b3335568f41e9cb4d5b6a8597c",
+      "size_bytes": 30482
+    },
+    "ORIGINAL_MANDATORY_VALIDATION.json": {
+      "archive_member": "cochem-artifacts/mandatory-validation.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "7c3c123c7f1914d3122702d150165750cc0955560aae4443107ca44521a50602",
+      "size_bytes": 3992
+    },
+    "ORIGINAL_PICKETT_DIAGNOSTIC.json": {
+      "archive_member": "topos-pickett-diagnostic/pickett-property-diagnostic.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "21ffdfde014066e6fc30e419b766eea4ab20d00bf91aefd93f0bf7b80d2c5ff9",
+      "size_bytes": 51118
+    },
+    "ORIGINAL_VERIFIED_SUMMARY.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "native-repair-native-summary.json",
+      "sha256": "fd3d309b417f4f22a6cd47c172e5695043b17190cefd410359f90868f205c1e8",
+      "size_bytes": 104400
+    },
+    "README.md": {
+      "kind": "derived-evidence-guide",
+      "sha256": "76eea7b30e453e68970ef730eb6ef7d3296d388aa698a8f81adb9f48cc47ccb7",
+      "size_bytes": 1635
+    },
+    "SOURCE73_TO_6264_CPU_FIX.patch": {
+      "from_commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "kind": "exact-git-diff",
+      "scope": "Shows historical offline fixture fix; does not relabel original failed native run",
+      "sha256": "333420c17a040d666ae82a4d5c70c07878c17b9593583accdbe73cadc5a80796",
+      "size_bytes": 2446,
+      "to_commit": "6264cf08e76c37b04f111023161bf46f22c6e98b"
+    },
+    "r2/ORIGINAL_COMPONENT_RESULT.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/attempts/attempt_7e2b908c062543c3a7d29ddaf560ea50/matrix-component-result.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "d3b0212a3b01db020ac926de8a24810c11c380027cc28ffa067479d6fd07c576",
+      "size_bytes": 29734
+    },
+    "r2/ORIGINAL_FINAL_STDOUT_FRAME.txt": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/attempts/attempt_7e2b908c062543c3a7d29ddaf560ea50/engine.stdout",
+      "artifact_id": 11517420915,
+      "end_byte_exclusive": 3746469,
+      "frame_scope": "Last approximately 128 KiB; no inserted text or reconstructed output",
+      "kind": "unchanged-contiguous-original-zip-member-frame",
+      "original_member_sha256": "c90934c1a61070a6bea41c6a9fdb38507f8fef1814bd07ec09c6808cabe37ab9",
+      "original_member_size_bytes": 3746469,
+      "sha256": "0a93100373a9f6cd94b9f8ed6608749906f699273b24bdd7993cfb766d815a96",
+      "size_bytes": 131056,
+      "start_byte_inclusive": 3615413
+    },
+    "r2/ORIGINAL_FROZEN_GEOMETRY.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/R2-geometry/80630b0e529a9a504f86b6ade8007646a5458d49fa4cd1266c60bdf9904b9030.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "7181d35802e73edc04056b5957acdb8557054d233b5d6fee44e5aa9884c5fb10",
+      "size_bytes": 7484
+    },
+    "r2/ORIGINAL_LATE_OPTIMIZER_ANALYSIS.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "r2-late-optimizer-analysis.json",
+      "scope": "Derived mathematical analysis of retained original native output, with printed-precision limitations; no new computation or stationarity acceptance",
+      "sha256": "743bce1cf3d368fcdc4bb52968daaa9016a9a44829eb9934552ba73eb62cd17c",
+      "size_bytes": 198799
+    },
+    "r2/ORIGINAL_NATIVE_PROCESS_CALLS.json": {
+      "archive_member": "topos-orca-extended/R2-composite/native-process-calls.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "c5feae772aa11a1e2b0a871f8abd63d060bd2cdc76f0cb1032ca3119cc9be6ac",
+      "size_bytes": 125213
+    },
+    "r2/ORIGINAL_OPTIMIZATION_INPUT.inp": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/attempts/attempt_7e2b908c062543c3a7d29ddaf560ea50/job.inp",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "55373862a23309f391a024e2347cce1d562be1eeb8af9b96eff6506469949999",
+      "size_bytes": 642
+    },
+    "r2/ORIGINAL_PHASE_TIMINGS.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/R2-phases/5816a535ee79982dd8b8c71b9db97b423e6326bb9b84f5b394af885a18681534.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "bd7cd00b6de70f7ca801b72f55b5fdd13a3b1e139c41ae236ea76337db9691b8",
+      "size_bytes": 10376
+    },
+    "r2/ORIGINAL_REQUEST.json": {
+      "archive_member": "topos-orca-extended/R2-composite/request.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "843388bc31c5e6b06cf6e1f17055608e8554ac300a21836095b6c7a699fd920c",
+      "size_bytes": 6389
+    },
+    "r2/ORIGINAL_TIMEOUT_DIAGNOSIS.json": {
+      "kind": "unchanged-retained-original",
+      "original_filename": "r2-timeout-diagnosis.json",
+      "sha256": "d31d0eaebaf831d7b43c68e9b6f9e8d74d14fa002addce4fdbdfbd03dff0e642",
+      "size_bytes": 27552
+    },
+    "snapshots/01_CURRENT.json": {
+      "archive_member": "topos-orca-extended/DLPNO-counterpoise/run/CURRENT.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "e77f9f3111a7b2336bd32297e7cf507b23caeced6dda83362960f6a0dfe6f4cc",
+      "size_bytes": 208
+    },
+    "snapshots/01_manifest.json": {
+      "archive_member": "topos-orca-extended/DLPNO-counterpoise/run/snapshots/5480ba7bb4ce4211646a699e8b18fb75d3381e5906b54af73dcfa57b6534527c/manifest.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "c204f8ea6dd79b5b895bed53e88bf4cf035b4072bdb11bcc48341cde7e43afdb",
+      "size_bytes": 22719
+    },
+    "snapshots/02_CURRENT.json": {
+      "archive_member": "topos-orca-extended/F12-composite/run/CURRENT.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "cf412622793a35109f7860a1851ec998a95f20d8fd0fc53058786eb8887c8b97",
+      "size_bytes": 208
+    },
+    "snapshots/02_manifest.json": {
+      "archive_member": "topos-orca-extended/F12-composite/run/snapshots/f3fbce09c5c9e06900f03c222864a4e6576ee676eda2b768df72f47a79f7eac6/manifest.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "1b4458177bd9dca4ca18d7766bad3d96fba57fd496cd1cb78b8740bf7e9e6d1a",
+      "size_bytes": 57186
+    },
+    "snapshots/03_CURRENT.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/CURRENT.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "1be4316429045a7df84a53a9f444d34aa6888fd98856cb7b0464d7b6747757f2",
+      "size_bytes": 208
+    },
+    "snapshots/03_manifest.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/snapshots/55d15484cb08183c8938a06264d7557e5a5dddd4afa4948e470b5d99a5472b82/manifest.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "2c608519fa7c7f6e06fb26660df3650d7010ae054f608ffeec326cfdaf0d7fea",
+      "size_bytes": 234923
+    },
+    "snapshots/04_CURRENT.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/CURRENT.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "b8cf3bd1b70ac25ea472d19d1902abe65b2360bd659efb313d1d3e8dc470d1e0",
+      "size_bytes": 208
+    },
+    "snapshots/04_manifest.json": {
+      "archive_member": "topos-orca-extended/R2-composite/runs/run_b8bfe81ca25843cba85a889f100f0e3f/matrix-children/R2-frozen-QZ-geometry/run_6d29dbbcf68b483d89aa9961581a8693/snapshots/77183b56d071a378300c3799331de1ade81cdc91dd3425656328c664a0eb7273/manifest.json",
+      "artifact_id": 11517420915,
+      "kind": "unchanged-original-zip-member",
+      "sha256": "4a16c85c9b1f9fa0029531659835da64babc1fd4790674303163d8ebedfd1e69",
+      "size_bytes": 142474
+    }
+  },
+  "full_member_verification_retained_outside_repository": {
+    "filename": "native-repair-topos-original-artifact-verification.json",
+    "sha256": "22406bc78b2efe38047d4ba8d59ed3a3f55207a900712f7e402cdbffabea7c8c",
+    "size_bytes": 34192897
+  },
+  "github_run_id": "37685531027",
+  "github_run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37685531027",
+  "historical_cpu_fixture_failure": {
+    "checked_test_sha256": "ea612555c70e4311ea5ddca92f47dc306461be57ec4137ea2c3c920dc5ecf47d",
+    "fix_confirmed_at_commit": "48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2",
+    "fix_present_by_commit": "6264cf08e76c37b04f111023161bf46f22c6e98b",
+    "fix_scope": "Fixture declares simulated available allocation; actual native affinity gate remains enforced",
+    "native_process_launched": false,
+    "original_result_reclassified": false,
+    "original_status": "failed",
+    "reason": "Offline deck test requests 4 threads on actual hosted 2 CPU affinity"
+  },
+  "licensed_software_included": false,
+  "original_archives": [
+    {
+      "archive_download_url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11517420915/zip",
+      "digest": "sha256:3586fafff5058b311b1036c6c83b9beab337bb9525b3ffec100cda6fcecf6839",
+      "expires_at": "2026-10-21T22:55:43Z",
+      "id": 11517420915,
+      "name": "topos-orca-acceptance-37685531027-1",
+      "size_in_bytes": 1974961699,
+      "workflow_run": {
+        "head_branch": "codex/topos-native-repair-probes",
+        "head_repository_id": 1325368799,
+        "head_sha": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+        "id": 37685531027,
+        "repository_id": 1325368799
+      }
+    },
+    {
+      "archive_download_url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11516588423/zip",
+      "digest": "sha256:77786ee079e86f0f18132b477e66f037a66e4e35b62b3dd0abe2c29b07bfc849",
+      "expires_at": "2026-10-21T22:57:40Z",
+      "id": 11516588423,
+      "name": "orca-6.1.1-acceptance-37685531027-1",
+      "size_in_bytes": 1220315,
+      "workflow_run": {
+        "head_branch": "codex/topos-native-repair-probes",
+        "head_repository_id": 1325368799,
+        "head_sha": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+        "id": 37685531027,
+        "repository_id": 1325368799
+      }
+    }
+  ],
+  "original_zip_included": false,
+  "release_acceptance_claimed": false,
+  "schema_version": "topos-historical-focused-native-evidence/1",
+  "scientific_outcomes": {
+    "extended": {
+      "failed": 2,
+      "passed": 2,
+      "tests": 4
+    },
+    "licensed_pytest": {
+      "errors": 0,
+      "failures": 2,
+      "passed": 32,
+      "skipped": 0,
+      "tests": 34
+    },
+    "physical_native_tests": {
+      "test_authentic_orca_native_hessian_and_verified_recovery": "passed",
+      "test_authentic_orca_vpt2_water_and_completed_recovery": "failed"
+    },
+    "third_native_thermal_acceptance_test_present": false
+  },
+  "scope": "Original focused native repair cases and named licensed pytest; historical source73, not complete matrix or release acceptance",
+  "source_commits": {
+    "base_scientific": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "base_workflow": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+    "topos": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "source_links": {
+    "scripts/accept_orca_extended.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "af093d26be5b68a909728564b25d09a7f5ef8f297972109417f745190f7b9339",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/scripts/accept_orca_extended.py"
+    },
+    "scripts/accept_orca_pytest.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "5549b424ec0b1dbfe3c1f84c155f89883905bc6f131d66a10f8174843aededf2",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/scripts/accept_orca_pytest.py"
+    },
+    "scripts/probe_orca_pickett.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "578847a7a6c04ce036735a13d90842937c9b87a7244dbab2189fc1967f5c3591",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/scripts/probe_orca_pickett.py"
+    },
+    "tests/v010/test_anharmonic.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "237d75c42d818e3006a7c1edfb0e3da434a3c20526c7ff0486cc6fcc7c9c74d8",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/tests/v010/test_anharmonic.py"
+    },
+    "topos/anharmonic.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "ff0e474998a4dc1ac94dbebd0cb17c5302f716b6867512173dfa712dffcd2406",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/anharmonic.py"
+    },
+    "topos/engines.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/engines.py"
+    },
+    "topos/matrix_components.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "a1398108509a6322238acbdf1ac8e661889aeef3658d8d587bb1f6b182a0b48c",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/matrix_components.py"
+    },
+    "topos/matrix_r2.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/matrix_r2.py"
+    },
+    "topos/native_hessian.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/native_hessian.py"
+    },
+    "topos/storage.py": {
+      "commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+      "sha256": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732",
+      "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/blob/73b3fb87386cfc1d572455454b9ebf43af978e04/topos/storage.py"
+    }
+  },
+  "status": "historical-run-failed-fully-authenticated",
+  "verification": {
+    "all_eleven_mandatory_setup_phases_verified": true,
+    "all_immutable_snapshots": 103,
+    "archive_files": 32548,
+    "current_pointers": 4,
+    "mode": "Original ZIP streaming CRC/SHA manifest, original-source typed validators, exact HDF5 and explicit snapshot membership; no expanded native tree",
+    "native_artifact_references": 6133,
+    "source_inventory_files": 247
+  }
+}

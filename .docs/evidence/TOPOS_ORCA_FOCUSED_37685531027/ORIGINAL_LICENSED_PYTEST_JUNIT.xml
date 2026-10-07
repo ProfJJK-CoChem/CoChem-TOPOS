@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="34" time="281.289" timestamp="2026-10-07T22:50:58.591781+00:00" hostname="runnervmmprz5"><testcase classname="tests.v010.test_native_hessian" name="test_blocked_hessian_retains_mass_provenance_and_exact_mapping" time="0.975" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[truncated]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[wronggeometry]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[missingcolumn]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[asymmetric]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[nonfinite]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_incomplete_or_wrong_hessian_never_supplies_modes[duplicatesection]" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_frequency_input_is_analytic_scf_not_engrad_or_numfreq" time="0.000" /><testcase classname="tests.v010.test_native_hessian" name="test_absent_binary_never_creates_hessian_evidence" time="0.001" /><testcase classname="tests.v010.test_native_hessian" name="test_authentic_orca_native_hessian_and_verified_recovery" time="18.746" /><testcase classname="tests.v010.test_anharmonic" name="test_public_native_vpt2_tables_preserve_rovibration_and_zero_point" time="0.003" /><testcase classname="tests.v010.test_anharmonic" name="test_inconsistent_or_missing_anharmonic_tables_rejected[B_0          0.31297-B_0          0.41297]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_inconsistent_or_missing_anharmonic_tables_rejected[Total:                        15201.211-Total:                        15999.000]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_inconsistent_or_missing_anharmonic_tables_rejected[0      616.272      601.909-0      616.272      621.909]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_inconsistent_or_missing_anharmonic_tables_rejected[x    0   -0.00000-x   99   -0.00000]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_inconsistent_or_missing_anharmonic_tables_rejected[Zero-point ro-vibrational energy [1/cm]-Missing native zero point]" time="0.000" /><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_input_enforces_documented_precision_and_actual_d4" time="0.002" /><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[1-4096]" time="0.002" /><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[2-4096]" time="0.002" /><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[4-8192]" time="0.002"><failure message="ValueError: requested total worker count exceeds available CPU affinity">tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_vpt2_serial_policy_retain2')
+threads = 4, memory = 8192
+
+    @pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])
+    def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):
+        from topos.base_integration import _orca_deck_allocation
+    
+        resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
+        policy = vpt2_execution_policy(resources)
+&gt;       deck = orca_vpt2_input(water(), method(), resources)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/v010/test_anharmonic.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+topos/anharmonic.py:83: in orca_vpt2_input
+    lines = orca_frequency_input(molecule, method, resources).splitlines()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+molecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0.0, 0.0, 0.0], [0.95, 0.0, 0.0], [-0.24, 0.93, 0.0]], coordinate_unit...tom-0', 'atom-1', 'atom-2'], fragments=[], fragment_states=[], bonds=[], stereochemistry={}, environment={}, name=None)
+method = MethodSpec(engine='orca', method='B3LYP', purpose='optimize', basis='def2-TZVPP', auxiliary_basis=None, dispersion='D4', solvent=None, engine_version=None, profile_id='orca-vpt2-reference-v1', constraints={})
+resources = ResourceLimits(budget_seconds=1200.0, threads=4, memory_mb=8192, device='cpu')
+
+    def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits) -&gt; str:
+        problem = _method_problem(method, resources, "gradient")
+        if problem or method.engine != "orca" or method.constraints:
+&gt;           raise ValueError(problem or "native analytic frequencies require unconstrained ORCA HF/DFT")
+E           ValueError: requested total worker count exceeds available CPU affinity
+
+topos/native_hessian.py:111: ValueError</failure></testcase><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_policy_does_not_turn_a_requested_gpu_into_cpu" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_vpt2_recovery_rejects_policy_change_before_native_execution" time="0.005" /><testcase classname="tests.v010.test_anharmonic" name="test_retained_mpi_pickett_failures_cannot_be_read_as_anharmonic_science[extended]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_retained_mpi_pickett_failures_cannot_be_read_as_anharmonic_science[licensed_pytest]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_incompatible_vpt2_method_rejected[change0]" time="0.000" /><testcase classname="tests.v010.test_anharmonic" name="test_incompatible_vpt2_method_rejected[change1]" time="0.000" /><testcase classname="tests.v010.test_anharmonic" name="test_incompatible_vpt2_method_rejected[change2]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_incompatible_vpt2_method_rejected[change3]" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_vv10_native_analytic_derivatives_are_explicitly_unavailable[wB97X-V]" time="0.002" /><testcase classname="tests.v010.test_anharmonic" name="test_vv10_native_analytic_derivatives_are_explicitly_unavailable[wB97M-V]" time="0.002" /><testcase classname="tests.v010.test_anharmonic" name="test_linear_and_isotope_references_fail_closed" time="0.165" /><testcase classname="tests.v010.test_anharmonic" name="test_missing_declaration_and_binary_do_not_create_anharmonic_values" time="0.004" /><testcase classname="tests.v010.test_anharmonic" name="test_anharmonic_and_dispersion_citations_require_actual_execution" time="0.001" /><testcase classname="tests.v010.test_anharmonic" name="test_authentic_orca_vpt2_water_and_completed_recovery" time="260.789"><failure message="AssertionError: {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca',...: 182.12990408799942, ...}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}&#10;assert 'failed' == 'completed'&#10;  &#10;  - completed&#10;  + failed">tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0')
+
+    def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
+        import os
+        import shutil
+    
+        from topos.engines import run_engine
+    
+        binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
+        if not binary or not shutil.which(binary):
+            pytest.skip('licensed ORCA 6.1.1 must be provisioned explicitly')
+        process_runner = None
+        if os.environ.get('TOPOS_REQUIRE_BASE') == '1':
+            from topos.base_integration import BaseRuntime
+    
+            runtime = BaseRuntime()
+            binary = runtime.resolve_executable('orca', binary)
+            process_runner = runtime.run_process
+        resources = ResourceLimits(budget_seconds=600, threads=2, memory_mb=4096)
+        optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary,
+                               process_runner=process_runner)
+        assert optimized.status == 'completed', optimized.diagnostics
+        assert optimized.molecule is not None
+        result = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
+                               executable=binary, semirigid_modes=True, process_runner=process_runner)
+&gt;       assert result.status == 'completed', result.diagnostics
+E       AssertionError: {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca',...: 182.12990408799942, ...}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}
+E       assert 'failed' == 'completed'
+E         
+E         - completed
+E         + failed
+
+tests/v010/test_anharmonic.py:207: AssertionError</failure></testcase></testsuite></testsuites>

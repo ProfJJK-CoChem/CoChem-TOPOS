@@ -1,0 +1,45 @@
+{
+  "total_count": 2,
+  "artifacts": [
+    {
+      "id": 11517420915,
+      "node_id": "MDg6QXJ0aWZhY3QxMTUxNzQyMDkxNQ==",
+      "name": "topos-orca-acceptance-37685531027-1",
+      "size_in_bytes": 1974961699,
+      "url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11517420915",
+      "archive_download_url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11517420915/zip",
+      "expired": false,
+      "digest": "sha256:3586fafff5058b311b1036c6c83b9beab337bb9525b3ffec100cda6fcecf6839",
+      "created_at": "2026-10-07T22:57:38Z",
+      "updated_at": "2026-10-07T22:57:38Z",
+      "expires_at": "2026-10-21T22:55:43Z",
+      "workflow_run": {
+        "id": 37685531027,
+        "repository_id": 1325368799,
+        "head_repository_id": 1325368799,
+        "head_branch": "codex/topos-native-repair-probes",
+        "head_sha": "391eab61019bfbcd27a26e9469ab042d01d7c040"
+      }
+    },
+    {
+      "id": 11516588423,
+      "node_id": "MDg6QXJ0aWZhY3QxMTUxNjU4ODQyMw==",
+      "name": "orca-6.1.1-acceptance-37685531027-1",
+      "size_in_bytes": 1220315,
+      "url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11516588423",
+      "archive_download_url": "https://api.github.com/repos/ProfJJK-CoChem/CoChem-BASE/actions/artifacts/11516588423/zip",
+      "expired": false,
+      "digest": "sha256:77786ee079e86f0f18132b477e66f037a66e4e35b62b3dd0abe2c29b07bfc849",
+      "created_at": "2026-10-07T22:57:41Z",
+      "updated_at": "2026-10-07T22:57:41Z",
+      "expires_at": "2026-10-21T22:57:40Z",
+      "workflow_run": {
+        "id": 37685531027,
+        "repository_id": 1325368799,
+        "head_repository_id": 1325368799,
+        "head_branch": "codex/topos-native-repair-probes",
+        "head_sha": "391eab61019bfbcd27a26e9469ab042d01d7c040"
+      }
+    }
+  ]
+}

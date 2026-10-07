@@ -1,0 +1,77 @@
+...................F.............F                                       [100%]
+=================================== FAILURES ===================================
+_ test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[4-8192] __
+
+tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_vpt2_serial_policy_retain2')
+threads = 4, memory = 8192
+
+    @pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])
+    def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):
+        from topos.base_integration import _orca_deck_allocation
+    
+        resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
+        policy = vpt2_execution_policy(resources)
+>       deck = orca_vpt2_input(water(), method(), resources)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/v010/test_anharmonic.py:68: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+topos/anharmonic.py:83: in orca_vpt2_input
+    lines = orca_frequency_input(molecule, method, resources).splitlines()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+molecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0.0, 0.0, 0.0], [0.95, 0.0, 0.0], [-0.24, 0.93, 0.0]], coordinate_unit...tom-0', 'atom-1', 'atom-2'], fragments=[], fragment_states=[], bonds=[], stereochemistry={}, environment={}, name=None)
+method = MethodSpec(engine='orca', method='B3LYP', purpose='optimize', basis='def2-TZVPP', auxiliary_basis=None, dispersion='D4', solvent=None, engine_version=None, profile_id='orca-vpt2-reference-v1', constraints={})
+resources = ResourceLimits(budget_seconds=1200.0, threads=4, memory_mb=8192, device='cpu')
+
+    def orca_frequency_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits) -> str:
+        problem = _method_problem(method, resources, "gradient")
+        if problem or method.engine != "orca" or method.constraints:
+>           raise ValueError(problem or "native analytic frequencies require unconstrained ORCA HF/DFT")
+E           ValueError: requested total worker count exceeds available CPU affinity
+
+topos/native_hessian.py:111: ValueError
+____________ test_authentic_orca_vpt2_water_and_completed_recovery _____________
+
+tmp_path = PosixPath('/home/runner/work/_temp/topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0')
+
+    def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
+        import os
+        import shutil
+    
+        from topos.engines import run_engine
+    
+        binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
+        if not binary or not shutil.which(binary):
+            pytest.skip('licensed ORCA 6.1.1 must be provisioned explicitly')
+        process_runner = None
+        if os.environ.get('TOPOS_REQUIRE_BASE') == '1':
+            from topos.base_integration import BaseRuntime
+    
+            runtime = BaseRuntime()
+            binary = runtime.resolve_executable('orca', binary)
+            process_runner = runtime.run_process
+        resources = ResourceLimits(budget_seconds=600, threads=2, memory_mb=4096)
+        optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary,
+                               process_runner=process_runner)
+        assert optimized.status == 'completed', optimized.diagnostics
+        assert optimized.molecule is not None
+        result = run_orca_vpt2(optimized.molecule, method(), resources, tmp_path / 'native-vpt2',
+                               executable=binary, semirigid_modes=True, process_runner=process_runner)
+>       assert result.status == 'completed', result.diagnostics
+E       AssertionError: {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca',...: 182.12990408799942, ...}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}
+E       assert 'failed' == 'completed'
+E         
+E         - completed
+E         + failed
+
+tests/v010/test_anharmonic.py:207: AssertionError
+=========================== short test summary info ============================
+FAILED tests/v010/test_anharmonic.py::test_vpt2_serial_policy_retains_original_maxcore_and_base_authority[4-8192] - ValueError: requested total worker count exceeds available CPU affinity
+FAILED tests/v010/test_anharmonic.py::test_authentic_orca_vpt2_water_and_completed_recovery - AssertionError: {'process': {'command': ['/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca',...: 182.12990408799942, ...}, 'reason': 'VPT2 native reference Hessian differs from its same-level stationary reference'}
+assert 'failed' == 'completed'
+  
+  - completed
+  + failed
+2 failed, 32 passed in 281.29s (0:04:41)
