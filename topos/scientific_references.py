@@ -38,6 +38,18 @@ FREQUENCY_DEFINITION = 'positive mass-weighted harmonic vibrational frequencies 
 B0_DEFINITION = 'ground-state rotational constants from the actual native stationary semirigid VPT2 reference; no transferred correction'
 TRANSFER_DEFINITION = 'approximate composite B0 = Be_target + (B0_DFT - Be_DFT), with native semirigid VPT2 and mass- and axis-matched correction transfer'
 
+# These are reference-review obligations, not declarations that numerical
+# agreement verifies every behavior in the corresponding SRS requirement.
+REFERENCE_REQUIREMENTS = tuple(f'TOPOS-010-{number:03d}' for number in (*range(19, 37), 49, 50))
+NUMERICAL_REFERENCE_OBLIGATIONS = {
+    'TOPOS-010-029': ({'equilibrium_rotational_constants'},
+                      {'ground_state_rotational_constants', 'approximate_transferred_ground_state_rotational_constants'}),
+    'TOPOS-010-031': ({'harmonic_frequencies'},),
+    'TOPOS-010-032': ({'cp_interaction_energy'},),
+    'TOPOS-010-033': ({'cp_interaction_energy'},),
+    'TOPOS-010-034': ({'harmonic_frequencies'}, {'gibbs_energy'}),
+}
+
 
 def _timestamp(value: str) -> datetime:
     timestamp = datetime.fromisoformat(value.replace('Z', '+00:00'))
@@ -185,12 +197,89 @@ class ReferenceCase(Contract):
                 'comparison_rationale': self.comparison_rationale}
 
 
+class ReferenceCaseCoverage(Contract):
+    """An explicitly reviewed, narrow claim about an already declared case."""
+    case_id: str = Field(min_length=1)
+    chemistry_domain: str = Field(min_length=1)
+    observable: Observable
+    context_sha256: str = Field(pattern=HASH_PATTERN)
+    scientific_scope: str = Field(min_length=1)
+    rationale: str = Field(min_length=1)
+
+    @model_validator(mode='after')
+    def substantive(self):
+        if any(not value.strip() for value in (self.chemistry_domain, self.scientific_scope, self.rationale)):
+            raise ValueError('Coverage domain, scientific scope and rationale must be explicit')
+        return self
+
+
+class ReferenceRequirementCoverage(Contract):
+    requirement_id: str = Field(pattern=r'^TOPOS-010-\d{3}$')
+    requirement_source_sha256: str = Field(pattern=HASH_PATTERN)
+    applicability: Literal['numerical-reference', 'non-numerical-contract']
+    requirement_scope: str = Field(min_length=1)
+    rationale: str = Field(min_length=1)
+    exclusions: str = Field(min_length=1)
+    acceptance_test_references: list[str] = Field(min_length=1)
+    required_chemistry_domains: list[str] = Field(default_factory=list)
+    case_claims: list[ReferenceCaseCoverage] = Field(default_factory=list)
+
+    @model_validator(mode='after')
+    def applicable(self):
+        if any(not value.strip() for value in (self.requirement_scope, self.rationale, self.exclusions)):
+            raise ValueError('Coverage scope, rationale and exclusions must be explicit')
+        if self.requirement_id not in REFERENCE_REQUIREMENTS:
+            raise ValueError('Unknown scientific-reference requirement obligation')
+        groups = NUMERICAL_REFERENCE_OBLIGATIONS.get(self.requirement_id)
+        if bool(groups) != (self.applicability == 'numerical-reference'):
+            raise ValueError('Reference applicability must match the requirement: numerical comparisons cannot verify algorithmic contracts')
+        if len(set(self.acceptance_test_references)) != len(self.acceptance_test_references):
+            raise ValueError('Coverage test references must be unique')
+        if groups:
+            allowed = set().union(*groups)
+            if (not self.required_chemistry_domains or not self.case_claims
+                    or len(set(self.required_chemistry_domains)) != len(self.required_chemistry_domains)
+                    or len({claim.case_id for claim in self.case_claims}) != len(self.case_claims)
+                    or any(claim.observable not in allowed for claim in self.case_claims)
+                    or {claim.chemistry_domain for claim in self.case_claims} != set(self.required_chemistry_domains)):
+                raise ValueError('Numerical coverage requires distinct relevant cases for every explicitly reviewed chemistry domain')
+            for domain in self.required_chemistry_domains:
+                observed = {claim.observable for claim in self.case_claims if claim.chemistry_domain == domain}
+                if any(not observed.intersection(group) for group in groups):
+                    raise ValueError('Each reviewed chemistry domain must cover all required observable roles')
+        elif self.case_claims or self.required_chemistry_domains:
+            raise ValueError('Non-numerical contracts require explicit test/rationale review, not numerical case accuracy claims')
+        return self
+
+
+class ReferenceCoverageReview(Contract):
+    schema_version: Literal['topos-reference-coverage-review/1'] = 'topos-reference-coverage-review/1'
+    srs_sha256: str = Field(pattern=HASH_PATTERN)
+    acceptance_ledger_file: str = Field(min_length=1)
+    acceptance_ledger_sha256: str = Field(pattern=HASH_PATTERN)
+    acceptance_ledger_scope_sha256: str = Field(pattern=HASH_PATTERN)
+    reviewer: str = Field(min_length=1)
+    reviewed_at: str
+    review_rationale: str = Field(min_length=1)
+    requirements: list[ReferenceRequirementCoverage] = Field(min_length=1)
+
+    @model_validator(mode='after')
+    def reviewed(self):
+        _timestamp(self.reviewed_at)
+        if not self.reviewer.strip() or not self.review_rationale.strip():
+            raise ValueError('An explicit reviewer identity and substantive applicability rationale are required')
+        if len({item.requirement_id for item in self.requirements}) != len(self.requirements):
+            raise ValueError('Each requirement has exactly one explicit coverage disposition')
+        return self
+
+
 class ReferenceCampaign(Contract):
     schema_version: Literal['topos-reference-plan/1'] = 'topos-reference-plan/1'
     campaign_id: str = Field(pattern=r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$')
     assessment_kind: Literal['scientific-reference', 'reproducibility-calibration']
     predeclaration_rationale: str = Field(min_length=1)
     cases: list[ReferenceCase] = Field(min_length=1)
+    requirement_coverage: ReferenceCoverageReview | None = None
 
     @model_validator(mode='after')
     def unique_scopes(self):
@@ -199,6 +288,16 @@ class ReferenceCampaign(Contract):
         if self.assessment_kind == 'scientific-reference' and any(
                 case.citation.kind == 'native-reproducibility-calibration' for case in self.cases):
             raise ValueError('Native reproducibility references cannot certify independent scientific accuracy')
+        if self.requirement_coverage is not None:
+            if self.assessment_kind != 'scientific-reference':
+                raise ValueError('Reproducibility calibration cannot carry scientific release coverage')
+            cases = {case.case_id: case for case in self.cases}
+            for requirement in self.requirement_coverage.requirements:
+                for claim in requirement.case_claims:
+                    case = cases.get(claim.case_id)
+                    if (case is None or claim.chemistry_domain != case.chemistry_domain
+                            or claim.observable != case.observable or claim.context_sha256 != digest_json(case.context())):
+                        raise ValueError('Coverage claim differs from the exact declared case, chemistry domain or observable context')
         return self
 
 
@@ -225,10 +324,76 @@ def _datum(case: ReferenceCase, path: Path) -> ReferenceDatum:
     return datum
 
 
+def reference_ledger_scope(ledger: dict) -> dict:
+    """Stable reviewed scope; receipt/status updates do not rewrite requirements.
+
+    The exact original ledger is separately retained. Clearing conditions after
+    verification may change its bytes, but changing its science, implementation
+    or test inventory requires a new coverage review before measurements.
+    """
+    rows = ledger.get('requirements')
+    expected = {f'TOPOS-010-{number:03d}' for number in range(1, 51)}
+    if not isinstance(rows, dict) or set(rows) != expected:
+        raise ValueError('Coverage review requires the complete 50-requirement acceptance ledger')
+    scope = {}
+    for name, entry in rows.items():
+        if not isinstance(entry, dict) or not isinstance(entry.get('requirement_source'), str):
+            raise ValueError('Coverage ledger lacks the exact requirement source')
+        scope[name] = {key: entry.get(key) for key in
+                       ('requirement_source', 'assessment', 'coding_gaps', 'implementation', 'acceptance_tests')}
+    return {'srs_sha256': ledger.get('srs_sha256'), 'requirements': scope}
+
+
+def _validate_coverage_ledger(campaign: ReferenceCampaign, path: Path, *, source_root: Path | None = None) -> dict:
+    review = campaign.requirement_coverage
+    if review is None:
+        raise ValueError('No reviewed requirement coverage was declared')
+    if path.is_symlink() or not path.is_file() or path.stat().st_size > 32 * 1024**2:
+        raise IntegrityError('Reviewed coverage ledger must be a bounded regular retained file')
+    if file_digest(path) != review.acceptance_ledger_sha256:
+        raise IntegrityError('Reviewed acceptance ledger bytes changed')
+    ledger = json.loads(path.read_text())
+    if (ledger.get('srs_sha256') != review.srs_sha256
+            or digest_json(reference_ledger_scope(ledger)) != review.acceptance_ledger_scope_sha256):
+        raise IntegrityError('Reviewed requirement scope differs from the bound acceptance ledger')
+    sources = source_inventory(source_root) if source_root is not None else None
+    srs = source_root / '.docs/CoChem-TOPOS_SRS.md' if source_root is not None else None
+    if srs is not None and (srs.is_symlink() or not srs.is_file() or file_digest(srs) != review.srs_sha256):
+        raise IntegrityError('Reference coverage review belongs to a different SRS revision')
+    srs_text = srs.read_text() if srs is not None else None
+    for disposition in review.requirements:
+        entry = ledger['requirements'][disposition.requirement_id]
+        requirement_source = entry['requirement_source']
+        # Bind the actual clause belonging to this ID, not another genuine SRS
+        # sentence copied under a convenient requirement key in a ledger.
+        marker = re.escape(disposition.requirement_id)
+        matching_clauses = (re.findall(rf'(?m)^(?:\|\s*)?\*\*{marker}(?:\.\*\*|\*\*)[^\n]*', srs_text)
+                            if srs_text is not None else None)
+        if (digest_json(requirement_source) != disposition.requirement_source_sha256
+                or matching_clauses is not None and matching_clauses != [requirement_source]):
+            raise IntegrityError('Coverage requirement text differs from its exact current SRS clause')
+        tests = {}
+        for item in entry.get('acceptance_tests', []):
+            if not isinstance(item, dict) or not isinstance(item.get('test_functions'), list):
+                raise IntegrityError('Coverage ledger requires explicit named acceptance tests')
+            for function in item['test_functions']:
+                tests[item['path'] + '::' + function] = item
+        for name in disposition.acceptance_test_references:
+            if name not in tests:
+                raise IntegrityError('Coverage test is not part of that requirement\'s reviewed acceptance inventory')
+            item = tests[name]
+            if sources is not None and (not item['path'].startswith('tests/')
+                    or sources.get(item['path']) != item.get('sha256') or not item.get('sha256')):
+                raise IntegrityError('Coverage acceptance test lacks matching current source identity')
+    return ledger
+
+
 def validate_plan(plan_path: Path) -> ReferenceCampaign:
     campaign = ReferenceCampaign.model_validate(json.loads(plan_path.read_text()))
     for case in campaign.cases:
         _datum(case, plan_path.parent / case.reference_file)
+    if campaign.requirement_coverage is not None:
+        _validate_coverage_ledger(campaign, plan_path.parent / campaign.requirement_coverage.acceptance_ledger_file)
     return campaign
 
 
@@ -242,6 +407,12 @@ def freeze_plan(plan_path: Path, output: Path, measurement_root: Path, *, source
         raise ValueError('Reference freeze and measured RunStores must have distinct directory ownership')
     if output.parent != measurement_root.parent:
         raise ValueError('Frozen references and measured RunStores must be sibling directories in one portable campaign bundle')
+    coverage_ledger = None
+    if campaign.requirement_coverage is not None:
+        coverage_ledger = plan_path.parent / campaign.requirement_coverage.acceptance_ledger_file
+        _validate_coverage_ledger(campaign, coverage_ledger, source_root=source_root)
+        if _timestamp(campaign.requirement_coverage.reviewed_at) > _timestamp(utc_now()):
+            raise ValueError('Coverage must be reviewed before freezing the unmeasured campaign')
     output.mkdir(parents=True)
     references = output / 'references'
     references.mkdir()
@@ -257,6 +428,11 @@ def freeze_plan(plan_path: Path, output: Path, measurement_root: Path, *, source
               'frozen_at': utc_now(), 'measurement_root': '../' + measurement_root.name, 'reference_assets': assets,
               'source_sha256': source_inventory(source_root),
               'predeclaration_limit': 'Local timestamps, directory freshness and immutable RunStore history; no independent trusted timestamping or authorship proof'}
+    if coverage_ledger is not None:
+        target = output / 'reviewed-acceptance-ledger.json'
+        target.write_bytes(coverage_ledger.read_bytes())
+        _validate_coverage_ledger(campaign, target, source_root=source_root)
+        frozen['coverage_ledger'] = target.name
     frozen['freeze_sha256'] = digest_json(frozen)
     path = output / 'frozen-plan.json'
     atomic_json(path, frozen)
@@ -287,6 +463,12 @@ def _frozen(path: Path, source_root: Path) -> tuple[dict, ReferenceCampaign]:
     _timestamp(frozen['frozen_at'])
     _measurement_root(path, frozen)
     campaign = ReferenceCampaign.model_validate(frozen['plan'])
+    if campaign.requirement_coverage is not None:
+        _validate_coverage_ledger(campaign, confined_file(path.parent, frozen['coverage_ledger']), source_root=source_root)
+        if _timestamp(campaign.requirement_coverage.reviewed_at) > _timestamp(frozen['frozen_at']):
+            raise IntegrityError('Coverage review was not completed before the campaign freeze')
+    elif 'coverage_ledger' in frozen:
+        raise IntegrityError('An undeclared coverage ledger cannot supply release eligibility')
     if set(frozen['reference_assets']) != {case.case_id for case in campaign.cases}:
         raise IntegrityError('Frozen reference data membership changed')
     for case in campaign.cases:
@@ -630,7 +812,8 @@ def _native_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tu
                    **({'optimization': optimization_proof} if attempt.engine == 'orca' and case.request.purpose == 'optimize' else {})}
 
 
-def _case_result(case: ReferenceCase, frozen: dict, frozen_path: Path, binding: dict, *, source_root: Path) -> dict:
+def _case_result(case: ReferenceCase, frozen: dict, frozen_path: Path, binding: dict, *, source_root: Path,
+                 registries: dict[str, dict]) -> dict:
     datum = _datum(case, confined_file(frozen_path.parent, frozen['reference_assets'][case.case_id]))
     result = {'case_id': case.case_id, 'chemistry_domain': case.chemistry_domain, 'status': 'pending',
               'observable': case.observable, 'units': case.units, 'definition': case.definition,
@@ -671,14 +854,18 @@ def _case_result(case: ReferenceCase, frozen: dict, frozen_path: Path, binding: 
     expected_sources = {key: value for key, value in frozen['source_sha256'].items() if key.startswith('topos/') and key.endswith('.py')}
     if record.metadata.get('software', {}).get('source_files') != expected_sources:
         raise IntegrityError('Measured native workflow source differs from the predeclared campaign')
-    authority = record.metadata.get('execution_authority', {})
-    base = authority.get('backend') == 'cochem-base' and bool(re.fullmatch(HASH_PATTERN, str(authority.get('registry_sha256', ''))))
+    from .campaign_authority import base_authority_evidence
+
+    try:
+        authority = base_authority_evidence(raw, store, registries)
+        base, authority_reason = True, None
+    except (IntegrityError, ValueError, KeyError, TypeError) as exc:
+        authority, base, authority_reason = None, False, str(exc)
     result.update(run_id=record.run_id, snapshot_id=manifest['snapshot_id'], record_sha256=manifest['record_sha256'],
-                  verified_snapshot_history=history, base_authority_verified=base)
+                  verified_snapshot_history=history, base_authority_verified=base,
+                  base_authority=authority, authority_release_blocker=authority_reason)
     if record.status != 'completed':
         return {**result, 'reason': 'Actual native workflow did not complete; reference acceptance remains pending'}
-    if frozen['plan']['assessment_kind'] == 'scientific-reference' and not base:
-        return {**result, 'reason': 'Scientific release comparison requires mandatory BASE execution authority'}
     try:
         actual, native = _native_value(case, record, store)
     except LookupError as exc:
@@ -694,20 +881,103 @@ def _case_result(case: ReferenceCase, frozen: dict, frozen_path: Path, binding: 
     return result
 
 
-def assess_campaign(frozen_path: Path, bindings: dict[str, dict], *, source_root: Path) -> dict:
+def _assess_requirement_coverage(campaign: ReferenceCampaign, cases: list[dict]) -> dict:
+    """Summarize already independently reverified cases under the frozen review.
+
+    Numerical conditions are deliberately limited to the named observables and
+    domains. A non-numerical disposition remains dependent on executed tests in
+    the release gate; it is not evidence of scientific accuracy or SRS completion.
+    """
+    review = campaign.requirement_coverage
+    rows = {}
+    measured = {case['case_id']: case for case in cases}
+    if review is not None:
+        for disposition in review.requirements:
+            outcomes = []
+            for claim in disposition.case_claims:
+                case = measured[claim.case_id]
+                outcomes.append({**claim.model_dump(mode='json'), 'status': case['status'],
+                                 'base_authority_verified': case.get('base_authority_verified') is True,
+                                 'case_result_sha256': digest_json(case),
+                                 'record_sha256': case.get('record_sha256'),
+                                 'snapshot_id': case.get('snapshot_id')})
+            rows[disposition.requirement_id] = {
+                **disposition.model_dump(mode='json'), 'case_claims': outcomes,
+                'status': ('passed-for-declared-reference-scope' if all(item['status'] == 'passed' and item['base_authority_verified']
+                                                                      for item in outcomes)
+                           else 'pending-or-failed-reference') if outcomes else 'reviewed-non-numerical',
+                'disposition_sha256': digest_json(disposition.model_dump(mode='json')),
+                'separate_executed_acceptance_tests_required': True,
+                'full_requirement_verified': False,
+            }
+    missing = sorted(set(REFERENCE_REQUIREMENTS) - set(rows))
+    complete = (campaign.assessment_kind == 'scientific-reference' and review is not None and not missing
+                and all(row['status'] in {'passed-for-declared-reference-scope', 'reviewed-non-numerical'}
+                        for row in rows.values()))
+    return {'schema_version': 'topos-reference-coverage-assessment/1', 'complete_for_reference_condition': complete,
+            'required_requirements': list(REFERENCE_REQUIREMENTS), 'missing_requirements': missing,
+            'review': review.model_dump(mode='json') if review is not None else None,
+            'review_sha256': digest_json(review.model_dump(mode='json')) if review is not None else None,
+            'requirements': rows,
+            'scope': 'Reviewed reference applicability only; algorithm/native/regression conditions remain independent, and no general method accuracy is certified'}
+
+
+def verify_release_coverage(report: dict, ledger: dict) -> dict:
+    """Bind a recomputed report to the release's current requirement scope.
+
+    Callers must first use verify_report: a claimed dictionary is not native
+    evidence. This function supplies the distinct release inventory gate.
+    """
+    coverage = report.get('requirement_coverage', {})
+    review = coverage.get('review')
+    if (report.get('assessment_kind') != 'scientific-reference' or not isinstance(review, dict)
+            or coverage.get('complete_for_reference_condition') is not True
+            or report.get('base_authority_verified') is not True):
+        raise ValueError('Complete reviewed per-requirement reference coverage is required; narrow comparisons or calibration cannot certify the release')
+    review = ReferenceCoverageReview.model_validate(review)
+    if (digest_json(reference_ledger_scope(ledger)) != review.acceptance_ledger_scope_sha256
+            or ledger.get('srs_sha256') != review.srs_sha256):
+        raise IntegrityError('Release acceptance ledger scientific/test scope differs from the predeclared coverage review')
+    required = set(REFERENCE_REQUIREMENTS)
+    for name, entry in ledger['requirements'].items():
+        if 'scientific_reference_campaign' in entry.get('additional_acceptance_conditions', []):
+            required.add(name)
+    rows = coverage.get('requirements', {})
+    if set(rows) != required or set(coverage.get('required_requirements', [])) != required:
+        raise ValueError('Every scientific_reference_campaign obligation requires its own reviewed coverage disposition')
+    for name, row in rows.items():
+        if (row.get('status') not in {'passed-for-declared-reference-scope', 'reviewed-non-numerical'}
+                or row.get('full_requirement_verified') is not False
+                or row.get('separate_executed_acceptance_tests_required') is not True):
+            raise IntegrityError(f'Reference condition {name} lacks its verified narrow scope and independent test boundary')
+    return coverage
+
+
+def assess_campaign(frozen_path: Path, bindings: dict[str, dict], *, source_root: Path,
+                    base_registry_paths: list[Path] | None = None) -> dict:
     frozen, campaign = _frozen(frozen_path, source_root)
+    from .campaign_authority import retained_registries
+
+    registries, registry_receipts = retained_registries(frozen_path.parent.parent.resolve(), base_registry_paths or [])
     if set(bindings) - {case.case_id for case in campaign.cases}:
         raise ValueError('Measurement bindings contain undeclared reference cases')
     cases = []
     for case in campaign.cases:
-        cases.append(_case_result(case, frozen, frozen_path, bindings.get(case.case_id, {}), source_root=source_root))
+        cases.append(_case_result(case, frozen, frozen_path, bindings.get(case.case_id, {}),
+                                  source_root=source_root, registries=registries))
     statuses = {case['status'] for case in cases}
     comparison_status = 'failed' if 'failed' in statuses else 'pending' if 'pending' in statuses else 'passed'
-    eligible = comparison_status == 'passed' and campaign.assessment_kind == 'scientific-reference'
-    status = 'pending' if comparison_status == 'passed' and not eligible else comparison_status
+    coverage = _assess_requirement_coverage(campaign, cases)
+    authority_verified = all(case.get('base_authority_verified') is True for case in cases)
+    eligible = comparison_status == 'passed' and coverage['complete_for_reference_condition'] and authority_verified
+    status = ('pending' if comparison_status == 'passed' and (campaign.assessment_kind == 'reproducibility-calibration'
+                                                            or not authority_verified)
+              else comparison_status)
     return {'schema_version': 'topos-scientific-reference-campaign/1', 'campaign_id': campaign.campaign_id,
             'status': status, 'comparison_status': comparison_status, 'assessment_kind': campaign.assessment_kind,
             'release_eligible': eligible, 'scientific_reference_campaign': eligible,
+            'requirement_coverage': coverage,
+            'base_registries': registry_receipts, 'base_authority_verified': authority_verified,
             'calibration_passed': comparison_status == 'passed' and campaign.assessment_kind == 'reproducibility-calibration',
             'condition': 'scientific_reference_campaign', 'source_sha256': frozen['source_sha256'],
             'freeze_sha256': frozen['freeze_sha256'], 'frozen_plan_sha256': file_digest(frozen_path),
@@ -715,12 +985,13 @@ def assess_campaign(frozen_path: Path, bindings: dict[str, dict], *, source_root
             'scope': 'Only explicitly named matched reference cases; no general method accuracy or exhaustive sampling claim'}
 
 
-def write_report(frozen_path: Path, bindings: dict[str, dict], output: Path, *, source_root: Path) -> dict:
+def write_report(frozen_path: Path, bindings: dict[str, dict], output: Path, *, source_root: Path,
+                 base_registry_paths: list[Path] | None = None) -> dict:
     if output.exists():
         raise ValueError('A reference assessment cannot overwrite prior evidence')
     if output.parent.resolve() != frozen_path.parent.parent.resolve():
         raise ValueError('The report must belong to the campaign bundle root beside its frozen and measured directories')
-    report = assess_campaign(frozen_path, bindings, source_root=source_root)
+    report = assess_campaign(frozen_path, bindings, source_root=source_root, base_registry_paths=base_registry_paths)
     report.update(frozen_plan=os.path.relpath(frozen_path.resolve(), output.parent.resolve()),
                   measured_runs={case_id: {'run_dir': os.path.relpath(Path(binding['run_dir']).resolve(), output.parent.resolve()),
                                           'record_sha256': binding['record_sha256']} for case_id, binding in bindings.items()},
@@ -744,7 +1015,8 @@ def verify_report(report_path: Path, source_root: Path) -> dict:
         if not run_dir.is_relative_to(report_path.parent.resolve()):
             raise IntegrityError('Measured report locator escapes its portable campaign bundle')
         bindings[case_id] = {**binding, 'run_dir': str(run_dir)}
-    actual = assess_campaign(frozen_path, bindings, source_root=source_root)
+    registry_paths = [confined_file(report_path.parent, item['path']) for item in report['base_registries']]
+    actual = assess_campaign(frozen_path, bindings, source_root=source_root, base_registry_paths=registry_paths)
     expected = {key: value for key, value in report.items() if key not in {'frozen_plan', 'measured_runs', 'assessed_at'}}
     if actual != expected or _timestamp(report['assessed_at']) < _timestamp(json.loads(frozen_path.read_text())['frozen_at']):
         raise IntegrityError('Scientific reference report differs from recomputed immutable evidence')
@@ -765,6 +1037,8 @@ def main(argv: list[str] | None = None) -> int:
     assess.add_argument('frozen_plan', type=Path)
     assess.add_argument('--bindings', type=Path, required=True)
     assess.add_argument('--output', type=Path, required=True)
+    assess.add_argument('--base-registry', type=Path, action='append', default=[],
+                        help='Actual BASE registry with adjacent setup_summary.json inside the portable bundle; repeat for multiple workers')
     for command in (freeze, assess):
         command.add_argument('--source-root', type=Path, default=Path(__file__).resolve().parent.parent)
     args = parser.parse_args(argv)
@@ -777,7 +1051,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({'status': 'frozen', 'frozen_plan': str(freeze_plan(args.plan, args.output, args.measurement_root, source_root=args.source_root))}))
         else:
             bindings = json.loads(args.bindings.read_text())
-            report = write_report(args.frozen_plan, bindings, args.output, source_root=args.source_root)
+            report = write_report(args.frozen_plan, bindings, args.output, source_root=args.source_root,
+                                  base_registry_paths=args.base_registry)
             print(json.dumps({'status': report['status'], 'scientific_reference_campaign': report['scientific_reference_campaign'], 'report': str(args.output)}))
             return 0 if report['status'] == 'passed' else 3
     except (ValueError, OSError, KeyError, TypeError) as exc:

@@ -8,6 +8,7 @@ import socket
 import stat
 import struct
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from topos.ml_extopt import (
     crest_client,
     extopt_client,
     goat_extopt_input,
+    orca_executable_identity,
     parse_extopt_input,
     receive_json,
     send_json,
@@ -124,6 +126,127 @@ def test_endpoint_rejects_nonprivate_socket(tmp_path):
         (tmp_path / 's').chmod(0o666)
         with pytest.raises(ValueError, match='0600'):
             connect_server(tmp_path, timeout=1)
+
+
+def _nonexecuted_hash_contract_file(path):
+    """Byte-identity fixture only: never launched or presented as ORCA output."""
+    path.write_bytes(b'Nonexecuted executable identity contract fixture.\n')
+    path.chmod(0o700)
+    return path
+
+
+def test_actual_executable_identity_reads_bytes_and_resolves_command_alias(tmp_path):
+    binary = _nonexecuted_hash_contract_file(tmp_path / 'native-hash-contract')
+    alias = tmp_path / 'command-alias'
+    alias.symlink_to(binary)
+    observed = orca_executable_identity(alias)
+    assert observed == {'executable': str(alias), 'resolved_path': str(binary),
+                        'sha256': file_digest(binary), 'size_bytes': binary.stat().st_size}
+    binary.write_bytes(b'Different nonexecuted executable identity contract bytes.\n')
+    changed = orca_executable_identity(alias)
+    assert changed['sha256'] != observed['sha256']
+
+
+@pytest.mark.parametrize('case', ['relative', 'missing', 'directory', 'not-executable'])
+def test_executable_identity_requires_actual_executable_regular_file(tmp_path, case):
+    path = tmp_path / 'native-hash-contract'
+    if case == 'relative':
+        path = Path('relative-native-hash-contract')
+    elif case == 'directory':
+        path.mkdir()
+    elif case == 'not-executable':
+        path.write_bytes(b'Nonexecuted, nonexecutable identity fixture.\n')
+        path.chmod(0o600)
+    with pytest.raises((ValueError, OSError)):
+        orca_executable_identity(path)
+
+
+@pytest.mark.parametrize('case', ['bytes', 'alias'])
+def test_identity_rejects_binary_or_alias_replacement_during_hash_observation(tmp_path, monkeypatch, case):
+    from topos import storage
+
+    binary = _nonexecuted_hash_contract_file(tmp_path / 'native-hash-contract')
+    alias = tmp_path / 'command-alias'
+    alias.symlink_to(binary)
+    replacement = _nonexecuted_hash_contract_file(tmp_path / 'replacement-hash-contract')
+    actual_digest = storage.file_digest
+
+    def observe_then_change(path):
+        digest = actual_digest(path)
+        if case == 'bytes':
+            binary.write_bytes(b'Different nonexecuted identity bytes after the actual read.\n')
+        else:
+            alias.unlink()
+            alias.symlink_to(replacement)
+        return digest
+
+    monkeypatch.setattr(storage, 'file_digest', observe_then_change)
+    with pytest.raises(ValueError, match='changed during'):
+        orca_executable_identity(alias)
+
+
+@pytest.mark.parametrize('change', ['none', 'replace', 'delete'])
+def test_extopt_retains_actual_hash_and_rejects_changed_binary_on_blocked_loader(tmp_path, change):
+    """Negative launch contract: no ORCA or model process/output is simulated."""
+    from topos.ml import ModelManifest
+    from topos.ml_extopt import run_goat_extopt
+
+    binary = _nonexecuted_hash_contract_file(tmp_path / 'native-hash-contract')
+    initial_hash = file_digest(binary)
+    checkpoint = tmp_path / 'unloaded-checkpoint-contract'
+    checkpoint.write_bytes(b'Unloaded checkpoint metadata contract; not a scientific model.\n')
+    manifest = ModelManifest(backend='mace', family='negative launch contract', package_version='0.3.16',
+        members=[{'path': str(checkpoint), 'sha256': file_digest(checkpoint),
+                  'training_run_id': 'not-a-scientific-result', 'source': 'unloaded metadata contract'}],
+        training_method='metadata contract', license_name='metadata contract', license_url='metadata contract',
+        supported_elements=['H', 'O'], supported_charges=[0], supported_multiplicities=[1],
+        precision='float64', domain_reference='metadata contract')
+
+    class DeliberatelyBlockedRuntime:
+        calls = []
+
+        def resolve_executable(self, engine):
+            return str(binary) if engine == 'orca' else sys.executable
+
+        def run_ml_process(self, *args, **kwargs):
+            raise AssertionError('Negative native preflight must not start model inference')
+
+        def run_process(self, command, *args, **kwargs):
+            self.calls.append(command)
+            assert command == [str(binary), 'version.inp']
+            if change == 'replace':
+                binary.write_bytes(b'Changed nonexecuted native identity during blocked invocation.\n')
+            elif change == 'delete':
+                binary.unlink()
+            raise RuntimeError('Deliberately blocked negative launch; no native process executed')
+
+    runtime = DeliberatelyBlockedRuntime()
+    result = run_goat_extopt(water(), manifest, ResourceLimits(threads=2, memory_mb=1024),
+        tmp_path / 'attempt', runtime=runtime, allocation=ExtOptAllocation(1, 512, 1, 512))
+    assert runtime.calls == [[str(binary), 'version.inp']]
+    assert result.status == 'failed' and not result.ensemble and not result.command
+    assert result.metadata['execution_kind'] == 'not-executed'
+    assert result.metadata['executable'] == str(binary)
+    assert result.metadata['executable_sha256'] == initial_hash
+    identity = result.metadata['orca_executable_identity']
+    assert result.metadata['orca_executable_identity_sha256'] == digest_json(identity)
+    assert identity['sha256'] == initial_hash
+    observations = result.metadata['orca_executable_observations']
+    assert observations[0]['identity'] == identity
+    assert observations[0]['phase'] == 'resolved-before-native-invocation'
+    assert observations[1]['phase'] == 'before-loader-invocation'
+    if change == 'none':
+        assert result.metadata['orca_executable_stable'] is True
+        assert all(entry['matches_initial'] for entry in observations)
+        assert [entry['phase'] for entry in observations][-2:] == [
+            'after-loader-invocation', 'finalization-after-server-cleanup']
+        assert 'Deliberately blocked' in result.diagnostics['reason']
+    else:
+        assert result.metadata['orca_executable_stable'] is False and result.converged is False
+        assert 'stability could not be established' in result.diagnostics['reason']
+        assert 'orca_executable_error' in result.diagnostics
+        if change == 'replace':
+            assert any(not entry['matches_initial'] for entry in observations)
 
 
 def test_authentic_persistent_mace_extopt_callback_and_unit_conversion(tmp_path):

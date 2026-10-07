@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import shutil
@@ -11,9 +12,11 @@ from pathlib import Path
 
 import pytest
 
+from topos.campaign_authority import base_authority_evidence, retained_registries
 from topos.config import SystemConfig
 from topos.matrix_campaign import (
     CampaignPlan,
+    _native_evidence,
     _predeclaration_evidence,
     assess,
     create_plan,
@@ -21,9 +24,9 @@ from topos.matrix_campaign import (
     verify_report,
 )
 from topos.method_matrix import MATRIX_REVISION
-from topos.models import Attempt, Molecule, RunRecord, RunRequest
+from topos.models import Artifact, Attempt, Molecule, RunRecord, RunRequest
 from topos.release import source_inventory
-from topos.storage import IntegrityError, RunStore, atomic_json
+from topos.storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest
 from topos.workflow import Workflow
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -54,6 +57,7 @@ def test_inventory_preserves_exact_owner_scope_and_two_unavailable_rows(tmp_path
     atomic_json(path, plan)
     report = assess(path, [], ROOT)
     assert report["status"] == "blocked"
+    assert report["release_eligible"] is False and report["release_eligible_rows"] == 0
     assert report["counts"] == {"passed": 0, "failed": 0, "pending": 42}
     assert not plan["cases"]
 
@@ -146,6 +150,189 @@ def test_postdeclaration_history_is_verified_and_missing_history_members_fail(tm
         _predeclaration_evidence(store.load(), store, declared)
 
 
+@pytest.fixture
+def authority_guard_contract(tmp_path):
+    """Control-plane contracts only; these contain no scientific native output."""
+    schema = pytest.importorskip("cochem_base.cochem_core_registry_schema")
+    phase_reports = [{"phase_number": i, "status": "PASSED", "success": True,
+                      "report": {"phase_id": f"authority-guard-only-{i}", "status": "PASSED", "errors": []}}
+                     for i in range(1, 12)]
+    registry = schema.CoChemSystemConfig.model_validate({
+        "status": "ACTIVE", "hardware": {"ram_gb": 4, "allocatable_compute_cores": 2, "maxcore_mb": 1024},
+        "engines": {"xtb": {"status": "found", "path": "/authority-guard-only/xtb", "hash": "a" * 64}},
+        "stage0": {"completed_at": "2026-10-07T12:00:00+00:00", "phases": [
+            {"phase_number": entry["phase_number"], "status": "PASSED",
+             "sha256": hashlib.sha256(json.dumps(entry["report"], sort_keys=True).encode()).hexdigest()}
+            for entry in phase_reports]},
+    })
+    # BASE fills legacy hardware aliases on round-trip; checksum the canonical
+    # persisted schema rather than the initial compact constructor arguments.
+    registry = schema.CoChemSystemConfig.model_validate(registry.model_dump(mode="json"))
+    registry.update_checksum()
+    path = tmp_path / "registry.json"
+    atomic_json(path, registry.model_dump(mode="json"))
+    atomic_json(tmp_path / "setup_summary.json", {"dry_run": False, "registry_path": str(path),
+                                                 "artifact_dir": str(path.parent.parent), "phases_executed": phase_reports})
+    registries, _ = retained_registries(tmp_path, [path])
+    authority = {"backend": "cochem-base", "registry_sha256": file_digest(path),
+                 "registry_path": str(path),
+                 "registry_checksum": registry.registry_checksum,
+                 "ecosystem": {"available": True, "problems": [], "components": {
+                     name: {"available": True} for name in ("CoChem-BASE", "CoChem-TOPOS", "CoChem-TORQ")}}}
+    record = RunRecord(request=request(), metadata={"execution_provider": "CoChem-BASE", "execution_authority": authority,
+                                                   "matrix_execution": {"children": []}})
+    # A native identity contract, not calculation output or a campaign receipt.
+    record.attempts.append(Attempt(run_id=record.run_id, engine="xtb", method="GFN2-xTB", status="completed",
+                                  command=["/authority-guard-only/xtb"], metadata={"executable_sha256": "a" * 64}))
+    store = RunStore(tmp_path / "contract-only")
+    store.commit(record)
+    return tmp_path, path, registries, record, store
+
+
+@pytest.mark.parametrize("change", ["development", "missing-registry", "checksum", "binary", "path", "allocation"])
+def test_base_authority_guard_rejects_backend_labels_without_exact_audit(authority_guard_contract, change):
+    _, _, registries, record, store = authority_guard_contract
+    raw = record.model_dump(mode="json")
+    if change == "development":
+        raw["metadata"]["execution_authority"]["backend"] = "development"
+    elif change == "missing-registry":
+        registries = {}
+    elif change == "checksum":
+        raw["metadata"]["execution_authority"]["registry_checksum"] = "c" * 64
+    elif change == "binary":
+        raw["attempts"][0]["metadata"]["executable_sha256"] = "c" * 64
+    elif change == "path":
+        raw["attempts"][0]["command"][0] = "/authority-guard-only/unaudited-wrapper"
+    else:
+        raw["request"]["threads"] = 3
+    with pytest.raises(IntegrityError):
+        base_authority_evidence(raw, store, registries)
+
+
+def test_retained_base_audit_is_portable_and_checksum_tampering_fails(authority_guard_contract, tmp_path):
+    root, path, registries, record, store = authority_guard_contract
+    proof = base_authority_evidence(record.model_dump(mode="json"), store, registries)
+    assert proof["native_attempts"][0]["executable_sha256"] == "a" * 64
+    relocated = tmp_path / "relocated"
+    relocated.mkdir()
+    copied = relocated / path.name
+    shutil.copyfile(path, copied)
+    shutil.copyfile(root / "setup_summary.json", relocated / "setup_summary.json")
+    assert retained_registries(relocated, [copied])[0] == registries
+    wrong = json.loads(copied.read_text())
+    wrong["hardware"]["ram_gb"] = 8
+    atomic_json(copied, wrong)
+    with pytest.raises(IntegrityError, match="checksum"):
+        retained_registries(relocated, [copied])
+    with pytest.raises(IntegrityError, match="inside the campaign bundle"):
+        retained_registries(relocated, [root / path.name])
+
+
+@pytest.mark.parametrize("change", ["missing", "report-bytes", "unexecuted", "audit-errors", "dry-run"])
+def test_registry_checksum_cannot_replace_actual_eleven_phase_reports(authority_guard_contract, change):
+    root, path, _, _, _ = authority_guard_contract
+    summary_path = root / "setup_summary.json"
+    summary = json.loads(summary_path.read_text())
+    if change == "missing":
+        summary_path.unlink()
+    else:
+        if change == "report-bytes":
+            summary["phases_executed"][0]["report"]["unreviewed_field"] = "changed actual report bytes"
+        elif change == "unexecuted":
+            summary["phases_executed"].pop()
+        elif change == "audit-errors":
+            summary["phases_executed"][0]["report"]["errors"] = ["unresolved audit error"]
+        else:
+            summary["dry_run"] = True
+        atomic_json(summary_path, summary)
+    with pytest.raises(IntegrityError):
+        retained_registries(root, [path])
+
+
+@pytest.mark.parametrize("change", [None, "scan-gradient-child", "development-child", "changed-copy", "missing-child"])
+def test_copied_child_requires_its_exact_independent_base_authority(authority_guard_contract, change):
+    _, _, registries, record, store = authority_guard_contract
+    from topos.matrix_workflow import _append_child
+
+    child = record.model_copy(deep=True)
+    child.run_id = "run_authority_child_guard"
+    child.attempts[0].run_id = child.run_id
+    child.attempts[0].attempt_id = "attempt_authority_child_guard"
+    if change == "development-child":
+        child.metadata["execution_authority"]["backend"] = "development"
+    child_dir = store.run_dir / "children" / child.run_id
+    _append_child(record, child, store.run_dir, child_dir, "authority-guard", include_candidates=False)
+    record.metadata["matrix_execution"]["children"] = [{"task_id": "authority-guard", "run_id": child.run_id,
+                                                        "record_sha256": digest_json(child.model_dump(mode="json"))}]
+    store.commit(record)
+    raw = store.load()
+    if change == "scan-gradient-child":
+        raw["metadata"]["matrix_execution"]["children"] = []
+    elif change == "changed-copy":
+        raw["attempts"][-1]["command"].append("--unreviewed-option")
+    elif change == "missing-child":
+        raw["artifacts"] = []
+    if change in (None, "scan-gradient-child"):
+        assert base_authority_evidence(raw, store, registries)["child_run_ids"] == [child.run_id]
+    else:
+        with pytest.raises(IntegrityError):
+            base_authority_evidence(raw, store, registries)
+
+
+def test_campaign_cannot_promote_missing_42_base_rows_by_editing_release_boolean(tmp_path):
+    plan_path, report_path = tmp_path / "declared.json", tmp_path / "report.json"
+    atomic_json(plan_path, create_plan(ROOT))
+    report = assess(plan_path, [], ROOT)
+    report["release_eligible"] = True
+    report["release_eligible_rows"] = 42
+    report["status"] = "passed"
+    atomic_json(report_path, report)
+    with pytest.raises(IntegrityError, match="differs"):
+        verify_report(report_path, ROOT)
+
+
+@pytest.mark.parametrize("change", [None, "manifest", "zero", "partial", "boolean", "missing-session", "missing-binary"])
+def test_extopt_callback_contract_cannot_be_bypassed_by_present_native_hash(tmp_path, change):
+    """Consumer metadata guard only; no ExtOpt process/model result is claimed.
+
+    The normal-termination bytes are an unmodified historical native HF-3c
+    parser fixture. Callback fields below are explicitly control-plane inputs,
+    not an actual callback receipt or a complete matrix/scientific calculation.
+    """
+    fixture = ROOT / "tests/v010/fixtures/orca611"
+    provenance = json.loads((fixture / "provenance.json").read_text())
+    native = fixture / "hf3c-water-native.stdout"
+    assert file_digest(native) == provenance["files"][native.name]
+    store = RunStore(tmp_path / "extopt-metadata-guard-only")
+    output = store.run_dir / "native-fixture.stdout"
+    shutil.copyfile(native, output)
+    metadata = {"execution_kind": "real", "executable_sha256": "d" * 64, "manifest_sha256": "e" * 64,
+                "server_summary": {"manifest_sha256": "e" * 64, "requests": 2, "successful_requests": 2}}
+    if change == "manifest":
+        metadata["server_summary"]["manifest_sha256"] = "f" * 64
+    elif change == "zero":
+        metadata["server_summary"].update(requests=0, successful_requests=0)
+    elif change == "partial":
+        metadata["server_summary"]["successful_requests"] = 1
+    elif change == "boolean":
+        metadata["server_summary"].update(requests=True, successful_requests=True)
+    elif change == "missing-session":
+        metadata["server_summary"] = None
+    elif change == "missing-binary":
+        metadata.pop("executable_sha256")
+    record = RunRecord(request=request())
+    record.attempts.append(Attempt(run_id=record.run_id, engine="orca", method="HF-3c",
+        command=["/nonexecuted-metadata-guard-only/orca", "original-hf3c-input.inp"], status="completed", converged=True,
+        engine_version="6.1.1", validation_status="validated-for-protocol", metadata=metadata,
+        artifacts=[Artifact(path=output.name, sha256=file_digest(output), size_bytes=output.stat().st_size, role="raw-output")]))
+    store.commit(record)
+    if change is None:
+        assert _native_evidence(store.load(), store)[0]["identity_sha256"] == metadata["executable_sha256"]
+    else:
+        with pytest.raises(IntegrityError, match="hashed executable" if change == "missing-binary" else "callback session"):
+            _native_evidence(store.load(), store)
+
+
 @pytest.fixture(scope="module")
 def actual_row(tmp_path_factory):
     choices = [os.environ.get("TOPOS_XTB_EXECUTABLE", "xtb"),
@@ -186,7 +373,10 @@ def test_genuine_current_source_matrix_row_is_counted_once_and_report_reverifies
     row = next(item for item in report["rows"] if item["row_id"] == "T3O-10s")
     assert row["status"] == "passed"
     assert row["results"][0]["evidence"]["native_attempts"]
-    assert report["status"] == "blocked"
+    assert report["status"] == "pending"
+    assert report["release_eligible"] is False and report["release_eligible_rows"] == 0
+    assert row["release_eligible"] is False
+    assert "BASE execution authority" in row["results"][0]["evidence"]["release_blocker"]
     with pytest.raises(IntegrityError, match="Duplicate"):
         assess(plan_path, [store.run_dir, store.run_dir], sources)
     forged = copy.deepcopy(report)

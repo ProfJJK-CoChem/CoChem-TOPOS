@@ -101,9 +101,94 @@ def test_actual_native_repeatability_stays_pending_for_scientific_release(measur
     assert report['status']=='pending' and report['comparison_status']=='passed'
     assert report['calibration_passed'] is True and report['release_eligible'] is False
     assert report['scientific_reference_campaign'] is False
+    assert report['base_authority_verified'] is False
+    assert report['cases'][0]['base_authority_verified'] is False
     assert report['cases'][0]['native']['engine_version']=='6.7.1'
     assert report['cases'][0]['verified_snapshot_history']
     assert verify_report(frozen.parent.parent/(tmp_path.name+'-assessment.json'),ROOT)==report
+
+
+def test_borrowed_native_bytes_cannot_be_promoted_by_a_base_label_and_arbitrary_registry_hash(measured_campaign, tmp_path):
+    _, _, frozen, run, _ = measured_campaign
+
+    def relabel(record):
+        record['metadata']['execution_provider'] = 'CoChem-BASE'
+        record['metadata']['execution_authority'] = {
+            'backend': 'cochem-base', 'registry_sha256': 'a'*64, 'registry_checksum': 'b'*64,
+            'ecosystem': {'available': True, 'problems': [], 'components': {
+                name: {'available': True} for name in ('CoChem-BASE', 'CoChem-TOPOS', 'CoChem-TORQ')}}}
+
+    bindings = _bad_run(run, measured_campaign, tmp_path, relabel)
+    # Deliberate negative control: a relabelled calibration is NOT independent
+    # literature evidence. These edits imitate a forged claim only to reject it.
+    payload = json.loads(frozen.read_text())
+    payload['plan']['assessment_kind'] = 'scientific-reference'
+    payload['plan']['cases'][0]['citation']['kind'] = 'official-documentation'
+    payload['freeze_sha256'] = digest_json({key: value for key, value in payload.items() if key != 'freeze_sha256'})
+    forged = frozen.parent/(tmp_path.name+'-forged.json')
+    forged.write_text(json.dumps(payload))
+    report = assess_campaign(forged, bindings, source_root=ROOT)
+    assert report['comparison_status'] == 'passed'  # Unchanged genuine numeric result remains diagnostically usable.
+    assert report['status'] == 'pending'
+    assert report['release_eligible'] is False and report['base_authority_verified'] is False
+    assert report['cases'][0]['base_authority'] is None
+    assert 'retained Stage 0 registry' in report['cases'][0]['authority_release_blocker']
+
+
+@pytest.mark.integration
+def test_actual_base_calibration_retains_and_reverifies_portable_registry_authority(tmp_path):
+    """Two real BASE xTB observations; never independent physical accuracy."""
+    path = os.environ.get('COCHEM_CONFIG')
+    if not path or not Path(path).is_file():
+        if os.environ.get('TOPOS_REQUIRE_BASE') == '1':
+            pytest.fail('Actual BASE reference acceptance requires the completed Stage 0 registry')
+        pytest.skip('Actual BASE Stage 0 registry is unavailable')
+    config = SystemConfig(execution_backend='base', base_registry_path=Path(path))
+    request = RunRequest(molecule=Molecule(symbols=['O','H','H'], coordinates=[[0,0,0],[.9584,0,0],[-.239,.927,0]]),
+                         purpose='energy', engine='xtb', method='GFN2-xTB', profile_id='xtb-tight-v1',
+                         budget_seconds=30, threads=1, memory_mb=1024)
+    prior = Workflow(tmp_path/'prior', config=config).run(request)
+    assert prior.status == 'completed', prior.metadata.get('termination_reason')
+    energy = next(candidate.energy_hartree for candidate in prior.candidates if candidate.status == 'eligible')
+    plan = _plan(tmp_path, request, energy)
+    frozen = freeze_plan(plan, tmp_path/'frozen', tmp_path/'measurements', source_root=ROOT)
+    observed = Workflow(tmp_path/'measurements', config=config).run(request)
+    assert observed.status == 'completed', observed.metadata.get('termination_reason')
+    store = RunStore(observed.metadata['run_dir'])
+    bindings = {'water-energy': {'run_dir': str(store.run_dir), 'record_sha256': store.verify()['record_sha256']}}
+    retained = tmp_path/'actual-base-registry.json'
+    retained.write_bytes(Path(path).read_bytes())
+    summary = Path(path).parent/'setup_summary.json'
+    if not summary.is_file() or summary.is_symlink():
+        pytest.fail('Actual BASE reference acceptance requires its retained eleven-phase setup reports')
+    (tmp_path/'setup_summary.json').write_bytes(summary.read_bytes())
+    report_path = tmp_path/'base-reference-report.json'
+    report = write_report(frozen, bindings, report_path, source_root=ROOT, base_registry_paths=[retained])
+    assert report['comparison_status'] == 'passed' and report['base_authority_verified'] is True
+    assert report['status'] == 'pending' and report['release_eligible'] is False
+    assert report['cases'][0]['base_authority']['native_attempts'][0]['engine'] == 'xtb'
+    assert report['base_registries'][0]['registry_sha256'] == observed.metadata['execution_authority']['registry_sha256']
+    assert len(report['base_registries'][0]['verified_phase_reports']) == 11
+    assert report['base_registries'][0]['setup_summary_sha256'] == file_digest(tmp_path/'setup_summary.json')
+    relocated = tmp_path/'portable'
+    relocated.mkdir()
+    for name in ('frozen', 'measurements'):
+        shutil.copytree(tmp_path/name, relocated/name)
+    for name in (retained.name, report_path.name, 'setup_summary.json'):
+        shutil.copyfile(tmp_path/name, relocated/name)
+    assert verify_report(relocated/report_path.name, ROOT) == report
+    # A changed checksum or stripped registry cannot preserve a claimed pass.
+    changed = json.loads((relocated/retained.name).read_text())
+    changed['hardware']['ram_gb'] += 1
+    (relocated/retained.name).write_text(json.dumps(changed))
+    with pytest.raises(IntegrityError, match='registry|Registry|checksum'):
+        verify_report(relocated/report_path.name, ROOT)
+    shutil.copyfile(retained, relocated/retained.name)
+    changed_setup = json.loads((relocated/'setup_summary.json').read_text())
+    changed_setup['phases_executed'][0]['report']['status'] = 'changed-setup-evidence'
+    (relocated/'setup_summary.json').write_text(json.dumps(changed_setup))
+    with pytest.raises(IntegrityError, match='setup reports'):
+        verify_report(relocated/report_path.name, ROOT)
 
 
 def test_reference_plan_frozen_without_any_measurement_reports_pending(measured_campaign):

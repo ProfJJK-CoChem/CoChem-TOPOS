@@ -106,6 +106,25 @@ def _pytest_cases(receipt: dict[str, Any], receipt_path: Path, current: dict[str
     return cases
 
 
+def _reference_acceptance_test_coverage(coverage: dict, executed: dict[str, str]) -> dict[str, list[str]]:
+    """A reviewed non-numerical disposition cannot waive its actual test gate."""
+    verified = {}
+    for name, row in coverage['requirements'].items():
+        matches_for_requirement = []
+        for reference in row['acceptance_test_references']:
+            parts = reference.split('::')
+            if len(parts) != 2 or not parts[0].startswith('tests/') or not parts[0].endswith('.py'):
+                raise ValueError(f'{name} has an invalid named acceptance test reference')
+            module, function = parts[0][:-3].replace('/', '.'), parts[1]
+            matches = {key: value for key, value in executed.items()
+                       if key.split('::')[0] == module and key.split('::')[-1].split('[')[0] == function}
+            if not matches or any(value != 'passed' for value in matches.values()):
+                raise ValueError(f'{name}: reviewed acceptance test {reference} lacks current-source executed passing evidence')
+            matches_for_requirement.extend(matches)
+        verified[name] = sorted(set(matches_for_requirement))
+    return verified
+
+
 def release_gate(root: Path, *, validation: Path | None = None, installation: Path | None = None,
                  hosted: Path | None = None, srs_acceptance: Path | None = None,
                  distribution_manifest: Path | None = None,
@@ -301,6 +320,7 @@ def release_gate(root: Path, *, validation: Path | None = None, installation: Pa
         (scientific_reference_campaign, "Scientific reference campaign", "scientific_references"),
         (reviewed_matrix_campaign, "Reviewed matrix campaign", "matrix_campaign"),
     ]
+    scientific_coverage = None
     for path, label, module_name in campaigns:
         claimed = load(path, label)
         if not claimed:
@@ -313,13 +333,28 @@ def release_gate(root: Path, *, validation: Path | None = None, installation: Pa
             actual = verify_report(path, root)
             if actual.get("status") != "passed" or actual.get("source_sha256") != current:
                 raise ValueError("completed current-source campaign acceptance is required")
-            if module_name == "scientific_references" and actual.get("release_eligible") is not True:
-                raise ValueError("reproducibility calibration cannot replace independent scientific reference acceptance")
-        except (ValueError, OSError, TypeError, KeyError, RuntimeError) as exc:
+            if module_name == "scientific_references":
+                from .scientific_references import verify_release_coverage
+
+                if actual.get("release_eligible") is not True:
+                    raise ValueError("complete reviewed per-requirement coverage is required; narrow comparisons and calibration cannot certify the release")
+                scientific_coverage = verify_release_coverage(actual, ledger)
+                executed = _pytest_cases(verified, validation, current)
+                for index, supplement_path in enumerate(supplemental_validations or []):
+                    supplement = load(supplement_path, f"supplemental pytest {index + 1}")
+                    for name, state in _pytest_cases(supplement, supplement_path, current).items():
+                        if state == 'passed':
+                            executed[name] = state
+                scientific_coverage = {**scientific_coverage, 'executed_acceptance_tests':
+                                       _reference_acceptance_test_coverage(scientific_coverage, executed)}
+            elif actual.get('release_eligible') is not True:
+                raise ValueError('Every reviewed matrix row requires actual mandatory BASE execution authority for release')
+        except (ValueError, OSError, TypeError, KeyError, RuntimeError, ET.ParseError) as exc:
             blockers.append(f"{label}: {exc}")
     return {"schema_version": "topos-release-gate/0.1.0", "status": "blocked" if blockers else "passed",
             "release_certified": not blockers, "published": False, "source_sha256": current,
-            "matrix_support": support, "evidence": evidence, "testcase_coverage": coverage, "blockers": blockers,
+            "matrix_support": support, "evidence": evidence, "testcase_coverage": coverage,
+            "scientific_reference_coverage": scientific_coverage, "blockers": blockers,
             "scope": "Full TOPOS requirement acceptance; does not certify TORQ's unfinished scientific implementation"}
 
 
