@@ -1,0 +1,598 @@
+{
+  "schema_version": "topos-open-source-validation/0.1.0",
+  "recorded_at_utc": "2026-10-07T05:07:52.831741+00:00",
+  "git_head": "6a01b0f2adb7cff02edda6e339facf3d6f93904d",
+  "working_tree_dirty": true,
+  "python": "3.12.14",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "scope": "Local Linux xTB/CREST and generation-level deduplication. Full regression includes ORCA infrastructure/parser tests but no licensed ORCA calculation.",
+  "regression_tests": {
+    "tests": 330,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 114.333,
+    "junit_path": "/workspace/.cochem-setup/nolicense-full-tests.xml",
+    "junit_sha256": "fc7ab1e82ceabf4f2bad28edea68015ed8e1c082995f57569eee06020bcec7fb"
+  },
+  "supplementary_tests": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 1.594,
+    "junit_path": "/workspace/.cochem-setup/nolicense-final-guard-tests.xml",
+    "junit_sha256": "a81ed0df4583de0227eca1648cde47017070262d62ceb294081e5d32aefa17fd",
+    "reason": "Positive genuine-engine requirement and decision contracts after moving the CI guard to collection-finish, so normal whole-suite discovery invokes it."
+  },
+  "checks": {
+    "ruff": "passed",
+    "pip_check": "passed",
+    "actionlint": "v1.7.7 passed; optional shellcheck integration disabled",
+    "git_diff_check": "passed",
+    "wheel_and_sdist_build": "passed",
+    "missing_engine_ci_guard": "passed: full collection with deliberately missing executables exits4 with explicit required-engine error"
+  },
+  "engines": {
+    "xtb": {
+      "version": "6.7.1",
+      "path": "/workspace/.tools/xtb-dist/bin/xtb",
+      "binary_sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a"
+    },
+    "crest": {
+      "version": "3.0.2",
+      "path": "/workspace/.tools/crest-3.0.2/crest/crest",
+      "binary_sha256": "201db7940796c4af3652245ba7c8e1a4234767f4e19223772fbd83098d5f2142"
+    }
+  },
+  "public_cli_examples": [
+    {
+      "example": "examples/water-search.json",
+      "request_sha256": "18cd70ac67a065af1113e6335694d6cf3ecb640adb4b22084a5fbd105024d3a0",
+      "command": [
+        "/workspace/.venvs/cochem-topos/bin/python",
+        "-m",
+        "topos",
+        "run",
+        "--request",
+        "examples/water-search.json",
+        "--output-root",
+        "/workspace/.cochem-setup/nolicense-cli/runs"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "wall_seconds": 3.6515001309999207,
+      "run_id": "run_8fbb7811448144a6856b75bc510d5673",
+      "run_dir": "/workspace/.cochem-setup/nolicense-cli/runs/run_8fbb7811448144a6856b75bc510d5673",
+      "snapshot_id": "7e491202e28b9e2b740974420f3e7d0960303e2786b7a7a096577a5ed36709d0",
+      "search_summary": {
+        "requested_samples": 3,
+        "processed_samples": 3,
+        "completed_samples": 3,
+        "unique_eligible": 1,
+        "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately",
+        "candidate_observations": 3,
+        "exhaustive": false
+      },
+      "deduplication": {
+        "status": "completed",
+        "profile": "topos-conservative-generation-v1",
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6–7",
+        "energy_threshold_kcal_mol": 0.05,
+        "rotational_threshold_fraction": 0.01,
+        "rmsd_threshold_angstrom": 0.125,
+        "pair_comparisons": 2,
+        "inconclusive_comparisons": 0,
+        "enantiomers": "kept distinct; no inferred degeneracy",
+        "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+      },
+      "candidate_statuses": {
+        "duplicate": 2,
+        "eligible": 1
+      },
+      "native_frame_counts": [],
+      "engines": [
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "execution_source_files": {
+        "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+        "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+        "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+        "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+        "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+        "topos/capabilities.py": "7aa553260ff1fd78bd228fe27a436e9696f61189be679c16521be679ccf5f062",
+        "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+        "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+        "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+        "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+        "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+        "topos/engines.py": "189adb97fc7d83c0fc18942badc11e435c80a906077c2c5d2d72d46ef1e94754",
+        "topos/models.py": "83a297473893244fbf1178e545efe6afbb954f7d0a00c00a7a5ad4b429633a34",
+        "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+        "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+        "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+        "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+        "topos/sampling.py": "14f15e2b7fdadcedb1805211cd07780baa763f6b200fbeadc67942c106127dea",
+        "topos/science.py": "d128b96edb0df8c0c914482e017dcbcf3741c4f1252023a4d56911f1ed8a862f",
+        "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+        "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+        "topos/ui.py": "221bea02ec2fa6e2e62b793c5020b899e687944e6d052accfdbeecdbae5b0f31",
+        "topos/workflow.py": "36f53af1c58b0061082516fa15a96bd988107154b16b1a96464c97f6077318c4"
+      },
+      "result_record_sha256": "1bbe8080fbe4724bfb850df28ff921f1aedd39a1739edfdca6f2d67efc38563b"
+    },
+    {
+      "example": "examples/water-crest-mquick.json",
+      "request_sha256": "1c4e9e4eee71616a0f33a0104fb6d40dd7e80281ca40f704c057f383112e5cbb",
+      "command": [
+        "/workspace/.venvs/cochem-topos/bin/python",
+        "-m",
+        "topos",
+        "run",
+        "--request",
+        "examples/water-crest-mquick.json",
+        "--output-root",
+        "/workspace/.cochem-setup/nolicense-cli/runs"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "wall_seconds": 5.960069733999262,
+      "run_id": "run_df3819a2cd914aa18ed5e6c999931e17",
+      "run_dir": "/workspace/.cochem-setup/nolicense-cli/runs/run_df3819a2cd914aa18ed5e6c999931e17",
+      "snapshot_id": "b16a52d9159419f437cf23143c180995950ec04b4389561c2bba1a7f3b043436",
+      "search_summary": {
+        "requested_samples": 2,
+        "processed_samples": 2,
+        "completed_samples": 2,
+        "unique_eligible": 1,
+        "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately",
+        "candidate_observations": 2,
+        "exhaustive": false
+      },
+      "deduplication": {
+        "status": "completed",
+        "profile": "topos-conservative-generation-v1",
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6–7",
+        "energy_threshold_kcal_mol": 0.05,
+        "rotational_threshold_fraction": 0.01,
+        "rmsd_threshold_angstrom": 0.125,
+        "pair_comparisons": 1,
+        "inconclusive_comparisons": 0,
+        "enantiomers": "kept distinct; no inferred degeneracy",
+        "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+      },
+      "candidate_statuses": {
+        "duplicate": 1,
+        "eligible": 1
+      },
+      "native_frame_counts": [
+        1
+      ],
+      "engines": [
+        [
+          "crest",
+          "3.0.2"
+        ],
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "execution_source_files": {
+        "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+        "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+        "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+        "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+        "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+        "topos/capabilities.py": "7aa553260ff1fd78bd228fe27a436e9696f61189be679c16521be679ccf5f062",
+        "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+        "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+        "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+        "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+        "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+        "topos/engines.py": "189adb97fc7d83c0fc18942badc11e435c80a906077c2c5d2d72d46ef1e94754",
+        "topos/models.py": "83a297473893244fbf1178e545efe6afbb954f7d0a00c00a7a5ad4b429633a34",
+        "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+        "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+        "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+        "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+        "topos/sampling.py": "14f15e2b7fdadcedb1805211cd07780baa763f6b200fbeadc67942c106127dea",
+        "topos/science.py": "d128b96edb0df8c0c914482e017dcbcf3741c4f1252023a4d56911f1ed8a862f",
+        "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+        "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+        "topos/ui.py": "221bea02ec2fa6e2e62b793c5020b899e687944e6d052accfdbeecdbae5b0f31",
+        "topos/workflow.py": "36f53af1c58b0061082516fa15a96bd988107154b16b1a96464c97f6077318c4"
+      },
+      "result_record_sha256": "b1c8f561250bf083aeba08fef39a715f7a93cb69094fe11fdf31cabc7b98e449"
+    },
+    {
+      "example": "examples/water-union.json",
+      "request_sha256": "bfb2536018f1689f9bce5a623f145ab19ede4a063f49d33e79feebf0ca5deb7d",
+      "command": [
+        "/workspace/.venvs/cochem-topos/bin/python",
+        "-m",
+        "topos",
+        "run",
+        "--request",
+        "examples/water-union.json",
+        "--output-root",
+        "/workspace/.cochem-setup/nolicense-cli/runs"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "wall_seconds": 6.129651700997783,
+      "run_id": "run_106937bd3a5d493c87b9271e9af2f987",
+      "run_dir": "/workspace/.cochem-setup/nolicense-cli/runs/run_106937bd3a5d493c87b9271e9af2f987",
+      "snapshot_id": "953ec19e914d598fa7152d8744ffa54647226053704187afb1238db793c8f12b",
+      "search_summary": {
+        "requested_samples": 3,
+        "processed_samples": 3,
+        "completed_samples": 3,
+        "unique_eligible": 1,
+        "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately",
+        "candidate_observations": 3,
+        "exhaustive": false
+      },
+      "deduplication": {
+        "status": "completed",
+        "profile": "topos-conservative-generation-v1",
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6–7",
+        "energy_threshold_kcal_mol": 0.05,
+        "rotational_threshold_fraction": 0.01,
+        "rmsd_threshold_angstrom": 0.125,
+        "pair_comparisons": 2,
+        "inconclusive_comparisons": 0,
+        "enantiomers": "kept distinct; no inferred degeneracy",
+        "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+      },
+      "candidate_statuses": {
+        "duplicate": 2,
+        "eligible": 1
+      },
+      "native_frame_counts": [
+        1
+      ],
+      "engines": [
+        [
+          "crest",
+          "3.0.2"
+        ],
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "execution_source_files": {
+        "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+        "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+        "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+        "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+        "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+        "topos/capabilities.py": "7aa553260ff1fd78bd228fe27a436e9696f61189be679c16521be679ccf5f062",
+        "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+        "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+        "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+        "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+        "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+        "topos/engines.py": "189adb97fc7d83c0fc18942badc11e435c80a906077c2c5d2d72d46ef1e94754",
+        "topos/models.py": "83a297473893244fbf1178e545efe6afbb954f7d0a00c00a7a5ad4b429633a34",
+        "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+        "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+        "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+        "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+        "topos/sampling.py": "14f15e2b7fdadcedb1805211cd07780baa763f6b200fbeadc67942c106127dea",
+        "topos/science.py": "d128b96edb0df8c0c914482e017dcbcf3741c4f1252023a4d56911f1ed8a862f",
+        "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+        "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+        "topos/ui.py": "221bea02ec2fa6e2e62b793c5020b899e687944e6d052accfdbeecdbae5b0f31",
+        "topos/workflow.py": "36f53af1c58b0061082516fa15a96bd988107154b16b1a96464c97f6077318c4"
+      },
+      "result_record_sha256": "0103d9b921a591ff8b2dfa614e18ce340b09da9ec7a5a84c3c2bc92db43d2ef1"
+    },
+    {
+      "example": "examples/water-dimer-crest-nci.json",
+      "request_sha256": "44f60974f938c9c0ba9333459b7968683caef695391f2452817ed334f015b92c",
+      "command": [
+        "/workspace/.venvs/cochem-topos/bin/python",
+        "-m",
+        "topos",
+        "run",
+        "--request",
+        "examples/water-dimer-crest-nci.json",
+        "--output-root",
+        "/workspace/.cochem-setup/nolicense-cli/runs"
+      ],
+      "exit_code": 0,
+      "status": "completed",
+      "wall_seconds": 23.488623887998983,
+      "run_id": "run_4d5a49764760452ea40c6200ec29fa5c",
+      "run_dir": "/workspace/.cochem-setup/nolicense-cli/runs/run_4d5a49764760452ea40c6200ec29fa5c",
+      "snapshot_id": "fa472648c489f6a84d99c5a127c4ddd73d53f5c61e8844bdda049549f01f3a98",
+      "search_summary": {
+        "requested_samples": 3,
+        "processed_samples": 3,
+        "completed_samples": 3,
+        "unique_eligible": 2,
+        "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately",
+        "candidate_observations": 3,
+        "exhaustive": false
+      },
+      "deduplication": {
+        "status": "completed",
+        "profile": "topos-conservative-generation-v1",
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6–7",
+        "energy_threshold_kcal_mol": 0.05,
+        "rotational_threshold_fraction": 0.01,
+        "rmsd_threshold_angstrom": 0.125,
+        "pair_comparisons": 2,
+        "inconclusive_comparisons": 0,
+        "enantiomers": "kept distinct; no inferred degeneracy",
+        "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+      },
+      "candidate_statuses": {
+        "duplicate": 1,
+        "eligible": 2
+      },
+      "native_frame_counts": [
+        48
+      ],
+      "engines": [
+        [
+          "crest",
+          "3.0.2"
+        ],
+        [
+          "xtb",
+          "6.7.1"
+        ]
+      ],
+      "execution_source_files": {
+        "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+        "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+        "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+        "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+        "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+        "topos/capabilities.py": "7aa553260ff1fd78bd228fe27a436e9696f61189be679c16521be679ccf5f062",
+        "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+        "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+        "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+        "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+        "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+        "topos/engines.py": "189adb97fc7d83c0fc18942badc11e435c80a906077c2c5d2d72d46ef1e94754",
+        "topos/models.py": "83a297473893244fbf1178e545efe6afbb954f7d0a00c00a7a5ad4b429633a34",
+        "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+        "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+        "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+        "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+        "topos/sampling.py": "14f15e2b7fdadcedb1805211cd07780baa763f6b200fbeadc67942c106127dea",
+        "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+        "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+        "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+        "topos/ui.py": "221bea02ec2fa6e2e62b793c5020b899e687944e6d052accfdbeecdbae5b0f31",
+        "topos/workflow.py": "36f53af1c58b0061082516fa15a96bd988107154b16b1a96464c97f6077318c4"
+      },
+      "result_record_sha256": "e71055e8eefc57d90a85868ea397f1b13723895f06ce10f92364cee1840cee4f"
+    }
+  ],
+  "full_crest_ethanol": {
+    "status": "completed",
+    "elapsed_seconds": 87.82522819500082,
+    "budget_seconds": 240.0,
+    "frame_count": 5,
+    "command": [
+      "/workspace/.tools/crest-3.0.2/crest/crest",
+      "input.xyz",
+      "--gfn2",
+      "--legacy",
+      "--xnam",
+      "/workspace/.tools/xtb-dist/bin/xtb",
+      "--chrg",
+      "0",
+      "--uhf",
+      "0",
+      "-T",
+      "1",
+      "--keepdir",
+      "--origin",
+      "--ewin",
+      "6"
+    ],
+    "receipt_path": "/workspace/.cochem-setup/nolicense/ethanol-full-crest-240s-result.json",
+    "receipt_sha256": "66aee2d0113de3387624b9a1ea8d1a0e9545c40d059fcef919e72938d0042e9b"
+  },
+  "ethanol_common_level_refinement": {
+    "experiment": "two-stage authentic full CREST iMTD-GC sampling followed by separate xTB vtight Workflow optimizations and conservative aggregate comparison",
+    "single_workflow_crest_request": false,
+    "source": {
+      "sampler_receipt": "/workspace/.cochem-setup/nolicense/ethanol-full-crest-240s-result.json",
+      "sampler_receipt_sha256": "66aee2d0113de3387624b9a1ea8d1a0e9545c40d059fcef919e72938d0042e9b",
+      "native_ensemble": "/workspace/.cochem-setup/nolicense/ethanol-full-crest-240s/crest_conformers.xyz",
+      "native_ensemble_sha256": "afc88d0d3b6d79641b83502e2f0ac83661659863ca8cf8992e8ea24587352975",
+      "sampler_engine_version": "3.0.2",
+      "potential_engine_version": "6.7.1",
+      "native_elapsed_seconds": 87.82522819500082,
+      "native_ensemble_recorded_sha256": "afc88d0d3b6d79641b83502e2f0ac83661659863ca8cf8992e8ea24587352975",
+      "native_ensemble_inventory_verified": true
+    },
+    "completed_refinements": 5,
+    "comparison_status": "completed",
+    "comparison_policy": {
+      "status": "completed",
+      "profile": "topos-conservative-generation-v1",
+      "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6–7",
+      "energy_threshold_kcal_mol": 0.05,
+      "rotational_threshold_fraction": 0.01,
+      "rmsd_threshold_angstrom": 0.125,
+      "pair_comparisons": 10,
+      "inconclusive_comparisons": 0,
+      "enantiomers": "kept distinct; no inferred degeneracy",
+      "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+    },
+    "refinements": [
+      {
+        "source_frame": 1,
+        "native_search_energy_hartree": -11.39433938,
+        "run_id": "run_d38dd97a87bd4c589f82eeac148a788d",
+        "run_dir": "/workspace/.cochem-setup/nolicense/ethanol-refinement-runs/run_d38dd97a87bd4c589f82eeac148a788d",
+        "snapshot_id": "61540f8f8392774fccdefe607d03fae17730f517e1266170d853461a163c0859",
+        "status": "completed",
+        "eligible_candidate_ids": [
+          "candidate_719c386e142e46839aa7f7ebb97c1b87"
+        ]
+      },
+      {
+        "source_frame": 2,
+        "native_search_energy_hartree": -11.39225795,
+        "run_id": "run_e34042245780403391448dccfa03c598",
+        "run_dir": "/workspace/.cochem-setup/nolicense/ethanol-refinement-runs/run_e34042245780403391448dccfa03c598",
+        "snapshot_id": "73722b8e9c057870bbb763175032e62ce6f465ee73280d82fa2ae5d7db233993",
+        "status": "completed",
+        "eligible_candidate_ids": [
+          "candidate_a926c09570ec4e7884fa91ce757a8d2a"
+        ]
+      },
+      {
+        "source_frame": 3,
+        "native_search_energy_hartree": -11.39186743,
+        "run_id": "run_4a6b51a6acf34b3ea917d11060396123",
+        "run_dir": "/workspace/.cochem-setup/nolicense/ethanol-refinement-runs/run_4a6b51a6acf34b3ea917d11060396123",
+        "snapshot_id": "013e778df8874afb8f6071bc79c51e6afe70a63dd919dfd20e2915d1b40432a5",
+        "status": "completed",
+        "eligible_candidate_ids": [
+          "candidate_61e6973cd4aa4fe38dd503875ea43a89"
+        ]
+      },
+      {
+        "source_frame": 4,
+        "native_search_energy_hartree": -11.39037643,
+        "run_id": "run_7aab9687b8864aef800b3334975a3ab0",
+        "run_dir": "/workspace/.cochem-setup/nolicense/ethanol-refinement-runs/run_7aab9687b8864aef800b3334975a3ab0",
+        "snapshot_id": "a384261932a236b9757154d88d3e87675edfca32a93b764f951ab6a76f1b5c76",
+        "status": "completed",
+        "eligible_candidate_ids": [
+          "candidate_eb328d89d58947c69ee80f4f63e55dc9"
+        ]
+      },
+      {
+        "source_frame": 5,
+        "native_search_energy_hartree": -11.39033575,
+        "run_id": "run_69b5583706e345c7917d58beb136cef2",
+        "run_dir": "/workspace/.cochem-setup/nolicense/ethanol-refinement-runs/run_69b5583706e345c7917d58beb136cef2",
+        "snapshot_id": "f906b0b88b73156f6b3516dbe5c1b5ac8e76756abea64d22635a3964158d593d",
+        "status": "completed",
+        "eligible_candidate_ids": [
+          "candidate_8f2dfc5d628d4be69623213696117f4f"
+        ]
+      }
+    ],
+    "candidates": [
+      {
+        "candidate_id": "candidate_719c386e142e46839aa7f7ebb97c1b87",
+        "attempt_id": "attempt_d2b6ecfe742341e2bb1ff3e42c3ca6ba",
+        "energy_hartree": -11.394339378407,
+        "status": "eligible",
+        "comparison_protocol": "2c403506a34950c95bee51e38e351dbb8ba4a31762cdc6aed9227ff5365e642b"
+      },
+      {
+        "candidate_id": "candidate_a926c09570ec4e7884fa91ce757a8d2a",
+        "attempt_id": "attempt_cee8e220916543809b9b2337991b261b",
+        "energy_hartree": -11.392257954474,
+        "status": "eligible",
+        "comparison_protocol": "2c403506a34950c95bee51e38e351dbb8ba4a31762cdc6aed9227ff5365e642b"
+      },
+      {
+        "candidate_id": "candidate_61e6973cd4aa4fe38dd503875ea43a89",
+        "attempt_id": "attempt_b66b2f819d1647bdb165602eee26daf9",
+        "energy_hartree": -11.391867425383,
+        "status": "eligible",
+        "comparison_protocol": "2c403506a34950c95bee51e38e351dbb8ba4a31762cdc6aed9227ff5365e642b"
+      },
+      {
+        "candidate_id": "candidate_eb328d89d58947c69ee80f4f63e55dc9",
+        "attempt_id": "attempt_8dc1150b251b4c47941b90fce54b61be",
+        "energy_hartree": -11.390376433005,
+        "status": "eligible",
+        "comparison_protocol": "2c403506a34950c95bee51e38e351dbb8ba4a31762cdc6aed9227ff5365e642b"
+      },
+      {
+        "candidate_id": "candidate_8f2dfc5d628d4be69623213696117f4f",
+        "attempt_id": "attempt_c70f43b5da674e82aaf5a1d4cd432888",
+        "energy_hartree": -11.390335752776,
+        "status": "eligible",
+        "comparison_protocol": "2c403506a34950c95bee51e38e351dbb8ba4a31762cdc6aed9227ff5365e642b"
+      }
+    ],
+    "receipt_path": "/workspace/.cochem-setup/nolicense/ethanol-full-refinement.json",
+    "receipt_sha256": "e589502839c246b70ae2323c77a13f279794a90cb2ab875b309b50906fb0b998"
+  },
+  "retained_unsuccessful_experiment": {
+    "description": "Separate stochastic full CREST ethanol run; not converted to scientific success.",
+    "status": "timed-out",
+    "elapsed_seconds": 90.01004316499893,
+    "budget_seconds": 90.0,
+    "partial_frame_count": 3,
+    "receipt_path": "/workspace/.cochem-setup/nolicense/ethanol-full-crest-result.json",
+    "receipt_sha256": "af5d1f056277146790747bb23d7e6543d6d8ab12ee0fdef53dfe8314f13a6d78"
+  },
+  "built_distributions": {
+    "cochem_topos-0.1.0-py3-none-any.whl": "29a7acf6ca357db502c7bad6be9b8e91942cce5789bc60139b11b1dc4025eaf5",
+    "cochem_topos-0.1.0.tar.gz": "31e1c046d6fd9bc3bebe54a4a1acaeec8b9aea581a4185cfe12386781148a61b"
+  },
+  "source_files": {
+    "frontend/__init__.py": "b7db24d877e15173b7b8ff441530e26a981a3f040c2cb764b282557e00be132b",
+    "frontend/cochem_topos_preflight.py": "c44194f2151294b4dab80a854e357b250f25a2c7ee6c65d2cb51fd4450ca532c",
+    "frontend/cochem_topos_ui.py": "25e4c67e5ef641a18f8360731c453aba19220787671cc7696085a66e74dbd748",
+    "scripts/install_crest.py": "d779062c6fc85c8648ec88db5c636322603f84cd56ef0d07c468bbc06534aa4d",
+    "scripts/install_orca.py": "e12298ba9454ebe82112ceaa0c50bb6cd58c2c45f7792706596255dd71ebb813",
+    "scripts/install_xtb.py": "3ae8e7bed1385b9600965203e7a0ae7fdb6587d46ec725998e313ebc1290c722",
+    "tests/v010/conftest.py": "f6a7e0cb0d331801ebd5d83d2a4ad00102366cc30142ee978861c573dcd48d79",
+    "tests/v010/test_constraints.py": "9afd22009c7b7fea0ccfb02f70c7b5d167ac92b8472d5e7dceb1949e4557b447",
+    "tests/v010/test_engines.py": "6dcd19399fadef4a2ed24a7043993e3a1466943e51c91df7df283c27f307f7b5",
+    "tests/v010/test_hosted_worker.py": "9cbc426211e7f0bdce99634b95effbe292280bd3fe5299effd663eea846d0449",
+    "tests/v010/test_interfaces.py": "b91b209e830c1a0a5fd9794007069bcf64deaf1e78b04bf35105046055822d0c",
+    "tests/v010/test_nolicense_acceptance.py": "c0863c0e263d1e458f6207476263f0c8c3c156a53dbf11b1a9caa35fce5782a3",
+    "tests/v010/test_orca_install.py": "7879ba4198b7cc385a00660bf5ac33551dfa4f68815ed5393fcb0d1a1f9ca84d",
+    "tests/v010/test_sampling.py": "086e6cc336b8188641d633f8076cbb516fb5a8f57e4c0a0f6aec66ee098287bf",
+    "tests/v010/test_science.py": "3ee02318980ed0d8f6f30047d108ef193aa020dfbf1efdcc043437833de10796",
+    "tests/v010/test_search_control.py": "e17b1501d0dfca11b9dc5e4e2407c9ce4dd77b9583736baaa41b1b387305210c",
+    "tests/v010/test_storage_publication.py": "2486ea504ab5b1d563c234e7eb71fd8678752a0895c006fb48ebc81f83161017",
+    "tests/v010/test_workflow.py": "e5a762aad48093e57e66bccb28158c21139cba36cf15936d936f71a2e1af8be7",
+    "tests/v010/test_workflow_constraints.py": "d36b3b25f5527a5e6761cbdc00cdf4f31c23478d5a5fd0bf640c45fcf242b620",
+    "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+    "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+    "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+    "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+    "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+    "topos/capabilities.py": "7aa553260ff1fd78bd228fe27a436e9696f61189be679c16521be679ccf5f062",
+    "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+    "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+    "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+    "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+    "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+    "topos/engines.py": "189adb97fc7d83c0fc18942badc11e435c80a906077c2c5d2d72d46ef1e94754",
+    "topos/models.py": "83a297473893244fbf1178e545efe6afbb954f7d0a00c00a7a5ad4b429633a34",
+    "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+    "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+    "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+    "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+    "topos/sampling.py": "14f15e2b7fdadcedb1805211cd07780baa763f6b200fbeadc67942c106127dea",
+    "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+    "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+    "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+    "topos/ui.py": "221bea02ec2fa6e2e62b793c5020b899e687944e6d052accfdbeecdbae5b0f31",
+    "topos/workflow.py": "36f53af1c58b0061082516fa15a96bd988107154b16b1a96464c97f6077318c4",
+    "pyproject.toml": "f2f679a3973b3f2ad0fca51a8ceedf0bbb7c8a6b015b784375c6c2496ec03a0d",
+    ".github/workflows/cochem_topos_ci.yml": "c48341f69ad34a9afec8388fc3ba6aeb35838a76e0ae0cf4b3b19178dfb6ac3f"
+  },
+  "limitations": [
+    "No live ORCA calculation or GitHub-hosted execution performed in this campaign.",
+    "No complete SRS/method-matrix, GPU or automatic time-tier routing claim.",
+    "Finite stochastic search does not certify completeness, a global minimum or frequency-verified minima.",
+    "All-atom RMSD and fixed1% rotational gate are a conservative TOPOS generation screen, not exact adaptive CREGEN or reporting-level spectroscopy.",
+    "Double-bond comparison requires explicit bond orders; general CIP/axial/helical/coordination stereochemistry is not certified.",
+    "Graph search budgets and deadlines are cooperative; descriptor work and final persistence are not hard real-time guarantees."
+  ]
+}

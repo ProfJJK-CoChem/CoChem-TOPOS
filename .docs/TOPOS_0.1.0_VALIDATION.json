@@ -1,0 +1,420 @@
+{
+  "schema_version": "topos-verification/0.1.0",
+  "target_version": "0.1.0",
+  "recorded_at_utc": "2026-10-07T01:34:12.122543+00:00",
+  "source_baseline": "ce6cd25b8cd7a3b44e7dd7b0f54429d5c8a971cf",
+  "uncommitted_changes": true,
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.12.14",
+  "scope": "Local numerical, parser, lifecycle, persistence, UI, and export verification. Not full SRS certification, experimental accuracy validation, or a published software release.",
+  "pytest": {
+    "tests": 131,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 76.17,
+    "statement_coverage_fraction": 0.8473,
+    "command": "TOPOS_XTB_EXECUTABLE=<pinned xtb> TOPOS_CREST_EXECUTABLE=<pinned crest> python -m pytest --junitxml=<logdir>/rebuild-tests.xml --cov=topos --cov-report=term-missing --cov-report=xml:<logdir>/rebuild-coverage.xml"
+  },
+  "other_checks": {
+    "ruff": "passed",
+    "pip_check": "passed",
+    "wheel_and_sdist_build": "passed",
+    "installed_ui_from_tmp": "healthy localhost endpoint, process stopped afterward",
+    "installed_wheel_genuine_xtb": {
+      "wheel": "cochem_topos-0.1.0-py3-none-any.whl",
+      "wheel_package_import": "/workspace/.cochem-setup/wheel-smoke/topos/__init__.py",
+      "genuine_xtb_status": "completed",
+      "energy_hartree": -5.070371711236,
+      "version": "6.7.1",
+      "run_dir": "/workspace/.cochem-setup/wheel-runs/run_84a15324fdd24220a17e1c551ba8a7fa"
+    }
+  },
+  "engines": {
+    "xtb": {
+      "version": "6.7.1",
+      "binary_sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a"
+    },
+    "crest": {
+      "version": "3.0.2",
+      "binary_sha256": "201db7940796c4af3652245ba7c8e1a4234767f4e19223772fbd83098d5f2142"
+    }
+  },
+  "retained_end_to_end_runs": [
+    {
+      "request_file": "water-search.json",
+      "run_id": "run_8ae1e357c39742799a7ea13808d84c5c",
+      "status": "completed",
+      "run_dir": "/workspace/.cochem-setup/release-evidence/runs/run_8ae1e357c39742799a7ea13808d84c5c",
+      "snapshot_sha256": "91072184285ca0c8a9c98359cb199594dabc04daaa5652edf2260754ec39c801",
+      "bundle_dir": "/workspace/.cochem-setup/release-evidence/bundles/run_8ae1e357c39742799a7ea13808d84c5c",
+      "bundle_manifest_sha256": "95ace773ea2c0298e1e93805d475728cbc051788e7ea23d10e6e9df6a449b17f",
+      "ensemble_sha256": "2d9471602084b61a184eaca8f915b5181d69bb02711c4cdeae0abaaa1dcd46bd",
+      "candidate_observations": 3,
+      "eligible": 1,
+      "attempts": 3,
+      "energies_hartree": [
+        -5.070544447656
+      ],
+      "constraints": null,
+      "publication_status": "not-published"
+    },
+    {
+      "request_file": "frozen-water-dimer.json",
+      "run_id": "run_9c4be18642ed469e910ae0724ac9663d",
+      "status": "completed",
+      "run_dir": "/workspace/.cochem-setup/release-evidence/runs/run_9c4be18642ed469e910ae0724ac9663d",
+      "snapshot_sha256": "b9ff38158876e31b09d0657478bf7dd18f44465b15a2278ffdcd4bd7e92263a4",
+      "bundle_dir": "/workspace/.cochem-setup/release-evidence/bundles/run_9c4be18642ed469e910ae0724ac9663d",
+      "bundle_manifest_sha256": "eb57241c24e374c373a96dd6dbef5fa33edcdf9a0b6b6537df96278858852d4e",
+      "ensemble_sha256": "347e0f56b1f24c4b10a39bd91e9107a6de0cf4bcaf3cb2da31827d4ac65f2835",
+      "candidate_observations": 1,
+      "eligible": 1,
+      "attempts": 19,
+      "energies_hartree": [
+        -10.147771486393
+      ],
+      "constraints": {
+        "constraint_kind": "frozen-monomers",
+        "profile": {
+          "profile_id": "mapping-2026",
+          "energy_hartree": 1e-07,
+          "max_gradient_hartree_per_bohr": 1e-05,
+          "rms_gradient_hartree_per_bohr": 3e-06,
+          "rms_displacement_bohr": 5e-05,
+          "max_displacement_bohr": 0.0001,
+          "max_iterations": 200,
+          "rigidity_angstrom": 1e-06,
+          "strain_warning_hartree_per_bohr": 0.0001
+        },
+        "reference_source": "illustrative geometry; not an independently validated monomer benchmark",
+        "reference_uncertainty_angstrom": null,
+        "reference_geometry_id": null,
+        "reference_coordinates_angstrom": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.9572,
+            0.0,
+            0.0
+          ],
+          [
+            -0.23999,
+            0.9273,
+            0.0
+          ],
+          [
+            2.9,
+            0.0,
+            0.0
+          ],
+          [
+            3.8572,
+            0.0,
+            0.0
+          ],
+          [
+            2.66001,
+            0.9273,
+            0.0
+          ]
+        ],
+        "atom_ids": [
+          "atom-0",
+          "atom-1",
+          "atom-2",
+          "atom-3",
+          "atom-4",
+          "atom-5"
+        ],
+        "isotopes": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "fragments": [
+          [
+            0,
+            1,
+            2
+          ],
+          [
+            3,
+            4,
+            5
+          ]
+        ],
+        "fragment_states": [
+          {
+            "atom_indices": [
+              0,
+              1,
+              2
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          },
+          {
+            "atom_indices": [
+              3,
+              4,
+              5
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          }
+        ],
+        "charge": 0,
+        "multiplicity": 1,
+        "optimizer": "rigid-retraction projected L-BFGS with Armijo line search",
+        "hessian_model": "limited-memory inverse quasi-Newton approximation; no frequency Hessian",
+        "classification": "constrained stationary point only; full-dimensional stability not established",
+        "iteration": 12,
+        "free_rank": 6,
+        "global_frame_rank": 6,
+        "fragment_rotation_ranks": [
+          3,
+          3
+        ],
+        "frozen_internal_rank": 6,
+        "free_gradient_hartree_per_bohr": [
+          [
+            7.105042274773153e-08,
+            3.934237477245572e-09,
+            3.112171985500417e-07
+          ],
+          [
+            9.928736583987937e-08,
+            -1.0301009271486969e-07,
+            -3.7901661265501307e-07
+          ],
+          [
+            1.6755577949002062e-07,
+            5.810498923668855e-08,
+            -6.632000458013095e-08
+          ],
+          [
+            -1.103475584011567e-07,
+            2.358406404848174e-08,
+            2.556444258840363e-07
+          ],
+          [
+            -1.330090716749466e-07,
+            1.3122053566770574e-08,
+            -9.088918209406985e-08
+          ],
+          [
+            -9.453693800152799e-08,
+            4.26474838568319e-09,
+            -3.063582510486417e-08
+          ]
+        ],
+        "frozen_gradient_hartree_per_bohr": [
+          [
+            0.004771041430948055,
+            -0.0004156250827300152,
+            -7.093423760676986e-08
+          ],
+          [
+            -0.007658452301495065,
+            0.0005266485460358181,
+            1.1593834146308766e-07
+          ],
+          [
+            0.00288741087054701,
+            -0.00011102346330580247,
+            -4.500410385492217e-08
+          ],
+          [
+            -0.00280444180497271,
+            -0.00026758262398424767,
+            6.60969329809086e-08
+          ],
+          [
+            0.002192305223113422,
+            0.005097782857450412,
+            -1.1073275055829703e-08
+          ],
+          [
+            0.0006121365818592882,
+            -0.004830200233466165,
+            -5.5023657924947124e-08
+          ]
+        ],
+        "global_frame_gradient_hartree_per_bohr": [
+          [
+            -6.228150302976653e-09,
+            2.2581225778239884e-08,
+            1.0127804979429994e-09
+          ],
+          [
+            -2.940057175883868e-09,
+            1.013399352662255e-08,
+            4.641139271810156e-10
+          ],
+          [
+            5.005855600334826e-09,
+            2.8887387666231674e-08,
+            4.367518846615163e-10
+          ],
+          [
+            2.5629920110117078e-09,
+            -1.541161715137188e-08,
+            -5.794898321630988e-10
+          ],
+          [
+            -9.124366046332886e-09,
+            -2.0810760279207804e-08,
+            5.0670486196029734e-11
+          ],
+          [
+            1.0723725962712527e-08,
+            -2.5380229620186684e-08,
+            -1.3848269638165236e-09
+          ]
+        ],
+        "max_free_gradient_hartree_per_bohr": 3.7901661265501307e-07,
+        "rms_free_gradient_hartree_per_bohr": 2.6331134737865524e-07,
+        "max_frozen_gradient_hartree_per_bohr": 0.007658452301495065,
+        "gradient_projection": "Euclidean Cartesian rigid tangent; remove whole-system translations/rotations",
+        "rms_gradient_definition": "norm(projected Cartesian gradient) / sqrt(free_rank)",
+        "energy_change_hartree": 0.0,
+        "max_displacement_bohr": 4.281298755515195e-06,
+        "rms_displacement_bohr": 1.981368430398075e-06,
+        "rms_displacement_definition": "norm(aligned Cartesian step) / sqrt(3N)",
+        "convergence_criteria": {
+          "energy": true,
+          "max_free_gradient": true,
+          "rms_free_gradient": true,
+          "rms_displacement": true,
+          "max_displacement": true
+        },
+        "elapsed_seconds": 5.95616236800015,
+        "evaluation_count": 18,
+        "max_trajectory_intrafragment_drift_angstrom": 3.9968028886505635e-15,
+        "termination": "converged",
+        "geometric_strain_warning": true
+      },
+      "publication_status": "not-published"
+    },
+    {
+      "request": "CREST-mquick plus jiggle-quench water union",
+      "run_id": "run_99a4d34582f24227a42900da91dd176b",
+      "status": "completed",
+      "run_dir": "/workspace/.cochem-setup/release-evidence/runs/run_99a4d34582f24227a42900da91dd176b",
+      "snapshot_sha256": "2824422e097bf39c8bbfee93c7a7d556de5dae9bfcc13ce09de304ecaf3d1f4e",
+      "attempts": 4,
+      "eligible": [
+        {
+          "energy_hartree": -5.070544447695,
+          "sources": [
+            "CREST",
+            "INITIAL_SEED",
+            "JIGGLE_QUENCH"
+          ]
+        }
+      ],
+      "sampler_versions": [
+        "3.0.2"
+      ]
+    }
+  ],
+  "logs": {
+    "/workspace/.cochem-setup/rebuild-pytest.log": {
+      "sha256": "39d7e039a635a9b94d8f6289de9ce305de3e298d3a83bd251be18a227d7a8f21",
+      "bytes": 4312
+    },
+    "/workspace/.cochem-setup/rebuild-tests.xml": {
+      "sha256": "0a9d1a355ded3460c77b3c49a7e65b5a8b452e4f48a1213212b1e064454cf852",
+      "bytes": 17683
+    },
+    "/workspace/.cochem-setup/rebuild-coverage.xml": {
+      "sha256": "cd893a2b7bccf1fe5365a40520c255cbfd5087e4e4133670f6ee321bf85122b7",
+      "bytes": 111811
+    },
+    "/workspace/.cochem-setup/rebuild-build.log": {
+      "sha256": "9673b3b18df9ce905aa3cfc50bd33a0d24d58579a3f876f4362018cdce4e3bb8",
+      "bytes": 10419
+    },
+    "/workspace/.cochem-setup/rebuild-install.log": {
+      "sha256": "83cb1a5f86d45ee97ab6c0cdc8ccb7fbd237505716d48f08b19461e140fa12f7",
+      "bytes": 12603
+    },
+    "/workspace/.cochem-setup/installed-ui-smoke.log": {
+      "sha256": "799c48d0b6728584243ad4d425085b5cb89dfc843d957e97f83f694458332f07",
+      "bytes": 168
+    },
+    "/workspace/.cochem-setup/final-evidence.json": {
+      "sha256": "3afd86202a821bb5312a31532cfa987657d072ebd42a62a1421dda0c9dadc02e",
+      "bytes": 7951
+    },
+    "/workspace/.cochem-setup/wheel-smoke.json": {
+      "sha256": "50a61cf72f3a54388d6c6951f596066a8d5b2554c8ac3f2825aacb1174c76a90",
+      "bytes": 322
+    }
+  },
+  "distributions": {
+    "cochem_topos-0.1.0-py3-none-any.whl": {
+      "sha256": "7384becc2cee08ae4f4f4ccec0b3843fa4eb5ff1d9a68d736ca0817233da6050",
+      "bytes": 84162
+    },
+    "cochem_topos-0.1.0.tar.gz": {
+      "sha256": "a424cffaf79d96c162e6104dd780c3c07659a1f9c22c6a2ea622479fc8504263",
+      "bytes": 73294
+    }
+  },
+  "source_files": {
+    ".github/workflows/cochem_topos_ci.yml": "e199344d21c77d80a93b28866dee42a25b6c98d9ba0b06012cd69d187a64550a",
+    "frontend/__init__.py": "b7db24d877e15173b7b8ff441530e26a981a3f040c2cb764b282557e00be132b",
+    "frontend/cochem_topos_preflight.py": "c44194f2151294b4dab80a854e357b250f25a2c7ee6c65d2cb51fd4450ca532c",
+    "frontend/cochem_topos_ui.py": "25e4c67e5ef641a18f8360731c453aba19220787671cc7696085a66e74dbd748",
+    "pyproject.toml": "f2f679a3973b3f2ad0fca51a8ceedf0bbb7c8a6b015b784375c6c2496ec03a0d",
+    "scripts/install_crest.py": "d779062c6fc85c8648ec88db5c636322603f84cd56ef0d07c468bbc06534aa4d",
+    "scripts/install_xtb.py": "3ae8e7bed1385b9600965203e7a0ae7fdb6587d46ec725998e313ebc1290c722",
+    "setup.py": "0c5b8b675a5a216afaf168db7128f39046a89cded9ff284b1886da804924dade",
+    "tests/v010/test_constraints.py": "9afd22009c7b7fea0ccfb02f70c7b5d167ac92b8472d5e7dceb1949e4557b447",
+    "tests/v010/test_engines.py": "97be8f998fdfca7b3c8003a8affe0c749a6b229c6b0849d9043a3aebfcecd9f3",
+    "tests/v010/test_interfaces.py": "34cef63a6e2ace26498495e5c2bef708402bac0d1cc68e14284f65b2bfce086f",
+    "tests/v010/test_sampling.py": "8163454a477f2abe4da3ef1b6fdcbdcf03d046d53d34e1779294b43e41e1c770",
+    "tests/v010/test_science.py": "1165369f6ee0d6d49b722cd86ee0c8394d42a45a88484d05cb5c7841505d2a82",
+    "tests/v010/test_storage_publication.py": "2486ea504ab5b1d563c234e7eb71fd8678752a0895c006fb48ebc81f83161017",
+    "tests/v010/test_workflow.py": "e5a762aad48093e57e66bccb28158c21139cba36cf15936d936f71a2e1af8be7",
+    "tests/v010/test_workflow_constraints.py": "d36b3b25f5527a5e6761cbdc00cdf4f31c23478d5a5fd0bf640c45fcf242b620",
+    "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+    "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+    "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+    "topos/actions/dispatch.py": "d150f7c7298544364330b414846fb18cdc41c2d495cf349049500bd197b6856e",
+    "topos/capabilities.py": "5fccda3199941a1103e54f38236fb246179bdef8e5ec2b22f42c1182cfabbe4e",
+    "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+    "topos/cli/__init__.py": "c0611356fa5d3c5c6412592e2117a17dc1be26d6f2de0e9727db02bca50730bc",
+    "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+    "topos/config.py": "90ea363ebb077a838d3a9af923fab4aafd514dba85b994da99d64e4e4721d1af",
+    "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+    "topos/engines.py": "4c02f4f273bccfdd923af9301983bd5d36c8acd9dcb82d67d861b001336f854c",
+    "topos/models.py": "c2836df61cb680adf3e5c15d2a7bdcfc5dd7a4cd4d255e170c66ae18ef34bf0f",
+    "topos/publication.py": "36521ba78b90945b0c5db973f4cb8c8ef11c2044b0a8b18d2e1d5e0538d3dec6",
+    "topos/references.py": "838cd9de08cf21b802ea8021a9fbb6d5c82dcc4e78f34d5e73d32eca281e398b",
+    "topos/review.py": "6e101acbe9c294f50e2954f88658da51e2ff1534d3eba8a86e92d7ad9169a3b6",
+    "topos/runtime.py": "fb04ae30f623cc57bc61b2dbd6066e208a2cc070e6cc4e0467342b4ddbf4ba19",
+    "topos/sampling.py": "deb011b072fb9c5cb04bd8e4a88690e8767beeaeb4233ba101c1f0c2d7d75dd8",
+    "topos/science.py": "38f0955bc2ef4621b5cfc54d6efa63305ea695b48ebd493ae2adface5785b701",
+    "topos/storage.py": "9bdc9c387ca3a9c0edf48550c7f25a9b02be0817fe67fa1bf04d470d25c405f6",
+    "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+    "topos/ui.py": "cbd7693f3fdb76bdc9e892634a82c2bdc0e552f4cb82e23d4a296099289b6253",
+    "topos/workflow.py": "221ab160394647b991c17d3f175ed4648e4be498c96944d78747d80945561190"
+  },
+  "limitations": [
+    "Full authoritative purpose/time/hardware method matrix is missing.",
+    "ORCA licensed live integration, remote execution, GPU/ML, GOAT/ABCluster, CIP/point groups and advanced spectroscopy/thermochemistry/kinetics remain conditional or unavailable.",
+    "CREST mquick water and NCI water-dimer searches completed; full native water search failed upstream genetic crossing. A separate full ethanol run timed out at45s retaining104 partial frames.",
+    "Fixture review/ack actors exercise contracts; they do not authenticate an external TORQ service or authorize publication.",
+    "No live remote workflow, DOI reservation, deposit or publication performed.",
+    "Source hashes identify this tested uncommitted revision; no release or council ratification claimed."
+  ]
+}

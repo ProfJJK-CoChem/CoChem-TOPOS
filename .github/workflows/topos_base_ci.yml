@@ -1,0 +1,90 @@
+name: TOPOS mandatory CoChem package acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'topos/**'
+      - 'tests/v010/test_base_integration.py'
+      - 'tests/v010/test_base_provider.py'
+      - 'tests/v010/test_remote_dispatch.py'
+      - '.github/workflows/topos_base_ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: topos-base-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mandatory-ecosystem:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TOPOS_REQUIRE_BASE: '1'
+      TOPOS_REQUIRE_REAL_ENGINES: '1'
+      TOPOS_EXECUTION_BACKEND: base
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      QT_QPA_PLATFORM: offscreen
+      COCHEM_HEADLESS: '1'
+      COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-BASE
+          ref: c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/base
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-TORQ
+          ref: d7a4739a5f7d6f22ed659b32eeb4706bef16225e
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/torq
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Prepare mandatory package roots and genuine engines
+        run: |
+          echo "COCHEM_ARTIFACT_DIR=$RUNNER_TEMP/cochem-artifacts" >> "$GITHUB_ENV"
+          echo "COCHEM_CONFIG=$RUNNER_TEMP/cochem-artifacts/Registry/cochem_system_config.json" >> "$GITHUB_ENV"
+          echo "COCHEM_BASE_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/base" >> "$GITHUB_ENV"
+          echo "COCHEM_TORQ_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/torq" >> "$GITHUB_ENV"
+          python scripts/install_xtb.py "$RUNNER_TEMP/topos-xtb"
+          python scripts/install_crest.py "$RUNNER_TEMP/topos-crest"
+          echo "TOPOS_XTB_EXECUTABLE=$RUNNER_TEMP/topos-xtb/xtb" >> "$GITHUB_ENV"
+          echo "COCHEM_XTB_BIN=$RUNNER_TEMP/topos-xtb/xtb" >> "$GITHUB_ENV"
+          echo "COCHEM_CREST_BIN=$RUNNER_TEMP/topos-crest/crest" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/topos-xtb" >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP/topos-crest" >> "$GITHUB_PATH"
+      - name: Provision all mandatory packages and refresh all eleven setup phases
+        run: |
+          python scripts/setup_ecosystem.py \
+            --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
+            --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
+            --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
+      - name: Require real BASE authority, broker, and scientific execution
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m pytest \
+            tests/v010/test_base_integration.py tests/v010/test_base_provider.py \
+            tests/v010/test_remote_dispatch.py tests/v010/test_compute_worker.py \
+            --junitxml="$RUNNER_TEMP/topos-base-acceptance.xml" -q
+      - name: Retain acceptance and measured registry evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: topos-base-acceptance-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/topos-base-acceptance.xml
+            ${{ runner.temp }}/cochem-artifacts/Registry/*.json
+          if-no-files-found: error
+          retention-days: 14

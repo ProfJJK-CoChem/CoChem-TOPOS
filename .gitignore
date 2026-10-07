@@ -28,3 +28,15 @@ __pycache__/
 .venv/
 *.sock
 *.pid
+
+# Generated installation/build/test files
+*.egg-info/
+build/
+dist/
+.coverage
+coverage.xml
+verification.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/

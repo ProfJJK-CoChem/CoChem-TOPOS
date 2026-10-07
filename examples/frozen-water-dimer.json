@@ -1,0 +1,14 @@
+{
+  "molecule": {
+    "name": "frozen water dimer numerical integration fixture",
+    "symbols": ["O", "H", "H", "O", "H", "H"],
+    "coordinates": [[0,0,0], [0.9572,0,0], [-0.23999,0.9273,0], [2.9,0,0], [3.8572,0,0], [2.66001,0.9273,0]],
+    "fragments": [[0,1,2], [3,4,5]],
+    "fragment_states": [{"atom_indices":[0,1,2],"charge":0,"multiplicity":1}, {"atom_indices":[3,4,5],"charge":0,"multiplicity":1}],
+    "charge": 0, "multiplicity": 1
+  },
+  "engine": "xtb", "method": "GFN2-xTB", "purpose": "optimize",
+  "profile_id": "xtb-vtight-v1", "budget_seconds": 180,
+  "threads": 1, "memory_mb": 1024,
+  "constraints": {"kind": "frozen-monomers", "profile_id": "mapping-2026", "reference_source": "illustrative geometry; not an independently validated monomer benchmark"}
+}

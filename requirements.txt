@@ -1,12 +1,1 @@
-networkx
-scipy
-numpy
-h5py
-ipywidgets
-plotly
-pydantic
-mendeleev
-ase
-jinja2
-psutil
-pynvml
+-e .

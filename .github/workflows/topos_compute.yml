@@ -1,0 +1,110 @@
+name: TOPOS calculation through CoChem-BASE
+run-name: ${{ inputs.dispatch_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      dispatch_id:
+        description: Unique request correlation ID
+        required: true
+        type: string
+      request_b64:
+        description: Canonical TOPOS request JSON encoded as base64 (maximum 50 KB)
+        required: true
+        type: string
+      request_sha256:
+        description: Canonical request SHA-256
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: topos-compute-${{ inputs.dispatch_id }}
+  cancel-in-progress: false
+
+jobs:
+  calculation:
+    if: github.event.repository.private && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    environment: cochem-student-tests
+    env:
+      ORCA_CLOUD_LICENSE_CONFIRMED: ${{ vars.ORCA_CLOUD_LICENSE_CONFIRMED }}
+      TOPOS_DISPATCH_ID: ${{ inputs.dispatch_id }}
+      TOPOS_REQUEST_B64: ${{ inputs.request_b64 }}
+      TOPOS_REQUEST_SHA256: ${{ inputs.request_sha256 }}
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      QT_QPA_PLATFORM: offscreen
+      COCHEM_HEADLESS: '1'
+      COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-BASE
+          ref: c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/base
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-TORQ
+          ref: d7a4739a5f7d6f22ed659b32eeb4706bef16225e
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/torq
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Validate the request before provisioning
+        id: request
+        run: |
+          python -m pip install 'pydantic>=2.4'
+          python -m topos.actions.hosted_requirements
+      - name: Prepare the mandatory ecosystem and external artifact paths
+        run: |
+          echo "COCHEM_ARTIFACT_DIR=$RUNNER_TEMP/cochem-artifacts" >> "$GITHUB_ENV"
+          echo "COCHEM_CONFIG=$RUNNER_TEMP/cochem-artifacts/Registry/cochem_system_config.json" >> "$GITHUB_ENV"
+          echo "COCHEM_TORQ_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/torq" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install --yes build-essential libgfortran5
+      - name: Reserve disk for the complete licensed distribution
+        if: steps.request.outputs.licensed == 'true'
+        env:
+          RUNNER_HOST_KIND: ${{ runner.environment }}
+        run: |
+          test "$RUNNER_HOST_KIND" = github-hosted
+          test "$RUNNER_OS" = Linux
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /usr/local/.ghcup /opt/ghc
+      - uses: ./.cochem-dependencies/base/.github/actions/setup-orca
+        if: steps.request.outputs.licensed == 'true'
+        with:
+          asset-token: ${{ secrets.PRIVATE_ORCA_ASSET_CREDENTIAL }}
+      - name: Install and audit the mandatory BASE, TOPOS and TORQ package
+        run: |
+          python scripts/setup_ecosystem.py \
+            --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
+            --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
+            --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
+      - name: Execute the correlated TOPOS request through BASE
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m topos.actions.compute_worker \
+            --output-root "$RUNNER_TEMP/topos-runs" --evidence-root "$RUNNER_TEMP/topos-evidence"
+      - name: Retain verified scientific records and the correlation receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: topos-evidence-${{ inputs.dispatch_id }}
+          path: ${{ runner.temp }}/topos-evidence/
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 14
+      - name: Remove the licensed installation
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/cochem-orca-install" "$RUNNER_TEMP/cochem-orca-download"

@@ -1,0 +1,122 @@
+name: TOPOS licensed ORCA physical acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      include_goat:
+        description: Run genuine native GOAT sampling and common r2SCAN-3c refinement
+        type: boolean
+        default: true
+      include_counterpoise:
+        description: Run native basis exports and all five counterpoise energy legs
+        type: boolean
+        default: true
+
+  workflow_call:
+    inputs:
+      include_goat:
+        type: boolean
+        default: true
+      include_counterpoise:
+        type: boolean
+        default: true
+    secrets:
+      COCHEM_SOURCE_READ_TOKEN:
+        required: true
+      PRIVATE_ORCA_ASSET_CREDENTIAL:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: topos-orca-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  scientific-acceptance:
+    if: github.event.repository.private && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    environment: cochem-student-tests
+    env:
+      ORCA_CLOUD_LICENSE_CONFIRMED: ${{ vars.ORCA_CLOUD_LICENSE_CONFIRMED }}
+      TOPOS_REQUIRE_BASE: '1'
+      TOPOS_EXECUTION_BACKEND: base
+      INCLUDE_GOAT: ${{ inputs.include_goat }}
+      INCLUDE_COUNTERPOISE: ${{ inputs.include_counterpoise }}
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      QT_QPA_PLATFORM: offscreen
+      COCHEM_HEADLESS: '1'
+      COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
+    steps:
+      - name: Require the configured licensed cloud installation decision
+        run: test "$ORCA_CLOUD_LICENSE_CONFIRMED" = true
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-BASE
+          ref: c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/base
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-TORQ
+          ref: d7a4739a5f7d6f22ed659b32eeb4706bef16225e
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/torq
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Reserve the complete distribution disk allocation on the ephemeral runner
+        env:
+          RUNNER_HOST_KIND: ${{ runner.environment }}
+        run: |
+          test "$RUNNER_HOST_KIND" = github-hosted
+          test "$RUNNER_OS" = Linux
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /usr/local/.ghcup /opt/ghc
+          sudo apt-get update
+          sudo apt-get install --yes build-essential libgfortran5
+          echo "COCHEM_ARTIFACT_DIR=$RUNNER_TEMP/cochem-artifacts" >> "$GITHUB_ENV"
+          echo "COCHEM_CONFIG=$RUNNER_TEMP/cochem-artifacts/Registry/cochem_system_config.json" >> "$GITHUB_ENV"
+          echo "COCHEM_BASE_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/base" >> "$GITHUB_ENV"
+      - name: Provision ORCA through the existing CoChem-BASE integration
+        uses: ./.cochem-dependencies/base/.github/actions/setup-orca
+        with:
+          asset-token: ${{ secrets.PRIVATE_ORCA_ASSET_CREDENTIAL }}
+      - name: Install all mandatory CoChem packages and audit all eleven setup phases
+        run: |
+          python scripts/setup_ecosystem.py \
+            --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
+            --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
+            --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
+      - name: Require real TOPOS ORCA derivatives, thermochemistry, hybrid and selected native paths
+        run: |
+          options=()
+          if test "$INCLUDE_GOAT" = true; then options+=(--include-goat); fi
+          if test "$INCLUDE_COUNTERPOISE" = true; then options+=(--include-counterpoise); fi
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" scripts/accept_orca_topos.py \
+            --registry "$COCHEM_CONFIG" --output "$RUNNER_TEMP/topos-orca-evidence" \
+            --threads 2 --memory-mb 2048 --budget-seconds 10800 "${options[@]}"
+      - name: Preserve calculation evidence and audited installation receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: topos-orca-acceptance-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/topos-orca-evidence/
+            ${{ runner.temp }}/cochem-artifacts/Registry/*.json
+            ${{ runner.temp }}/cochem-artifacts/setup-receipt.json
+            ${{ runner.temp }}/cochem-artifacts/mandatory-validation.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove licensed executables and archives
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/cochem-orca-install" "$RUNNER_TEMP/cochem-orca-download"

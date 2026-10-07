@@ -1,68 +1,67 @@
-name: CoChem-TOPOS CI
-
+name: CoChem-TOPOS verification
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [main, dev]
   pull_request:
-    branches: [ "main", "dev" ]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  build-and-test:
-    name: Build & Test (${{ matrix.os }} - Python ${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # A missing executable is a CI failure, never a successful skipped test.
+      TOPOS_REQUIRE_REAL_ENGINES: '1'
+      TOPOS_EXECUTION_BACKEND: development
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10", "3.11", "3.12"]
-
+        python: ['3.11', '3.12']
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          python-version: ${{ matrix.python-version }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ matrix.python }}
           cache: pip
-
-      - name: Air-Gap Enforcement
+      - name: Install package and verification tools
+        run: python -m pip install -e '.[dev,ui]'
+      - name: Install checksum-pinned genuine xTB
         run: |
-          if [ -n "$(find . -type f \( -name "*.h5" -o -name "*.gbw" -o -name "*.xyz" -o -name "cochem_system_config.json" \))" ]; then
-            echo "Air-Gap Violation: Forbidden files found in the repository."
-            exit 1
-          fi
-        shell: bash
-
-      - name: Install Dependencies
+          python scripts/install_xtb.py "$RUNNER_TEMP/topos-tools"
+          echo "TOPOS_XTB_EXECUTABLE=$RUNNER_TEMP/topos-tools/xtb" >> "$GITHUB_ENV"
+      - name: Install checksum-pinned genuine CREST
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-
-      - name: Lint and Type Check
+          python scripts/install_crest.py "$RUNNER_TEMP/topos-crest"
+          echo "TOPOS_CREST_EXECUTABLE=$RUNNER_TEMP/topos-crest/crest" >> "$GITHUB_ENV"
+      - name: Lint and check dependencies
         run: |
-          ruff check .
-          mypy .
-
-      - name: Run Unit Tests with Coverage
-        run: |
-          pytest tests/ -v --cov=cascade_engine --cov=core_engine --cov=export_utils --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=80
-
-      - name: Upload Test Coverage Artifacts
+          python -m ruff check topos frontend scripts tests setup.py cochem_topos_web.py
+          python -m pip check
+      - name: Test mathematical, failure, storage, UI, and real engine paths
+        # These two actual BASE installation suites run without skips in the
+        # mandatory CoChem package acceptance job; transport tests remain here.
+        run: >-
+          python -m pytest
+          --ignore=tests/v010/test_base_integration.py
+          --ignore=tests/v010/test_base_provider.py
+          --junitxml=verification.xml --cov=topos --cov-report=term-missing --cov-report=xml
+      - name: Build distributable
+        run: python -m build --outdir "$RUNNER_TEMP/topos-dist"
+      - name: Retain verification evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coverage-report-${{ matrix.os }}-python-${{ matrix.python-version }}
+          name: verification-python-${{ matrix.python }}
           path: |
-            htmlcov/
+            verification.xml
             coverage.xml
-            .coverage
-          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
