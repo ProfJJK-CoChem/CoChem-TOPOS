@@ -28,13 +28,22 @@ The remaining `T3C-1h` gap is electric-field-gradient tensor handling: the archi
 row explicitly requires EFGs as well as dipoles. An energy/dipole result cannot
 certify that entire row while its EFG handling is incomplete.
 
-The reviewed BASE foundation merge `0a8392b` preserves the scientific provisioners
-and adds the audited CFOUR provider. Its 218 focused checks passed and the merge
-was pushed to the integration branch. BASE subsequently released `1.0.1` on
-`main` (`c3b20e1`); the combined foundation and typed mandatory installer are under
-review. Stock version numbers do not establish compatibility with TOPOS's exact
-runtime requirements. Final source, worker, setup, installation and native
-receipts must use the same reviewed foundation.
+The reviewed BASE foundation `14202e1` combines the scientific integration
+`0a8392b` with BASE 1.0.1 `main` (`c3b20e1`). Its exact merged tree passed 299
+focused checks with zero skips and was pushed to the integration branch; the
+original six generated metadata files were preserved. TOPOS now requires exactly
+BASE 1.0.1 and its workflow defaults identify that reviewed foundation. The final
+installer catalog revision must be supplied as an immutable dispatch input after
+the TOPOS wheel is frozen. Stock version numbers do not establish compatibility
+with TOPOS's complete runtime requirements.
+
+The isotope handoff retains raw XYZ bytes and requires indexed nuclear labels
+to agree with the explicit TOPOS request. Its integrated package/handoff subset
+passed 102 tests with zero skips, including a real BASE/xTB handoff against the
+existing historical registry. This is focused source-change evidence, not a new
+final-source whole suite or mandatory installation. The typed installer remains
+under review. Final source, worker, setup, installation and native receipts must
+use the same reviewed source and actual installation.
 
 ## Verified source milestones
 

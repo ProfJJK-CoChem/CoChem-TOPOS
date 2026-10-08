@@ -2,6 +2,12 @@ name: TOPOS mandatory CoChem package acceptance
 
 on:
   workflow_dispatch:
+    inputs:
+      base_commit:
+        description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
+        required: true
+        type: string
+        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
   push:
     branches: [main]
     paths:
@@ -23,6 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
+      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
       TOPOS_REQUIRE_BASE: '1'
       TOPOS_REQUIRE_REAL_ENGINES: '1'
       TOPOS_EXECUTION_BACKEND: base
@@ -36,13 +43,25 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Validate the exact BASE source commit
+        shell: bash
+        run: |
+          if [[ ! "$BASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'BASE source must be an exact lowercase 40-character Git commit.' >&2
+            exit 1
+          fi
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-BASE
-          ref: 705b9d54370d5089da286a02b7a1c4afdcbafec1
+          ref: ${{ env.BASE_COMMIT }}
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/base
           persist-credentials: false
+      - name: Verify the checked-out BASE source identity
+        shell: bash
+        run: |
+          actual_base_commit="$(git -C .cochem-dependencies/base rev-parse HEAD)"
+          test "$actual_base_commit" = "$BASE_COMMIT"
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-TORQ

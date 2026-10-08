@@ -11,7 +11,6 @@ from typing import Any
 
 import numpy as np
 
-from .chemistry import from_xyz
 from .config import SystemConfig, load_config
 from .models import Artifact, RunRecord, RunRequest, utc_now
 from .storage import RunStore, atomic_json, digest_json, file_digest
@@ -27,6 +26,7 @@ def metadata() -> dict[str, Any]:
 
 
 def request_from_handoff(manifest_path: str | Path) -> tuple[RunRequest, dict[str, Any]]:
+    from cochem_base.geometry.nuclide_geometry import parse_geometry_identity
     from cochem_base.interfaces.artifact_handoff import load_module_handoff
 
     path = Path(manifest_path).expanduser().resolve(strict=True)
@@ -54,10 +54,24 @@ def request_from_handoff(manifest_path: str | Path) -> tuple[RunRequest, dict[st
     if artifact.stat().st_size > 2_000_000:
         raise ValueError("BASE XYZ handoff exceeds this receiver's input limit")
     raw = artifact.read_text(encoding="utf-8")
-    molecule = from_xyz(raw, template=request.molecule,
-                        charge=request.molecule.charge, multiplicity=request.molecule.multiplicity)
-    if molecule.symbols != request.molecule.symbols or not np.array_equal(
-        np.asarray(molecule.coordinates), np.asarray(request.molecule.coordinates)
+    # The immutable artifact retains its original labels and bytes. BASE 1.0.1
+    # resolves elemental identity separately from explicit nuclear labels; no
+    # isotope is inferred from XYZ's comment or silently dropped at this boundary.
+    lines = raw.splitlines()
+    try:
+        count = int(lines[0].strip()) if len(lines) >= 2 else 0
+    except ValueError as error:
+        raise ValueError("BASE XYZ requires an explicit atom count") from error
+    if (count < 1 or len(lines) < count + 2 or any(line.strip() for line in lines[count + 2:])
+            or any(len(line.split()) != 4 for line in lines[2:count + 2])):
+        raise ValueError("BASE XYZ must contain exactly one complete counted frame")
+    identity = parse_geometry_identity(raw)
+    for index, number in enumerate(identity.mass_numbers):
+        if number is not None and (index >= len(request.molecule.isotopes)
+                                   or request.molecule.isotopes[index] != number):
+            raise ValueError("BASE artifact isotope differs from the explicit TOPOS request at atom " + str(index))
+    if list(identity.elements) != request.molecule.symbols or not np.array_equal(
+        np.asarray(identity.coordinates_angstrom), np.asarray(request.molecule.coordinates)
     ):
         raise ValueError("BASE artifact atom order/coordinates differ from the explicit TOPOS request")
     if file_digest(path) != manifest_hash or file_digest(artifact) != handoff.artifact.sha256:

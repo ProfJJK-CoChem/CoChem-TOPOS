@@ -7,6 +7,7 @@ import io
 import subprocess
 import sys
 import tarfile
+import tomllib
 import zipfile
 from pathlib import Path
 
@@ -220,7 +221,8 @@ def test_controller_wheel_payload_cannot_disagree_with_declared_source(inputs):
         kit.verify_inputs(candidate, wheelhouse, installation)
 
 
-@pytest.mark.parametrize("prefix,version", [("unexpected-root", "1.0.0"), ("cochem_base-1.0.0", "9.9.9")])
+@pytest.mark.parametrize("prefix,version", [("unexpected-root", kit.PROJECTS["base"]),
+                                         ("cochem_base-" + kit.PROJECTS["base"], "9.9.9")])
 def test_companion_extraction_root_and_package_version_are_checked(inputs, prefix, version):
     candidate, wheelhouse, installation = inputs
     path = wheelhouse / "sources/base.tar.gz"
@@ -264,6 +266,30 @@ def test_workflow_retains_complete_three_source_download():
     assert "assemble_ecosystem_candidate.py companions" in workflow
     assert "assemble_ecosystem_candidate.py assemble" in workflow
     assert "${{ runner.temp }}/ecosystem-download/" in workflow
-    assert "705b9d54370d5089da286a02b7a1c4afdcbafec1" in workflow
+    assert "14202e182e1fa4f99258ed32a8ae9ba8c1c565ad" in workflow
+    assert "base_commit:" in workflow and "ref: ${{ env.BASE_COMMIT }}" in workflow
+    assert '--base-pin "$BASE_COMMIT"' in workflow
     assert "79fbb111125e50627a1a2c129888a45496f368d4" in workflow
     assert "--output \"$RUNNER_TEMP/topos-candidate/release-gate.json\"" in workflow
+
+
+@pytest.mark.parametrize("old_version", ["1.0.0", "1.0.2"])
+def test_unreviewed_base_version_cannot_join_exact_1_0_1_release_set(inputs, old_version):
+    """Inert wheel metadata; no package or engine is installed by this case."""
+    candidate, wheelhouse, installation = inputs
+    base = kit.read_json(wheelhouse / "companion-build-manifest.json")["companions"]["base"]
+    wheel(wheelhouse / base["wheel_name"], "cochem-base", old_version, {"fixture_base.py": "inert"})
+    kit.write_checksums(wheelhouse, list(wheelhouse.glob("*.whl")))
+    with pytest.raises(ValueError, match="name/version differs from the mandatory release set"):
+        kit.verify_inputs(candidate, wheelhouse, installation)
+
+
+def test_exact_base_foundation_version_matches_dependency_and_download_paths():
+    """One exact reviewed version controls requirements, wheel and source roots."""
+    dependencies = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["dependencies"]
+    assert "CoChem-BASE==1.0.1" in dependencies
+    assert kit.PROJECTS["base"] == kit.PACKAGE_VERSIONS["cochem-base"] == "1.0.1"
+    assert "BASE 1.0.1" in kit.INSTALL_README
+    assert "--base-root source/cochem_base-1.0.1" in kit.INSTALL_README
+    acceptance = (ROOT / "scripts/accept_installed_release.py").read_text()
+    assert "m.version('CoChem-BASE')=='1.0.1'" in acceptance

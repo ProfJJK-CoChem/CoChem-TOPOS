@@ -3,6 +3,11 @@ name: Prepare and verify unsigned TOPOS release candidate
 on:
   workflow_dispatch:
     inputs:
+      base_commit:
+        description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
+        required: true
+        type: string
+        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
       hosted_acceptance_run_id:
         description: Completed TOPOS ORCA acceptance run with GOAT and counterpoise evidence
         required: false
@@ -43,6 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
+      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
       COCHEM_HEADLESS: '1'
       QT_QPA_PLATFORM: offscreen
       COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
@@ -53,13 +59,25 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Validate the exact BASE source commit
+        shell: bash
+        run: |
+          if [[ ! "$BASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'BASE source must be an exact lowercase 40-character Git commit.' >&2
+            exit 1
+          fi
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-BASE
-          ref: 705b9d54370d5089da286a02b7a1c4afdcbafec1
+          ref: ${{ env.BASE_COMMIT }}
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/base
           persist-credentials: false
+      - name: Verify the checked-out BASE source identity
+        shell: bash
+        run: |
+          actual_base_commit="$(git -C .cochem-dependencies/base rev-parse HEAD)"
+          test "$actual_base_commit" = "$BASE_COMMIT"
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-TORQ
@@ -77,7 +95,7 @@ jobs:
           python scripts/build_ml_worker.py --output "$RUNNER_TEMP/topos-candidate/ml-worker"
           python scripts/assemble_ecosystem_candidate.py companions \
             --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
-            --base-pin 705b9d54370d5089da286a02b7a1c4afdcbafec1 \
+            --base-pin "$BASE_COMMIT" \
             --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
             --torq-pin 79fbb111125e50627a1a2c129888a45496f368d4 \
             --output "$RUNNER_TEMP/wheelhouse"
