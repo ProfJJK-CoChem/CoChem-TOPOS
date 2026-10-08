@@ -5,20 +5,22 @@ Stage 0 engine identity and the subprocess broker. TOPOS owns molecular requests
 scientific validation, resource ceilings, persistence, review and research export.
 Installing or finding an ORCA binary on PATH does not establish BASE authority.
 
-This integration uses the reviewed source revisions:
+This integration requires BASE 1.0.1 and uses the reviewed integration foundation below. Final candidate catalog and kit binding are still pending:
 
 | Component | GitHub Actions source revision |
 |---|---|
-| CoChem-BASE | `705b9d54370d5089da286a02b7a1c4afdcbafec1` |
+| CoChem-BASE | `14202e182e1fa4f99258ed32a8ae9ba8c1c565ad` (BASE 1.0.1 integration foundation; not a final installer/catalog certification) |
 | CoChem-TORQ | `79fbb111125e50627a1a2c129888a45496f368d4` |
 | CoChem-TOPOS | The dispatched controller workflow revision, recorded with the request/result correlation |
+
+The former BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1` pin belongs to retained historical evidence and does not meet the current BASE 1.0.1/CFOUR runtime authority contract.
 
 Pinning a TORQ checkout makes package identity explicit. It does not certify that
 TORQ's unfinished scientific workflows are complete.
 
-## Local production setup
+## Local source setup
 
-Use Python 3.11 or newer on Linux and run:
+The source setup route uses Python 3.11 or newer on Linux. Fresh final-source wheel installation and the reviewed mandatory installer/catalog still require acceptance; earlier candidate receipts are historical. To set up reviewed source checkouts, run:
 
 ```bash
 python scripts/setup_ecosystem.py \
@@ -56,6 +58,13 @@ The production TOPOS workflow is
 It accepts only a manual dispatch on the private repository's default branch,
 uses a protected `cochem-student-tests` environment, and checks the canonical
 request SHA-256 before provisioning.
+
+The generic worker provisions xTB/CREST/ORCA only and caps requests at four
+hours, four cores and 12 GiB. It explicitly rejects CFOUR, Psi4, ABCluster and
+ML/GPU recipes, as well as matrix routes without a provisioned native engine.
+Those local BASE-authorized adapters and separate protected BASE provider
+controllers have their own execution profiles. A verified CFOUR provider does
+not make CFOUR available through this generic TOPOS product workflow.
 
 Configure that environment with:
 
@@ -129,12 +138,28 @@ claim that BASE's browser automatically dispatches a calculation.
 
 ## Validation boundary
 
-The BASE workstream has reported a successful ORCA calculation on GitHub Actions.
+Verified protected BASE provider receipts establish genuine ORCA availability
+([37703993551](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37703993551))
+and CFOUR availability
+([37704401496](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37704401496)).
 This TOPOS integration is separate code and needs its own live hosted validation.
 No TOPOS-hosted calculation is claimed here merely because BASE succeeded or
 because a local transport/worker test passed. Live acceptance requires the configured private repository access, source and
 licensed distribution credentials, and the workflow protection settings. Retained
 job receipts identify the exact candidate commits and the stages that actually ran.
+
+As of the evidence retained on 8 October 2026 UTC (7 October in America/Chicago),
+GitHub rejected new TOPOS and BASE CI jobs before assigning runners because of
+failed payments or a spending limit. The separately published ORCA acceptance
+controller has not been dispatched. See the [release status](TOPOS_RELEASE_STATUS.md)
+for exact run/controller identities and the preserved original outcomes.
+
+The outside mandatory installer/broker/export proposal has source and focused
+installed-check evidence, but its borrowed dependency environment failed
+`pip check` against old TOPOS metadata. The reviewed complete-source ownership
+repair requires actual TOPOS artifact binding and shared integration.
+A fresh source-bound final installation, immutable catalog and mandatory kit are
+not certified by those checks.
 
 Actual local BASE-native tests and transport/worker contract tests are separate
 evidence categories. The validation receipt records their outcomes and source
