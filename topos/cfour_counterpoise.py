@@ -20,8 +20,9 @@ import numpy as np
 from pydantic import Field, StrictInt, model_validator
 
 from .base_integration import BaseRuntime
+from .cfour_artifacts import finalize_artifacts, native_text
 from .chemistry import atomic_number
-from .engines import EngineParseError, EngineResult, _number, artifact_inventory
+from .engines import EngineParseError, EngineResult, _number
 from .external_engines import (
     _FLOAT,
     ExternalProtocol,
@@ -42,9 +43,9 @@ from .higher_composite import (
     combine_higher_geometry,
 )
 from .matrix_components import run_component
-from .models import Artifact, Contract, Molecule, ResourceLimits
+from .models import Contract, Molecule, ResourceLimits
 from .science import BOHR_ANGSTROM, rotational_constants, validate_stereochemical_preservation
-from .storage import IntegrityError, atomic_json, confined_file, digest_json, file_digest
+from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
 SOURCES = [
     "https://github.com/MolSSI/QCElemental/blob/v0.51.2/qcelemental/molparse/to_string.py",
@@ -182,10 +183,10 @@ def cfour_counterpoise_input(molecule: Molecule, protocol: CfourCounterpoiseLeg,
     controls = re.sub(r"BASIS=[^,\n]+", "BASIS=SPECIAL", controls)
     controls = re.sub(r"FROZEN_CORE=(?:ON|OFF)", "FROZEN_CORE=OFF", controls)
     controls = re.sub(r"ABCDTYPE=[^,\n]+", "ABCDTYPE=STANDARD", controls)
-    controls = re.sub(r",\nCC_PROG=[^,\n]+", "", controls)
-    controls += ",\nCC_PROG=" + {"CCSD(T)": "VCC", "CCSDT": "ECC", "CCSDTQ": "NCC"}[protocol.method]
+    controls = re.sub(r"\nCC_PROG=[^,\n]+", "", controls)
+    controls += "\nCC_PROG=" + {"CCSD(T)": "VCC", "CCSDT": "ECC", "CCSDTQ": "NCC"}[protocol.method]
     if protocol.dropped_core_orbitals:
-        controls += f",\nDROPMO=1>{protocol.dropped_core_orbitals}"
+        controls += f"\nDROPMO=1>{protocol.dropped_core_orbitals}"
     lines = ["CoChem TOPOS explicit relaxed-total counterpoise energy"]
     lines.extend((c.symbol if c.physical else "GH") + " " + " ".join(format(v, ".16g") for v in c.coordinates)
                  for c in protocol.basis_centers)
@@ -401,7 +402,7 @@ def run_cfour_counterpoise_leg(molecule: Molecule, protocol: CfourCounterpoiseLe
         if process.status != "completed":
             result.diagnostics["reason"] = process.reason
             return result
-        native = parse_cfour_counterpoise_output(Path(process.stdout_path).read_text(errors="replace"), molecule, protocol)
+        native = parse_cfour_counterpoise_output(native_text(folder, "engine.stdout", required=True, process_path=process.stdout_path), molecule, protocol)
         atomic_json(folder / "native-result.json", native)
         result.energy_hartree, result.molecule, result.engine_version = native["energy_hartree"], molecule, native["engine_version"]
         result.metadata.update(native_result=native, adapter_validation="native-output-validated-for-this-execution")
@@ -419,21 +420,7 @@ def run_cfour_counterpoise_leg(molecule: Molecule, protocol: CfourCounterpoiseLe
     finally:
         result.elapsed_seconds = time.monotonic() - started
         if folder.is_dir():
-            try:
-                result.artifacts = artifact_inventory(folder)
-            except EngineParseError as exc:
-                result.status, result.converged, result.energy_hartree = "failed", False, None
-                result.diagnostics["artifact_error"] = str(exc)
-                result.artifacts = []
-                for path in sorted(folder.rglob("*")):
-                    if not path.is_file() or path.is_symlink():
-                        continue
-                    try:
-                        safe = confined_file(folder, path.relative_to(folder).as_posix())
-                    except IntegrityError:
-                        continue
-                    result.artifacts.append(Artifact(path=str(safe), sha256=file_digest(safe),
-                        size_bytes=safe.stat().st_size, role="rejected-native-evidence"))
+            finalize_artifacts(result, folder)
 
 
 def _optimize_surface(workflow, record, store, native: ExternalProtocol, specification: CfourCounterpoiseGeometryProtocol,

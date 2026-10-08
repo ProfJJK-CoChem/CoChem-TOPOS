@@ -1,0 +1,20 @@
+{
+  "scope": "Unchanged genuine failed TOPOS first-order transport; never successful correlated, property or EFG evidence",
+  "run_id": 37713885742,
+  "attempt": 1,
+  "artifact_id": 11523336673,
+  "controller_commit": "acab080d1a45c9f7546212e028985bd5d24772dd",
+  "topos_commit": "f8168b37585f97a0a2f21c37874fcd6bf3e40c31",
+  "base_commit": "0a8392baa498a799a1cabf922f5f5fbca8acc88d",
+  "zip_sha256": "835e61c3f86bb7ea999879249de19a6395e15386fb9e830d994cd88c1d70748f",
+  "files": {
+    "output.stdout": {
+      "original_member": "topos-cfour-property-evidence/run/attempts/attempt_095a1203ff22460482e4b9493d012af5/evaluation-00000/engine.stdout",
+      "sha256": "a8ca7bae2ef6db8864626169079aeecb8745fbdbd620c3442b80fa873ab56aa9"
+    },
+    "native-ZMAT.inp": {
+      "original_member": "topos-cfour-property-evidence/run/attempts/attempt_095a1203ff22460482e4b9493d012af5/evaluation-00000/ZMAT",
+      "sha256": "02c2017ed7e63361d31582d0b21937222713bc8af671461e27320555945b2139"
+    }
+  }
+}

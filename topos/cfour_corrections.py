@@ -18,8 +18,9 @@ from typing import Any, Callable, Literal
 import numpy as np
 
 from .base_integration import BaseRuntime
+from .cfour_artifacts import finalize_artifacts, native_text
 from .composites import _geometry_parameters, _increment, _wrap_degrees
-from .engines import EngineParseError, EngineResult, artifact_inventory
+from .engines import EngineParseError, EngineResult
 from .external_engines import (
     ExternalProtocol,
     _native_completion,
@@ -60,7 +61,7 @@ def scalar_input(molecule: Molecule, protocol: ScalarRelativisticProtocol, resou
     protocol = ScalarRelativisticProtocol.model_validate(protocol.model_dump())
     raw = cfour_input(molecule, protocol.electronic_protocol(), resources)
     before, after = raw.rsplit(")", 1)
-    return before + f",\nRELATIVISTIC={protocol.relativistic},\nCONTRACTION=UNCONTRACTED,\nDBOC=OFF)" + after
+    return before + f"\nRELATIVISTIC={protocol.relativistic}\nCONTRACTION=UNCONTRACTED\nDBOC=OFF)" + after
 
 
 def scalar_controls(raw: str, relativistic: Literal["OFF", "X2C1E"]) -> dict[str, str]:
@@ -143,10 +144,11 @@ def run_scalar_relativistic(molecule: Molecule, protocol: ScalarRelativisticProt
         if process.status != "completed" or process.returncode != 0:
             if process.status == "completed":
                 result.status = "failed"
+            result.diagnostics["reason"] = process.reason or f"CFOUR process returned {process.returncode}"
             return result
         if any(Path(path).is_symlink() or file_digest(Path(path)) != wanted for path, wanted in immutable.items()):
             raise IntegrityError("Immutable scalar correction inputs changed during native execution")
-        native = parse_scalar_output(Path(process.stdout_path).read_text(errors="replace"), molecule, protocol)
+        native = parse_scalar_output(native_text(folder, "engine.stdout", required=True, process_path=process.stdout_path), molecule, protocol)
         atomic_json(folder / "native-result.json", native)
         result.metadata.update(native_result=native, adapter_validation="native-output-validated-for-this-execution")
         result.energy_hartree, result.molecule = native["energy_hartree"], molecule
@@ -160,7 +162,7 @@ def run_scalar_relativistic(molecule: Molecule, protocol: ScalarRelativisticProt
     finally:
         result.elapsed_seconds = time.monotonic() - started
         if folder.is_dir() and not folder.is_symlink():
-            result.artifacts = artifact_inventory(folder)
+            finalize_artifacts(result, folder)
 
 
 class ScalarCampaignStopped(RuntimeError):

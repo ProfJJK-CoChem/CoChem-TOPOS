@@ -13,7 +13,11 @@ constructs the CFOUR child environment. These features are present in reviewed
 [BASE cc1ef4b](https://github.com/ProfJJK-CoChem/CoChem-BASE/commit/cc1ef4bff7c8b313386a9ddfd5db118b872c862c).
 Use an explicitly pinned, reviewed BASE source revision and a fresh completed
 Stage 0 audit, including all eleven phases. A package version string alone is
-insufficient: both the older and newer source advertise BASE 1.0.0.
+insufficient: both compared older revisions advertise BASE 1.0.0. TOPOS now
+requires BASE 1.0.1, with reviewed integration foundation
+[`14202e1`](https://github.com/ProfJJK-CoChem/CoChem-BASE/commit/14202e182e1fa4f99258ed32a8ae9ba8c1c565ad)
+combining the required runtime authority and BASE 1.0.1 source. That revision
+still requires its own fresh setup and protocol-specific native acceptance.
 
 The prior scientific baseline, BASE
 `705b9d54370d5089da286a02b7a1c4afdcbafec1`, remains usable for its previously
@@ -60,6 +64,28 @@ scientific derivations are partial identifiers; the record's
 `cfour_runtime_authority` supplies the complete BASE runtime association.
 
 ## What the local checks establish
+
+The genuine interim [TOPOS first-order run
+37713885742](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37713885742)
+passed CFOUR provisioning and all eleven BASE setup phases, then failed in
+`xjoda` with `@GTFLGS-F, Must supply value for keyword string` and native status
+256. Its unchanged ZMAT and stdout are retained as failure fixtures. The
+compiler now uses newline-only keyword records and a terminal blank line,
+preserving every physical keyword, geometry and resource value across ordinary,
+counterpoise, scalar and DBOC inputs. This supported syntax follows the pinned
+[QCEngine writer](https://github.com/MolSSI/QCEngine/blob/bf1b799c4a17010f679a4472bb1ec56492f2d0d9/qcengine/programs/cfour/keywords.py#L6-L20)
+and [ASH writer](https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py#L436-L444),
+and genuine successful BASE input. A changed-source native calculation must
+establish whether this closes the failure; a passing deck test cannot do so.
+
+CFOUR-specific artifact collection records scratch link text without following
+its targets. Scientific input/output links are rejected. Collection errors stay
+secondary to the original native failure and invalidate unaccepted quantities;
+they cannot replace its status or reason. The current-source focused subset
+passed 210 tests, with one explicit unavailable-Psi4 skip. This establishes
+grammar, parsing, artifact and runtime contracts, not native EFG or matrix
+acceptance. Portable basis-dependency handling and the hosted export boundary
+remain under review before final installation and release acceptance.
 
 Invocation parsing supports actual inline `--invoking executable xjoda` and
 two-line `--invoking executable--` followed by a native executable path.
