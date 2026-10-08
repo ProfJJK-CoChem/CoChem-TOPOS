@@ -27,7 +27,7 @@ from topos.review import (
     get_ensemble_manifest,
     list_decisions,
 )
-from topos.storage import IntegrityError, RunStore
+from topos.storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest
 
 
 def make_record(directory: Path, run_id: str = "run_test") -> RunRecord:
@@ -440,3 +440,140 @@ def test_invalid_accepted_derivative_cannot_support_derived_result(tmp_path):
     append_decision(tmp_path, subject_id="candidate_selected", action="accept", actor="reviewer", reason="review")
     with pytest.raises(IntegrityError, match="accepted derivative"):
         create_ensemble_manifest(tmp_path, ["candidate_selected"], actor="reviewer")
+
+
+
+def _reviewed_analytical_archive(tmp_path):
+    """Two actual analytical evaluations; no native chemistry acceptance claim."""
+    run_dir = tmp_path / "run"
+    record = make_record(run_dir)
+    repeated = make_record(run_dir / "repeat", run_id=record.run_id)
+    attempt = repeated.attempts[0]
+    attempt.attempt_id = "attempt_repeat"
+    for artifact in attempt.artifacts:
+        artifact.path = "repeat/" + artifact.path
+    candidate = repeated.candidates[0]
+    candidate.candidate_id = "candidate_repeat"
+    candidate.attempt_id = attempt.attempt_id
+    for quantity in attempt.quantities:
+        quantity.attempt_id = attempt.attempt_id
+        quantity.geometry_id = candidate.candidate_id
+    record.attempts.append(attempt)
+    record.candidates.append(candidate)
+    RunStore(run_dir).commit(record)
+    annotation = append_decision(
+        run_dir, subject_id="candidate_selected", action="annotate", actor="unit-test reviewer",
+        reason="Retain an annotation before the explicit analytical review",
+        annotations={"scope": "analytical filesystem contract only"},
+    )
+    append_decision(
+        run_dir, subject_id="candidate_selected", action="accept", actor="unit-test reviewer",
+        reason="Analytical fixture checked", supersedes=annotation["decision_id"],
+    )
+    append_decision(
+        run_dir, subject_id="candidate_repeat", action="accept", actor="unit-test reviewer",
+        reason="Repeated analytical evaluation retained as a contract fixture",
+    )
+    create_ensemble_manifest(
+        run_dir, ["candidate_selected", "candidate_repeat"], actor="unit-test reviewer",
+    )
+    bundle = tmp_path / "bundle"
+    manifest = export_bundle(run_dir, bundle)
+    assert verify_bundle(bundle) == manifest
+    return bundle
+
+
+def _rebind_archive_envelopes(bundle, *, ensemble=None, review=None, manifest=None):
+    """Refresh outer hashes only; original raw snapshot and scientific bytes stay exact."""
+    manifest = manifest or json.loads((bundle / "manifest.json").read_text())
+    if ensemble is not None:
+        ensemble["manifest_sha256"] = digest_json(
+            {key: value for key, value in ensemble.items() if key != "manifest_sha256"}
+        )
+        atomic_json(bundle / "ensemble.json", ensemble)
+        manifest["ensemble_sha256"] = ensemble["manifest_sha256"]
+    if review is not None:
+        atomic_json(bundle / "review.json", review)
+    manifest["files"] = [item for item in manifest["files"] if (bundle / item["path"]).is_file()]
+    for item in manifest["files"]:
+        path = bundle / item["path"]
+        item["sha256"], item["size_bytes"] = file_digest(path), path.stat().st_size
+    manifest["manifest_sha256"] = digest_json(
+        {key: value for key, value in manifest.items() if key != "manifest_sha256"}
+    )
+    atomic_json(bundle / "manifest.json", manifest)
+
+
+@pytest.mark.parametrize("change", [
+    "action", "action-bound-to-head", "reorder", "chain", "head", "selected-decisions",
+    "stale-review-snapshot", "review-run", "review-sequence", "missing-review", "review-shape",
+    "members", "member-geometry", "member-order", "unknown-member", "duplicate-member",
+    "source-record", "outer-member-ids",
+])
+def test_bundle_semantic_review_tampering_rejected_after_outer_rechecksum(tmp_path, change):
+    bundle = _reviewed_analytical_archive(tmp_path)
+    ensemble = json.loads((bundle / "ensemble.json").read_text())
+    review = json.loads((bundle / "review.json").read_text())
+    manifest = json.loads((bundle / "manifest.json").read_text())
+    original_raw = {
+        item["path"]: item["sha256"] for item in manifest["files"]
+        if item["path"].startswith("snapshot/") or item["path"] == "run.json"
+    }
+    if change in {"action", "action-bound-to-head"}:
+        review[1]["action"] = "reject"
+    elif change == "reorder":
+        review.reverse()
+    elif change == "chain":
+        review[-1]["previous_sha256"] = "0" * 64
+    elif change == "head":
+        ensemble["review_head_sha256"] = "0" * 64
+    elif change == "selected-decisions":
+        ensemble["decisions"] = ["unrecorded-decision", *ensemble["decisions"][1:]]
+    elif change == "stale-review-snapshot":
+        review[1]["source_snapshot_sha256"] = "0" * 64
+    elif change == "review-run":
+        review[1]["run_id"] = "another-run"
+    elif change == "review-sequence":
+        review[1]["sequence"] = 99
+    elif change == "missing-review":
+        (bundle / "review.json").unlink()
+        review = None
+    elif change == "review-shape":
+        review = {"unexpected": "object instead of the archived event list"}
+    elif change == "members":
+        ensemble["members"] = []
+    elif change == "member-geometry":
+        ensemble["members"][0]["molecule"]["coordinates"][0][0] += 0.1
+    elif change == "member-order":
+        ensemble["members"].reverse()
+    elif change == "unknown-member":
+        ensemble["member_ids"][0] = "not-in-record"
+    elif change == "duplicate-member":
+        ensemble["member_ids"][1] = ensemble["member_ids"][0]
+    elif change == "source-record":
+        ensemble["source_record_sha256"] = "0" * 64
+    else:
+        manifest["selected_member_ids"] = ["not-selected-by-the-ensemble"]
+    if change in {"action-bound-to-head", "stale-review-snapshot", "review-run", "review-sequence"}:
+        previous = None
+        for event in review:
+            event["previous_sha256"] = previous
+            previous = digest_json(event)
+        ensemble["review_head_sha256"] = previous
+    _rebind_archive_envelopes(bundle, ensemble=ensemble, review=review, manifest=manifest)
+    assert all(file_digest(bundle / path) == digest for path, digest in original_raw.items())
+    with pytest.raises(IntegrityError):
+        verify_bundle(bundle)
+
+
+def test_bundle_semantic_review_preserves_valid_archive_and_portable_verification(tmp_path):
+    bundle = _reviewed_analytical_archive(tmp_path)
+    original = verify_bundle(bundle)
+    review = json.loads((bundle / "review.json").read_text())
+    assert len(review) == 3 and review[1]["supersedes"] == review[0]["decision_id"]
+    relocated = tmp_path / "relocated-bundle"
+    import shutil
+
+    shutil.copytree(bundle, relocated)
+    assert verify_bundle(relocated) == original
+    assert (relocated / "run.json").read_bytes() == (bundle / "run.json").read_bytes()

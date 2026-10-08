@@ -18,7 +18,12 @@ import h5py
 from filelock import FileLock
 
 from .references import METHOD_REFERENCES, executed_references
-from .review import get_ensemble_manifest, list_decisions, validate_scientific_candidate
+from .review import (
+    get_ensemble_manifest,
+    list_decisions,
+    validate_reviewed_ensemble,
+    validate_scientific_candidate,
+)
 from .storage import (
     IntegrityError,
     RunStore,
@@ -571,6 +576,13 @@ def verify_bundle(destination: str | Path) -> dict[str, Any]:
         raise IntegrityError("Bundle record belongs to another run")
     if digest_json(record) != ensemble.get("source_record_sha256"):
         raise IntegrityError("Bundle record differs from reviewed record")
+    try:
+        decisions = json.loads(confined_file(root, "review.json").read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise IntegrityError("Cannot read valid bundle review events") from exc
+    validate_reviewed_ensemble(record, ensemble, decisions)
+    if manifest.get("selected_member_ids") != ensemble["member_ids"]:
+        raise IntegrityError("Bundle selected members differ from the reviewed ensemble")
     snapshot = read_json(root / "snapshot/manifest.json")
     committed_inventory = artifact_inventory(record)
     expected_snapshot_id = digest_json({"record_sha256": digest_json(record),
