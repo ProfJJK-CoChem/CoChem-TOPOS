@@ -275,3 +275,29 @@ def test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete
     assert chi["inertial_frame"]["axes_resolved"] is False
     assert chi["inertial_frame"]["couplings"][0]["chi_aa_bb_cc_khz"] is None
     assert any("inertia axes are degenerate" in reason for reason in reasons)
+
+
+def test_explicit_isolated_gas_reaches_same_bound_chi_operator_path(bookkeeping):
+    folder, paths, authority, fingerprint = bookkeeping
+    gas = molecule().model_copy(update={"environment": {"phase": "gas"}})
+    context = property_operator_authority(folder, paths, authority, gas, protocol().model_dump(),
+                                           current_property_runtime=fingerprint)
+    assert context is not None
+    raw = parse_cfour_output((folder / "engine.stdout").read_text(), gas, protocol(),
+                             dipol=(folder / "DIPOL").read_text(), efg=(folder / "EFG").read_text())
+    verified = apply_operator_authority(raw["efg_observation"], context)
+    chi, missing = first_order_quadrupole_output(gas, verified, [mathematical_nucleus()], "rigid-inertial", context)
+    assert missing == []  # Policy bookkeeping only; no current native or physical accuracy claim.
+    assert chi["native_unit_sign_independently_verified"] is True
+    assert chi["nuclear_data_independently_verified"] is False
+    assert chi["native_execution_verified"] is False
+
+
+@pytest.mark.parametrize("environment", [
+    {"phase": "liquid"}, {"phase": "gas", "solvent": "water"},
+    {"phase": "gas", "external_field_au": [0., 0., .001]}, {"phase": "Gas"},
+])
+def test_operator_profile_does_not_admit_other_environment_declarations(bookkeeping, environment):
+    folder, paths, authority, _ = bookkeeping
+    other = molecule().model_copy(update={"environment": environment})
+    assert property_operator_authority(folder, paths, authority, other, protocol().model_dump()) is None

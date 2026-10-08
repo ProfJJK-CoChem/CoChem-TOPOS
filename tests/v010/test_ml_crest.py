@@ -221,6 +221,9 @@ def test_actual_patched_binary_requires_matching_source_provenance(tmp_path, gen
     copied.mkdir()
     for name in ("crest", "installation.json", "source.patch"):
         shutil.copy2(source / name, copied / name)
+    # Keep the actual native loader dependencies beside the copied executable.
+    if (source / "lib").is_dir():
+        shutil.copytree(source / "lib", copied / "lib")
     if damage == "missing-manifest":
         (copied / "installation.json").unlink()
     elif damage == "patch-bytes":

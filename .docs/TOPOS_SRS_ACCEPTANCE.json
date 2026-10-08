@@ -1,9 +1,9 @@
 {
   "schema_version": "topos-srs-acceptance/0.1.0",
-  "generated_at": "2026-10-08T23:15:35.440619+00:00",
+  "generated_at": "2026-10-08T23:36:27.340690+00:00",
   "srs_sha256": "7e70b41cb15e31c5ef8c2ad98568691c5913bd2e866ce1abdc7d50748b834271",
   "status": "incomplete",
-  "interpretation": "Requirement-by-requirement current-source implementation and retained-receipt proposal. Verified means the listed supported-profile software behavior has source-matched passing local tests; it is not full engine/domain or complete release certification. All scientific/native/GPU/hosted conditions remain explicit. This outside candidate is not applied to shared sources.",
+  "interpretation": "Requirement-by-requirement active current-source implementation and retained-receipt ledger. Verified means the listed supported-profile software behavior has source-matched passing local tests; it is not full engine/domain or complete release certification. All scientific/native/GPU/hosted conditions remain explicit. This ledger is applied to current shared sources; affected entries retain historical receipts and await a source-matched current whole suite.",
   "requirements": {
     "TOPOS-010-001": {
       "chapter": "3. System boundaries and execution contract",
@@ -996,9 +996,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
-            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display"
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -1262,12 +1274,25 @@
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
           "scripts/assemble_ecosystem_candidate.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_ecosystem_candidate.py",
           "tests/v010/test_matrix_external_route.py",
           "topos/base_integration.py",
           "topos/capabilities.py"
         ],
         "missing_acceptance_tests": [
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+          "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
           "tests/v010/test_ecosystem_candidate.py::test_archive_paths_cannot_escape_or_alias",
           "tests/v010/test_ecosystem_candidate.py::test_companion_extraction_root_and_package_version_are_checked",
           "tests/v010/test_ecosystem_candidate.py::test_companions_are_really_twice_built_from_pinned_git_trees",
@@ -2416,7 +2441,7 @@
     "TOPOS-010-007": {
       "chapter": "4. Scientific inputs and fragment triage",
       "requirement_source": "| **TOPOS-010-007** | Query masses/radii through the governing dynamic provider and record its version/conventions. Select isotopes by mass number; never relabel atomic weights as isotope masses. | Isotopic inertia changes correctly; helium atomic weight is not emitted as exact He-4 mass. |",
-      "status": "verified",
+      "status": "verification-pending",
       "assessment": "Mendeleev supplies versioned isotope masses and radii; inertia records isotope convention and validates isotope substitutions. The BASE raw-XYZ isotope handoff preserves indexed labels and coordinates. New operator context also rejects transfer to a changed isotope/geometry; these policy checks do not certify source nuclear-Q data.",
       "implementation": [
         {
@@ -2437,7 +2462,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         }
       ],
       "acceptance_tests": [
@@ -2520,25 +2545,102 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
-            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry"
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         }
       ],
       "coding_gaps": [],
-      "additional_acceptance_conditions": [],
+      "additional_acceptance_conditions": [
+        "current_whole_suite"
+      ],
       "verification": {
-        "scope": "Current source local supported-profile regression against preserved existing runtime; licensing/native/independent accuracy/GPU/deployed hosted gates remain separate.",
-        "original_root_source_stable_boolean": true,
-        "source_map_derived_after_run": true,
         "historical_verification": {
-          "historical_suite_tests": 907,
-          "listed_files_match_historical_execution": true,
-          "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
+          "scope": "Current source local supported-profile regression against preserved existing runtime; licensing/native/independent accuracy/GPU/deployed hosted gates remain separate.",
+          "original_root_source_stable_boolean": true,
+          "source_map_derived_after_run": true,
+          "historical_verification": {
+            "historical_suite_tests": 907,
+            "listed_files_match_historical_execution": true,
+            "scope": "Concrete local Linux behavior; passing unit/parser tests does not certify a licensed or external native pathway.",
+            "pending_current_source_regression": false,
+            "current_suite_tests": 1814,
+            "current_suite_skipped": 2,
+            "current_receipt_missing_files": [],
+            "missing_acceptance_tests": [],
+            "skipped_acceptance_tests": [],
+            "executed_passing_acceptance_tests": [
+              "tests.v010.test_science::test_input_rejects_nonfinite_count_spin_isotope_and_overlap",
+              "tests.v010.test_science::test_credentials_never_appear_in_contract_error",
+              "tests.v010.test_science::test_fragment_states_require_physically_allowed_total_spin_coupling",
+              "tests.v010.test_science::test_xyz_preserves_typed_state_and_forbids_appended_frames",
+              "tests.v010.test_science::test_fragment_hypotheses_are_conservative",
+              "tests.v010.test_science::test_proper_rotation_permutation_and_state_checks",
+              "tests.v010.test_science::test_mirror_image_is_not_merged_even_under_loose_rmsd",
+              "tests.v010.test_science::test_local_inversion_is_not_hidden_by_other_fragments_or_small_global_rmsd",
+              "tests.v010.test_science::test_mapped_stereochemistry_checks_coordinates_despite_copied_labels",
+              "tests.v010.test_science::test_stereochemical_mapping_uses_atom_ids_and_rejects_false_initial_assignment",
+              "tests.v010.test_science::test_ambiguous_and_unsupported_stereochemistry_require_review",
+              "tests.v010.test_science::test_permutation_limit_retains_candidates",
+              "tests.v010.test_science::test_fragment_charge_localization_and_partition_are_not_erased",
+              "tests.v010.test_science::test_isotope_placement_and_bond_order_are_part_of_graph_identity",
+              "tests.v010.test_science::test_signed_stereo_equivalence_uses_atom_mapping_not_label_spelling",
+              "tests.v010.test_science::test_partial_graph_search_is_bounded_even_before_an_isomorphism_exists",
+              "tests.v010.test_science::test_comparison_deadline_and_cancellation_retain_candidates",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-0]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations--1]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-1.5]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-True]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-nan]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-inf]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-0]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes--1]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-1.5]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-True]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-nan]",
+              "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-inf]",
+              "tests.v010.test_science::test_generation_dedup_requires_energy_and_rotation_and_geometry",
+              "tests.v010.test_science::test_homometric_inertia_and_equal_energy_do_not_prove_geometry_identity",
+              "tests.v010.test_science::test_generation_dedup_keeps_enantiomers_even_with_identical_spectra",
+              "tests.v010.test_science::test_planar_double_bond_stereoisomers_are_separate_under_loose_rmsd",
+              "tests.v010.test_science::test_generation_dedup_handles_monatomic_and_linear_zero_inertia_axes",
+              "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update0]",
+              "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update1]",
+              "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update2]",
+              "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update3]",
+              "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update4]",
+              "tests.v010.test_science::test_atomic_units_and_derivative_sign_are_consistent",
+              "tests.v010.test_science::test_isotope_inertia_and_linear_axis_are_physical",
+              "tests.v010.test_science::test_ensemble_uses_one_protocol_stable_weights_and_no_duplicate_observations",
+              "tests.v010.test_science::test_counterpoise_sign_and_reference_subtractions",
+              "tests.v010.test_science::test_diatomic_modes_isotope_ratio_and_zpe_units",
+              "tests.v010.test_science::test_nonlinear_projection_and_unstable_mode_classification",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold-nan]",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold-inf]",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold--inf]",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-nan]",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
+              "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
+            ],
+            "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
+            "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+          },
           "pending_current_source_regression": false,
-          "current_suite_tests": 1814,
-          "current_suite_skipped": 2,
+          "current_suite_tests": 2850,
+          "current_suite_skipped": 42,
           "current_receipt_missing_files": [],
           "missing_acceptance_tests": [],
           "skipped_acceptance_tests": [],
@@ -2593,144 +2695,108 @@
             "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold--inf]",
             "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-nan]",
             "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
-            "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]"
+            "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]",
+            "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes0]",
+            "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes1]",
+            "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes2]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[order]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[coordinate]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[state]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[purpose]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[extra-options]",
+            "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[missing-isotopes]",
+            "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels0-isotopes0]",
+            "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels1-isotopes1]",
+            "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels2-isotopes2]",
+            "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels3-isotopes3]",
+            "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[999O]",
+            "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[3D]",
+            "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[Xx]",
+            "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[O:ghost]",
+            "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[[18O]]",
+            "tests.v010.test_cfour_properties::test_axial_linear_tensors_are_rotation_invariant_but_azimuthal_ones_are_rejected",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[unspecified-isotope]",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[changed-isotope]",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[wrong-element]",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[absent-atom]",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[duplicate]",
+            "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[empty]",
+            "tests.v010.test_cfour_properties::test_improper_reflection_cannot_define_an_efg_frame",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[nonsymmetric]",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[trace]",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[shape]",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[nonfinite]",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[negative-bound]",
+            "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[loose-bound]",
+            "tests.v010.test_cfour_properties::test_monatomic_frame_accepts_zero_tensor_and_rejects_orientation_dependent_tensor",
+            "tests.v010.test_cfour_properties::test_native_atom_order_and_changed_geometry_are_rejected",
+            "tests.v010.test_cfour_properties::test_nearly_degenerate_axes_are_not_claimed_resolved_beyond_print_precision",
+            "tests.v010.test_cfour_properties::test_observed_rounding_bounds_transform_conservatively_without_losing_raw_components",
+            "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal0-0.0-False]",
+            "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal1-0.2-True]",
+            "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal2-1.0-False]",
+            "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal3-None-False]",
+            "tests.v010.test_cfour_properties::test_signed_matrix_factor_and_nuclear_uncertainty_are_preserved",
+            "tests.v010.test_cfour_properties::test_tensor_covariance_and_translation_invariance_in_requested_indexed_frame",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change0]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change1]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change2]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change3]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change4]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change5]",
+            "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change6]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes0]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes1]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes2]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes3]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes4]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes5]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes6]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes7]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes8]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes9]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes10]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes11]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes12]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_authentic_correlated_acquisition_with_reported_nuclear_error_remains_conditional",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_reported_source_uncertainty_retains_signed_coupling_and_sensitivity_with_null_standard_errors",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_reported_source_uncertainty_round_trips_typed_matrix_input_without_standard_relabeling",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes0]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes1]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes2]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes3]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes4]",
+            "tests.v010.test_cfour_nuclear_uncertainty::test_uncertainty_interpretation_changes_no_central_value_and_standard_branch_still_propagates",
+            "tests.v010.test_cfour_operator::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry"
           ],
-          "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a",
-          "source_assessment_reviewer": "Codex source review of 053c827 and localized TOPOS-010-017 clarification; preserved physical acceptance conditions"
+          "junit_sha256": "f0a5162c925a5e978781b76489fe2b7073f7435e178ee261752b0ef744189e89",
+          "source_assessment_reviewer": "Codex root: independent chapter, code and exact unfiltered outcome review"
         },
-        "pending_current_source_regression": false,
-        "current_suite_tests": 2850,
-        "current_suite_skipped": 42,
-        "current_receipt_missing_files": [],
-        "missing_acceptance_tests": [],
+        "scope": "Current operator gas validation and ML CREST dependency fixture changed; prior passing receipts remain historical.",
+        "current_suite_tests": 0,
+        "current_suite_skipped": 0,
+        "executed_passing_acceptance_tests": [],
         "skipped_acceptance_tests": [],
-        "executed_passing_acceptance_tests": [
-          "tests.v010.test_science::test_input_rejects_nonfinite_count_spin_isotope_and_overlap",
-          "tests.v010.test_science::test_credentials_never_appear_in_contract_error",
-          "tests.v010.test_science::test_fragment_states_require_physically_allowed_total_spin_coupling",
-          "tests.v010.test_science::test_xyz_preserves_typed_state_and_forbids_appended_frames",
-          "tests.v010.test_science::test_fragment_hypotheses_are_conservative",
-          "tests.v010.test_science::test_proper_rotation_permutation_and_state_checks",
-          "tests.v010.test_science::test_mirror_image_is_not_merged_even_under_loose_rmsd",
-          "tests.v010.test_science::test_local_inversion_is_not_hidden_by_other_fragments_or_small_global_rmsd",
-          "tests.v010.test_science::test_mapped_stereochemistry_checks_coordinates_despite_copied_labels",
-          "tests.v010.test_science::test_stereochemical_mapping_uses_atom_ids_and_rejects_false_initial_assignment",
-          "tests.v010.test_science::test_ambiguous_and_unsupported_stereochemistry_require_review",
-          "tests.v010.test_science::test_permutation_limit_retains_candidates",
-          "tests.v010.test_science::test_fragment_charge_localization_and_partition_are_not_erased",
-          "tests.v010.test_science::test_isotope_placement_and_bond_order_are_part_of_graph_identity",
-          "tests.v010.test_science::test_signed_stereo_equivalence_uses_atom_mapping_not_label_spelling",
-          "tests.v010.test_science::test_partial_graph_search_is_bounded_even_before_an_isomorphism_exists",
-          "tests.v010.test_science::test_comparison_deadline_and_cancellation_retain_candidates",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-0]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations--1]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-1.5]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-True]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-nan]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_permutations-inf]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-0]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes--1]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-1.5]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-True]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-nan]",
-          "tests.v010.test_science::test_comparison_limits_cannot_silently_disable_the_bound[max_search_nodes-inf]",
-          "tests.v010.test_science::test_generation_dedup_requires_energy_and_rotation_and_geometry",
-          "tests.v010.test_science::test_homometric_inertia_and_equal_energy_do_not_prove_geometry_identity",
-          "tests.v010.test_science::test_generation_dedup_keeps_enantiomers_even_with_identical_spectra",
-          "tests.v010.test_science::test_planar_double_bond_stereoisomers_are_separate_under_loose_rmsd",
-          "tests.v010.test_science::test_generation_dedup_handles_monatomic_and_linear_zero_inertia_axes",
-          "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update0]",
-          "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update1]",
-          "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update2]",
-          "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update3]",
-          "tests.v010.test_science::test_generation_dedup_never_merges_missing_or_incomparable_energies[update4]",
-          "tests.v010.test_science::test_atomic_units_and_derivative_sign_are_consistent",
-          "tests.v010.test_science::test_isotope_inertia_and_linear_axis_are_physical",
-          "tests.v010.test_science::test_ensemble_uses_one_protocol_stable_weights_and_no_duplicate_observations",
-          "tests.v010.test_science::test_counterpoise_sign_and_reference_subtractions",
-          "tests.v010.test_science::test_diatomic_modes_isotope_ratio_and_zpe_units",
-          "tests.v010.test_science::test_nonlinear_projection_and_unstable_mode_classification",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold-nan]",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold-inf]",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[gradient_threshold--inf]",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-nan]",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1-inf]",
-          "tests.v010.test_science::test_harmonic_analysis_rejects_nonfinite_classification_thresholds[imaginary_tolerance_cm1--inf]",
-          "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes0]",
-          "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes1]",
-          "tests.v010.test_base_provider_nuclides::test_explicit_raw_isotope_must_be_declared_identically[isotopes2]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[order]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[coordinate]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[state]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[purpose]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[extra-options]",
-          "tests.v010.test_base_provider_nuclides::test_normalization_never_bypasses_original_request_authority[missing-isotopes]",
-          "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels0-isotopes0]",
-          "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels1-isotopes1]",
-          "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels2-isotopes2]",
-          "tests.v010.test_base_provider_nuclides::test_raw_labels_and_explicit_request_agree_without_mutating_artifact[labels3-isotopes3]",
-          "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[999O]",
-          "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[3D]",
-          "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[Xx]",
-          "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[O:ghost]",
-          "tests.v010.test_base_provider_nuclides::test_unsupported_nuclear_labels_do_not_create_handoff[[18O]]",
-          "tests.v010.test_cfour_properties::test_axial_linear_tensors_are_rotation_invariant_but_azimuthal_ones_are_rejected",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[unspecified-isotope]",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[changed-isotope]",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[wrong-element]",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[absent-atom]",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[duplicate]",
-          "tests.v010.test_cfour_properties::test_coupling_requires_explicit_exact_unique_nuclear_targets[empty]",
-          "tests.v010.test_cfour_properties::test_improper_reflection_cannot_define_an_efg_frame",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[nonsymmetric]",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[trace]",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[shape]",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[nonfinite]",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[negative-bound]",
-          "tests.v010.test_cfour_properties::test_invalid_tensor_or_fitted_tolerance_is_rejected[loose-bound]",
-          "tests.v010.test_cfour_properties::test_monatomic_frame_accepts_zero_tensor_and_rejects_orientation_dependent_tensor",
-          "tests.v010.test_cfour_properties::test_native_atom_order_and_changed_geometry_are_rejected",
-          "tests.v010.test_cfour_properties::test_nearly_degenerate_axes_are_not_claimed_resolved_beyond_print_precision",
-          "tests.v010.test_cfour_properties::test_observed_rounding_bounds_transform_conservatively_without_losing_raw_components",
-          "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal0-0.0-False]",
-          "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal1-0.2-True]",
-          "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal2-1.0-False]",
-          "tests.v010.test_cfour_properties::test_principal_value_ordering_and_degenerate_axis_policy[diagonal3-None-False]",
-          "tests.v010.test_cfour_properties::test_signed_matrix_factor_and_nuclear_uncertainty_are_preserved",
-          "tests.v010.test_cfour_properties::test_tensor_covariance_and_translation_invariance_in_requested_indexed_frame",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change0]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change1]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change2]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change3]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change4]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change5]",
-          "tests.v010.test_cfour_properties::test_unsupported_or_missing_nuclear_physics_is_rejected[change6]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes0]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes1]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes2]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes3]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes4]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes5]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes6]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes7]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes8]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes9]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes10]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes11]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_ambiguous_missing_nonfinite_or_boolean_reported_uncertainty_is_rejected[changes12]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_authentic_correlated_acquisition_with_reported_nuclear_error_remains_conditional",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_reported_source_uncertainty_retains_signed_coupling_and_sensitivity_with_null_standard_errors",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_reported_source_uncertainty_round_trips_typed_matrix_input_without_standard_relabeling",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes0]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes1]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes2]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes3]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_standard_branch_requires_explicit_numeric_uncertainty_and_rejects_reported_fields[changes4]",
-          "tests.v010.test_cfour_nuclear_uncertainty::test_uncertainty_interpretation_changes_no_central_value_and_standard_branch_still_propagates",
-          "tests.v010.test_cfour_operator::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry"
+        "junit_sha256": null,
+        "pending_current_source_regression": true,
+        "current_receipt_missing_files": [
+          "tests/v010/test_cfour_operator.py",
+          "topos/cfour_operator.py"
         ],
-        "junit_sha256": "f0a5162c925a5e978781b76489fe2b7073f7435e178ee261752b0ef744189e89",
-        "source_assessment_reviewer": "Codex root: independent chapter, code and exact unfiltered outcome review"
+        "missing_acceptance_tests": [
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+          "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+        ]
       },
       "evidence": [
         {
@@ -4102,7 +4168,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/campaign_authority.py",
@@ -4557,7 +4623,7 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
@@ -4569,7 +4635,9 @@
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_scalar_display_assertions_cannot_override_context",
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations"
           ]
         },
         {
@@ -5752,10 +5820,12 @@
           "tests/v010/test_cfour_local_acceptance.py",
           "tests/v010/test_cfour_native_memory_reload.py",
           "tests/v010/test_cfour_native_transport_repair.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_matrix_external_route.py",
           "tests/v010/test_ml_gas_environment.py",
           "topos/capabilities.py",
           "topos/cfour_memory.py",
+          "topos/cfour_operator.py",
           "topos/external_engines.py",
           "topos/ml.py",
           "topos/ml_training.py",
@@ -5781,6 +5851,8 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
           "tests/v010/test_matrix_external_route.py::test_arbitrary_or_internal_engine_names_are_not_new_native_adapters",
           "tests/v010/test_matrix_external_route.py::test_compiled_cfour_matrix_parent_reaches_separate_scientific_preflight",
           "tests/v010/test_matrix_external_route.py::test_contradictory_typed_native_engine_is_rejected_before_a_runtime_is_loaded",
@@ -6146,7 +6218,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/config.py",
@@ -6266,10 +6338,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
-            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile"
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -6608,8 +6691,10 @@
         "current_receipt_missing_files": [
           "tests/v010/test_base_integration.py",
           "tests/v010/test_cfour_native_memory_reload.py",
+          "tests/v010/test_cfour_operator.py",
           "topos/base_integration.py",
           "topos/cfour_memory.py",
+          "topos/cfour_operator.py",
           "topos/external_engines.py",
           "topos/ml.py"
         ],
@@ -6626,7 +6711,18 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_native_workspace_leaves_static_blas_headroom_inside_unchanged_total_bound",
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
-          "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload"
+          "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
         ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
@@ -7132,7 +7228,7 @@
         },
         {
           "path": "tests/v010/test_ml_crest.py",
-          "sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+          "sha256": "8dbb62905a350c1f12480efa05e267075df5c7e8f09a4113a3ed487d8a43dffc",
           "test_functions": [
             "test_native_generic_deck_preserves_state_and_initial_preoptimization",
             "test_native_shell_interpolation_is_rejected",
@@ -7533,6 +7629,7 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "tests/v010/test_ml_crest.py",
           "topos/capabilities.py",
           "topos/engines.py",
           "topos/ml.py",
@@ -8985,7 +9082,7 @@
         },
         {
           "path": "tests/v010/test_ml_crest.py",
-          "sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+          "sha256": "8dbb62905a350c1f12480efa05e267075df5c7e8f09a4113a3ed487d8a43dffc",
           "test_functions": [
             "test_native_generic_deck_preserves_state_and_initial_preoptimization",
             "test_native_shell_interpolation_is_rejected",
@@ -9305,6 +9402,7 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "tests/v010/test_ml_crest.py",
           "topos/release.py",
           "topos/scientific_references.py"
         ],
@@ -9713,7 +9811,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/matrix_components.py",
@@ -9903,10 +10001,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied"
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -10436,8 +10545,10 @@
           "scripts/accept_cfour_topos.py",
           "tests/v010/test_cfour_local_acceptance.py",
           "tests/v010/test_cfour_native_memory_reload.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_orca_scf_continuation.py",
           "topos/cfour_gradient.py",
+          "topos/cfour_operator.py",
           "topos/cfour_scf.py",
           "topos/engines.py",
           "topos/external_engines.py",
@@ -10466,6 +10577,17 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+          "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
           "tests/v010/test_orca_scf_continuation.py::test_a_second_continuation_is_rejected_before_another_native_launch",
           "tests/v010/test_orca_scf_continuation.py::test_cancellation_during_archive_restores_streams_without_launch",
           "tests/v010/test_orca_scf_continuation.py::test_changed_own_orbitals_after_archive_do_not_launch",
@@ -12250,7 +12372,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/release.py",
@@ -12431,7 +12553,7 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
@@ -12443,7 +12565,9 @@
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_scalar_display_assertions_cannot_override_context",
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations"
           ]
         },
         {
@@ -12920,11 +13044,15 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_scientific_references.py",
+          "topos/cfour_operator.py",
           "topos/release.py",
           "topos/scientific_references.py"
         ],
         "missing_acceptance_tests": [
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
           "tests/v010/test_scientific_references.py::test_actual_equilibrium_rotors_cannot_be_imported_as_native_ground_state_constants"
         ],
         "skipped_acceptance_tests": [],
@@ -13015,7 +13143,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/ingestion.py",
@@ -13304,7 +13432,7 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
@@ -13316,7 +13444,9 @@
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_scalar_display_assertions_cannot_override_context",
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations"
           ]
         },
         {
@@ -14112,11 +14242,13 @@
           "tests/v010/test_cfour_local_acceptance.py",
           "tests/v010/test_cfour_native_memory_reload.py",
           "tests/v010/test_cfour_native_transport_repair.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_orca_scf_continuation.py",
           "tests/v010/test_reference_interaction.py",
           "tests/v010/test_reference_thermal.py",
           "tests/v010/test_science.py",
           "topos/cfour_gradient.py",
+          "topos/cfour_operator.py",
           "topos/cfour_scf.py",
           "topos/engines.py",
           "topos/external_engines.py",
@@ -14145,6 +14277,8 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
           "tests/v010/test_orca_scf_continuation.py::test_a_second_continuation_is_rejected_before_another_native_launch",
           "tests/v010/test_orca_scf_continuation.py::test_cancellation_during_archive_restores_streams_without_launch",
           "tests/v010/test_orca_scf_continuation.py::test_changed_own_orbitals_after_archive_do_not_launch",
@@ -14241,7 +14375,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/cfour_gradient.py",
@@ -14342,9 +14476,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
-            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence"
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -14569,8 +14715,10 @@
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
           "tests/v010/test_cfour_native_memory_reload.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_reference_thermal.py",
           "topos/cfour_gradient.py",
+          "topos/cfour_operator.py",
           "topos/cfour_scf.py",
           "topos/external_engines.py",
           "topos/release.py",
@@ -14586,6 +14734,18 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
           "tests/v010/test_reference_thermal.py::test_coupled_quadratic_reconstruction_is_an_independent_mathematical_identity",
           "tests/v010/test_reference_thermal.py::test_invalid_derivative_field_cannot_become_a_harmonic_reference"
         ],
@@ -16761,7 +16921,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/campaign_authority.py",
@@ -16905,11 +17065,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
-            "test_unadmitted_or_historical_complete_context_remains_partial"
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -17293,7 +17463,9 @@
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
           "scripts/accept_cfour_topos.py",
-          "tests/v010/test_cfour_local_acceptance.py"
+          "tests/v010/test_cfour_local_acceptance.py",
+          "tests/v010/test_cfour_operator.py",
+          "topos/cfour_operator.py"
         ],
         "missing_acceptance_tests": [
           "tests/v010/test_cfour_local_acceptance.py::test_existing_evidence_and_overlapping_scratch_are_refused_without_overwrite",
@@ -17305,7 +17477,17 @@
           "tests/v010/test_cfour_local_acceptance.py::test_read_only_store_forbids_every_replay_checkpoint",
           "tests/v010/test_cfour_local_acceptance.py::test_replay_cannot_commit_a_cache_miss_or_launch_native_code",
           "tests/v010/test_cfour_local_acceptance.py::test_unsupported_or_incomplete_requests_refuse_before_native_work",
-          "tests/v010/test_cfour_local_acceptance.py::test_wrong_method_and_missing_geometry_resolution_are_not_substituted"
+          "tests/v010/test_cfour_local_acceptance.py::test_wrong_method_and_missing_geometry_resolution_are_not_substituted",
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
         ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
@@ -17537,7 +17719,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/remote_workflow.py",
@@ -17646,10 +17828,21 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
-            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence"
+            "test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "test_operator_profile_does_not_admit_other_environment_declarations",
+            "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "test_scalar_display_assertions_cannot_override_context",
+            "test_unadmitted_or_historical_complete_context_remains_partial",
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
           ]
         },
         {
@@ -17939,9 +18132,23 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
-          "tests/v010/test_cfour_native_transport_repair.py"
+          "tests/v010/test_cfour_native_transport_repair.py",
+          "tests/v010/test_cfour_operator.py",
+          "topos/cfour_operator.py"
         ],
-        "missing_acceptance_tests": [],
+        "missing_acceptance_tests": [
+          "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+          "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+          "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+          "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+          "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+          "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+          "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+          "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+        ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
         "junit_sha256": null,
@@ -21658,7 +21865,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/campaign_authority.py",
@@ -22069,7 +22276,7 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
@@ -22081,7 +22288,9 @@
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_scalar_display_assertions_cannot_override_context",
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations"
           ]
         },
         {
@@ -23204,6 +23413,7 @@
           "tests/v010/test_cfour_local_acceptance.py",
           "tests/v010/test_cfour_native_memory_reload.py",
           "tests/v010/test_cfour_native_transport_repair.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_ecosystem_candidate.py",
           "tests/v010/test_matrix_external_route.py",
           "tests/v010/test_ml_gas_environment.py",
@@ -23213,6 +23423,7 @@
           "topos/capabilities.py",
           "topos/cfour_gradient.py",
           "topos/cfour_memory.py",
+          "topos/cfour_operator.py",
           "topos/cfour_scf.py",
           "topos/engines.py",
           "topos/external_engines.py",
@@ -23246,6 +23457,8 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
           "tests/v010/test_matrix_external_route.py::test_arbitrary_or_internal_engine_names_are_not_new_native_adapters",
           "tests/v010/test_matrix_external_route.py::test_compiled_cfour_matrix_parent_reaches_separate_scientific_preflight",
           "tests/v010/test_matrix_external_route.py::test_contradictory_typed_native_engine_is_rejected_before_a_runtime_is_loaded",
@@ -23473,7 +23686,7 @@
         },
         {
           "path": "topos/cfour_operator.py",
-          "sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be"
+          "sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
         },
         {
           "path": "topos/campaign_authority.py",
@@ -23660,7 +23873,7 @@
         },
         {
           "path": "tests/v010/test_cfour_operator.py",
-          "sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+          "sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15",
           "test_functions": [
             "test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
             "test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
@@ -23672,7 +23885,9 @@
             "test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
             "test_scalar_display_assertions_cannot_override_context",
             "test_unadmitted_or_historical_complete_context_remains_partial",
-            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+            "test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete",
+            "test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "test_operator_profile_does_not_admit_other_environment_declarations"
           ]
         },
         {
@@ -24294,6 +24509,7 @@
           "tests/v010/test_base_integration.py",
           "tests/v010/test_cfour_local_acceptance.py",
           "tests/v010/test_cfour_native_memory_reload.py",
+          "tests/v010/test_cfour_operator.py",
           "tests/v010/test_ecosystem_candidate.py",
           "tests/v010/test_matrix_external_route.py",
           "tests/v010/test_ml_gas_environment.py",
@@ -24303,6 +24519,7 @@
           "topos/capabilities.py",
           "topos/cfour_gradient.py",
           "topos/cfour_memory.py",
+          "topos/cfour_operator.py",
           "topos/cfour_scf.py",
           "topos/engines.py",
           "topos/external_engines.py",
@@ -24336,6 +24553,8 @@
           "tests/v010/test_cfour_native_memory_reload.py::test_owned_native_output_fixture_hashes_and_scientific_only_membership",
           "tests/v010/test_cfour_native_memory_reload.py::test_reload_acceptance_still_requires_the_actual_native_grd",
           "tests/v010/test_cfour_native_memory_reload.py::test_unobserved_version_method_operation_or_convergence_cannot_borrow_reload",
+          "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+          "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
           "tests/v010/test_ecosystem_candidate.py::test_workflow_requires_an_explicit_immutable_base_source_before_checkout",
           "tests/v010/test_matrix_external_route.py::test_arbitrary_or_internal_engine_names_are_not_new_native_adapters",
           "tests/v010/test_matrix_external_route.py::test_compiled_cfour_matrix_parent_reaches_separate_scientific_preflight",
@@ -24573,9 +24792,10 @@
     "No dispatch, licensed execution, new test, engine installation, source edit, publication or release certification occurred during this receipt review.",
     "The separate current student-source regression receipt TOPOS_COMPLETION_VALIDATION.json retains 2850 outcomes: 2808 passed, 42 explicit skipped cases, zero failures/errors. Its source inventory and JUnit are independently bound; it does not replace historical ef750ea receipts or clear licensed/native/GPU/hosted/all-row/reference conditions.",
     "The fresh NIST main-isotopologue trans-formic-acid comparison is a five-atom monomer diagnostic. It reports equilibrium and ground-state quantities, actual native masses, uncertainty and numeric errors separately. No arbitrary accuracy pass or formal scientific_reference_campaign, noncovalent-complex or matrix clearance is assigned.",
-    "The current-source additive candidate preserves all upstream GUI/intake/student-kit assessments and all prior physical conditions. New route, SCF-continuation, explicit-gas, GPU/RSS and CFOUR bindings require a new source-matched unfiltered whole suite; all twenty scientific-reference dispositions remain an outside-source review draft until exact cases, independent tolerances and source/ledger scope are frozen before measurement.",
+    "The active current-source additive ledger preserves all upstream GUI/intake/student-kit assessments and all prior physical conditions. New route, SCF-continuation, explicit-gas, GPU/RSS and CFOUR bindings require a new source-matched unfiltered whole suite; all twenty scientific-reference dispositions remain an outside-source review draft until exact cases, independent tolerances and source/ledger scope are frozen before measurement.",
     "The genuine CFOUR2.1 memory/reload/indexed-gradient regression binds the current testfile, implementation and provenance, with TOPOS_CFOUR_NATIVE_MEMORY.md as supporting documentation. The unchanged total BASE memory limit and original method/core/basis/SCF/gradient controls remain required. One-evaluation owned native output does not establish a matrix row, optimization, independent accuracy or release pass.",
-    "The current GRD/ZMAT scientific-fixture packaging repair is hash-bound to release inventory/build/MANIFEST and named tests. A source-matched whole suite and package checks remain pending; all prior native/scientific/hosted/GPU/matrix conditions and receipts are preserved."
+    "The current GRD/ZMAT scientific-fixture packaging repair is hash-bound to release inventory/build/MANIFEST and named tests. A source-matched whole suite and package checks remain pending; all prior native/scientific/hosted/GPU/matrix conditions and receipts are preserved.",
+    "The active ledger binds the current CFOUR operator gas gate, its named tests and the isolated ML CREST dependency fixture. A source-matched unfiltered whole suite remains pending; all earlier native, reference, GPU, hosted and matrix conditions remain required."
   ],
   "historical_source_change_review": {
     "schema": "topos-srs-source-diff-review/1",
@@ -27499,6 +27719,326 @@
             "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
             "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
             "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
+          ],
+          "previous_status": "verification-pending"
+        }
+      }
+    },
+    {
+      "schema_version": "current-operator-gas-ml-fixture-ledger-rebind/1",
+      "previous_applied_ledger": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\CoChem-TOPOS-current\\.docs\\TOPOS_SRS_ACCEPTANCE.json",
+        "sha256": "658c7f44b4bf72772264b4e890058c9e0c12b2b46be5af12f0e685cd18fffa93"
+      },
+      "scope": "Strict gas-only CFOUR operator request gate and dependency-isolated ML CREST fixtures; no native/scientific/whole-suite pass assigned.",
+      "requirements_changed": {
+        "TOPOS-010-003": {
+          "file_hashes": [
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-007": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verified"
+        },
+        "TOPOS-010-012": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-014": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-016": {
+          "file_hashes": [
+            {
+              "path": "tests/v010/test_ml_crest.py",
+              "previous_sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+              "current_sha256": "8dbb62905a350c1f12480efa05e267075df5c7e8f09a4113a3ed487d8a43dffc"
+            }
+          ],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-020": {
+          "file_hashes": [
+            {
+              "path": "tests/v010/test_ml_crest.py",
+              "previous_sha256": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+              "current_sha256": "8dbb62905a350c1f12480efa05e267075df5c7e8f09a4113a3ed487d8a43dffc"
+            }
+          ],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-022": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "tests/v010/test_cfour_operator.py::test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-029": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-030": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-031": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-037": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_changed_or_incomplete_raw_runtime_context_cannot_activate_profile",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-039": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_a_json_flag_or_replayed_profile_dictionary_cannot_authorize_conversion",
+            "tests/v010/test_cfour_operator.py::test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display",
+            "tests/v010/test_cfour_operator.py::test_bound_compiled_operator_has_reachable_computational_chi_path_without_accuracy_claim",
+            "tests/v010/test_cfour_operator.py::test_empirical_profile_is_scoped_to_its_declared_protocol",
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations",
+            "tests/v010/test_cfour_operator.py::test_raw_recovery_rejects_an_operator_profile_when_no_complete_runtime_context_is_supplied",
+            "tests/v010/test_cfour_operator.py::test_scalar_display_assertions_cannot_override_context",
+            "tests/v010/test_cfour_operator.py::test_unadmitted_or_historical_complete_context_remains_partial",
+            "tests/v010/test_cfour_operator.py::test_unresolved_requested_rigid_axes_leave_computational_coverage_incomplete"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-049": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-050": {
+          "file_hashes": [
+            {
+              "path": "topos/cfour_operator.py",
+              "previous_sha256": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+              "current_sha256": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d"
+            },
+            {
+              "path": "tests/v010/test_cfour_operator.py",
+              "previous_sha256": "0fa1e04e5825827ad717fb499af5e5986f5094eb8a310759a3329956a924a998",
+              "current_sha256": "bf0a2f9c10974f865e7fc20261d33cb48843e5193eca8b128e0f6b5ee4803f15"
+            }
+          ],
+          "named_test_additions": [
+            "tests/v010/test_cfour_operator.py::test_explicit_isolated_gas_reaches_same_bound_chi_operator_path",
+            "tests/v010/test_cfour_operator.py::test_operator_profile_does_not_admit_other_environment_declarations"
           ],
           "previous_status": "verification-pending"
         }
