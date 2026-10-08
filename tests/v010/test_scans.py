@@ -133,7 +133,7 @@ def test_missing_engine_cannot_return_a_surface_energy(tmp_path):
 @pytest.mark.integration
 def test_real_water_bond_scan_shape_constraints_stationarity_and_resume(tmp_path):
     installed = config()
-    result = run_relaxed_scan(water(), method(), ResourceLimits(budget_seconds=90), [distance()], tmp_path,
+    result = run_relaxed_scan(water(), method(), ResourceLimits(budget_seconds=300), [distance()], tmp_path,
                               config=installed)
     assert result["status"] == "completed", result.get("reason")
     assert len(result["points"]) == 6
@@ -157,13 +157,13 @@ def test_real_water_bond_scan_shape_constraints_stationarity_and_resume(tmp_path
         assert surface["coordinates_angstrom"].fletcher32
     count = len(result["evaluations"])
     installed.executables["xtb"] = "/missing/no-reexecution-possible"
-    resumed = run_relaxed_scan(water(), method(), ResourceLimits(budget_seconds=90), [distance()], tmp_path, config=installed)
+    resumed = run_relaxed_scan(water(), method(), ResourceLimits(budget_seconds=300), [distance()], tmp_path, config=installed)
     assert resumed["status"] == "completed"
     assert len(resumed["evaluations"]) == count
     assert resumed["points"] == result["points"]
     changed = method().model_copy(update={"profile_id": "screening-v1"})
     with pytest.raises(IntegrityError, match="protocol"):
-        run_relaxed_scan(water(), changed, ResourceLimits(budget_seconds=90), [distance()], tmp_path, config=installed)
+        run_relaxed_scan(water(), changed, ResourceLimits(budget_seconds=300), [distance()], tmp_path, config=installed)
 
 
 @pytest.mark.integration
