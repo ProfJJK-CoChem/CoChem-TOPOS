@@ -200,10 +200,27 @@ def base_authority_evidence(record: dict[str, Any], store: RunStore,
                             or not 0 < binding["gpu_memory_mb"] <= gpu["vram_gb"] * 1024):
                         raise IntegrityError("Native ML GPU request exceeds retained BASE device authority")
             observed = native["hash"]
+        cfour_proof = None
+        if engine == "cfour":
+            from .matrix_components import verify_cfour_runtime_receipts
+
+            retained_authority = owner["metadata"].get("cfour_runtime_authority")
+            if (not isinstance(retained_authority, dict)
+                    or retained_authority.get("runtime_seal_sha256") != native.get("runtime_seal_sha256")
+                    or retained_authority.get("executable") != native["path"]
+                    or retained_authority.get("binary_sha256") != native["hash"]
+                    or metadata.get("cfour_runtime_authority") != retained_authority):
+                raise IntegrityError("Retained CFOUR campaign differs from its audited complete runtime seal")
+            original_artifacts = metadata.get("native_result", {}).get("artifacts")
+            if not isinstance(original_artifacts, list) or not original_artifacts:
+                raise IntegrityError("Retained CFOUR process lacks its original directory-bound native inventory")
+            cfour_proof = verify_cfour_runtime_receipts(attempt["artifacts"], snapshot, retained_authority,
+                                                      original_artifacts=original_artifacts)
         if observed != native["hash"]:
             raise IntegrityError("Observed native executable identity differs from its retained BASE audit")
         proofs.append({"attempt_id": attempt["attempt_id"], "registry_sha256": digest,
-                       "engine": engine, "executable_sha256": observed})
+                       "engine": engine, "executable_sha256": observed,
+                       **({"cfour_runtime": cfour_proof} if cfour_proof is not None else {})})
     if not proofs:
         raise IntegrityError("BASE registry metadata alone cannot certify a native calculation")
     return {"parent_registry_sha256": parent_digest,

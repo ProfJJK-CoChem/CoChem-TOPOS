@@ -252,6 +252,21 @@ def test_tracked_native_fixtures_survive_candidate_staging_and_source_archive(tm
         assert path.stat().st_size == provenance["files"][name]["size_bytes"]
         assert identity[path.relative_to(ROOT).as_posix()] == observed
     fixtures.update(derivative_folder / name for name in provenance["files"])
+    # New provider fixtures must ship before Git staging, with original native
+    # names retained only as provenance and accepted source-package suffixes.
+    cfour_folder = ROOT / "tests/v010/fixtures/cfour_provider_2_1"
+    cfour_proof = json.loads((cfour_folder / "provenance.json").read_text())
+    assert {name: item["original_filename"] for name, item in cfour_proof["files"].items()} == {
+        "output.stdout": "output.dat", "native-ZMAT.inp": "ZMAT"}
+    for name, item in cfour_proof["files"].items():
+        path = cfour_folder / name
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == item["sha256"]
+        assert path.stat().st_size == item["size_bytes"]
+        assert identity[path.relative_to(ROOT).as_posix()] == item["sha256"]
+    for name in {"provenance.json", *cfour_proof["files"]}:
+        path = cfour_folder / name
+        assert path.relative_to(ROOT).as_posix() in identity
+        fixtures.add(path)
     assert fixtures
     stage = tmp_path / "source"
     stage.mkdir()

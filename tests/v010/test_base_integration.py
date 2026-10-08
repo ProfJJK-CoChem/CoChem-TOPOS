@@ -482,3 +482,98 @@ def test_training_engine_guard_uses_actual_base_dictionary_schema(runtime, tmp_p
                                          package_version="0.3.16", input_files={},
                                          gpu_index=0, gpu_memory_mb=128)
     assert not (tmp_path / "training-worker-request.json").exists()
+
+
+def test_actual_legacy_base_authority_cannot_launch_cfour(runtime, tmp_path):
+    """An actual old-BASE infrastructure authorization cannot certify CFOUR."""
+    from topos.base_integration import _cfour_authorization_identity
+
+    authority = runtime._authorize('infrastructure-python', registry_path=runtime.registry_path, cores=1, maxcore_mb=1)
+    if getattr(authority, 'runtime_seal_sha256', None) is not None:
+        pytest.fail('Infrastructure Python must not carry a CFOUR runtime seal')
+    record = {'path': authority.executable, 'hash': authority.binary_sha256, 'runtime_seal_sha256': 'a' * 64}
+    with pytest.raises(BaseIntegrationError, match='sealed-runtime authorization'):
+        _cfour_authorization_identity(authority, record)
+
+
+@pytest.mark.parametrize('change', ['missing-seal', 'seal', 'executable', 'binary'])
+def test_cfour_authorization_contract_rejects_changed_bookkeeping(change):
+    """Typed authority bookkeeping only; no executable or native output exists."""
+    from types import SimpleNamespace
+
+    from topos.base_integration import _cfour_authorization_identity
+
+    record = {'path': '/bookkeeping/not-an-engine', 'hash': 'b' * 64, 'runtime_seal_sha256': 'a' * 64}
+    authority = SimpleNamespace(executable=record['path'], binary_sha256=record['hash'], runtime_seal_sha256='a' * 64)
+    if change == 'missing-seal':
+        del authority.runtime_seal_sha256
+    elif change == 'seal':
+        authority.runtime_seal_sha256 = 'c' * 64
+    elif change == 'executable':
+        authority.executable += '-different'
+    else:
+        authority.binary_sha256 = 'c' * 64
+    with pytest.raises(BaseIntegrationError, match='sealed-runtime authorization'):
+        _cfour_authorization_identity(authority, record)
+
+
+@pytest.mark.parametrize('post_change', ['seal', 'input', 'none'])
+def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runtime, tmp_path, monkeypatch, post_change):
+    """An exit-4 shell is transport evidence only, under explicit bookkeeping authority.
+
+    This does not simulate successful CFOUR output or certify a runtime seal.
+    """
+    from types import SimpleNamespace
+
+    from cochem_base.core_engine import engine_environment
+
+    script = tmp_path / 'failed-infrastructure'
+    script.write_text('#!/bin/sh\nprintf "%s %s %s\\n" "$OMP_NUM_THREADS" "$OPENBLAS_NUM_THREADS" "$BLIS_NUM_THREADS"\n'
+                      + ('printf "changed\\n" >> ZMAT\n' if post_change == 'input' else '') + 'exit 4\n')
+    script.chmod(0o700)
+    authority = SimpleNamespace(executable=str(script), binary_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),
+                                runtime_seal_sha256='a' * 64, cores=2, maxcore_mb=64, cpu_affinity=())
+    record = {'path': authority.executable, 'hash': authority.binary_sha256, 'runtime_seal_sha256': 'a' * 64}
+    monkeypatch.setattr(runtime, 'registry', SimpleNamespace(model_dump=lambda **kwargs: {'engines': {'cfour': record}}))
+    calls = []
+    original_environment = engine_environment.engine_runtime_environment
+
+    def recorded_environment(engine, environment, **kwargs):
+        calls.append(engine)
+        return original_environment(engine, environment, **kwargs)
+
+    monkeypatch.setattr(engine_environment, 'engine_runtime_environment', recorded_environment)
+
+    def post_authority(engine, **kwargs):
+        assert engine == 'cfour' and kwargs['command'] == [str(script)]
+        return SimpleNamespace(**{**vars(authority), 'runtime_seal_sha256': 'c' * 64 if post_change == 'seal' else 'a' * 64})
+
+    monkeypatch.setattr(runtime, '_authorize', post_authority)
+    folder = tmp_path / 'failed-transport'
+    folder.mkdir()
+    for name in ('ZMAT', 'GENBAS'):
+        (folder / name).write_text('Bookkeeping input; never a scientific calculation\n')
+    result = runtime._execute_authorized([str(script)], folder, ResourceLimits(threads=2, memory_mb=256, budget_seconds=10),
+                                         authority, engine='cfour')
+    assert result.status == 'failed' and result.returncode == 4
+    assert calls == ['cfour']
+    assert Path(result.stdout_path).read_text() == '2 1 1\n'
+    receipt = json.loads((folder / 'engine-cfour-runtime.json').read_text())
+    assert receipt['status'] == ('verified' if post_change == 'none' else 'failed')
+    assert receipt['command'] == [str(script)] and receipt['workdir'] == str(folder)
+    assert receipt['stdout_sha256'] == hashlib.sha256(Path(result.stdout_path).read_bytes()).hexdigest()
+    if post_change == 'seal':
+        assert 'sealed-runtime authorization' in result.reason
+    elif post_change == 'input':
+        assert 'native input changed' in result.reason
+    else:
+        assert 'exit code 4' in result.reason
+
+
+def test_cfour_cannot_override_environment_after_base_authorization(runtime, tmp_path):
+    authority = runtime._authorize('infrastructure-python', registry_path=runtime.registry_path, cores=1, maxcore_mb=1)
+    with pytest.raises(BaseIntegrationError, match='environment overrides'):
+        runtime._execute_authorized([authority.executable], tmp_path / 'forbidden-environment',
+                                     ResourceLimits(), authority, engine='cfour',
+                                     environment={'COCHEM_CFOUR_LD_LIBRARY_PATH': '/unaudited/library'})
+    assert (tmp_path / 'forbidden-environment/engine.stdout').read_bytes() == b''
