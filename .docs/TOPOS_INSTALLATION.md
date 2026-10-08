@@ -90,10 +90,20 @@ through its `cochem.modules` provider; `cochem-topos receive-base MANIFEST
 --output-root RUNS` explicitly consumes a typed BASE handoff. Source discovery is
 not an automatic calculation.
 
-Optional `external` dependencies provide pinned QCEngine/QCElemental parsers.
-They do not install or replace CFOUR, Molpro, Psi4 or other native engines.
-Install extras from the same reviewed TOPOS wheel, for example
-`python -m pip install '/path/to/cochem_topos-0.1.0-py3-none-any.whl[external]'`.
+Standard TOPOS installation includes the pinned QCEngine 0.51.0 and
+QCElemental 0.51.2 parsers. Both the source `[dev,ui]` setup and the reviewed
+wheel `[ui]` installation receive them as required runtime dependencies. The
+`external` extra remains a compatibility alias for the same pins; selecting it
+is unnecessary. These open-source parsers do not install or replace CFOUR,
+Molpro, Psi4 or other native engines, which retain their separate provisioning
+and license requirements.
+
+Before launching any CFOUR energy, derivative, counterpoise, scalar-relativistic
+or DBOC calculation, TOPOS verifies both parser distribution versions and imports
+the actual pinned harvesting functions. Missing, mismatched or broken parser
+installations stop the attempt before native execution. Restore the same reviewed
+TOPOS installation to repair dependencies; do not spend a native calculation to
+diagnose a parser installation failure.
 
 ## Verify a downloaded wheel installation
 

@@ -16,6 +16,7 @@ dependencies = [
   "h5py>=3.9", "mendeleev>=0.20", "psutil>=5.9", "filelock>=3.13",
   "MolSym>=1.2,<2",
   "ase>=3.29,<4",
+  "qcengine==0.51.0", "qcelemental==0.51.2",
 ]
 
 [project.optional-dependencies]

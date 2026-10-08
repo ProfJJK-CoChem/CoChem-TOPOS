@@ -20,7 +20,9 @@ import numpy as np
 
 from .base_integration import BaseRuntime
 from .cfour_artifacts import finalize_artifacts, native_text
+from .cfour_controls import native_control_value
 from .cfour_corrections import ScalarCampaignStopped, apply_scalar_geometry_increment
+from .cfour_dependencies import require_cfour_parsers
 from .engines import EngineParseError, EngineResult, _number
 from .external_engines import (
     ExternalProtocol,
@@ -295,8 +297,7 @@ def parse_dboc_output(raw: str, molecule: Molecule, protocol: DefaultMassDBOCPro
     validate_default_mass_domain(molecule)
     _native_completion(raw, protocol.electronic_protocol())
     for label, wanted in (("DBOC", "ON" if protocol.dboc else "OFF"), ("RELATIVIST(?:IC)?", "OFF"), ("CONTRACTION", protocol.contraction)):
-        values = re.findall(r"(?m)^\s*" + label + r"\s+\w+\s+(\S+)", raw)
-        if values != [wanted]:
+        if native_control_value(raw, label) != wanted:
             raise EngineParseError(f"DBOC native {label} setting differs from the exact requested protocol")
     native = parse_cfour_output(raw, molecule, protocol.electronic_protocol())
     correction = parse_default_mass_dboc_section(raw) if protocol.dboc else {
@@ -349,6 +350,7 @@ def run_default_mass_dboc(molecule: Molecule, protocol: DefaultMassDBOCProtocol,
                   "mass_convention": mass_convention_record()})
     try:
         protocol = DefaultMassDBOCProtocol.model_validate(protocol.model_dump())
+        require_cfour_parsers()
         _physical_input(molecule, resources)
         validate_default_mass_domain(molecule)
         if folder.is_symlink():

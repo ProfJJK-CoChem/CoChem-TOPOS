@@ -11,7 +11,6 @@ import math
 import re
 import shutil
 import time
-from importlib.metadata import version
 from pathlib import Path
 from threading import Event
 from typing import Any, Literal
@@ -21,6 +20,8 @@ from pydantic import Field, StrictInt, model_validator
 
 from .base_integration import BaseRuntime
 from .cfour_artifacts import finalize_artifacts, native_text
+from .cfour_controls import native_control_value
+from .cfour_dependencies import require_cfour_parsers
 from .chemistry import atomic_number
 from .engines import EngineParseError, EngineResult, _number
 from .external_engines import (
@@ -277,14 +278,12 @@ def _native_zmat_echo(raw: str) -> str:
 
 def _native_counterpoise_control(raw: str, name: str) -> str:
     """Require one actual native control row; input keywords are not proof."""
-    found = re.findall(r"(?m)^[ \t]*" + name + r"[ \t]+\w+[ \t]+([^\n]+)", raw)
-    if len(found) != 1:
-        raise EngineParseError("Missing/ambiguous native control " + name)
-    return re.split(r"[ \t]+\[|[ \t]+\*\*\*", found[0])[0].strip()
+    return native_control_value(raw, name)
 
 
 def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
                                      protocol: CfourCounterpoiseLeg) -> dict[str, Any]:
+    _, harvest_outfile_pass = require_cfour_parsers()
     _validate_leg(molecule, protocol)
     observed = _native_completion(raw, protocol)
     if len(re.findall(r"SCF has converged\.", raw)) != 1:
@@ -314,9 +313,6 @@ def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
     if [(s.upper(), b.upper()) for s, b in basis] != wanted:
         raise EngineParseError("Native per-center SPECIAL basis map differs from original element/basis inventory")
     _, energy_text = _native_basis_geometry(raw, protocol)
-    if version("qcengine") != "0.51.0" or version("qcelemental") != "0.51.2":
-        raise EngineParseError("CFOUR CP energy harvesting requires pinned QCEngine 0.51.0/QCElemental 0.51.2")
-    from qcengine.programs.cfour.harvester import harvest_outfile_pass
 
     qcvars, _, _, _, _, error = harvest_outfile_pass(energy_text)
     electrons = sum(atomic_number(s) for s in molecule.symbols) - molecule.charge
@@ -353,6 +349,7 @@ def run_cfour_counterpoise_leg(molecule: Molecule, protocol: CfourCounterpoiseLe
                   "requested_protocol": protocol.model_dump(mode="json"), "sources": SOURCES})
     try:
         protocol = CfourCounterpoiseLeg.model_validate(protocol.model_dump())
+        require_cfour_parsers()
         text = cfour_counterpoise_input(molecule, protocol, resources)
         if cancel_event is not None and cancel_event.is_set():
             result.status = "cancelled"
