@@ -239,6 +239,49 @@ def _drop_selection(value: str) -> set[int]:
     raise EngineParseError("Unsupported native DROPMO output; cannot establish physical core space")
 
 
+def _native_zmat_echo(raw: str) -> str:
+    """Read the genuine dashed and asterisk-bordered ZMAT echo layouts only."""
+    lines = raw.splitlines()
+    titles = [i for i, line in enumerate(lines) if "Input from ZMAT file" in line]
+    controls = [i for i, line in enumerate(lines) if "CFOUR Control Parameters" in line]
+    if len(titles) != 1 or len(controls) != 1:
+        raise EngineParseError("Native ZMAT echo and control section must each occur exactly once")
+    start, control = titles[0], controls[0]
+    title = lines[start].strip()
+    if title == "Input from ZMAT file":
+        marker = "-"
+    elif re.fullmatch(r"\*[ \t]+Input from ZMAT file[ \t]+\*", title):
+        marker = "*"
+    else:
+        raise EngineParseError("Unsupported native ZMAT echo title framing")
+    if (start < 1 or control <= start + 3 or control + 1 >= len(lines)
+            or not re.fullmatch(re.escape(marker) + r"{10,}", lines[start - 1].strip())
+            or lines[start - 1].strip() != lines[start + 1].strip()
+            or lines[control].strip() != "CFOUR Control Parameters"
+            or not re.fullmatch(r"-{10,}", lines[control - 1].strip())
+            or lines[control - 1].strip() != lines[control + 1].strip()):
+        raise EngineParseError("Native ZMAT/control section delimiters are incomplete or inconsistent")
+    end = control - 1
+    if marker == "*":
+        end -= 1
+        while end > start + 1 and not lines[end].strip():
+            end -= 1
+        if lines[end].strip() != lines[start - 1].strip():
+            raise EngineParseError("Native asterisk-bordered ZMAT echo lacks its closing delimiter")
+    body = "\n".join(lines[start + 2:end])
+    if len(re.findall(r"(?m)^[ \t]*\*(?:CFOUR|ACES2)\(", body)) != 1:
+        raise EngineParseError("Native ZMAT echo requires exactly one input control block")
+    return body
+
+
+def _native_counterpoise_control(raw: str, name: str) -> str:
+    """Require one actual native control row; input keywords are not proof."""
+    found = re.findall(r"(?m)^[ \t]*" + name + r"[ \t]+\w+[ \t]+([^\n]+)", raw)
+    if len(found) != 1:
+        raise EngineParseError("Missing/ambiguous native control " + name)
+    return re.split(r"[ \t]+\[|[ \t]+\*\*\*", found[0])[0].strip()
+
+
 def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
                                      protocol: CfourCounterpoiseLeg) -> dict[str, Any]:
     _validate_leg(molecule, protocol)
@@ -247,10 +290,7 @@ def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
         raise EngineParseError("Counterpoise leg requires one SCF evaluation")
 
     def control(name: str) -> str:
-        found = re.findall(r"(?m)^[ \t]*" + name + r"[ \t]+\w+[ \t]+([^\n]+)", raw)
-        if len(found) != 1:
-            raise EngineParseError("Missing/ambiguous native control " + name)
-        return re.split(r"[ \t]+\[|[ \t]+\*\*\*", found[0])[0].strip()
+        return _native_counterpoise_control(raw, name)
 
     expected = {"BASIS": "SPECIAL", "FROZEN_CORE": "OFF", "REFERENCE": "RHF", "CHARGE": str(molecule.charge),
         "MULTIPLICTY": "1", "ABCDTYPE": "STANDARD", "SYMMETRY": "OFF", "SPHERICAL": "ON",
@@ -267,10 +307,8 @@ def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
     solver = {"CCSD(T)": "xvcc", "CCSDT": "xecc", "CCSDTQ": "xncc"}[protocol.method]
     if solver not in _native_invocations(raw):
         raise EngineParseError("Requested native CC solver was not actually invoked")
-    echoed = re.findall(r"(?s)Input from ZMAT file\s*\n\s*-+\s*\n(.*?)\n\s*-+\s*\n\s*CFOUR Control Parameters", raw)
-    if len(echoed) != 1:
-        raise EngineParseError("Native ZMAT echo is required to establish per-center SPECIAL basis mapping")
-    basis = re.findall(r"(?m)^[ \t]*([A-Za-z]+):([^\s]+)[ \t]*$", echoed[0])
+    echoed = _native_zmat_echo(raw)
+    basis = re.findall(r"(?m)^[ \t]*([A-Za-z]+):([^\s]+)[ \t]*$", echoed)
     wanted = [(c.symbol.upper(), protocol.orbital_basis.upper()) for c in protocol.basis_centers]
     if [(s.upper(), b.upper()) for s, b in basis] != wanted:
         raise EngineParseError("Native per-center SPECIAL basis map differs from original element/basis inventory")

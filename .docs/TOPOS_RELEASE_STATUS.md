@@ -20,11 +20,13 @@ runtime and distribution checks passed; it has not yet completed current-source
 native CFOUR acceptance. See the
 [CFOUR compatibility boundary](TOPOS_CFOUR_BASE_COMPATIBILITY.md).
 
-The audit identified two additional CFOUR issues that remain open: SPECIAL-basis
-counterpoise must recognize the actual 2.1 ZMAT echo framing, and `T3C-1h` must
-retain electric-field-gradient tensors as well as dipoles. The archived row
-explicitly requires both observables. An energy/dipole result cannot certify that
-entire row while its EFG handling is incomplete.
+The SPECIAL-basis counterpoise reader now recognizes the actual 2.1 asterisk
+framing and the retained historical dashed format. Its 62 parser regressions
+passed, including ambiguous/missing input and native-control rejection. This
+transport repair establishes no successful native counterpoise calculation.
+The remaining `T3C-1h` gap is electric-field-gradient tensor handling: the archived
+row explicitly requires EFGs as well as dipoles. An energy/dipole result cannot
+certify that entire row while its EFG handling is incomplete.
 
 The reviewed BASE foundation merge `0a8392b` preserves the scientific provisioners
 and adds the audited CFOUR provider. Its 218 focused checks passed and the merge
@@ -105,9 +107,16 @@ The separately controlled [SCF-mode diagnostic
 37708503109](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37708503109)
 changes only the documented `ConvCheckMode 0` setting in the optimization and
 independently started gradient. It preserves the Hamiltonian, grids, tolerances,
-two CPU workers, 2048 MB and one shared 900-second native budget. Its numerical
-outcome remains pending independent raw-output verification. It cannot establish
-current-source acceptance or fix the separate R2 reference convergence failure.
+two CPU workers, 2048 MB and one shared 900-second native budget. Independent
+verification found that the intervention repaired this water pair's physical
+energy consistency (`4.95799668e-9` hartree), with all five optimizer criteria,
+stationary final gradient and exact native-pose identity verified. The experiment
+nevertheless **failed**: fresh-gradient RMS density change `7.1272e-9` exceeded the
+unchanged `5e-9` target under ORCA's documented SCF overachievement exception.
+All eight processes terminated normally; the independently reconstructed shared
+span was 212.200704 seconds. No repeat gradient was executed. These results
+support a more stringent SCF investigation, not a passed diagnostic,
+current-source acceptance or a repair of the separate R2 reference failure.
 
 ## Remaining release conditions
 
