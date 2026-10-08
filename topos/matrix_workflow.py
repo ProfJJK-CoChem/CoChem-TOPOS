@@ -15,6 +15,7 @@ import numpy as np
 from pydantic import Field
 
 from .cfour_counterpoise import CfourCounterpoiseGeometryProtocol
+from .cfour_properties import NuclearQuadrupoleMoment, validate_quadrupole_targets
 from .correlated import CorrelatedMethod
 from .correlated_counterpoise import CorrelatedCounterpoiseProtocol
 from .data.runtime_recipes import EXECUTABLE_ROWS, IMPLEMENTED_BRANCH_ROWS
@@ -173,6 +174,8 @@ class MatrixInputs(Contract):
         "cfour-relaxed-counterpoise-geometry-v1", "r2-separate-dft-vpt2-transfer-v1",
         "r2-b3lyp-d4-vpt2-transfer-v1"] | None = None
     external_protocol: ExternalProtocol | None = None
+    cfour_quadrupole_moments: list[NuclearQuadrupoleMoment] = Field(default_factory=list)
+    cfour_quadrupole_frame: Literal["requested-cartesian", "rigid-inertial"] = "requested-cartesian"
     external_resolution: Literal["cfour-topos-cartesian-optimizer-v1", "cfour-relaxed-counterpoise-geometry-v1"] | None = None
     entropy_seeds: list[Molecule] = Field(default_factory=list)
     entropy_options: EntropyOptions = Field(default_factory=EntropyOptions)
@@ -246,6 +249,15 @@ def _input_data(request: RunRequest) -> MatrixInputs:
 
 
 def _available_inputs(request: RunRequest, inputs: MatrixInputs) -> list[str]:
+    if (inputs.cfour_quadrupole_moments or inputs.cfour_quadrupole_frame != "requested-cartesian"
+            or inputs.external_protocol is not None and inputs.external_protocol.efg_convention is not None):
+        if request.matrix_row_id != "T3C-1h":
+            raise ValueError("Native EFG convention and nuclear quadrupole inputs apply to T3C-1h only")
+        validate_quadrupole_targets(request.molecule, inputs.cfour_quadrupole_moments)
+        if inputs.cfour_quadrupole_frame == "rigid-inertial":
+            from .chemistry import resolved_masses
+
+            resolved_masses(request.molecule, isotope_policy="require_explicit")
     available = ["molecule"]
     if request.molecule.fragments:
         available.append("fragments")

@@ -263,6 +263,11 @@ def _completed_result(result, molecule, protocol_data, folder):
         path = confined_file(folder, relative)
         if path.stat().st_size != artifact.size_bytes or file_digest(path) != artifact.sha256:
             raise IntegrityError("Native component evidence changed")
+    if result.engine == "cfour" and operation == "first-order-properties":
+        from .cfour_efg import verify_cfour_property_recovery
+
+        verify_cfour_property_recovery(folder, [Path(a.path) for a in result.artifacts], molecule,
+                                      protocol_data, result.metadata.get("native_result"))
     return is_sapt, stereo
 
 
@@ -313,10 +318,19 @@ def _verified_component(attempt, store, molecule, protocol_data, identity, cfour
                        cached.metadata["native_result"]["interaction_energy_hartree"] if is_sapt else cached.energy_hartree}
     if cached.gradient_hartree_per_bohr is not None:
         expected_values["cartesian_gradient"] = cached.gradient_hartree_per_bohr
+    expected_units = {name: "hartree/bohr" if name == "cartesian_gradient" else "hartree" for name in expected_values}
+    expected_validity = dict.fromkeys(expected_values, "validated-for-protocol")
+    if cached.engine == "cfour" and cached.operation == "first-order-properties":
+        native = cached.metadata["native_result"]
+        expected_values.update(electric_dipole=native["dipole_atomic_units"],
+                               electric_field_gradient=native["efg_observation"]["tensors_native_units"])
+        expected_units.update(electric_dipole="atomic-unit-electric-dipole",
+                              electric_field_gradient=native["efg_observation"]["units"])
+        expected_validity.update(electric_dipole="validated-for-protocol", electric_field_gradient="human-review")
     if (len(attempt.quantities) != len(expected_values) or {q.name for q in attempt.quantities} != set(expected_values)) or any(
             q.name not in expected_values or q.value != expected_values[q.name] or q.attempt_id != attempt.attempt_id
-            or q.method != cached.method or q.validity != "validated-for-protocol"
-            or q.units != ("hartree/bohr" if q.name == "cartesian_gradient" else "hartree") for q in attempt.quantities):
+            or q.method != cached.method or q.validity != expected_validity[q.name]
+            or q.units != expected_units[q.name] for q in attempt.quantities):
         raise IntegrityError("Completed component quantities differ from the native receipt")
     return cached
 
@@ -435,6 +449,15 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
             attempt.quantities.append(Quantity(name="cartesian_gradient", value=result.gradient_hartree_per_bohr,
                 units="hartree/bohr", definition="actual native analytic electronic gradient",
                 method=method, attempt_id=attempt.attempt_id, validity=attempt.validation_status))
+        if result.status == "completed" and engine == "cfour" and protocol_data["operation"] == "first-order-properties":
+            native = result.metadata["native_result"]
+            for name, value, units, definition, validity in (
+                ("electric_dipole", native["dipole_atomic_units"], "atomic-unit-electric-dipole",
+                 "Actual native correlated electric dipole in the requested Cartesian origin", "validated-for-protocol"),
+                ("electric_field_gradient", native["efg_observation"]["tensors_native_units"], native["efg_observation"]["units"],
+                 "Indexed correlated native EFG; unit/sign authority requires independent review", "human-review")):
+                attempt.quantities.append(Quantity(name=name, value=value, units=units, definition=definition,
+                    method=method, attempt_id=attempt.attempt_id, validity=validity))
         if result.status == "completed":
             if cfour_authority is not None:
                 _current_cfour_authority(workflow, record)
