@@ -10,7 +10,7 @@ This integration requires BASE 1.0.1 and uses the reviewed integration foundatio
 | Component | GitHub Actions source revision |
 |---|---|
 | CoChem-BASE | `14202e182e1fa4f99258ed32a8ae9ba8c1c565ad` (BASE 1.0.1 integration foundation; not a final installer/catalog certification) |
-| CoChem-TORQ | `79fbb111125e50627a1a2c129888a45496f368d4` |
+| CoChem-TORQ | `4f323800227dbde00ffb082bd6d9e44d851e1c7a` |
 | CoChem-TOPOS | The dispatched controller workflow revision, recorded with the request/result correlation |
 
 The former BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1` pin belongs to retained historical evidence and does not meet the current BASE 1.0.1/CFOUR runtime authority contract.
