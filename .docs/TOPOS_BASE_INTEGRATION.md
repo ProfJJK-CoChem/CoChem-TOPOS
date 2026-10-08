@@ -70,14 +70,58 @@ Configure that environment with:
 
 | Setting | Purpose |
 |---|---|
-| Secret `COCHEM_SOURCE_READ_TOKEN` | Contents-read access to the private BASE and TORQ source repositories used by checkout. |
-| Secret `PRIVATE_ORCA_ASSET_CREDENTIAL` | Contents-read access to the private ORCA distribution repository configured by BASE, currently `ProfJJK-CoChem/CoChem-ORCA`. Required only for licensed provisioning. |
+| Secret `COCHEM_SOURCE_READ_TOKEN` | Contents-read access to BASE and TORQ when those source repositories are private. Public source checkouts use the controller's automatic GitHub token when no separate source credential is supplied. |
+| Private variable `COCHEM_ORCA_ASSET_CREDENTIAL` | The name of a separately configured secret with contents-read access to BASE's private ORCA distribution repository, currently `ProfJJK-CoChem/CoChem-ORCA`. Its value is a secret identifier, never the credential itself; configure it only on the private execution controller. Required only for licensed provisioning. |
 | Variable `ORCA_CLOUD_LICENSE_CONFIRMED` | `true` when the responsible licensee has established the applicable deployment scope; required for ORCA-bearing requests. |
 
 Restrict the controller's membership, default-branch changes and dispatch rights
 to the intended authorized group. Configure environment review rules supported
 by the repository's GitHub plan. Anyone who can read a private Release repository
 can download its assets; environment review does not change that asset access.
+
+The public workflow source resolves the licensed credential with
+`${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}`. It does not contain the
+configured secret's name or value. Licensed provisioning first checks that the
+controller is private and that the variable and corresponding secret are
+available. An xTB/CREST-only request skips that credential check and the ORCA
+download. Reusable acceptance workflows require `secrets: inherit` from a
+permitted caller so the dynamically selected secret is available. A student
+under a different owner can use a complete TOPOS source copy in their own
+private controller, as described below.
+
+## Student-owned private projects
+
+Students can keep chemistry inputs and calculation evidence in a personal
+private project repository and use its Codespace for the CoChem client. The
+TOPOS workflows above expect the complete reviewed TOPOS source at the
+controller checkout root, including its Python package and setup scripts;
+copying only their YAML into an empty project is insufficient. Populate the
+private controller with that source, retain its private default-branch and
+`cochem-student-tests` environment restrictions, and configure the client's
+`remote_repository` and `remote_ref` for that project. Verify repository and
+environment protections independently; copied YAML does not create those
+settings.
+
+The student's account owns that repository's Actions and Codespaces usage;
+personal plan quotas and any configured billing limits apply. A personal
+repository does not inherit the CoChem organization's secrets. For licensed
+calculations, an authorized student must have access to the approved private
+engine distribution repository and store their own least-privilege read
+credential as a secret on their private controller. Set the controller's private
+`COCHEM_ORCA_ASSET_CREDENTIAL` variable to that secret's name and establish the
+applicable ORCA deployment scope before enabling the license confirmation.
+For a separate BASE CFOUR controller, use the analogous private
+`COCHEM_CFOUR_ASSET_CREDENTIAL` variable and independently authorized credential;
+the generic TOPOS worker still rejects CFOUR. Do not copy instructor or
+organization credential values into student projects.
+
+Keep licensed archives in the approved private distribution repositories;
+neither public CoChem source nor the student's project needs a committed engine
+archive. Codespaces run Linux executables; provision and audit engines through
+BASE rather than transferring a Windows installation or copying another
+machine's registry. Public free-engine routes do not require licensed engine
+credentials, and the existing hosted resource and method restrictions still
+apply.
 
 The workflow reuses BASE's pinned `setup-orca` composite action. BASE selects the
 reviewed complete ORCA 6.1.1 archive from its distribution manifest, verifies its
