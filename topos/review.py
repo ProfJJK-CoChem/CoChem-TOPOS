@@ -649,6 +649,61 @@ def export_torq_handoff(run_dir: str | Path, destination: str | Path, *,
         return handoff
 
 
+def validate_reviewed_ensemble(
+    record: Mapping[str, Any], ensemble: Mapping[str, Any], decisions: Sequence[Mapping[str, Any]],
+) -> None:
+    """Verify portable ensemble membership and review without live TOPOS state.
+
+    Callers still verify retained raw artifacts and scientific eligibility. This
+    checks internal consistency, not reviewer identity or an untrusted engine.
+    """
+    if not isinstance(record, Mapping) or not isinstance(ensemble, Mapping) or not isinstance(decisions, list):
+        raise IntegrityError("Reviewed ensemble requires a record, manifest and review event list")
+    try:
+        ensemble_body = {key: value for key, value in ensemble.items() if key != "manifest_sha256"}
+        if (ensemble.get("schema_version") != ENSEMBLE_SCHEMA
+                or digest_json(ensemble_body) != ensemble.get("manifest_sha256")
+                or ensemble.get("source_record_sha256") != digest_json(record)
+                or ensemble.get("run_id") != record["run_id"]):
+            raise IntegrityError("Reviewed ensemble/record identity mismatch")
+        candidates = {c["candidate_id"]: c for c in record["candidates"]}
+        member_ids = ensemble["member_ids"]
+        if (not isinstance(member_ids, list) or not member_ids
+                or any(not isinstance(member_id, str) for member_id in member_ids)
+                or len(set(member_ids)) != len(member_ids)):
+            raise IntegrityError("Reviewed ensemble needs unique nonempty members")
+        if ensemble["members"] != [candidates[i] for i in member_ids]:
+            raise IntegrityError("Ensemble members differ from the reviewed record")
+        previous = None
+        latest: dict[str, Any] = {}
+        for number, decision in enumerate(decisions, 1):
+            if (not isinstance(decision, Mapping)
+                    or decision.get("schema_version") != REVIEW_SCHEMA
+                    or decision.get("sequence") != number
+                    or decision.get("previous_sha256") != previous
+                    or decision.get("run_id") != record["run_id"]):
+                raise IntegrityError("Reviewed ensemble review chain mismatch")
+            previous = digest_json(decision)
+            latest[decision["subject_id"]] = decision
+        if previous != ensemble["review_head_sha256"]:
+            raise IntegrityError("Reviewed ensemble review digest mismatch")
+        if ensemble["decisions"] != [latest[i]["decision_id"] for i in member_ids]:
+            raise IntegrityError("Reviewed ensemble selected decisions mismatch")
+        for member_id in member_ids:
+            decision = latest[member_id]
+            if (decision["action"] != "accept"
+                    or decision["source_snapshot_sha256"] != ensemble["source_snapshot_sha256"]):
+                raise IntegrityError("Reviewed ensemble includes unaccepted or stale member")
+        if len({c["comparison_protocol"] for c in ensemble["members"]}) != 1:
+            raise IntegrityError("Reviewed ensemble has incompatible comparison protocols")
+        if ensemble["comparison_protocol"] != ensemble["members"][0]["comparison_protocol"]:
+            raise IntegrityError("Reviewed ensemble comparison protocol mismatch")
+        if any(c.get("metadata", {}).get("duplicate_of") in member_ids for c in ensemble["members"]):
+            raise IntegrityError("Reviewed ensemble cannot promote duplicate observations as independent members")
+    except (KeyError, TypeError, IndexError) as exc:
+        raise IntegrityError("Incomplete reviewed ensemble") from exc
+
+
 def verify_torq_handoff(path: str | Path) -> dict[str, Any]:
     """Validate schema, member geometry, source record and review without TOPOS state.
 
@@ -669,43 +724,8 @@ def verify_torq_handoff(path: str | Path) -> dict[str, Any]:
     try:
         record = record_dict(handoff["record"])
         ensemble = handoff["ensemble"]
-        ensemble_body = {key: value for key, value in ensemble.items() if key != "manifest_sha256"}
-        if (ensemble.get("schema_version") != ENSEMBLE_SCHEMA
-                or digest_json(ensemble_body) != ensemble.get("manifest_sha256")
-                or ensemble.get("source_record_sha256") != digest_json(record)
-                or ensemble.get("run_id") != record["run_id"]):
-            raise IntegrityError("Handoff ensemble/record identity mismatch")
-        candidates = {c["candidate_id"]: c for c in record["candidates"]}
-        member_ids = ensemble["member_ids"]
-        if not member_ids or len(set(member_ids)) != len(member_ids):
-            raise IntegrityError("Handoff needs unique nonempty members")
-        if ensemble["members"] != [candidates[i] for i in member_ids]:
-            raise IntegrityError("Handoff members differ from the reviewed record")
         decisions = handoff["review"]
-        previous = None
-        latest: dict[str, Any] = {}
-        for number, decision in enumerate(decisions, 1):
-            if (decision.get("schema_version") != REVIEW_SCHEMA or decision.get("sequence") != number
-                    or decision.get("previous_sha256") != previous
-                    or decision.get("run_id") != record["run_id"]):
-                raise IntegrityError("Handoff review chain mismatch")
-            previous = digest_json(decision)
-            latest[decision["subject_id"]] = decision
-        if previous != ensemble["review_head_sha256"]:
-            raise IntegrityError("Handoff review digest mismatch")
-        if ensemble["decisions"] != [latest[i]["decision_id"] for i in member_ids]:
-            raise IntegrityError("Handoff selected decisions mismatch")
-        for member_id in member_ids:
-            decision = latest[member_id]
-            if (decision["action"] != "accept"
-                    or decision["source_snapshot_sha256"] != ensemble["source_snapshot_sha256"]):
-                raise IntegrityError("Handoff includes unaccepted or stale member")
-        if len({c["comparison_protocol"] for c in ensemble["members"]}) != 1:
-            raise IntegrityError("Handoff has incompatible comparison protocols")
-        if ensemble["comparison_protocol"] != ensemble["members"][0]["comparison_protocol"]:
-            raise IntegrityError("Handoff ensemble comparison protocol mismatch")
-        if any(c.get("metadata", {}).get("duplicate_of") in member_ids for c in ensemble["members"]):
-            raise IntegrityError("Handoff cannot promote duplicate observations as independent members")
+        validate_reviewed_ensemble(record, ensemble, decisions)
         if _handoff_body(record, ensemble, decisions) != body:
             raise IntegrityError("Handoff geometry/protocol/source identity mismatch")
     except (KeyError, TypeError, IndexError) as exc:
