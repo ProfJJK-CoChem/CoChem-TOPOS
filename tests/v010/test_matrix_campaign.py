@@ -1,4 +1,4 @@
-"""Campaign proof guards; only an actual xTB full row supplies a passing case."""
+"""Campaign guards; three-atom native monomers are diagnostic controls only."""
 from __future__ import annotations
 
 import copy
@@ -71,6 +71,7 @@ def test_unavailable_and_torq_rows_cannot_be_declared_as_topos_cases(row):
 def test_case_definition_binds_molecule_state_resources_and_compiled_protocol():
     plan = create_plan(ROOT, [request().model_dump(mode="json")])
     assert plan["cases"][0]["recipe"]["row"]["row_id"] == "T3O-10s"
+    assert plan["cases"][0]["coverage_scope"] == "diagnostic-control"
     corrupt = copy.deepcopy(plan)
     corrupt["cases"][0]["request"]["memory_mb"] = 512
     with pytest.raises(ValueError, match="exact typed scientific definition"):
@@ -406,6 +407,9 @@ def test_genuine_current_source_matrix_row_is_counted_once_and_report_reverifies
     assert report["status"] == "pending"
     assert report["release_eligible"] is False and report["release_eligible_rows"] == 0
     assert row["release_eligible"] is False
+    assert row["results"][0]["evidence"]["coverage_scope"] == "diagnostic-control"
+    assert row["results"][0]["evidence"]["source_domain_declaration_verified"] is False
+    assert "Diagnostic control" in row["results"][0]["evidence"]["release_blocker"]
     assert "BASE execution authority" in row["results"][0]["evidence"]["release_blocker"]
     with pytest.raises(IntegrityError, match="Duplicate"):
         assess(plan_path, [store.run_dir, store.run_dir], sources)
