@@ -164,6 +164,31 @@ def _ncc_total_energy(raw: str, method: str) -> float:
     return _number(matches[0])
 
 
+def _native_invocations(raw: str) -> list[str]:
+    """Read both actual CFOUR invocation layouts, retaining every event."""
+    programs = []
+    lines = raw.splitlines()
+    for index, line in enumerate(lines):
+        heading = re.fullmatch(r"[ \t]*--invoking executable(.*)", line)
+        if heading is None:
+            continue
+        suffix = heading[1]
+        if suffix.strip() == "--":
+            token = lines[index + 1].strip() if index + 1 < len(lines) else ""
+        else:
+            inline = re.fullmatch(r"[ \t]+(\S+)[ \t]*", suffix)
+            if inline is None:
+                raise EngineParseError("Malformed native CFOUR executable invocation separator")
+            token = inline[1]
+        if not token or re.search(r"\s", token) or token == "--":
+            raise EngineParseError("Malformed native CFOUR executable invocation")
+        name = Path(token).name
+        if re.fullmatch(r"x[A-Za-z0-9_]+", name) is None:
+            raise EngineParseError("Unknown native CFOUR executable invocation")
+        programs.append(name)
+    return programs
+
+
 def _native_completion(raw: str, protocol: ExternalProtocol) -> str:
     native_versions = re.findall(r"(?im)^\s*version\s+([\w.+-]+)\s*$", raw)
     if not native_versions or set(native_versions) != {protocol.engine_version}:
@@ -172,7 +197,7 @@ def _native_completion(raw: str, protocol: ExternalProtocol) -> str:
         raise EngineParseError("CFOUR SCF/correlation convergence was not established")
     if protocol.method.startswith("CC") and not _cfour_cc_converged(raw, protocol.method):
         raise EngineParseError("The requested coupled-cluster amplitude equations did not converge")
-    invoked = Counter(re.findall(r"--invoking executable\s+(\S+)", raw))
+    invoked = Counter(_native_invocations(raw))
     finished = re.findall(r"--executable\s+(\S+)\s+finished with status\s+(-?\d+)", raw)
     if not invoked or Counter(name for name, _ in finished) != invoked or any(int(status) for _, status in finished):
         raise EngineParseError("CFOUR native subprogram termination is incomplete or unsuccessful")
@@ -198,6 +223,10 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         raise EngineParseError("The native basis setting differs from the explicit requested basis")
     if control("FROZEN_CORE") != ("ON" if protocol.frozen_core else "OFF") or control("REFERENCE") != "RHF":
         raise EngineParseError("The native core/reference treatment differs from the requested protocol")
+    if control("SPHERICAL") != "ON":
+        raise EngineParseError("The native spherical basis convention differs from the requested TOPOS protocol")
+    if molecule.multiplicity != 1 or control("MULTIPLICI?TY") != "1":
+        raise EngineParseError("The native spin multiplicity differs from the requested closed-shell protocol")
     if control("CHARGE") != str(molecule.charge):
         raise EngineParseError("The native electronic charge differs from the requested molecule")
     native_method = control("CALC_?LEVEL").upper()
@@ -209,7 +238,7 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         program = "NCC" if protocol.method == "CCSDTQ" else "ECC"
         if control("CC_PROGRAM") != program or control("ABCDTYPE") != "STANDARD":
             raise EngineParseError("Higher coupled-cluster calculation lacks the requested native solver and STANDARD integrals")
-        if protocol.method == "CCSDTQ" and not re.search(r"--invoking executable\s+xncc\b", raw):
+        if protocol.method == "CCSDTQ" and "xncc" not in _native_invocations(raw):
             raise EngineParseError("Full quadruples require the built-in NCC solver; an external MRCC result cannot impersonate it")
     if len(re.findall(r"SCF has converged\.", raw)) != 1:
         raise EngineParseError("Expected one CFOUR Cartesian evaluation, not concatenated jobs/optimization cycles")
@@ -428,11 +457,16 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                 if file_digest(evaluation / "GENBAS") != protocol.genbas_sha256:
                     raise EngineParseError("GENBAS changed during staging; the native input basis is not the pinned library")
                 (evaluation / "ZMAT").write_text(cfour_input(current, protocol, resources))
+                immutable = {path: file_digest(path) for path in
+                             (binary, genbas, folder / "protocol.json", evaluation / "ZMAT", evaluation / "GENBAS")}
                 result.command = [str(binary)]
                 process = process_runner(result.command, evaluation, limits(), cancel_event=cancel_event,
                                          log_prefix="engine")
                 result.metadata["execution_kind"] = "real"
                 result.diagnostics["last_process"] = process.to_dict()
+                if any(path.is_symlink() or not path.is_file() or file_digest(path) != expected
+                       for path, expected in immutable.items()):
+                    raise EngineParseError("Immutable CFOUR executable/basis/input changed during execution")
                 if process.status != "completed":
                     result.status, result.diagnostics["reason"] = process.status, process.reason
                     raise _NativeFailure()

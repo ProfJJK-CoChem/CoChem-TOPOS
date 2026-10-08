@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import re
 import time
 from pathlib import Path
 from threading import Event
@@ -18,6 +19,74 @@ from .storage import (
     file_digest,
     read_json,
 )
+
+
+def verify_cfour_runtime_receipts(artifacts, root: Path, authority: dict, *, original_artifacts=None):
+    """Verify retained process authority offline; this is not a native science parser.
+
+    The original artifact inventory keeps the launch directory binding when a
+    campaign is moved. Every receipt, input and output must remain hash-bound.
+    """
+    if (not isinstance(authority, dict)
+            or not re.fullmatch(r"[a-f0-9]{64}", str(authority.get("runtime_seal_sha256", "")))
+            or not re.fullmatch(r"[a-f0-9]{64}", str(authority.get("binary_sha256", "")))
+            or not Path(str(authority.get("executable", ""))).is_absolute()):
+        raise IntegrityError("CFOUR component lacks its retained complete runtime authority")
+    entries = [a.model_dump(mode="json") if hasattr(a, "model_dump") else a for a in artifacts]
+    originals = entries if original_artifacts is None else original_artifacts
+    original_map = {a["path"]: a for a in originals}
+    if len(original_map) != len(originals):
+        raise IntegrityError("CFOUR original runtime evidence inventory is duplicated")
+    files = {}
+    for artifact in entries:
+        path = Path(artifact["path"])
+        relative = path.relative_to(root).as_posix() if path.is_absolute() else path.as_posix()
+        native = confined_file(root, relative)
+        if relative in files or native.stat().st_size != artifact["size_bytes"] or file_digest(native) != artifact["sha256"]:
+            raise IntegrityError("CFOUR runtime evidence is duplicated or changed")
+        files[relative] = (native, artifact)
+    outputs = [name for name in files if Path(name).name == "engine.stdout"]
+    receipts = {name for name in files if Path(name).name == "engine-cfour-runtime.json"}
+    expected_receipts = {(Path(name).parent / "engine-cfour-runtime.json").as_posix() for name in outputs}
+    if not outputs or receipts != expected_receipts:
+        raise IntegrityError("Every CFOUR native evaluation requires exactly one adjacent sealed-runtime receipt")
+    for output in outputs:
+        parent = Path(output).parent
+        receipt_name = (parent / "engine-cfour-runtime.json").as_posix()
+        receipt_path, _ = files[receipt_name]
+        binding = read_json(receipt_path)
+        original_directory = Path(str(binding.get("workdir", "")))
+        if (binding.get("schema") != "topos-cfour-runtime-integrity/1" or binding.get("status") != "verified"
+                or binding.get("runtime_before") != authority or binding.get("runtime_after") != authority
+                or binding.get("reason") is not None or binding.get("command") != [authority["executable"]]
+                or not original_directory.is_absolute() or binding.get("stdout_name") != "engine.stdout"
+                or binding.get("stderr_name") != "engine.stderr"
+                or set(binding.get("native_inputs_sha256", {})) != {"ZMAT", "GENBAS"}):
+            raise IntegrityError("CFOUR process receipt contradicts its complete runtime or launch binding")
+        expected = {**binding["native_inputs_sha256"], "engine.stdout": binding.get("stdout_sha256"),
+                    "engine.stderr": binding.get("stderr_sha256"), "engine-cfour-runtime.json": file_digest(receipt_path)}
+        for name, digest in expected.items():
+            entry = files.get((parent / name).as_posix())
+            original = original_map.get(str(original_directory / name))
+            if entry is None or entry[1]["sha256"] != digest or original is None or original["sha256"] != digest:
+                raise IntegrityError("CFOUR runtime receipt is not bound to its exact native directory, inputs and output bytes")
+    return {"runtime_seal_sha256": authority["runtime_seal_sha256"], "native_evaluations": len(outputs),
+            "scope": "Retained BASE process authority; native scientific validation is separate"}
+
+
+def _current_cfour_authority(workflow, record):
+    runtime = workflow.base_runtime
+    if runtime is None or not callable(getattr(runtime, "cfour_runtime_identity", None)):
+        raise IntegrityError("CFOUR components require BASE sealed-runtime authorization before execution or reuse")
+    observed = runtime.cfour_runtime_identity()
+    previous = record.metadata.get("cfour_runtime_authority")
+    if previous is None:
+        if any(a.engine == "cfour" and a.status == "completed" for a in record.attempts):
+            raise IntegrityError("Cannot attach a new runtime seal to unsealed completed CFOUR evidence")
+        record.metadata["cfour_runtime_authority"] = observed
+    elif previous != observed:
+        raise IntegrityError("CFOUR complete runtime changed within the campaign; cached components cannot be reused")
+    return observed
 
 
 def _completed_result(result, molecule, protocol_data, folder):
@@ -65,7 +134,7 @@ def _completed_result(result, molecule, protocol_data, folder):
     return is_sapt, stereo
 
 
-def _verified_component(attempt, store, molecule, protocol_data, identity):
+def _verified_component(attempt, store, molecule, protocol_data, identity, cfour_authority=None):
     folder = store.run_dir / "attempts" / attempt.attempt_id
     if (attempt.status != "completed" or attempt.validation_status != "validated-for-protocol"
             or attempt.converged is not True or attempt.metadata.get("execution_kind") != "real"
@@ -91,6 +160,11 @@ def _verified_component(attempt, store, molecule, protocol_data, identity):
         raise IntegrityError("Completed component requires its exact durable native result receipt")
     cached = EngineResult.model_validate(payload)
     is_sapt, _ = _completed_result(cached, molecule, protocol_data, folder)
+    if cached.engine == "cfour":
+        retained_authority = attempt.metadata.get("cfour_runtime_authority")
+        if cfour_authority is not None and retained_authority != cfour_authority:
+            raise IntegrityError("Cached CFOUR authority differs from the current campaign runtime")
+        verify_cfour_runtime_receipts(cached.artifacts, folder, retained_authority)
     if (attempt.engine != cached.engine or attempt.method != cached.method
             or attempt.engine_version != cached.engine_version or attempt.command != cached.command):
         raise IntegrityError("Completed component identity differs from its native receipt")
@@ -128,10 +202,25 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
         record.metadata["termination_reason"] = "Matrix component stopped before execution or completed-cache reuse"
         store.commit(record)
         return None
+    cfour_authority = None
+    if protocol_data["engine"] == "cfour":
+        cfour_authority = _current_cfour_authority(workflow, record)
+
+    def checked_cached(attempt):
+        current = _current_cfour_authority(workflow, record) if cfour_authority is not None else None
+        cached = _verified_component(attempt, store, molecule, protocol_data, identity, current)
+        cancelled = cancel_event is not None and cancel_event.is_set()
+        if cancelled or deadline <= time.monotonic():
+            record.status = "cancelled" if cancelled else "timed-out"
+            record.metadata["termination_reason"] = "Matrix component stopped during authority/evidence verification"
+            store.commit(record)
+            return None
+        return cached
+
     completed = [a for a in record.attempts if a.metadata.get("matrix_component_sha256") == identity
                  and a.status == "completed"]
     if completed:
-        return _verified_component(completed[-1], store, molecule, protocol_data, identity)
+        return checked_cached(completed[-1])
     if cancel_event is not None and cancel_event.is_set():
         record.status, record.metadata["termination_reason"] = "cancelled", "Matrix component cancelled before execution"
         store.commit(record)
@@ -159,6 +248,8 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
                       metadata={"role": "matrix-native-component", "component_key": key,
                                 "matrix_component_sha256": identity, "input_molecule": molecule.model_dump(mode="json"),
                                 "requested_protocol": protocol_data})
+    if cfour_authority is not None:
+        attempt.metadata["cfour_runtime_authority"] = cfour_authority
     record.attempts.append(attempt)
     store.commit(record)
     folder = store.run_dir / "attempts" / attempt.attempt_id
@@ -209,25 +300,47 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
                 units="hartree/bohr", definition="actual native analytic electronic gradient",
                 method=method, attempt_id=attempt.attempt_id, validity=attempt.validation_status))
         if result.status == "completed":
-            _verified_component(attempt, store, molecule, protocol_data, identity)
+            if cfour_authority is not None:
+                _current_cfour_authority(workflow, record)
+            _verified_component(attempt, store, molecule, protocol_data, identity, cfour_authority)
         else:
             record.status = result.status
             record.metadata["termination_reason"] = f"Matrix component {key}: " + str(result.diagnostics.get("reason", result.status))
         store.commit(record)
+        if result.status == "completed" and (deadline <= time.monotonic() or cancel_event is not None and cancel_event.is_set()):
+            record.status = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out"
+            record.metadata["termination_reason"] = "Matrix component stopped during completed-evidence verification"
+            store.commit(record)
+            return None
         return result if result.status == "completed" else None
     except Exception as exc:
         # A commit can publish successfully and then lose its acknowledgement.
         # Verify the independent published snapshot before rewriting its attempt.
+        published_completion, recovery_error = None, None
         try:
             published = RunRecord.model_validate(store.load())
             persisted = next((a for a in published.attempts if a.attempt_id == attempt.attempt_id), None)
             if (persisted is not None and persisted.status not in {"queued", "running"}
                     and persisted.model_dump(mode="json") == attempt.model_dump(mode="json")):
-                cached = _verified_component(persisted, store, molecule, protocol_data, identity) if persisted.status == "completed" else None
-                record.attempts, record.status, record.metadata = published.attempts, published.status, published.metadata
+                published_completion = published
+                if (cfour_authority is not None
+                        and published.metadata.get("cfour_runtime_authority") != cfour_authority):
+                    raise IntegrityError("Published CFOUR component changed its campaign runtime authority")
+                cached = checked_cached(persisted) if persisted.status == "completed" else None
+                record.attempts = published.attempts
+                if cached is not None or persisted.status != "completed":
+                    record.status, record.metadata = published.status, published.metadata
                 return cached
-        except (OSError, ValueError, KeyError, TypeError):
-            pass
+        except (OSError, ValueError, RuntimeError, KeyError, TypeError) as recovery_exc:
+            recovery_error = recovery_exc
+        if published_completion is not None:
+            # Published attempts are immutable historical facts, even when a
+            # changed installation makes their current reuse unauthorized.
+            record.attempts, record.metadata = published_completion.attempts, published_completion.metadata
+            record.status = "failed"
+            record.metadata["termination_reason"] = f"Published matrix component recovery rejected: {recovery_error}"
+            store.commit(record)
+            raise IntegrityError(record.metadata["termination_reason"]) from recovery_error
         attempt.status, attempt.converged, attempt.validation_status = "failed", False, "rejected"
         attempt.finished_at, attempt.quantities = utc_now(), []
         attempt.diagnostics.update({"reason": str(exc), "exception_type": type(exc).__name__})

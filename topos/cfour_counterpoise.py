@@ -27,6 +27,7 @@ from .external_engines import (
     ExternalProtocol,
     _native_completion,
     _native_genbas,
+    _native_invocations,
     _ncc_total_energy,
     _physical_input,
     _proper_rotation,
@@ -264,7 +265,7 @@ def parse_cfour_counterpoise_output(raw: str, molecule: Molecule,
     if _drop_selection(control("DROPMO")) != set(range(1, protocol.dropped_core_orbitals + 1)):
         raise EngineParseError("Native occupied-core DROPMO space differs from the physical fragment choice")
     solver = {"CCSD(T)": "xvcc", "CCSDT": "xecc", "CCSDTQ": "xncc"}[protocol.method]
-    if not re.search(r"--invoking executable\s+" + solver + r"\b", raw):
+    if solver not in _native_invocations(raw):
         raise EngineParseError("Requested native CC solver was not actually invoked")
     echoed = re.findall(r"(?s)Input from ZMAT file\s*\n\s*-+\s*\n(.*?)\n\s*-+\s*\n\s*CFOUR Control Parameters", raw)
     if len(echoed) != 1:

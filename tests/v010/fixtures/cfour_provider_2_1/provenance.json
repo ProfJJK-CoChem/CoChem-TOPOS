@@ -1,0 +1,31 @@
+{
+  "scope": "Unchanged genuine CFOUR2.1 provider HF output and input; invocation/completion transport only. Provider SPHERICAL=OFF is incompatible with TOPOS SPHERICAL=ON. No TOPOS native acceptance, CP, higher-CC, scalar or DBOC claim.",
+  "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+  "source_commit": "b06fdf1b2c2a931f92b07885f3df6ef1175fee3e",
+  "source_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37694454874",
+  "artifact": "cfour-2.1-acceptance-37694454874-1",
+  "source_directory": "cfour-evidence/cfour-scientific-g78zqfw4/water-hf-reference-energy/published/cfour/evaluation-0000",
+  "scientific_receipt_sha256": "9530c07075e197f8e696f6bdaf9c5aa8bb7822925d8fac4fe03ee432241c4d94",
+  "actual_protocol": {
+    "version": "2.1",
+    "method": "HF",
+    "basis": "6-31G**",
+    "reference": "RHF",
+    "frozen_core": false,
+    "spherical": false,
+    "coordinate_units": "BOHR",
+    "derivative_level": "FIRST"
+  },
+  "files": {
+    "output.stdout": {
+      "sha256": "005cc4eadd912f5726b5bf1a5189f08c942ef0c040cf4fa1e2dd8eba2b027f77",
+      "size_bytes": 34297,
+      "original_filename": "output.dat"
+    },
+    "native-ZMAT.inp": {
+      "sha256": "8e96bf9a40b4a3dca7c591175a47a577be95852e8325d334bd6cea09e68f4a6e",
+      "size_bytes": 368,
+      "original_filename": "ZMAT"
+    }
+  }
+}

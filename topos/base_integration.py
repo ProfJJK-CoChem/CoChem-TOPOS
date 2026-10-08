@@ -134,16 +134,31 @@ def _engine_environment(environment: dict[str, str], threads: int) -> dict[str, 
         "XTBPATH", "XTBHOME", "FORTRAN_UNBUFFERED_ALL",
     }
     result = {key: value for key, value in environment.items()
-              if key in allowed or re.fullmatch(r"(?:OMP|MKL|OPENBLAS|NUMEXPR|PMI|UCX|XTB|CREST)_[A-Z0-9_]+", key)
+              if key in allowed or re.fullmatch(r"(?:OMP|MKL|OPENBLAS|BLIS|NUMEXPR|PMI|UCX|XTB|CREST)_[A-Z0-9_]+", key)
               or re.fullmatch(r"OMPI_[A-Za-z0-9_]+", key)}
     result = {key: value for key, value in result.items()
               if not re.search(r"TOKEN|PASSWORD|SECRET|CREDENTIAL|AUTHORIZATION", key, re.I)}
     result.update({key: str(threads) for key in (
         "OMP_NUM_THREADS", "OMP_THREAD_LIMIT", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
-        "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
+        "BLIS_NUM_THREADS", "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
     )})
     result.update(OMP_DYNAMIC="FALSE", OMP_STACKSIZE="16M", CUDA_VISIBLE_DEVICES="")
     return result
+
+
+def _cfour_authorization_identity(authorization: Any, engine_record: dict) -> dict:
+    """Require BASE's full runtime seal and the originally loaded Stage 0 identity."""
+    expected = engine_record.get("runtime_seal_sha256")
+    if (not isinstance(expected, str) or not re.fullmatch(r"[a-f0-9]{64}", expected)
+            or getattr(authorization, "runtime_seal_sha256", None) != expected
+            or getattr(authorization, "executable", None) != engine_record.get("path")
+            or getattr(authorization, "binary_sha256", None) != engine_record.get("hash")):
+        raise BaseIntegrationError(
+            "CFOUR requires BASE's sealed-runtime authorization and fresh Stage 0 setup; "
+            "the returned seal must match the initially loaded registry")
+    return {"runtime_seal_sha256": expected, "executable": authorization.executable,
+            "binary_sha256": authorization.binary_sha256,
+            "identity_scope": "BASE authorization verifies complete CFOUR runtime against Stage 0"}
 
 
 def _orca_deck_allocation(command: list[str], workdir: str | Path, resources: ResourceLimits) -> int:
@@ -207,6 +222,14 @@ class BaseRuntime:
                                    executable=executable, cores=1, maxcore_mb=1).executable
         except Exception as exc:
             raise BaseIntegrationError(str(exc)) from exc
+
+    def cfour_runtime_identity(self) -> dict[str, Any]:
+        """Reauthorize the actual complete installation before native work or reuse."""
+        try:
+            authorization = self._authorize("cfour", registry_path=self.registry_path, cores=1, maxcore_mb=1)
+            return _cfour_authorization_identity(authorization, self.registry.model_dump(mode="json")["engines"].get("cfour", {}))
+        except Exception as exc:
+            raise BaseIntegrationError(f"CFOUR sealed-runtime authority is unavailable: {exc}") from exc
 
     def validate_resources(self, resources: ResourceLimits, *, engine: str | None = None,
                            gpu_index: int | None = None, gpu_memory_mb: int | None = None) -> None:
@@ -687,6 +710,10 @@ print(json.dumps(result,sort_keys=True))
         native_threads = threads_per_process if threads_per_process is not None else (
             1 if engine == "orca" else resources.threads
         )
+        if engine == "cfour" and any(os.environ.get(key) != value for key, value in (environment or {}).items()):
+            # BASE authorizes the controller environment. A per-process path or
+            # library override would otherwise execute outside that authority.
+            raise BaseIntegrationError("CFOUR per-process environment overrides require a new audited setup")
         native_environment = {**os.environ, **(environment or {})}
         if engine == "orca":
             from cochem_base.core_engine.engine_environment import engine_runtime_environment
@@ -701,7 +728,35 @@ print(json.dumps(result,sort_keys=True))
             native_environment = engine_runtime_environment(
                 engine, native_environment, executable=authorization.executable,
             )
+        cfour_runtime = None
+        if engine == "cfour":
+            from cochem_base.core_engine.engine_environment import engine_runtime_environment
+
+            native_environment = engine_runtime_environment(
+                engine, native_environment, executable=authorization.executable,
+            )
+            cfour_record = self.registry.model_dump(mode="json")["engines"][engine]
+            cfour_runtime = _cfour_authorization_identity(authorization, cfour_record)
         supplied = _engine_environment(native_environment, native_threads)
+        if engine == "cfour":
+            # OpenMP consumes the allocation; BLAS remains serial inside it.
+            for variable in ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "BLIS_NUM_THREADS",
+                             "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+                supplied[variable] = "1"
+            from .storage import atomic_json, file_digest
+
+            if command != [cfour_runtime["executable"]]:
+                raise BaseIntegrationError("CFOUR requires its exact audited launcher without extra arguments")
+            input_paths = {name: folder / name for name in ("ZMAT", "GENBAS")}
+            if any(path.is_symlink() or not path.is_file() for path in input_paths.values()):
+                raise BaseIntegrationError("CFOUR requires confined regular native ZMAT and GENBAS inputs")
+            native_inputs = {name: file_digest(path) for name, path in input_paths.items()}
+            process_binding = {"command": command, "workdir": str(folder), "native_inputs_sha256": native_inputs,
+                               "stdout_name": stdout.name, "stderr_name": stderr.name}
+            atomic_json(folder / (log_prefix + "-cfour-runtime.json"), {
+                "schema": "topos-cfour-runtime-integrity/1", "status": "pending-native-completion",
+                "runtime_before": cfour_runtime, **process_binding,
+            })
         if cuda_visible_devices is not None:
             supplied["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
         if isolated_python:
@@ -779,9 +834,29 @@ print(json.dumps(result,sort_keys=True))
                     str(resources.memory_mb), str(output_limit_mb), str(stdout), str(stderr), *command]
         try:
             result = broker.execute(launcher, cwd=folder, timeout_seconds=resources.budget_seconds)
-            status = state["status"] or ("timed-out" if result.returncode == -124 else
+            runtime_error = None
+            if cfour_runtime is not None:
+                try:
+                    final_authorization = self._authorize(
+                        engine, registry_path=self.registry_path, command=command,
+                        cores=authorization.cores, maxcore_mb=authorization.maxcore_mb,
+                    )
+                    after = _cfour_authorization_identity(final_authorization, cfour_record)
+                    if any(path.is_symlink() or not path.is_file() or file_digest(path) != native_inputs[name]
+                           for name, path in input_paths.items()):
+                        raise BaseIntegrationError("CFOUR native input changed during execution")
+                    if after != cfour_runtime:
+                        raise BaseIntegrationError("CFOUR runtime authority changed during native execution")
+                except (OSError, ValueError, RuntimeError) as exc:
+                    after, runtime_error = None, str(exc)
+                atomic_json(folder / (log_prefix + "-cfour-runtime.json"), {
+                    "schema": "topos-cfour-runtime-integrity/1", "status": "failed" if runtime_error else "verified",
+                    "runtime_before": cfour_runtime, "runtime_after": after, "reason": runtime_error,
+                    **process_binding, "stdout_sha256": file_digest(stdout), "stderr_sha256": file_digest(stderr),
+                })
+            status = "failed" if runtime_error else state["status"] or ("timed-out" if result.returncode == -124 else
                                          "completed" if result.success and result.returncode == 0 else "failed")
-            reason = state["reason"] or (None if status == "completed" else f"BASE broker exit code {result.returncode}")
+            reason = runtime_error or state["reason"] or (None if status == "completed" else f"BASE broker exit code {result.returncode}")
             return ProcessResult(command, status, result.returncode, time.monotonic() - started,
                                  state["peak"], str(stdout), str(stderr), reason)
         finally:

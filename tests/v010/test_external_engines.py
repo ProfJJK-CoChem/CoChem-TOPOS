@@ -308,3 +308,102 @@ def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_pat
     else:
         assert result.status == {"deadline": "timed-out", "cancelled": "cancelled"}[termination]
         assert len(calls) == 1 and result.converged is not True
+
+
+@pytest.mark.parametrize('fixture,version,events', [
+    ('cfour_corrections/carbon12-dboc.out', '2.00beta', 27),
+    ('cfour_corrections/h2o-native-mass.out', '1.01', 39),
+    ('cfour_counterpoise/historical-1.2-ghost.stdout', '1.2', 13),
+])
+def test_genuine_invocation_layouts_keep_historical_versions(fixture, version, events):
+    """Transport grammar only; these unchanged fixtures are not CFOUR 2.1."""
+    import re
+    from collections import Counter
+
+    from topos.external_engines import _native_completion, _native_invocations
+
+    raw = (FIXTURES.parent / fixture).read_text()
+    invoked = _native_invocations(raw)
+    finished = re.findall(r'--executable\s+(\S+)\s+finished with status\s+(-?\d+)', raw)
+    assert len(invoked) == events
+    assert Counter(invoked) == Counter(name for name, _ in finished)
+    assert all(int(code) == 0 for _, code in finished)
+    assert set(re.findall(r'(?im)^\s*version\s+([\w.+-]+)\s*$', raw)) == {version}
+    with pytest.raises(EngineParseError, match='exact requested native version'):
+        _native_completion(raw, protocol().model_copy(update={'engine_version': '2.1'}))
+
+
+@pytest.mark.parametrize('raw', [
+    '--invoking executablexjoda\n', '--invoking executable\n', '--invoking executable--\n',
+    '--invoking executable--\n\nxjoda\n', '--invoking executable--\n--executable xjoda finished with status 0\n',
+    '--invoking executable--\nnot-a-program\n', '--invoking executable xjoda extra\n',
+    '--invoking executable--\n/path/to/xjoda extra\n',
+])
+def test_malformed_invocation_transport_rejected(raw):
+    from topos.external_engines import _native_invocations
+
+    with pytest.raises(EngineParseError, match='invocation'):
+        _native_invocations(raw)
+
+
+@pytest.mark.parametrize('mutation', ['missing-finish', 'extra-finish', 'failed-finish'])
+def test_two_line_invocation_completion_remains_balanced(mutation):
+    from topos.external_engines import _native_completion
+
+    raw = (FIXTURES.parent / 'cfour_corrections/carbon12-dboc.out').read_text()
+    import re
+
+    marker = re.search(r'--executable\s+xjoda\s+finished with status\s+0', raw)[0]
+    if mutation == 'missing-finish':
+        raw = raw.replace(marker, '', 1)
+    elif mutation == 'extra-finish':
+        raw += '\n' + marker + '\n'
+    else:
+        raw = raw.replace(marker, marker[:-1] + '1', 1)
+    with pytest.raises(EngineParseError, match='termination'):
+        _native_completion(raw, protocol('HF').model_copy(update={'engine_version': '2.00beta'}))
+
+
+@pytest.mark.parametrize('changed', ['binary', 'source-genbas', 'GENBAS', 'ZMAT', 'protocol.json'])
+def test_native_failed_process_cannot_change_bound_input_bytes(tmp_path, changed):
+    """Mutation rejection uses a failed transport only; no native result is invented."""
+    binary = tmp_path / 'install/bin/xcfour'
+    binary.parent.mkdir(parents=True)
+    binary.write_text('#!/bin/sh\nexit 1\n')
+    binary.chmod(0o700)
+    genbas = binary.parent / 'GENBAS'
+    genbas.write_text('O:PVTZ\nbookkeeping only\nH:PVTZ\nbookkeeping only\n')
+    selected = protocol(genbas_path=str(genbas), genbas_sha256=hashlib.sha256(genbas.read_bytes()).hexdigest())
+    _, molecule, _ = native_fixture()
+
+    def failed_mutation(command, folder, resources, **kwargs):
+        target = {'binary': binary, 'source-genbas': genbas,
+                  'protocol.json': folder.parent / 'protocol.json'}.get(changed, folder / changed)
+        target.write_bytes(target.read_bytes() + b'\nchanged transport bookkeeping\n')
+        out, err = folder / 'engine.stdout', folder / 'engine.stderr'
+        out.write_text('Failed infrastructure process; no CFOUR scientific output\n')
+        err.write_text('')
+        return ProcessResult(command, 'failed', 1, .01, 0, str(out), str(err), 'deliberate failure')
+
+    result = run_external(molecule, selected, ResourceLimits(budget_seconds=20), tmp_path / 'attempt',
+                          executable=binary, process_runner=failed_mutation)
+    assert result.status == 'failed' and result.energy_hartree is None and not result.converged
+    assert 'Immutable CFOUR executable/basis/input changed' in result.diagnostics['reason']
+
+
+def test_genuine_provider_2_1_completion_is_not_topos_spherical_acceptance():
+    from topos.external_engines import _native_completion, _native_invocations
+
+    folder = FIXTURES.parent / 'cfour_provider_2_1'
+    provenance = json.loads((folder / 'provenance.json').read_text())
+    for name, entry in provenance['files'].items():
+        assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == entry['sha256']
+        assert (folder / name).stat().st_size == entry['size_bytes']
+    raw = (folder / 'output.stdout').read_text()
+    selected = ExternalProtocol(engine='cfour', engine_version='2.1', operation='energy', method='HF',
+                                orbital_basis='6-31G**', frozen_core=False)
+    assert _native_completion(raw, selected) == '2.1'
+    assert _native_invocations(raw) == ['xjoda', 'xvmol', 'xvmol2ja', 'xvscf', 'xvdint', 'xjoda']
+    molecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0, 0, 0], [0, -0.75, 0.57], [0, 0.75, 0.57]])
+    with pytest.raises(EngineParseError, match='spherical basis convention'):
+        parse_cfour_output(raw, molecule, selected)
