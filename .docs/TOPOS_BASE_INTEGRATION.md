@@ -82,12 +82,25 @@ can download its assets; environment review does not change that asset access.
 The public workflow source resolves the licensed credential with
 `${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}`. It does not contain the
 configured secret's name or value. Licensed provisioning first checks that the
-controller is private and that the variable and corresponding secret are
-available. An xTB/CREST-only request skips that credential check and the ORCA
-download. Reusable acceptance workflows require `secrets: inherit` from a
-permitted caller so the dynamically selected secret is available. A student
-under a different owner can use a complete TOPOS source copy in their own
-private controller, as described below.
+controller is private and that its configured credential is available. An
+xTB/CREST-only request skips that credential check and the ORCA download. The
+reusable acceptance workflow also accepts an explicitly mapped generic
+`asset_credential` secret; this fallback does not require a selector variable
+in the called workflow. Its compatibility entry point maps only that credential
+and the optional source reader, rather than forwarding every available secret:
+
+```yaml
+secrets:
+  asset_credential: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}
+  COCHEM_SOURCE_READ_TOKEN: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
+```
+
+The caller resolves the private selector and explicitly passes the credential
+through that generic interface. Secret mapping does not grant repository
+access: GitHub must separately allow the caller to use the reusable workflow,
+and public source cannot make a different owner's private workflows or
+organization secrets available. A student under a different owner can use a
+complete TOPOS source copy in their own private controller, as described below.
 
 ## Student-owned private projects
 
