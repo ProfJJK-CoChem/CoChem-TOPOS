@@ -13,47 +13,73 @@ import re
 from typing import Any
 
 
-def required_native_engines(request: dict[str, Any]) -> set[str]:
-    """Reject unknown routes; never make a free-only matrix row require ORCA."""
+def required_calculation_engines(request: dict[str, Any]) -> set[str]:
+    """Classify registered execution dependencies, independently of a host.
+
+    This is an installation plan, not an availability or scientific-completion
+    attestation. Executors must separately validate their supported engines,
+    models, hardware, complete typed inputs, and native execution authority.
+    """
     if request.get("purpose") == "matrix":
         from ..data.runtime_recipes import EXECUTABLE_ROWS, IMPLEMENTED_BRANCH_ROWS
         from ..method_matrix import resolve_row, resolved_recipe
 
         row = resolve_row(request.get("matrix_row_id"), product=request.get("matrix_product", "A"))
         if row.row_id not in EXECUTABLE_ROWS | IMPLEMENTED_BRANCH_ROWS or row.owner != "TOPOS" or row.track_gap:
-            raise ValueError("Hosted execution requires a registered, complete TOPOS matrix recipe")
+            raise ValueError("Execution requires a registered, complete TOPOS matrix recipe")
         matrix_inputs = request.get("matrix_inputs") or request.get("metadata", {}).get("matrix_inputs", {})
         if not isinstance(matrix_inputs, dict):
             raise ValueError("Matrix execution requires structured typed inputs")
         source_resolution = matrix_inputs.get("source_resolution")
         if row.row_id in IMPLEMENTED_BRANCH_ROWS and source_resolution is None:
-            raise ValueError("Hosted partial matrix branch requires an explicit compiled source resolution")
+            raise ValueError("Partial matrix branch requires an explicit compiled source resolution")
         steps, _ = resolved_recipe(row, source_resolution)
         engines: set[str] = set()
         for step in steps:
             if step.engine == "topos":
                 continue
-            if step.engine == "orca+crest":
-                # The reviewed union/diversity recipe invokes these existing
-                # native installations; this catalog label is not a binary.
-                # Do not split arbitrary compound labels: ML-backed variants
-                # still need their own provisioner and must remain rejected.
+            if step.engine == "orca+crest" and step.method in {"GFN2-xTB", "custom-MLFF"}:
+                # Only these compiled union recipes name this compound label.
+                # The custom-MLFF variant also declares its MACE training step;
+                # retaining that dependency prevents a free-only provisioner
+                # from treating the composite as an ordinary xTB calculation.
                 engines.update({"orca", "crest", "xtb"})
-            else:
+            elif step.engine == "orca+aimnet2" and step.method == "AIMNet2":
+                # execute_ml_search performs genuine common ORCA refinement
+                # and native CREGEN after enumeration, in addition to the
+                # named AIMNet2 ExtOpt dependency. Do not omit those engines.
+                engines.update({"orca", "aimnet2", "crest", "xtb"})
+            elif step.engine in {"xtb", "crest", "orca", "cfour", "psi4", "mace", "mlff"}:
                 engines.add(step.engine)
-        if not engines or not engines <= {"xtb", "crest", "orca"}:
-            raise ValueError("Matrix recipe requires an unsupported hosted engine installation")
+            else:
+                raise ValueError("No compiled execution dependency mapping matches this matrix method; "
+                                 "source-conflicted recipes require an explicit reviewed source resolution")
+        if not engines:
+            raise ValueError("Matrix recipe declares no compiled calculation engine")
         if "crest" in engines or any(step.engine == "orca" and step.method == "GFN2-xTB" for step in steps):
             engines.add("xtb")
         return engines
-    if request.get("search_algorithm") == "abcluster":
-        raise ValueError("ABCluster requires an unsupported hosted engine installation")
     engine = request.get("engine")
     if engine not in {"xtb", "orca"}:
-        raise ValueError("Hosted execution requires an explicit supported native engine")
+        raise ValueError("Primitive execution requires an explicit supported native engine")
     engines = {engine}
     if request.get("search_algorithm") in {"crest", "union"}:
         engines.update({"crest", "xtb"})
+    elif request.get("search_algorithm") == "abcluster":
+        engines.add("abcluster")
+    return engines
+
+
+def required_native_engines(request: dict[str, Any]) -> set[str]:
+    """Apply the generic hosted controller's installation profile explicitly."""
+    engines = required_calculation_engines(request)
+    if "abcluster" in engines:
+        raise ValueError("ABCluster requires an unsupported hosted engine installation in this generic controller. "
+                         "Use an audited BASE installation with the actual rigidmol binary and parameters.")
+    if not engines <= {"xtb", "crest", "orca"}:
+        raise ValueError("Matrix recipe requires an unsupported hosted engine installation in this generic controller. "
+                         "CFOUR jobs use CoChem-BASE's separate private TOPOS calculation workflow; other "
+                         "recipes require an executor that actually provisions their declared engines and hardware.")
     return engines
 
 

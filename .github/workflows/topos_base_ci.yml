@@ -7,7 +7,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
+        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
   push:
     branches: [main]
     paths:
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
+      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
       TOPOS_REQUIRE_BASE: '1'
       TOPOS_REQUIRE_REAL_ENGINES: '1'
       TOPOS_EXECUTION_BACKEND: base

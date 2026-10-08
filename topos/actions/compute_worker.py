@@ -15,7 +15,9 @@ from topos.actions.hosted_requirements import required_native_engines
 from topos.actions.hosted_worker import (
     INVENTORY_SCHEMA,
     WorkerError,
+    _absolute_directory,
     _fresh_roots,
+    _git,
     cancellation_signals,
     stage_committed_run,
     validate_hosted_context,
@@ -27,6 +29,31 @@ from topos.storage import RunStore, atomic_json, digest_json, file_digest
 from topos.workflow import Workflow
 
 RECEIPT_SCHEMA = "topos-compute-worker/0.1.0"
+
+
+def verify_base_checkout(base_commit: str) -> dict[str, Any]:
+    """Bind the declared BASE dependency to its actual separate clean checkout.
+
+    The installed worker still requires BASE's audited Stage 0 registry and
+    execution authority. This attests the source that produced that setup; an
+    installed package version string cannot identify a Git revision.
+    """
+    if not isinstance(base_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", base_commit):
+        raise ValueError("The dispatch requires an exact lowercase 40-character BASE source commit")
+    if os.environ.get("BASE_COMMIT") != base_commit:
+        raise ValueError("Worker BASE source differs from the workflow dispatch event")
+    workspace = _absolute_directory(os.environ.get("GITHUB_WORKSPACE", ""), "GITHUB_WORKSPACE")
+    checkout = _absolute_directory(workspace / ".cochem-dependencies" / "base", "BASE checkout")
+    top_level = _git(checkout, ["rev-parse", "--show-toplevel"]).decode("utf-8").strip()
+    if Path(top_level).resolve() != checkout:
+        raise ValueError("The BASE dependency must have its own verified source checkout")
+    if _git(checkout, ["rev-parse", "HEAD"]).decode("ascii").strip() != base_commit:
+        raise ValueError("Checked-out BASE source differs from its declared Git revision")
+    if _git(checkout, ["status", "--porcelain", "--untracked-files=no"]).strip():
+        raise ValueError("Tracked BASE source changed after checkout")
+    return {"commit_sha": base_commit,
+            "tree_sha": _git(checkout, ["rev-parse", "HEAD^{tree}"]).decode("ascii").strip(),
+            "checked_out_source_verified": True}
 
 
 def decode_request(encoded: str, expected_sha256: str) -> tuple[dict[str, Any], RunRequest]:
@@ -60,6 +87,7 @@ def run_compute_worker(encoded: str, expected_sha256: str, dispatch_id: str,
         "github_run_id": os.environ.get("GITHUB_RUN_ID"),
         "github_sha": os.environ.get("GITHUB_SHA"), "started_at": utc_now(),
         "status": "failed", "run_path": None, "context_verified": False,
+        "base_commit": None, "base_source": None,
     }
     evidence = None
     exit_code = 2
@@ -72,10 +100,17 @@ def run_compute_worker(encoded: str, expected_sha256: str, dispatch_id: str,
         receipt.update(context=context, context_verified=True)
         receipt.update(request=original, local_request_sha256=digest_json(local.model_dump(mode="json")))
         event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
-        if event.get("inputs") != {
+        inputs = event.get("inputs")
+        if not isinstance(inputs, dict):
+            raise ValueError("Worker request differs from the workflow dispatch event")
+        base_commit = inputs.get("base_commit")
+        if inputs != {
             "dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": expected_sha256,
+            "base_commit": base_commit,
         }:
             raise ValueError("Worker request differs from the workflow dispatch event")
+        base_source = verify_base_checkout(base_commit)
+        receipt.update(base_commit=base_commit, base_source=base_source)
         registry = os.environ.get("COCHEM_CONFIG")
         if not registry or not Path(registry).is_file():
             raise ValueError("The verified BASE setup registry is required")
@@ -121,6 +156,10 @@ def run_compute_worker(encoded: str, expected_sha256: str, dispatch_id: str,
             else:
                 with cancellation_signals(cancel):
                     record = Workflow(output, config=config).run(local, cancel_event=cancel)
+            if verify_base_checkout(base_commit) != base_source:
+                raise ValueError("BASE source identity changed during the hosted calculation")
+            record.metadata["hosted_base_source"] = base_source
+            RunStore(record.metadata["run_dir"]).commit(record)
             if accounting is not None:
                 record.metadata["budget_accounting"] = accounting
                 if budget_expired.is_set():

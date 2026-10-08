@@ -228,6 +228,7 @@ class RunRequest(Contract):
     per_ensemble_budget_seconds: float | None = Field(default=None, gt=0, strict=True)
     seed: int = Field(default=0, ge=0)
     n_candidates: int = Field(default=4, ge=1, le=10000)
+    starting_geometries: list[Molecule] = Field(default_factory=list, max_length=10000)
     threads: int = Field(default=1, ge=1)
     memory_mb: int = Field(default=1024, ge=64)
     device: str = "cpu"
@@ -257,6 +258,16 @@ class RunRequest(Contract):
 
     @model_validator(mode="after")
     def validate_sampling_options(self) -> RunRequest:
+        if self.starting_geometries:
+            if self.purpose not in {"search", "optimize", "energy", "gradient"}:
+                raise ValueError("Explicit starting_geometries apply to search/optimize/energy/gradient")
+            if self.search_algorithm != "jiggle-quench" or self.sampler_nci or self.abcluster_options:
+                raise ValueError("Explicit starting_geometries bypass enumeration; no native sampler may also be requested")
+            identity = ("symbols", "atom_ids", "isotopes", "charge", "multiplicity", "fragments",
+                        "fragment_states", "bonds", "environment", "stereochemistry")
+            if any(getattr(geometry, name) != getattr(self.molecule, name)
+                   for geometry in self.starting_geometries for name in identity):
+                raise ValueError("Explicit starting geometries must preserve complete molecular state and atom identity")
         if self.search_algorithm == "abcluster":
             if self.purpose not in {"search", "association"} or self.abcluster_options is None:
                 raise ValueError("ABCluster applies to search/association and requires explicit abcluster_options")

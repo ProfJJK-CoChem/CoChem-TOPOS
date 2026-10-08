@@ -16,6 +16,24 @@ The [current completion status](.docs/TOPOS_COMPLETION_STATUS.md) and
 implemented routes, genuine native validation and remaining release conditions.
 The package is a release candidate until its source-bound release gate passes.
 
+## Student installation and previous calculations
+
+The [student testing candidate](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/releases/tag/v0.1.0-student-preview.20261008)
+provides the complete reviewed installation kit and its checksums. Follow the
+[BASE installation guide](.docs/TOPOS_INSTALLATION.md), then open the complete
+TOPOS dashboard from BASE's module panel. Use Linux, Codespaces or Windows WSL2.
+The newer TORQ calculator installs in its separate module environment.
+
+The dashboard exposes all 42 available TOPOS matrix recipes, molecular state and
+resource controls, 3D views, recovery, review and verified downloads. Its
+[external starting-state intake](.docs/TOPOS_EXTERNAL_STARTING_STATES.md) accepts
+independent XYZ/GOAT/CREST results, selected frames and named intermediate stages.
+It preserves original inputs and recalculates at the requested target level.
+Export the canonical request to BASE's private Actions panel for its supported
+CPU xTB/CREST/ORCA/CFOUR workflow; other engines and GPU rows use their audited
+local installations. The [chapter review](.docs/TOPOS_STUDENT_READINESS.md) records
+these entry points and the remaining scientific qualification conditions.
+
 ## Calculation and analysis pathways
 
 | Pathway | Implemented behavior |

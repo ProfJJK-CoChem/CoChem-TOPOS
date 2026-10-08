@@ -1,4 +1,15 @@
-# TOPOS 0.1.0 implementation status — 7 October 2026
+# TOPOS 0.1.0 implementation and student deployment status
+
+The current student deployment is documented in the
+[chapter-by-chapter review](TOPOS_STUDENT_READINESS.md) and
+[installation guide](TOPOS_INSTALLATION.md). The unfiltered current
+[regression](evidence/TOPOS_STUDENT_VALIDATION_20261008.json) records 2,808 passed,
+42 explicitly skipped, zero failures/errors and unchanged executable source.
+The current ledger binds all 50 SRS clauses to reviewed files and actual named
+outcomes; 22 supported-profile clauses are verified and 28 retain scientific/native
+conditions. No identified coding gaps remain in that review.
+
+## Historical 7 October assessment
 
 This retains the earlier `053c827` assessment. Current completion work and the
 8 October provider observations are tracked in the

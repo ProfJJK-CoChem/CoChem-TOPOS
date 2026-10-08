@@ -130,20 +130,50 @@ class Workflow:
         self.output_root.mkdir(parents=True, exist_ok=True)
 
     def run(
-        self, request: RunRequest | dict[str, Any], *, cancel_event: Event | None = None
+        self, request: RunRequest | dict[str, Any], *, cancel_event: Event | None = None,
+        invocation_budget_seconds: float | None = None,
+        invocation_budget_context: dict[str, Any] | None = None,
     ) -> RunRecord:
+        preparation_started = time.monotonic()
+        if invocation_budget_seconds is not None and (
+            isinstance(invocation_budget_seconds, bool)
+            or not isinstance(invocation_budget_seconds, (int, float))
+            or not math.isfinite(invocation_budget_seconds) or invocation_budget_seconds < 0
+        ):
+            raise ValueError("Initial invocation allocation must be finite and nonnegative")
         request = RunRequest.model_validate(
             request.model_dump(mode="python") if isinstance(request, RunRequest) else request
         )
+        if invocation_budget_seconds is not None and invocation_budget_seconds > request.budget_seconds:
+            raise ValueError("Initial invocation allocation cannot increase the declared scientific budget")
+        context_metadata = {}
+        if invocation_budget_context is not None:
+            if (not isinstance(invocation_budget_context, dict)
+                    or set(invocation_budget_context) != {"hosted_budget_control", "budget_accounting"}
+                    or not isinstance(invocation_budget_context["hosted_budget_control"], dict)
+                    or invocation_budget_context["budget_accounting"] is not None
+                    and not isinstance(invocation_budget_context["budget_accounting"], dict)):
+                raise ValueError("Invocation budget context must contain its separate control and accounting")
+            context_metadata = {
+                "hosted_budget_control": invocation_budget_context["hosted_budget_control"],
+                "hosted_budget_control_sha256": digest_json(invocation_budget_context["hosted_budget_control"]),
+            }
+            if invocation_budget_context["budget_accounting"] is not None:
+                context_metadata["hosted_budget_accounting"] = invocation_budget_context["budget_accounting"]
         if request.calculation_environment in {"github-actions", "github-actions-hosted"}:
+            if invocation_budget_seconds is not None or invocation_budget_context is not None:
+                raise ValueError("Initial invocation controls apply only inside the assigned local worker")
             from .remote_workflow import run_remote
 
             return run_remote(self, request, cancel_event=cancel_event)
+        allocated = request.budget_seconds if invocation_budget_seconds is None else max(
+            0.0, invocation_budget_seconds - (time.monotonic() - preparation_started)
+        )
         invocation_budget = ExecutionBudget(
-            request.budget_seconds, scope=request.budget_scope,
+            allocated if allocated > 0 else request.budget_seconds, scope=request.budget_scope,
             include_queue=request.include_queue_in_budget,
         )
-        record = RunRecord(request=request)
+        record = RunRecord(request=request, metadata=context_metadata)
         run_dir = self.output_root / record.run_id
         run_dir.mkdir(exist_ok=False)
         record.metadata.update(
@@ -156,13 +186,17 @@ class Workflow:
                 "capability_profile": capability_report(),
                 "budget_scope": "workflow invocation; queue is local preparation before execution; execution includes chemistry preflight and intermediate commits; final evidence commit may outlive deadline",
                 "queue_time_in_budget": request.include_queue_in_budget,
-                "algorithm": request.search_algorithm
+                "algorithm": "external-starting-geometries" if request.starting_geometries else request.search_algorithm
                 if request.purpose == "search"
                 else request.purpose,
                 "sampling_complete": False,
                 "stationary_point_classification": "not-evaluated: no frequency Hessian",
             }
         )
+        if invocation_budget_seconds is not None:
+            record.metadata.update(invocation_budget_override_seconds=invocation_budget_seconds,
+                                   invocation_budget_allocated_seconds=allocated,
+                                   invocation_budget_override_policy="reduce only this invocation; immutable request remains unchanged")
         atomic_json(run_dir / "request.json", request.model_dump(mode="json"))
         (run_dir / "input.xyz").write_text(to_xyz(request.molecule), encoding="utf-8")
         record.artifacts.extend(
@@ -174,6 +208,17 @@ class Workflow:
         store = RunStore(run_dir)
         store.commit(record)
         with FileLock(str(run_dir / ".execution.lock"), timeout=0):
+            if allocated == 0:
+                record.status = "timed-out"
+                record.metadata.update(execution_kind="no-execution", invocation_started_at=None,
+                                       termination_reason="Queue and setup exhausted the scientific budget before execution")
+                expired = self._finish(record, store, invocation_budget)
+                # ExecutionBudget requires a positive deadline. This unstarted
+                # object is only a terminal clock for the zero-allocation case;
+                # its accounting must retain the actual zero execution budget.
+                expired.metadata["budget_accounting"]["budget_seconds"] = 0.0
+                store.commit(expired)
+                return expired
             return self._execute(record, store, cancel_event, invocation_budget=invocation_budget)
 
     def resume(self, run_dir: str | Path, *, cancel_event: Event | None = None,
@@ -565,6 +610,22 @@ class Workflow:
         if "sample_plan" in record.metadata and not record.metadata.get("sampler_pending"):
             return record.metadata["sample_plan"]
         request = record.request
+        if request.starting_geometries:
+            sources = request.metadata.get("external_starting_states", [])
+            refinement_sources = [source for source in sources if isinstance(source, dict)
+                                  and source.get("entrypoint") == "refinement"] if isinstance(sources, list) else []
+            indices = refinement_sources[-1].get("source_frames", []) if refinement_sources else []
+            if not isinstance(indices, list) or len(indices) != len(request.starting_geometries):
+                indices = [None] * len(request.starting_geometries)
+            plans = [{"molecule": molecule.model_dump(mode="json"), "source": "EXTERNAL_START",
+                      "source_frame": indices[index], "starting_geometry_index": index + 1,
+                      "source_provenance": sources,
+                      "energy_definition": "no accepted energy; imported geometry requires the requested real calculation"}
+                     for index, molecule in enumerate(request.starting_geometries)]
+            record.metadata["sample_plan"] = plans
+            record.metadata["refinement_cap_scope"] = "all explicitly provided starting geometries; native enumeration was not requested"
+            record.metadata["enumeration_scope"] = "external starting geometries; no new jiggle/CREST/GOAT search"
+            return plans
         cached_plan = record.metadata.get("sample_plan")
         plans = list(cached_plan) if cached_plan is not None else [
             {"molecule": request.molecule.model_dump(mode="json"), "source": "INITIAL_SEED"}

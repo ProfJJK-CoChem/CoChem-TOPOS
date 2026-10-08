@@ -1,0 +1,39 @@
+# TOPOS student deployment and SRS implementation review
+
+This review covers the student-facing implementation of TOPOS 0.1.0. A deployable testing candidate and a scientifically qualified release are different milestones. A successful installation, GUI interaction or individual calculation does not establish complete physical method-matrix or reference-campaign acceptance. The source-bound build, regression and installed-deployment receipts accompanying a candidate identify what was actually executed.
+
+## Chapter-by-chapter entry points
+
+| SRS chapter | Backend and command-line entry | Student interface and acceptance boundary |
+|---|---|---|
+| 1–2: scope and source authority | Typed versioned requests, source-hashed matrix catalog, explicit reviewed method substitutions | Capability and matrix views identify TOPOS/TORQ ownership and the two source-defined unavailable CFOUR tiers. Version numbers do not attest compatibility. |
+| 3: execution contracts | The shared `RunRequest`, BASE provider, local workflow and correlated remote worker retain separate presentation, calculation, method and resource identities | Calculate submits the same typed request; BASE opens the installed complete TOPOS dashboard. Private Actions transport binds the selected BASE source and worker receipt. |
+| 4: molecular inputs and triage | Chemistry/state/fragment validation and `topos.ingestion` preserve mapped input identity and original external files | XYZ upload/paste, explicit charge/spin/fragment controls, external-source declarations, structure preview and frame selection precede intake. |
+| 5: method selection | `matrix list`, `matrix support` and the shared recipe compiler expose all 42 available TOPOS recipes | Purpose, tier, track, device and reviewed scientific variant selectors produce actual matrix requests. Required scientific inputs remain explicit; planning is separate from execution. |
+| 6: search, refinement and union | Genuine jiggle–quench, CREST, GOAT matrix and ABCluster paths; common-level refinement; typed seed and ensemble inputs | Search controls specify the actual algorithm. Independent GOAT/CREST ensembles can enter refinement without regenerating the search; supported matrix intermediates have named intake targets. |
+| 7: deduplication and spectroscopy | Mapped geometric/energy/rotor comparisons, chirality policy and eligibility checks retain excluded and unresolved members | Search settings select deduplication policy; baskets show structures, metrics and unresolved chemistry. Imported source energies do not substitute for common-level calculations. |
+| 8: quantities and corrections | Energy, gradient, harmonic/thermal, association and compiled composite/native-property protocols | Calculate exposes the purpose and its protocol, or selects the exact matrix row. Explicit advanced typed inputs cover specialized scientific settings. Native stationarity, mass/axis and method-compatibility gates remain active. |
+| 9: persistence and recovery | Immutable RunStore snapshots, artifact verification and compatible continuation | Review verifies a saved run before recovery. A new calculation from a retained geometry has new identity and parent provenance; it does not silently reuse an unknown external checkpoint. |
+| 10: execution state and protection | BASE broker, finite budgets, owned cancellation, correlated dispatch and result verification | The active job exposes progress and cancellation. The local, generic free-engine Actions and separately staged native Actions profiles have distinct installation and resource limits. |
+| 11: human review and TORQ | Append-only decisions, frozen ensemble manifests, exact producer/consumer checks and independent downstream requests | Structures and review controls precede TORQ export. The TORQ consumer selects an exact reviewed member; receiving geometry does not certify a downstream calculation. |
+| 12: publication | Eligible executed records, exact artifact membership, methods/table/figure recipes and bundle verification | Review creates a local verified export and offers a browser download. Uploading external observations never makes them eligible calculated quantities automatically. |
+| 13: acceptance | Executed regression receipts, named test outcomes, reviewed matrix and independent reference campaigns | Testers can exercise installed paths and retain failures. Licensed, GPU and scientific campaign requirements stay pending until their matching genuine evidence exists. |
+| 14: traceability | The complete 50-clause acceptance ledger and current source/test inventory | Refresh the ledger against the actual tested source; retain original historical receipts and outstanding physical conditions. No passing-parser shortcut clears a native campaign. |
+
+## Independent starting states
+
+Use **External starting states** to upload an XYZ geometry, native CREST ensemble or native GOAT ensemble. Declare source engine/version/method, coordinate and energy conventions, stable atom order, charge/spin and fragment state. Preview the actual files, select frames, then choose the starting stage. Supporting input/output/log files are preserved with their hashes.
+
+The intake supports a starting geometry for each calculation purpose, a supplied ensemble for refinement, and the explicitly supported matrix topology seeds, Stage B ensembles, leading isomers, entropy/ML seeds and isolated-monomer references. See [the external-state guide](TOPOS_EXTERNAL_STARTING_STATES.md) for exact stage contracts and CLI examples. An incompatible stage, different molecular state or unsupported property/checkpoint format is rejected with a reason. Computed-property reuse requires its own native compatibility contract; a drop box does not establish that contract.
+
+## Installation and execution profiles
+
+BASE installs TOPOS through its independently reviewed complete ecosystem kit. Use the complete dashboard launcher in BASE's module panel after installation. The supported kit contains the BASE/TOPOS runtime and compatible TORQ consumer. The newer TORQ student calculator uses its separately isolated BASE module environment: its package shares paths with BASE and must not overwrite the BASE/TOPOS authority interpreter. A complete installation selects both module profiles while retaining their separate environments.
+
+The generic correlated Actions worker is a bounded free-engine profile. Native TOPOS calculations use BASE's separately staged private-project workflow and canonical request export. Licensed assets are staged and consumed only through their controlled engine-specific contracts. A student's personal repository uses their account's Actions allowance and their authorized access; organization secrets are not inherited by personal repositories. Codespaces authentication and Actions job authentication are separate contexts.
+
+GPU/model, Psi4 and other external-engine rows require their declared audited installations and suitable hardware. Select a local audited allocation when the hosted profile does not provision that capability. Methods and devices are never substituted to turn an unavailable route into a successful calculation. Long-tier labels are planning categories; actual budgets and stopping conditions still apply.
+
+## Tester evidence
+
+Retain the installation receipt, all eleven BASE setup reports, exact request and source identities, raw engine outputs, immutable snapshots and observed status. Check failure, cancellation, recovery and export as well as success. The regression suites cover external intake, browser route selection, real controller subprocesses and source/receipt rejection. Real xTB/CREST tests establish only their declared free-engine cases. ORCA/CFOUR, physical GPU and the complete scientific campaigns require their own matching native results.

@@ -60,6 +60,16 @@ def _parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="Execute an explicit request; Ctrl-C cancels owned calculations")
     run.add_argument("--request", required=True, type=Path, help="UTF-8 request JSON file")
     run.add_argument("--output-root", required=True, type=Path, help="Directory for isolated per-run records")
+    preview = sub.add_parser("external-preview", help="Validate independent XYZ/GOAT/CREST starting states without execution")
+    preview.add_argument("--input", required=True, type=Path)
+    preview.add_argument("--spec", required=True, type=Path, help="ExternalImportSpec JSON with explicit state, mapping and source units")
+    ingest = sub.add_parser("ingest", help="Preserve external starting states and bind them to a canonical calculation stage")
+    ingest.add_argument("--input", required=True, action="append", type=Path)
+    ingest.add_argument("--spec", required=True, action="append", type=Path)
+    ingest.add_argument("--request", required=True, type=Path)
+    ingest.add_argument("--output-root", required=True, type=Path)
+    ingest.add_argument("--supporting-file", action="append", default=[], type=Path)
+    ingest.add_argument("--execute", action="store_true", help="Execute the requested real calculation after preserving the inputs")
     base_receiver = sub.add_parser("receive-base", help="Consume a BASE module handoff with its explicit TOPOS request")
     base_receiver.add_argument("manifest", type=Path)
     base_receiver.add_argument("--output-root", required=True, type=Path)
@@ -190,6 +200,26 @@ def main(argv: list[str] | None = None) -> int:
             result = _run_file(args.request, args.output_root)
             _emit(result)
             return 0 if result.status == "completed" else 3
+        elif args.command == "external-preview":
+            from topos.ingestion import preview_external
+            from topos.ui import _parse_json
+            result = preview_external(args.input, _parse_json(args.spec.read_text(encoding="utf-8")))
+        elif args.command == "ingest":
+            from topos.ingestion import execute_external, stage_external_many
+            from topos.ui import _parse_json, parse_request_json
+            if len(args.input) != len(args.spec):
+                raise ValueError("Supply one --spec for each --input in the same order")
+            result = stage_external_many(
+                [(path, _parse_json(spec.read_text(encoding="utf-8")))
+                 for path, spec in zip(args.input, args.spec, strict=True)],
+                parse_request_json(args.request.read_text(encoding="utf-8")), args.output_root,
+                supporting_files=args.supporting_file,
+            )
+            if args.execute:
+                result = _with_cancellation(lambda event: execute_external(
+                    args.output_root / result.run_id, cancel_event=event))
+                _emit(result)
+                return 0 if result.status == "completed" else 3
         elif args.command == "receive-base":
             from topos.base_provider import execute_handoff
             result = _with_cancellation(lambda event: execute_handoff(args.manifest, args.output_root, cancel_event=event))

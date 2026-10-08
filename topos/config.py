@@ -12,6 +12,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 LOGGER = logging.getLogger("cochem.config")
 
+# This is the explicitly retained, audited foundation compatibility revision,
+# not an inference from an installed version or a claim about the newest BASE.
+DEFAULT_REMOTE_BASE_COMMIT = "35f97a1b7a6a294f381b4a30780c5b3a766b537d"
+
 
 class SystemConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -25,6 +29,8 @@ class SystemConfig(BaseModel):
     base_registry_path: Path | None = None
     remote_repository: str | None = None
     remote_ref: str = "main"
+    remote_base_commit: str = Field(default=DEFAULT_REMOTE_BASE_COMMIT, pattern=r"^[0-9a-f]{40}$")
+    remote_controller_profile: Literal["free", "legacy-topos-orca"] = "free"
 
 
 def load_config(path: Path | str | None = None) -> SystemConfig:
@@ -39,4 +45,10 @@ def load_config(path: Path | str | None = None) -> SystemConfig:
         config = SystemConfig()
     if os.environ.get("TOPOS_OUTPUT_ROOT"):
         config.output_root = Path(os.environ["TOPOS_OUTPUT_ROOT"]).expanduser()
+    if os.environ.get("TOPOS_REMOTE_BASE_COMMIT"):
+        config = SystemConfig.model_validate({**config.model_dump(),
+                                             "remote_base_commit": os.environ["TOPOS_REMOTE_BASE_COMMIT"]})
+    if os.environ.get("TOPOS_REMOTE_CONTROLLER_PROFILE"):
+        config = SystemConfig.model_validate({**config.model_dump(),
+                                             "remote_controller_profile": os.environ["TOPOS_REMOTE_CONTROLLER_PROFILE"]})
     return config

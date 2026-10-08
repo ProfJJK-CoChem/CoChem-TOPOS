@@ -266,7 +266,7 @@ def test_workflow_retains_complete_three_source_download():
     assert "assemble_ecosystem_candidate.py companions" in workflow
     assert "assemble_ecosystem_candidate.py assemble" in workflow
     assert "${{ runner.temp }}/ecosystem-download/" in workflow
-    assert "14202e182e1fa4f99258ed32a8ae9ba8c1c565ad" in workflow
+    assert "35f97a1b7a6a294f381b4a30780c5b3a766b537d" in workflow
     assert "base_commit:" in workflow and "ref: ${{ env.BASE_COMMIT }}" in workflow
     assert '--base-pin "$BASE_COMMIT"' in workflow
     torq_commit = "4f323800227dbde00ffb082bd6d9e44d851e1c7a"

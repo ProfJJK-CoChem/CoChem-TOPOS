@@ -405,7 +405,7 @@
           "errors": 0,
           "skipped": 42
         },
-        "junit_path": "evidence/TOPOS_STUDENT_REGRESSION_20261008.xml",
+        "junit_path": "TOPOS_STUDENT_REGRESSION_20261008.xml",
         "junit_sha256": "f0a5162c925a5e978781b76489fe2b7073f7435e178ee261752b0ef744189e89"
       }
     ]

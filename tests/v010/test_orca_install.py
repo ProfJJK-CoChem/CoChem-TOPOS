@@ -6,17 +6,25 @@ Network responses are deliberately controlled; no licensed archive is present.
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import io
 import json
 import os
 import tarfile
 import urllib.error
 from email.message import Message
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-from scripts import install_orca as installer
+# BASE owns the installed ``scripts`` package. Load the TOPOS source helper
+# explicitly so this acceptance suite exercises the intended installer.
+_installer_path = Path(__file__).resolve().parents[2] / "scripts" / "install_orca.py"
+_installer_spec = importlib.util.spec_from_file_location("topos_orca_installer", _installer_path)
+assert _installer_spec is not None and _installer_spec.loader is not None
+installer = importlib.util.module_from_spec(_installer_spec)
+_installer_spec.loader.exec_module(installer)
 
 PRIVATE_URL = "https://licensed-archive.example/archive.tar.xz?signature=PRIVATE-URL-TOKEN"
 PAYLOAD = b"inert installer fixture; never execute\n"

@@ -14,7 +14,7 @@ from topos.config import SystemConfig
 from topos.models import Molecule, RunRequest
 from topos.publication import export_bundle, verify_bundle
 from topos.review import acknowledge_torq, append_decision, create_ensemble_manifest
-from topos.storage import IntegrityError, RunStore
+from topos.storage import IntegrityError, RunStore, digest_json
 from topos.workflow import Workflow
 
 
@@ -35,6 +35,51 @@ def executable():
 
 def request(**changes):
     return RunRequest(molecule=water(), budget_seconds=60, profile_id="xtb-vtight-v1", **changes)
+
+
+@pytest.mark.parametrize("allocation", [-1, True, float("inf"), float("nan"), "5", 61])
+def test_initial_invocation_budget_cannot_be_malformed_or_increase_request(tmp_path, allocation):
+    selected = request()
+    original = selected.model_dump(mode="json")
+    with pytest.raises(ValueError):
+        Workflow(tmp_path).run(selected, invocation_budget_seconds=allocation)
+    assert selected.model_dump(mode="json") == original
+    assert not list(tmp_path.glob("run_*"))
+
+
+def test_initial_budget_allocation_preserves_request_and_bounds_cancelled_invocation(tmp_path):
+    cancelled = Event()
+    cancelled.set()
+    selected = request(n_candidates=1)
+    original = selected.model_dump(mode="json")
+    record = Workflow(tmp_path, config=SystemConfig(execution_backend="development")).run(
+        selected, cancel_event=cancelled, invocation_budget_seconds=20,
+    )
+    assert record.status == "cancelled" and not record.attempts
+    assert record.request.model_dump(mode="json") == original
+    assert record.metadata["request_sha256"] == digest_json(original)
+    assert 0 < record.metadata["invocation_budget_allocated_seconds"] <= 20
+    assert record.metadata["budget_accounting"]["budget_seconds"] <= 20
+    assert RunStore(tmp_path / record.run_id).load()["request"] == original
+
+
+def test_expired_initial_allocation_never_reaches_execution_and_keeps_original_budget(tmp_path, monkeypatch):
+    selected = request()
+    original = selected.model_dump(mode="json")
+    monkeypatch.setattr(Workflow, "_execute", lambda *args, **kwargs: pytest.fail("Expired invocation cannot launch"))
+    record = Workflow(tmp_path).run(selected, invocation_budget_seconds=0)
+    assert record.status == "timed-out" and not record.attempts and not record.candidates
+    assert record.request.model_dump(mode="json") == original
+    assert record.metadata["request_sha256"] == digest_json(original)
+    assert record.metadata["invocation_budget_allocated_seconds"] == 0
+    assert record.metadata["budget_accounting"]["execution_seconds"] == 0
+    assert record.metadata["budget_accounting"]["budget_seconds"] == 0
+
+
+def test_initial_invocation_override_cannot_be_silently_forwarded_to_remote_submission(tmp_path):
+    with pytest.raises(ValueError, match="assigned local worker"):
+        Workflow(tmp_path).run(request(calculation_environment="github-actions"), invocation_budget_seconds=10)
+    assert not list(tmp_path.glob("run_*"))
 
 
 def test_missing_engine_has_no_energy_or_substitution_and_saved_attempt(tmp_path):

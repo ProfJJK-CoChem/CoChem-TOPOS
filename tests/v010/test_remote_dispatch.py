@@ -21,7 +21,8 @@ from topos.actions.dispatch import (
     _extract_archive,
     _GitHubTransport,
 )
-from topos.models import Molecule, RunRecord, RunRequest
+from topos.config import DEFAULT_REMOTE_BASE_COMMIT
+from topos.models import Artifact, Molecule, RunRecord, RunRequest
 from topos.storage import RunStore, atomic_json
 
 SHA = "a" * 40
@@ -74,7 +75,8 @@ def submitted():
     return client, transport, receipt
 
 
-def make_evidence(root: Path, transport: GitHubFixture, receipt, *, receipt_patch=None, mutate=None):
+def make_evidence(root: Path, transport: GitHubFixture, receipt, *, receipt_patch=None, mutate=None,
+                  retain_inputs=False):
     root.mkdir()
     request = dict(receipt.inputs)
     request["calculation_environment"] = "local"
@@ -84,14 +86,29 @@ def make_evidence(root: Path, transport: GitHubFixture, receipt, *, receipt_patc
         accounting = queue_accounting(receipt.inputs, transport.run["created_at"], "2026-10-07T12:00:30+00:00")
         request = local_request_with_budget(receipt.inputs, accounting)
     # A failed record deliberately contains no simulated molecular result.
+    base_source = {"commit_sha": receipt.base_commit, "tree_sha": "c" * 40,
+                   "checked_out_source_verified": True}
     record = RunRecord(request=RunRequest.model_validate(request), status="failed",
-                       metadata={"budget_accounting": accounting} if accounting else {})
+                       metadata={"hosted_base_source": base_source,
+                                 **({"budget_accounting": accounting} if accounting else {})})
+    if retain_inputs:
+        from topos.chemistry import to_xyz
+        from topos.storage import file_digest
+
+        folder = root / "run"
+        folder.mkdir()
+        atomic_json(folder / "request.json", request)
+        (folder / "input.xyz").write_text(to_xyz(record.request.molecule))
+        record.artifacts = [Artifact(path=name, sha256=file_digest(folder / name),
+                                     size_bytes=(folder / name).stat().st_size, role="retained-input")
+                            for name in ("request.json", "input.xyz")]
     manifest = RunStore(root / "run").commit(record)
     worker = {"schema_version": "topos-compute-worker/0.1.0", "context_verified": True,
               "local_request_sha256": hashlib.sha256(_canonical(request)).hexdigest(),
               "run": {key: manifest[key] for key in ("run_id", "snapshot_id", "record_sha256")},
               "dispatch_id": receipt.dispatch_id, "request_sha256": receipt.request_sha256,
               "request": receipt.inputs, "github_run_id": "123", "github_sha": SHA,
+              "base_commit": receipt.base_commit, "base_source": base_source,
               "run_path": "run", "status": "failed"}
     if accounting is not None:
         worker["budget_accounting"] = accounting
@@ -131,12 +148,76 @@ def test_dispatch_preserves_exact_normalized_request_and_pins_commit(submitted):
     assert raw == _canonical(receipt.inputs)
     assert hashlib.sha256(raw).hexdigest() == payload["request_sha256"]
     assert receipt.dispatch_id == payload["dispatch_id"]
+    assert receipt.base_commit == payload["base_commit"] == DEFAULT_REMOTE_BASE_COMMIT
+    assert set(payload) == {"dispatch_id", "request_b64", "request_sha256", "base_commit"}
+
+
+def test_explicit_base_revision_is_sent_without_using_the_workflow_default():
+    transport = GitHubFixture()
+    client = ActionDispatchClient(target_repo="owner/controller", transport=transport, base_commit="b" * 40)
+    request = RunRequest(molecule=Molecule(symbols=["He"], coordinates=[[0, 0, 0]]),
+                         calculation_environment="github-actions", purpose="energy")
+    receipt = client.dispatch_request(request)
+    assert receipt.base_commit == "b" * 40
+    assert transport.calls[-1][2]["inputs"]["base_commit"] == receipt.base_commit
+
+
+@pytest.mark.parametrize("revision", ["main", "A" * 40, "a" * 39, "a" * 41, ""])
+def test_dispatch_rejects_invalid_base_revision_before_network(revision):
+    transport = GitHubFixture()
+    with pytest.raises(ValueError, match="BASE Git commit"):
+        ActionDispatchClient(target_repo="owner/controller", transport=transport, base_commit=revision)
+    assert transport.calls == []
+
+
+def test_changed_receipt_base_revision_is_rejected_before_network(submitted):
+    client, transport, receipt = submitted
+    transport.calls.clear()
+    with pytest.raises(RemoteExecutionError, match="BASE source revision"):
+        client.poll(replace(receipt, base_commit="b" * 40))
+    assert transport.calls == []
+
+
+def test_default_generic_controller_does_not_dispatch_a_licensed_request(submitted):
+    client, transport, previous = submitted
+    transport.calls.clear()
+    result = client.dispatch_request({**previous.inputs, "engine": "orca", "method": "HF-3c",
+                                      "engine_version": "6.1.1", "profile_id": "orca-mapping-v4.2"})
+    assert result.status == "unavailable" and result.remote_job_id is None
+    assert "private TOPOS calculation" in result.details
+    assert transport.calls == []
+
+
+def test_legacy_orca_controller_requires_explicit_profile_and_foundation(submitted):
+    _, transport, previous = submitted
+    transport.calls.clear()
+    request = {**previous.inputs, "engine": "orca", "method": "HF-3c", "engine_version": "6.1.1",
+               "profile_id": "orca-mapping-v4.2"}
+    wrong_source = ActionDispatchClient(target_repo="owner/controller", transport=transport,
+                                        controller_profile="legacy-topos-orca", base_commit="b" * 40)
+    refused = wrong_source.dispatch_request(request)
+    assert refused.status == "unavailable" and "foundation BASE revision" in refused.details
+    assert transport.calls == []
+    legacy = ActionDispatchClient(target_repo="owner/controller", transport=transport,
+                                  controller_profile="legacy-topos-orca")
+    receipt = legacy.dispatch_request(request)
+    assert receipt.status == "submitted" and receipt.controller_profile == "legacy-topos-orca"
+    assert receipt.base_commit == DEFAULT_REMOTE_BASE_COMMIT
+
+
+def test_changed_controller_profile_cannot_recover_an_owned_job(submitted):
+    client, transport, receipt = submitted
+    transport.calls.clear()
+    with pytest.raises(RemoteExecutionError, match="controller profile"):
+        client.poll(replace(receipt, controller_profile="legacy-topos-orca"))
+    assert transport.calls == []
 
 
 def test_missing_repository_credentials_are_honest_without_local_fallback(submitted, monkeypatch):
     _, _, receipt = submitted
     monkeypatch.delenv("GH_TOKEN", raising=False)
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setattr("topos.actions.dispatch.shutil.which", lambda *args, **kwargs: None)
     result = ActionDispatchClient(target_repo="owner/controller").dispatch_request(receipt.inputs)
     assert result.status == "unavailable"
     assert "credential" in result.details
@@ -245,6 +326,7 @@ def test_retrieved_failed_worker_record_is_verified_and_remains_failed(submitted
 
 
 @pytest.mark.parametrize("key,value", [("request_sha256", "b" * 64), ("github_sha", "b" * 40),
+                                      ("base_commit", "b" * 40), ("base_source", {}),
                                       ("github_run_id", "124"), ("dispatch_id", "another"),
                                       ("request", {}), ("run_path", "elsewhere"), ("status", "completed")])
 def test_worker_receipt_identity_is_required(submitted, tmp_path, key, value):

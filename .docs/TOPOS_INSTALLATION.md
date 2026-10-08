@@ -1,7 +1,7 @@
 # Installing and upgrading the mandatory CoChem package
 
-TOPOS 0.1.0 is distributed as a Python wheel and source archive. Its mandatory
-package versions are **CoChem-BASE 1.0.0, CoChem-TOPOS 0.1.0 and CoChem-TORQ
+TOPOS 0.1.0 build tooling produces a Python wheel and source archive. Its mandatory
+package versions are **CoChem-BASE 1.0.1, CoChem-TOPOS 0.1.0 and CoChem-TORQ
 0.1.0**, on Python 3.11 or newer. Native calculation acceptance currently targets
 Linux CPU. Installing a package does not establish an audited engine allocation,
 complete method-matrix coverage, or downstream TORQ scientific readiness.
@@ -10,6 +10,91 @@ The current build tooling prepares **unsigned candidates**. It does not create a
 GitHub Release, publish to PyPI, or assert final release certification. Inspect
 `release-gate.json`: only `release_certified: true` records a passing full release
 gate. Missing scientific evidence and source conflicts remain blockers.
+
+## Student installation through BASE
+
+Use the [student deployment review](TOPOS_STUDENT_READINESS.md) and BASE's
+[installed dashboard guide](https://github.com/ProfJJK-CoChem/CoChem-BASE/blob/main/docs/topos_student_deployment.md).
+The coded student path is:
+
+1. Obtain the instructor-reviewed complete ecosystem kit matching BASE's current
+   source/wheel/helper catalog. Extract it outside all source checkouts. The final
+   candidate's accompanying source and installation receipts identify the exact
+   compatible set; an arbitrary newer `main` or a standalone TOPOS wheel is not
+   that set.
+2. Open BASE's **Module installation and execution** panel. Choose
+   **CoChem-TOPOS**, set external **Module storage**, provide the **CoChem kit
+   directory**, and select **Install selected recipient**. BASE installs the
+   complete BASE/TOPOS/compatible-core-TORQ package into its independent
+   noneditable environment and audits its actual runtime.
+3. Refresh availability and select **Open complete TOPOS interface**. The
+   installed Streamlit application runs in that audited environment. Use the
+   provided local or Codespaces URL; keep a Codespaces forwarded port private.
+4. Select the scientific purpose or exact matrix recipe, chemical state,
+   resources and inputs. Use **External starting states** for previous
+   GOAT/CREST/XYZ work; its named intake stages retain original source bytes and
+   require genuine target calculations before scientific review.
+
+This installation/launcher path is implemented. Its final source-bound clean
+installation, browser-service and student deployment receipts must accompany the
+candidate; this document does not assert that the current working changes have
+already been published or accepted on a student's machine.
+
+The compatible-core TORQ line includes the reviewed `4f32380` importer milestone.
+That compatibility history does not make a later TORQ calculator interchangeable
+in the same interpreter. The newer TORQ student calculator uses a separately
+isolated BASE module environment because shared Python/package paths can overlap.
+Read the actual kit/catalog and TORQ deployment profile for their exact source
+identities; keep both module environments and their registries distinct.
+
+The equivalent installed BASE commands are:
+
+```bash
+python -I -B -m scripts.manage_modules install --modules topos \
+  --root /external/modules --ecosystem-kit /external/reviewed-kit --json
+python -I -B -m scripts.manage_modules verify --modules topos \
+  --root /external/modules --json
+python -I -B -m scripts.module_dashboard --root /external/modules --port 8501
+```
+
+The dashboard command remains in the foreground. Add its supported private-project
+options when configuring remote calculations, and retain the installation and
+all eleven BASE setup reports. Use Linux locally, in Codespaces, or under Windows
+WSL2 for Linux native engines. Package discovery alone does not certify an engine
+allocation or downstream TORQ solver.
+
+## Export requests for private Actions calculations
+
+The TOPOS GUI validates and downloads the same typed request used by the CLI and
+BASE provider. **Download validated calculation request** preserves the selected
+calculation environment. **Download request for BASE private Actions runner** is
+an explicit separate export: it targets local native execution *inside* BASE's
+private Actions runner, preserves the chemistry and records the original selected
+environment. Its current CPU worker profile accepts at most two threads and
+4096 MB. GPU/model or other allocations need their declared suitable worker;
+export does not replace them with a CPU Hamiltonian.
+
+Use **Prepare imported request for BASE Actions** to export the selected external
+frames and named matrix entry step after preserving their original files in a
+queued canonical run. Ordinary form validation cannot replace this imported
+request with a different frame set. See [independent starting states](TOPOS_EXTERNAL_STARTING_STATES.md).
+
+BASE's dedicated `topos_calculation.yml` workflow and private TOPOS Actions panel
+are being integrated for source-pinned native execution with separate kit and
+licensed-engine staging receipts. Commit the exported request to the student's
+private project and use that explicit BASE submission path for ORCA/CFOUR.
+Staging receipts remain separate from scientific request metadata. Implementation
+is not evidence of a successful hosted deployment; current-source private native
+acceptance and the complete student lifecycle still need genuine receipts.
+
+The generic TOPOS correlated Actions adapter has a different, bounded installation
+profile. It must reject engines or model/hardware requirements it does not
+provision rather than claim a successful substituted calculation. A student's
+personal private repository uses that account's Actions allowance, with its own
+authorized account access; it does not inherit organization Actions secrets.
+Organization-owned projects use the organization execution context. Codespaces
+and Actions authentication are configured separately through BASE's private
+staging contracts; no licensed binary belongs in the public source kit.
 
 ## Obtain the complete package set
 
@@ -62,14 +147,12 @@ audit phases and checks the resulting registry. Source-root import overrides are
 removed for the final installed-package validation. ORCA is provisioned by BASE's
 licensed workflow separately; no ORCA binary is included in these downloads.
 
-The release workflow pins the companion BASE packaging revision
-`705b9d54370d5089da286a02b7a1c4afdcbafec1`. The original BASE 1.0.0 source revision
-`c8d33ac68d4d77f9035d1dbb8ec7e0c3ca52ec86`
-duplicates four installed `Libraries` files owned by TORQ. The pinned companion
-BASE revision removes that duplicate wheel ownership. The installer
-refuses the conflicting original wheel set. TOPOS itself no longer distributes
-the `frontend` package owned by BASE. Source-tree compatibility shims do not belong
-in the installed TOPOS wheel.
+The kit identifies the compatible BASE/TOPOS/TORQ sources and wheel identities.
+The installer rejects duplicate installed-file ownership, including byte-identical
+files: shared namespace ownership can make pip uninstall damage another
+mandatory distribution. Historical incompatible wheel sets are not current
+installation defaults. TOPOS no longer ships BASE's `frontend` package; its
+source compatibility shims do not belong in the installed TOPOS wheel.
 
 Activate the resulting environment and select its audited registry:
 
@@ -127,15 +210,19 @@ platform. Platform wheels and binary hashes remain part of the retained evidence
 Package functionality is separate from scientific classification: any unresolved
 symmetry, isotope or minimum-character notes remain in the scientific record.
 
-Candidate12 binds executable source commit
+### Historical candidate12 installation evidence
+
+The original candidate12 binds executable source commit
 `053c827638b3481c5c3d645856b69d50c47b387f` to controller wheel SHA-256
 `66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b`.
 The immutable [installed acceptance](evidence/TOPOS_CANDIDATE12_INSTALLED_ACCEPTANCE.json)
 records a fresh installed-wheel run with actual BASE-authorized xTB execution,
 result review and TORQ acknowledgment; no downstream TORQ solver was executed.
 The [fixture archive receipt](evidence/TOPOS_CANDIDATE12_FIXTURE_ARCHIVE.json)
-checks all 39 native fixture payloads. These receipts establish their recorded
-installation scope; full release certification remains a separate gate.
+checks all 39 native fixture payloads. These immutable historical receipts establish only their recorded
+source and installation scope; they are not the installation evidence for later
+GUI, intake, transport or package changes. Full release certification remains a
+separate gate.
 
 ## Upgrade and rollback
 
@@ -184,7 +271,7 @@ cochem-topos-release gate --source-root /path/to/CoChem-TOPOS \
   --installation /path/to/installation-acceptance/acceptance/installed-acceptance.json \
   --hosted /path/to/hosted-ORCA/acceptance.json \
   --hosted-extended /path/to/hosted-ORCA-extended/acceptance.json \
-  --hosted-repository ProfJJK-CoChem/CoChem-BASE \
+  --hosted-repository OWNER/PRIVATE_CALCULATION_PROJECT \
   --hosted-run-id ACTUAL_RUN_ID --hosted-run-attempt ACTUAL_ATTEMPT \
   --output /tmp/topos-candidate/release-gate.json
 ```
@@ -217,8 +304,8 @@ The release workflow accepts the repository, run ID and exact run attempt that
 produced the licensed artifacts. The BASE companion uploads
 `topos-orca-acceptance-RUN_ID-ATTEMPT`, with `topos-orca-evidence/acceptance.json`,
 `topos-orca-extended/acceptance.json` and the retained native pytest files. Reading
-this private repository requires the existing `COCHEM_SOURCE_READ_TOKEN` or
-`BASE_SOURCE_READ_TOKEN` binding to have Actions artifact read access there.
+this private repository requires actual artifact-read authorization through the
+configured private BASE execution context.
 Baseline evidence must pass GOAT, counterpoise and all three core calculation
 cases; the extended evidence must separately pass native Hessian, VPT2 and the
 declared correlated methods. The gate requires matching source, repository, run,
@@ -267,6 +354,8 @@ manifest through installed TORQ, and checks that TOPOS accepts TORQ's durable
 consumption receipt. The import is `imported-awaiting-calculation`; no TORQ solver,
 reaction rate or transition-state calculation is represented by this receipt.
 
-The reviewed companion source pins are BASE `705b9d54370d5089da286a02b7a1c4afdcbafec1`
-and TORQ `79fbb111125e50627a1a2c129888a45496f368d4`; their companion pull requests
-remain separate from publication of a final TOPOS release.
+The companion revisions in each historical installation receipt remain part of
+that receipt's immutable provenance. Use the new candidate's catalog and exact
+source/installation receipts for a new deployment; do not turn those older
+acceptances into operational defaults or infer scientific TORQ completion from
+an importer acknowledgment.

@@ -38,6 +38,10 @@ def _check_binding(workflow: Workflow, record: RunRecord, receipt: DispatchResul
     if (receipt.target_repo != workflow.config.remote_repository
             or receipt.ref != workflow.config.remote_ref):
         raise IntegrityError("Saved dispatch belongs to a different configured controller or ref")
+    if receipt.base_commit is not None and receipt.base_commit != workflow.config.remote_base_commit:
+        raise IntegrityError("Saved dispatch belongs to a different configured BASE source revision")
+    if receipt.controller_profile != workflow.config.remote_controller_profile:
+        raise IntegrityError("Saved dispatch belongs to a different configured controller profile")
     if receipt.inputs != request or receipt.request_sha256 != record.metadata["request_sha256"]:
         raise IntegrityError("Saved dispatch differs from the immutable user request")
 
@@ -79,12 +83,26 @@ def _import_result(record: RunRecord, store: RunStore, receipt: DispatchResult) 
     if source_store.load() != receipt.record:
         raise IntegrityError("Retrieved worker record differs from its immutable snapshot")
     snapshot = source_store.snapshot_path()
+    original_paths = {artifact.path for artifact in record.artifacts}
+    rebound_inputs = {}
     for entry in artifact_inventory(receipt.record):
         origin = confined_file(snapshot / "artifacts", entry["path"])
-        target = folder / entry["path"]
+        relative = entry["path"]
+        if relative in original_paths:
+            # A staged import retains the original hosted request.json, while
+            # the worker retains its deliberately localized request.json. Both
+            # inputs need distinct evidence paths; neither may overwrite the
+            # other. Only these known root input files may be rebound.
+            if relative not in {"request.json", "input.xyz"}:
+                raise IntegrityError("Worker artifact conflicts with retained caller evidence")
+            relative = "remote-worker-inputs/" + relative
+            rebound_inputs[entry["path"]] = relative
+        target = folder / relative
         if Path(entry["path"]).parts[0] in {"snapshots", "CURRENT.json", ".execution.lock", ".writer.lock"}:
             raise IntegrityError("Worker artifact conflicts with local persistence or execution ownership")
         _copy_verified_file(origin, target, root=folder)
+    source.artifacts = [artifact.model_copy(update={"path": rebound_inputs.get(artifact.path, artifact.path)})
+                        for artifact in source.artifacts]
     source_record = folder / "remote-worker-record.json"
     if source_record.exists() or source_record.is_symlink():
         if source_record.is_symlink() or read_json(source_record) != receipt.record:
@@ -100,6 +118,7 @@ def _import_result(record: RunRecord, store: RunStore, receipt: DispatchResult) 
         "record_sha256": digest_json(receipt.record),
         "github_run_id": receipt.remote_job_id,
         "controller_commit_sha": receipt.commit_sha,
+        "base_commit": receipt.base_commit,
     }
     source.metadata.update({key: value for key, value in record.metadata.items() if key != "termination_reason"})
     source.metadata.update(remote_source_run_id=source.run_id, remote_worker_identity=worker_identity,
@@ -123,7 +142,9 @@ def _import_result(record: RunRecord, store: RunStore, receipt: DispatchResult) 
 def _wait_for_owned_result(workflow: Workflow, record: RunRecord, store: RunStore,
                            receipt: DispatchResult, *, cancel_event: Event | None,
                            timeout_seconds: float, original_request: dict[str, Any] | None = None) -> RunRecord:
-    client = ActionDispatchClient(target_repo=workflow.config.remote_repository)
+    client = ActionDispatchClient(target_repo=workflow.config.remote_repository,
+                                  base_commit=workflow.config.remote_base_commit,
+                                  controller_profile=workflow.config.remote_controller_profile)
     try:
         _check_binding(workflow, record, receipt, original_request=original_request)
         destination = store.run_dir / "remote-evidence"
@@ -154,29 +175,64 @@ def _wait_for_owned_result(workflow: Workflow, record: RunRecord, store: RunStor
         return record
 
 
-def run_remote(workflow: Workflow, request: RunRequest, *, cancel_event: Event | None = None) -> RunRecord:
+def _verify_pristine_external(record: RunRecord, store: RunStore, workflow: Workflow,
+                             request: RunRequest) -> None:
+    store.verify()
+    if (store.run_dir.parent != workflow.output_root
+            or store.load() != record.model_dump(mode="json") or request != record.request
+            or record.status != "queued" or record.attempts or record.candidates
+            or "remote_dispatch" in record.metadata
+            or record.metadata.get("execution_kind") == "remote-request"
+            or record.metadata.get("request_sha256") != digest_json(request.model_dump(mode="json"))
+            or record.metadata.get("input_sha256") != digest_json(request.molecule.model_dump(mode="json"))):
+        raise IntegrityError("Only an unchanged pristine queued external import may receive an initial dispatch")
+    imported = record.metadata.get("external_import")
+    if not isinstance(imported, dict) or imported.get("execution_kind") != "not-executed":
+        raise IntegrityError("An initial external dispatch requires a canonical unexecuted import")
+    manifests = [artifact for artifact in record.artifacts if artifact.role == "external-import-manifest"]
+    if (len(manifests) != 1 or manifests[0].path != imported.get("manifest_path")
+            or manifests[0].sha256 != imported.get("manifest_sha256")):
+        raise IntegrityError("An initial external dispatch requires its exact retained import manifest")
+    path = confined_file(store.snapshot_path() / "artifacts", manifests[0].path)
+    manifest = read_json(path)
+    if (file_digest(path) != imported["manifest_sha256"]
+            or manifest.get("execution_attestation") != "not-executed"):
+        raise IntegrityError("An external import cannot attest a previous CoChem scientific execution")
+
+
+def run_remote(workflow: Workflow, request: RunRequest, *, cancel_event: Event | None = None,
+               staged_record: RunRecord | None = None) -> RunRecord:
     """Submit once through the BASE worker and import its unchanged evidence."""
-    record = RunRecord(request=request)
+    record = staged_record if staged_record is not None else RunRecord(request=request)
     folder = workflow.output_root / record.run_id
-    folder.mkdir(parents=True, exist_ok=False)
-    record.metadata.update(run_dir=str(folder), execution_kind="remote-request",
-                           input_sha256=digest_json(request.molecule.model_dump(mode="json")),
-                           request_sha256=digest_json(request.model_dump(mode="json")),
-                           capability_scope="CoChem-BASE provisioned GitHub Actions worker",
-                           remote_completion_confirmed=False)
-    request_path = folder / "remote-request.json"
-    atomic_json(request_path, request.model_dump(mode="json"))
-    record.artifacts.append(Artifact(path=request_path.name, sha256=file_digest(request_path),
-                                     size_bytes=request_path.stat().st_size, role="remote-user-request"))
+    if staged_record is None:
+        folder.mkdir(parents=True, exist_ok=False)
+        record.metadata["run_dir"] = str(folder)
+        RunStore(folder).commit(record)
+    elif Path(record.metadata.get("run_dir", "")).resolve() != folder:
+        raise IntegrityError("The staged external run does not belong to this output root")
     store = RunStore(folder)
-    store.commit(record)
     with FileLock(str(folder / ".execution.lock"), timeout=0):
+        if staged_record is not None:
+            _verify_pristine_external(record, store, workflow, request)
+        record.metadata.update(run_dir=str(folder), execution_kind="remote-request",
+                               input_sha256=digest_json(request.molecule.model_dump(mode="json")),
+                               request_sha256=digest_json(request.model_dump(mode="json")),
+                               capability_scope="CoChem-BASE provisioned GitHub Actions worker",
+                               remote_completion_confirmed=False)
+        request_path = folder / "remote-request.json"
+        atomic_json(request_path, request.model_dump(mode="json"))
+        record.artifacts.append(Artifact(path=request_path.name, sha256=file_digest(request_path),
+                                         size_bytes=request_path.stat().st_size, role="remote-user-request"))
+        store.commit(record)
         if cancel_event is not None and cancel_event.is_set():
             record.status = "cancelled"
             record.metadata["termination_reason"] = "cancelled before remote submission"
             store.commit(record)
             return record
-        client = ActionDispatchClient(target_repo=workflow.config.remote_repository)
+        client = ActionDispatchClient(target_repo=workflow.config.remote_repository,
+                                      base_commit=workflow.config.remote_base_commit,
+                                      controller_profile=workflow.config.remote_controller_profile)
         try:
             receipt = client.dispatch_request(request, ref=workflow.config.remote_ref)
             _check_binding(workflow, record, receipt)
@@ -210,15 +266,22 @@ def _verify_completed_import(record: RunRecord, store: RunStore, receipt: Dispat
     worker = read_json(confined_file(snapshot, "remote-worker-receipt.json"))
     if worker.get("schema_version") != "topos-compute-worker/0.1.0" or worker.get("context_verified") is not True:
         raise IntegrityError("Saved remote completion lacks a verified worker execution context")
+    base_source = worker.get("base_source")
+    if (not isinstance(base_source, dict) or base_source.get("commit_sha") != receipt.base_commit
+            or base_source.get("checked_out_source_verified") is not True
+            or source.get("metadata", {}).get("hosted_base_source") != base_source):
+        raise IntegrityError("Saved remote completion lacks its bound BASE checkout and run evidence")
     for key, expected in (("dispatch_id", receipt.dispatch_id), ("request_sha256", receipt.request_sha256),
                           ("request", receipt.inputs), ("github_run_id", receipt.remote_job_id),
-                          ("github_sha", receipt.commit_sha), ("run_path", "run"), ("status", source["status"])):
+                          ("github_sha", receipt.commit_sha), ("base_commit", receipt.base_commit),
+                          ("run_path", "run"), ("status", source["status"])):
         if worker.get(key) != expected:
             raise IntegrityError(f"Saved worker receipt differs from its dispatch ownership: {key}")
     identity = {
         "run_id": source["run_id"], "request_sha256": digest_json(source["request"]),
         "input_sha256": digest_json(source["request"]["molecule"]), "record_sha256": digest_json(source),
         "github_run_id": receipt.remote_job_id, "controller_commit_sha": receipt.commit_sha,
+        "base_commit": receipt.base_commit,
     }
     if (source["request"] != verify_queue_record(receipt.inputs, source, worker.get("budget_accounting"),
                                                 receipt.github_created_at)
@@ -255,7 +318,9 @@ def resume_remote(workflow: Workflow, record: RunRecord, store: RunStore, *,
     _check_binding(workflow, record, receipt, original_request=request)
     # Validate the exact workflow, correlation identifier, request hash and
     # pinned controller revision before committing continuation history.
-    client = ActionDispatchClient(target_repo=workflow.config.remote_repository)
+    client = ActionDispatchClient(target_repo=workflow.config.remote_repository,
+                                  base_commit=workflow.config.remote_base_commit,
+                                  controller_profile=workflow.config.remote_controller_profile)
     client._check_receipt(receipt)
     if record.metadata.get("remote_completion_confirmed") is True:
         # Failed/partial/cancelled worker results are final scientific history

@@ -1,0 +1,3803 @@
+{
+  "schema_version": "topos-completion-validation/0.1.0",
+  "generated_at": "2026-10-07T19:49:25Z",
+  "disposition": "Current-source regression; scientific release certification remains separate",
+  "all_srs_acceptance_complete": false,
+  "source_base_commits": {
+    "CoChem-BASE": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "CoChem-TOPOS": "053c827638b3481c5c3d645856b69d50c47b387f",
+    "CoChem-TORQ": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "source_identity_scope": "Exact executable/distribution/parser-fixture hashes below identify the tested files; Git HEAD alone does not attest dirty files",
+  "verification": {
+    "started_at": "2026-10-07T19:38:19Z",
+    "interpreter": "/workspace/.cochem-base-runtime/ui-env/bin/python",
+    "source_sha256": {
+      ".docs/patches/crest-3.0.2-generic-paths.patch": "9f22e2d9e0cd9b6aa8a6d41a0c32b6271d659c62498f888f0d5d889cc09aa8b9",
+      ".github/workflows/cochem_topos_ci.yml": "f79a3b76feb3b09e02cbb3177f0a2296d8804c6ddc5498131731c189191577e9",
+      ".github/workflows/orca_hosted.yml": "2bfc894264308aa74c196d99cabbab1093ad4f21bb98283715f72e23182a9c7e",
+      ".github/workflows/topos_base_ci.yml": "184de708dc71f5972c3c2b7c0e449bbc3de7a79b0a052c8370bff58f5b7c3a5f",
+      ".github/workflows/topos_compute.yml": "24e0268f6a28a5ad1a307604d2a66fd3908284eb689941b31c4c41e63d19a032",
+      ".github/workflows/topos_orca_acceptance.yml": "4b837952926b7995b24cf9f8a984ed5621eddb8f5c848c90e108e4e7ce33dd17",
+      ".github/workflows/topos_release.yml": "45af4c2b30300f1268372eb19343009c1cef7f3f54c7216d0aaf2ae49679d641",
+      "MANIFEST.in": "888876e93079446058749305ffdb21ed020c03a7327c10d8d5137886c92b0bbd",
+      "cochem_topos_web.py": "7d7d992fb4450dee0dc4d2836d27af9b1bd082c3df2e1c94b995169136391779",
+      "pyproject.toml": "5745ec3343688a7ff7b9013534f623deac1cd37ee6c7e2138e529e271c89dbc3",
+      "requirements.txt": "0cac0e472eba3359aa79e9674ff11a5fd0484b9c465fc1cb774c30938edcc5d7",
+      "scripts/accept_installed_release.py": "cc0870e51de9a23ae563beef3c66ad2172295d3442f29507276b0989b9237d02",
+      "scripts/accept_orca_extended.py": "af093d26be5b68a909728564b25d09a7f5ef8f297972109417f745190f7b9339",
+      "scripts/accept_orca_pytest.py": "5549b424ec0b1dbfe3c1f84c155f89883905bc6f131d66a10f8174843aededf2",
+      "scripts/accept_orca_topos.py": "6310f2cf8a1851b0976116cc29936eb4dba930605199d311e4d827f8e279d5c8",
+      "scripts/build_ml_worker.py": "918722ffdb147261dd1a50edca300cbeeaece2a76ced62f4e35859bf87a68c73",
+      "scripts/build_release.py": "650fe61ba74e96e95bea0d93f90756c84b82febc7d7089f96e5463828be76897",
+      "scripts/install_crest.py": "d779062c6fc85c8648ec88db5c636322603f84cd56ef0d07c468bbc06534aa4d",
+      "scripts/install_ml_worker.py": "58b6f74de727ab8622a0ae4d5d0dfc6a3c8dd6bc8aa711234f4a385cde8473bd",
+      "scripts/install_orca.py": "e12298ba9454ebe82112ceaa0c50bb6cd58c2c45f7792706596255dd71ebb813",
+      "scripts/install_xtb.py": "3ae8e7bed1385b9600965203e7a0ae7fdb6587d46ec725998e313ebc1290c722",
+      "scripts/orca_dft_import_acceptance.py": "531a156f6154357eceb26148dfe8e9deb7ae2a9895af8e4eed7d738867097a50",
+      "scripts/orca_f12_acceptance_case.py": "863850158ff538bebc96d4f99618053f5b47e98563077bf35f363eb4f135901b",
+      "scripts/orca_r2_acceptance_case.py": "8c0a68c648605e073a3beb745cc6ec09575b5a4d5b3809cf50ff41fe5464159c",
+      "scripts/refresh_srs_acceptance.py": "ed03f35ba5567d92b58feda28d1f09855cb643c545531aead2f12e2ac0c4486a",
+      "scripts/release-build-requirements.txt": "ec172b3765c4316e9ec37f9be232b3dd9fd6850ba43a730d769dad3915e160fc",
+      "scripts/setup_ecosystem.py": "0d7451cef59516b40badc10d34a742cfc8a9b35f4118590c05b839d490eb1730",
+      "setup.py": "0c5b8b675a5a216afaf168db7128f39046a89cded9ff284b1886da804924dade",
+      "tests/fixtures/orca61-vpt2-public-furan.txt": "51b281c48bfedb413a96eff7178eaa299994af8fc0922f76c71339cdb655fcd7",
+      "tests/fixtures/orca61-vpt2-public-geometry.txt": "34a9f44b985004e7a577dc193e2587e045ea7414873f7381227627a37df412c3",
+      "tests/v010/conftest.py": "f6a7e0cb0d331801ebd5d83d2a4ad00102366cc30142ee978861c573dcd48d79",
+      "tests/v010/fixtures/cfour/ccsd_t-native-first-evaluation.stdout": "b4e0ec58621b1795cbbfdb80635c1b7da0c912611d86f393687298612b659d2a",
+      "tests/v010/fixtures/cfour/ccsdt-ncc-native.stdout": "a4ca7064147cd6ecc4c25c193ae2d711bcf839b32fe1f3a51d2877867414e26c",
+      "tests/v010/fixtures/cfour/mp2-native-first-evaluation.stdout": "175749947fce21ec9d235175c8568d8c7ce0330d89e896ffa7ab6d0ab96f1bab",
+      "tests/v010/fixtures/cfour/ncc-provenance.json": "c8fe117fbc21feac291d2112ba4290bc544441546c065f3ec5663a5ca89b3217",
+      "tests/v010/fixtures/cfour/provenance.json": "c7839da036a34a3d8fbe953b9a0ba3b981522a7dc8bc5ca0030df6d6765314ee",
+      "tests/v010/fixtures/cfour_corrections/carbon12-dboc.out": "36769a2b979f080c9121be0ee2b4b68cc9f5109a52f127d93d8aa9ebaf6241b7",
+      "tests/v010/fixtures/cfour_corrections/carbon13-failed.out": "f3c1a1c6d36e5ba2b12b0635691231c1e7a295a203d414007908e74fdc855d4b",
+      "tests/v010/fixtures/cfour_corrections/h2o-native-mass.out": "8cd70ac7494ac175fabcf0def1fde0ab74e822a49f7a270ef11de76f12565d5c",
+      "tests/v010/fixtures/cfour_corrections/h2o-native-mass.provenance.json": "6c7dbf0598196f6ff4493e86ae0ecf6d8811853218050fa209d9936571386e0f",
+      "tests/v010/fixtures/cfour_corrections/ne-x2c.out": "9c4ff77c6bb6894171fae26ff7fcc3deaf896a435e97a60cf88f3717cc413e32",
+      "tests/v010/fixtures/cfour_corrections/provenance.json": "47e2e24e8337c2e5edee1330fbf76a9005e4dcc4ee0f4d37774500c4b91142ce",
+      "tests/v010/fixtures/cfour_counterpoise/historical-1.2-ghost.stdout": "f11b7124cd2ca12004334cdf6465139c180e5a72b1564d7d3ca6206d0f11c3bd",
+      "tests/v010/fixtures/cfour_counterpoise/provenance.json": "d5e6c9c6e2e716a24ae6d821a163a59a5f40b43e714e29091e698655ce2c8491",
+      "tests/v010/fixtures/goat_hosted_timeout/native-process.json": "84669055db14b0c8364e82a17199fcaa412eb5362221287d61424062d2c84f31",
+      "tests/v010/fixtures/goat_hosted_timeout/native-progress.stdout": "fddca9b2f5d0aa489023f3494a07778133b1b5f01332f63dccab38e0eed60270",
+      "tests/v010/fixtures/goat_hosted_timeout/provenance.json": "708da57f755b3af562fad2f019da364462cc66e5be6daa079f9cdd9a4b757880",
+      "tests/v010/fixtures/orca611/hf3c-water-native.stdout": "15295d567689c737c6e769e163081bd7d68892d37cd1f43ca0bbd3ec003722b0",
+      "tests/v010/fixtures/orca611/provenance.json": "53e5bf05b7dcb06fd91142e5118a3ffdf27790fa282be8564257326fda8964c9",
+      "tests/v010/fixtures/orca_611_correlated/ccsd_t-f12d_ri.stdout": "b6e8a27b19213e93186ea87cbb98935100d2614ed349774336858c0d79e5ba26",
+      "tests/v010/fixtures/orca_611_correlated/f12-mp2.stdout": "31acc55b63ad43335086d9622e13f699b2976aded810cc50d856456e296ffaf1",
+      "tests/v010/fixtures/orca_611_correlated/f12-ri-mp2.stdout": "076328ec8d6c89fe28e1f6ab91f1e1219843a1c2bb64b00e4f500d8061aca982",
+      "tests/v010/fixtures/orca_611_correlated/mp2.stdout": "435f017afb5936b83b2e4833c88ba83b300c8d5881acdbd4de4172818d4af667",
+      "tests/v010/fixtures/orca_611_correlated/provenance.json": "191b3a7ddda6ab99d2efa54efb3df3c63090e354bd1f1dcca8dc61710b9df7c1",
+      "tests/v010/fixtures/orca_611_f12_basis/jun-tz-rejected.inp": "12706cbda16d8760ae6732d542f29c4fbec48fcacb1b1dcad1b89c6441ce9fed",
+      "tests/v010/fixtures/orca_611_f12_basis/jun-tz-rejected.protocol.json": "7df33f387e54c8bdfed59f64fffb3c55ce5acbf835334bcbb794144cf50281b6",
+      "tests/v010/fixtures/orca_611_f12_basis/jun-tz-rejected.stdout": "6e074753369e1dda7fc2bbea3c8fed8839efd60c12c14bb67f0a5cd7f55569ab",
+      "tests/v010/fixtures/orca_611_f12_basis/provenance.json": "a60e3e946efaa708115637e3e2f0c8d50b9b1cdfd9363384f38e4e877d4dfca0",
+      "tests/v010/fixtures/orca_fifth_hosted/b3lyp-frequency.hess": "4146b57509577230552a7585d2dfee2f1482f45ea69771eff658713b21eb5e07",
+      "tests/v010/fixtures/orca_fifth_hosted/b3lyp-frequency.stdout": "c7a01d1d837406782905f89dc9330b16ab27459825dc32b7cbf3447f57807849",
+      "tests/v010/fixtures/orca_fifth_hosted/b3lyp-reference-molecule.json": "109e449a90393e1955a88ae8c817323f262e214eb3f09380301874231cfd85f9",
+      "tests/v010/fixtures/orca_fifth_hosted/b3lyp-reference.engrad": "006dcdd36c9d6441c50fe3bcab02911131e652b233a4db72bbff92dad7ab3476",
+      "tests/v010/fixtures/orca_fifth_hosted/incomplete-r2scan-optimization.stdout": "08b7b9ed7b9627a078174bb40e6fefb09321ad2981226b2eefa321874603bcc4",
+      "tests/v010/fixtures/orca_fifth_hosted/incomplete-r2scan-result.json": "85fc1f7842bc28ab82abff9f13fffddd40474e29018eb4716545210ddfbabacb",
+      "tests/v010/fixtures/orca_fifth_hosted/provenance.json": "2e8899d76afb71bd385213b85cce5da3e73cb63507c821cf2e8f03ec994e826f",
+      "tests/v010/fixtures/orca_one_cycle_native/provenance.json": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
+      "tests/v010/fixtures/orca_one_cycle_native/r2scan-refinement-1.stdout": "be8ea356cec4b3fbda9b62815dfab464f7382eb928b1fe619a1adbe1363bd99d",
+      "tests/v010/fixtures/orca_one_cycle_native/wb97xv-refinement-1.stdout": "15255deae01218bb92fa53456972414f4c1ab9a0d35104bb70f57770f23a05fd",
+      "tests/v010/test_abcluster.py": "1abe514d368066644f8216ea81bab51fb5ce144bcda0e0e5f78ffea1278e6f9d",
+      "tests/v010/test_abcluster_workflow.py": "43ec605242ad2db3a5c8b3ee501de41e5b8588f0cd04b0478c1aeed03e4fdf07",
+      "tests/v010/test_anharmonic.py": "e754898a6dd61405d3c76e88f1ec161bd9293ae1acebe18da8411528fcb05a36",
+      "tests/v010/test_base_integration.py": "623e64307027c648f3ccb0bc5735db17b8140cb88f98c83ea60f1dea4988d25d",
+      "tests/v010/test_base_provider.py": "5fdfb7af8d0b702c584c74eeffe683bfe7c81e8699caf0cc5cc3d830b87d988b",
+      "tests/v010/test_budget.py": "b10e49b365bf579de79e9b7e41b24dfa63f6a0492964dd808bc383f2a781a662",
+      "tests/v010/test_cfour_corrections.py": "ad3853652f5ba64a30e4da96f5a3d139d879a3a2689eb9a13f25031fb71bb396",
+      "tests/v010/test_cfour_counterpoise.py": "9d7eeb23b753ee98af53f1236f7e33d7dd7cb52841ed762abe3cc0c03cb74638",
+      "tests/v010/test_cfour_dboc.py": "4c451dc613c8bda7c3456d4621e3a0de4dfc1940a38c60ecc4747bb2a115079c",
+      "tests/v010/test_completion_io.py": "028932ce74ffa4f7e3634e768d0fa987ecc493fb2ce2b2e6eef2a4e402b7e2c5",
+      "tests/v010/test_composites.py": "5598a7eca90315acdac185f5d2c5f02475ec45bb58db963b53b369379254296b",
+      "tests/v010/test_compute_worker.py": "1c182379ec3d81c441c8e94298dc7dd707870a67e6f75e1d9ca6ab7fd90b5039",
+      "tests/v010/test_constraints.py": "9afd22009c7b7fea0ccfb02f70c7b5d167ac92b8472d5e7dceb1949e4557b447",
+      "tests/v010/test_correlated.py": "8c5c994a9a7071f5dfb6f41a4aa0927dbe88a7a0d48a31a29b5a6be127621bdf",
+      "tests/v010/test_correlated_counterpoise.py": "fe22130040164dc92b6e64e3d198054bd84ca509e7201772750e53bd98570e82",
+      "tests/v010/test_correlated_workflow.py": "42901ebc92730cbfb95f0b4b8f6a1260dccbf00eb540aa417b0ed7b27b6d3afd",
+      "tests/v010/test_counterpoise.py": "65226f69ec02008ddf2be01ead7908c328038359c44f7641182f5f02b161edf0",
+      "tests/v010/test_dft_native_stage_binding.py": "2677923d36bfb0a3ec0dc0694d728d05026c81e93a6f115d9c13335089bcd486",
+      "tests/v010/test_dipoles.py": "4d779900cb2166d039f3a5617046f47bc9dc9d8bed18ed3df4b1ce7cfb14f7b3",
+      "tests/v010/test_energy_composite.py": "6fa36921686b5f8701a7fba14b26282b6227088b47a8931b29dba4f8e39b1f50",
+      "tests/v010/test_engines.py": "c6e847522e0acc653e9e32a75a72d0f68d6a8a8c59571c193e2564348a232806",
+      "tests/v010/test_ensemble_tools.py": "265da4f97eed566560a567648a6b5ad72ccaec6cafc6784f401714ed3a890a3c",
+      "tests/v010/test_entropy.py": "5e2c460db20227e95381a5c46ffc686265cd8c9e296cba222243bf6d54030461",
+      "tests/v010/test_external_engines.py": "28948e6d6884e4cdf6cf8fbecab34f019331d67f47dc3081ad2f5529f0621568",
+      "tests/v010/test_external_matrix_workflow.py": "03997c6e236d01ba05096bb7a83ffd390f26376ef32f2d480d1670f960aaad95",
+      "tests/v010/test_fragments.py": "4b8f2973c75db76fcee6d6d635dfe2d7cbceb13b6a1573d2be58ee9ab1022119",
+      "tests/v010/test_goat.py": "07b2d3e0964bd9e2e1be62c276d65ed4353c9424e79d109cd1a2642fb361fade",
+      "tests/v010/test_goat_hosted_progress.py": "92f1a27b87d15410db92628149a4456dd40d87f65503cf19183b939ec3522e53",
+      "tests/v010/test_higher_composite.py": "5533a0301eaf10d88bbaea96f795003f7def6f53fbf9d5fcfd74d3acf8b244d4",
+      "tests/v010/test_hosted_worker.py": "c32bb712f90d29a031153961126ab8fe666d6bb470a68d26a91eeb43f8cb6197",
+      "tests/v010/test_interfaces.py": "b91b209e830c1a0a5fd9794007069bcf64deaf1e78b04bf35105046055822d0c",
+      "tests/v010/test_matrix_extended.py": "2e1304a0fe8a8c8b11e4b7a74060ddcbf525c9b1071a90ed5d3e20e4f8c0b9e6",
+      "tests/v010/test_matrix_ml_training.py": "632b0e5a60d7c4d953700d3083176c1efe3c8b662b5cb42278b28ac9b79d8ec7",
+      "tests/v010/test_matrix_r2.py": "b3dd46abc80c4087f6bdef634309ce94930c84d5b09fe519727116039c8b4312",
+      "tests/v010/test_matrix_sources.py": "d193ce1bab6f571a413f47df0b64ec73fa4cbd59d7952fe4f1aff61f47f755a1",
+      "tests/v010/test_matrix_union.py": "375f63d0beb26a54a4de4a0cd1104aa5ef681300fc2216a5c3275cfeb9020a09",
+      "tests/v010/test_matrix_workflow.py": "f03101477786e2699223c2019319ab811a336f564a5819b1c6b51cee5aacb314",
+      "tests/v010/test_method_matrix.py": "70f3b75c5efd947c33890fe6980a5ba238a1cf9adb06b52d19c6a819b262f34f",
+      "tests/v010/test_ml.py": "867f3135c60e0525d3e8fbdff04fe5b965eea30ab6ba56af6badf21baf35b331",
+      "tests/v010/test_ml_crest.py": "da6a69b114cda53c797ec0376b923a2a3be246136df6d6f2cb8f74ef1d83feb5",
+      "tests/v010/test_ml_extopt.py": "f9e9c349054d4564669d124934418778b482d24f1bdb7456b343b816d743fc55",
+      "tests/v010/test_ml_server_shutdown.py": "d7ed3d9c8c7178ff497e498376422cfd672ba07b82b0dc4100d8d751dd6b3015",
+      "tests/v010/test_ml_training.py": "8c607f1e50d6f6f5bc9b74ef8f8183233e8e585b9a1ca8f8e6fe8431bc6b7603",
+      "tests/v010/test_ml_workflow.py": "5c40dcaf0e6ee9ab62b90371c5bc05f943b9867037c9a38fed937a62711b9c18",
+      "tests/v010/test_month_geometry.py": "c09cd2d25b7da361b3657339c0bde7d73f2d49a0c41068792a1c90e7339f5647",
+      "tests/v010/test_native_hessian.py": "7470d60b91a43f7a20b47638dbef7d16f0d30496c2d2fc899c9346a21f985e25",
+      "tests/v010/test_native_mass_rotors.py": "1d89e160ff5132207689bc49919abfd8ec9d6da19ddd529c8b5b6b09dd200b94",
+      "tests/v010/test_nolicense_acceptance.py": "c0863c0e263d1e458f6207476263f0c8c3c156a53dbf11b1a9caa35fce5782a3",
+      "tests/v010/test_orca_acceptance_validation.py": "4ee447b5e80cd4549374043975e88b0420cb9f304c39b614a95abde81f03a626",
+      "tests/v010/test_orca_basis_domains.py": "262c4f18dc35b2e840ffb0a24782b2c5fa814c151e348d4238bfc78430a94b7a",
+      "tests/v010/test_orca_basis_names.py": "a5811496ba0bed096e227e2f1edb9c68767e563b8efe5a4c4cc6e1ac84b46752",
+      "tests/v010/test_orca_f12_acceptance_case.py": "a4109e4d2855a28c138339fec55f1d779cc20a786f8e6ebb8928aeb0ec1e4804",
+      "tests/v010/test_orca_f12_composite.py": "c5c65c6d413e0496e96802116dd8f7358bdde2e4aae447df6a8e89fb9a2d43ea",
+      "tests/v010/test_orca_geometry_evidence.py": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
+      "tests/v010/test_orca_install.py": "7879ba4198b7cc385a00660bf5ac33551dfa4f68815ed5393fcb0d1a1f9ca84d",
+      "tests/v010/test_orca_native_f12_outputs.py": "dcceb00e410fa2e407f72734ac98efb3e46b4691b065d844de8980c1993a3f99",
+      "tests/v010/test_orca_native_refinement.py": "a9e32d3e9ae8e15d939ce7ecd7f51ab46645e23c233089fdd7b34c92a36b88dc",
+      "tests/v010/test_orca_numerical_geometry.py": "95401685f4039f52cc61d2cc06df15d2a47b3505523301cd0081a5669e6e3e2c",
+      "tests/v010/test_orca_r2_acceptance_case.py": "950541e4bda3971c7ff724d6b884d73c66271e3deaf1a852690088d5243538fd",
+      "tests/v010/test_queue_budget.py": "408b6158101908ab7c769a374c3a6b0ec2e8ecd89c1fc18cbff82f4a89dfaf07",
+      "tests/v010/test_release.py": "edf6b026811df1d1ff858b18a29759e70bdffb3e93a4e34176d21a4a8101853f",
+      "tests/v010/test_remote_dispatch.py": "0443ba518b5a00bf7305f2cc2470e590c356704de754149d89bb85abf568db5b",
+      "tests/v010/test_reporting.py": "0ae59b04268e65e8b5e3b4891584c1fa5bf36c8b374bc9161e444e81cfc6f0e6",
+      "tests/v010/test_rotational_transfer.py": "4fcf437c5fb5c93890294fd022045346f89f7704c079ab0c29ce571c98bfad04",
+      "tests/v010/test_runtime_allocations.py": "93ea443d4f43d3c3cba9e2764adb2c4467255791bf1a4890f10a3bbd0efa0930",
+      "tests/v010/test_sampling.py": "f73ee07878eb2439e799006185d1ef8574eae6dd253e4429d20e64e8fee55dfd",
+      "tests/v010/test_scans.py": "bd79afced75efcbb7c74eafddb62f0b2f1dac710064d0a5f75a8c6832eeb68d8",
+      "tests/v010/test_schema_evolution.py": "a1f4ec9d77ec26100bc57ad2c0c5fbbe4ff43e3157ea3d7867256174ef137765",
+      "tests/v010/test_science.py": "3ee02318980ed0d8f6f30047d108ef193aa020dfbf1efdcc043437833de10796",
+      "tests/v010/test_search_control.py": "e17b1501d0dfca11b9dc5e4e2407c9ce4dd77b9583736baaa41b1b387305210c",
+      "tests/v010/test_setup_ecosystem.py": "f7c0c9572c1faf1f91c42e04b4b342b5e59856c7395126d23c12aed2d5a6f723",
+      "tests/v010/test_storage_publication.py": "2486ea504ab5b1d563c234e7eb71fd8678752a0895c006fb48ebc81f83161017",
+      "tests/v010/test_symmetry.py": "548d691a9d884a4915695c264dcc3704d9a750eef0bc8cab18b489abb22a3067",
+      "tests/v010/test_thermochemistry.py": "1141aa35f41630ac059d46d708c000c184892769462e41eae75ad46822c1aea7",
+      "tests/v010/test_workflow.py": "e5a762aad48093e57e66bccb28158c21139cba36cf15936d936f71a2e1af8be7",
+      "tests/v010/test_workflow_constraints.py": "d36b3b25f5527a5e6761cbdc00cdf4f31c23478d5a5fd0bf640c45fcf242b620",
+      "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+      "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+      "topos/abcluster.py": "224ff6299b7970e03a14b6413300babd62b5aa498d6e8e00940c962dbcd4eb1b",
+      "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+      "topos/actions/compute_worker.py": "a9c1596426ba33f961020f143da3fc0244dd4cc885cf5fdf6f51f4ffa1a8e0cf",
+      "topos/actions/dispatch.py": "5c2a061f815cc8c20e2ca2b33bb527f1da8890288a1ad19d563666fe4961b60e",
+      "topos/actions/hosted_requirements.py": "04fa99fd59cb4661e7e88d868d99b67026c428b39e901e033bad70f3f39c878b",
+      "topos/actions/hosted_worker.py": "79ae49a8f932e6918ae7295289b0d8a4dc2160f0571519ac844c5fff9c3cd094",
+      "topos/actions/queue_budget.py": "84ed379f4beba635ce92f9b385993e56b8e3a140f24280e70fa03e1efe25aa7c",
+      "topos/advanced_workflow.py": "2d81ddff5a0b36e365d69602dad675dc12869a09861a659859173f172ba8b7a6",
+      "topos/anharmonic.py": "7a4de95b9ef667f7758f29fb6561d6de731056eb244511743a766e8ae51f2835",
+      "topos/base_integration.py": "7830fd0f6dc507beeb59223daeca7aebc77cf31c38dbc445b77d05163e04a2a2",
+      "topos/base_provider.py": "6d6e1c603cd415115dbb69f9ed22479f4c7ba913c3060aa7db4b6c907f9aafd2",
+      "topos/budget.py": "a4671c6e66b7397a5fc2e7db2491f9b2d7c1bb116059fdd66fe33c49f85fb3dc",
+      "topos/capabilities.py": "2d823884eba707c8bbeeb9eba447960beee5ef5fa16aede198ca68bd06d661d0",
+      "topos/cfour_corrections.py": "cfd70c6d7258da6d51b75502e51b9e10550007c28b711951530a835cc967f32d",
+      "topos/cfour_counterpoise.py": "f594fce7c81249f225b3f8370c22f884a37ee31860dab781ce5c499864627143",
+      "topos/cfour_dboc.py": "81a72c058b483f68fd4b736b93a6a4458d79d6bfc630678eaa9ec0653a9c9054",
+      "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+      "topos/cli/__init__.py": "f3c14095eae5f1e946145888e61680ca38c1e3171704244464d84aa73b50a743",
+      "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+      "topos/composites.py": "cd82a0de497674afe5aedfa58a1b1ce3288576c16d0a02b6022442a877f47865",
+      "topos/config.py": "9e6813edea8652fbb5f9b87861266f5d629dbe0aebc3b5453590ff53cba95f74",
+      "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+      "topos/correlated.py": "a038618f11c3ccb663b33ea7c06950133b3403f9fe47b27f1e47ec2ff65682f2",
+      "topos/correlated_counterpoise.py": "d878abb97343304b5950f4c707b7aee159214b3ed90f5b6e307cafa1f2cb547c",
+      "topos/correlated_workflow.py": "542594ea20e55ee15a99fe443c4a421e97a6a48c757a5b7a644db2b5b61361b4",
+      "topos/counterpoise.py": "6c5667844e8673714c328bcb519d805eb489eee497f0548bdf8b2bb7fed5e4c9",
+      "topos/data/__init__.py": "f0125cb306990c6f037cadb6ea8beeb0683824a077b3ed5cc3959745e66a1227",
+      "topos/data/method_matrix_v4.py": "c6dda9afa3f93bb0b0dd96c198d412ac335b2e55d63be735ee98a3657af4683d",
+      "topos/data/reviewed_matrix_v010.py": "6eb430aba1902e6bafdadc8b15b422017711f45b6ce8bf200bcc287930e8bcb5",
+      "topos/data/runtime_recipes.py": "76f3f0288298c424e2fbaf9cee8d2eaba62d330b2740ea875da2c822a36681eb",
+      "topos/energy_composite.py": "9e717af7449655a6b9d6e842fd5e67b3f839d3b20f23995bfbb096781d876621",
+      "topos/engines.py": "11569700fcc139132c197776e646756750c47c59bde65869b4ae5d5d80a6b6a6",
+      "topos/ensemble_tools.py": "4607ed54f230f0605e629db267c13d129800ba8b04416d2313a02e284409573a",
+      "topos/entropy.py": "6012bd2c8cb985f2ae91019cdaae75ae4bb998432f2c7c6a4c1ee9953a5fda39",
+      "topos/external_engines.py": "9363cd7d66750d69375c02b6889335be34302af190fa6ad9c62f8f0700ecfa36",
+      "topos/external_matrix_workflow.py": "5cdee1af6719547c02cc7fe3406c6642c86bef268ab9a5058187d28511043343",
+      "topos/fragments.py": "8a58b8ac29a4a6661f868ab521990acfe6695960748763ab46b0047dfb9975ac",
+      "topos/goat.py": "a6605f747477e909191e12ddfe9202925b07bef9aa198c162a22c693fb299148",
+      "topos/higher_composite.py": "ad571ce58c147ae4fde3f9aa5d233052faf20e93521db3807c5ae4081332537f",
+      "topos/matrix_components.py": "a1398108509a6322238acbdf1ac8e661889aeef3658d8d587bb1f6b182a0b48c",
+      "topos/matrix_diversity.py": "9f2015e51685585cbdf183abc41bf2e44a4ae724723ed6e200125e738cda96b5",
+      "topos/matrix_entropy.py": "126820ca0d547bb918c12550d455ff70f0eaa99025f28f1a5ad865b0aa7fc0a2",
+      "topos/matrix_ml_search.py": "5da93348b3142324cd07e8d152f090dde46ca9e344c68b7b59e272de5532c6d2",
+      "topos/matrix_ml_training.py": "fc7b836795c995bbdaddf125e52d039f5e98785d95c7c991ed326261aaf7aa1f",
+      "topos/matrix_r2.py": "0224528b63953a5d022adb7e5f1fc0d82f1c6746f079602e6aefaf466a791e32",
+      "topos/matrix_sources.py": "e2a74f1a2aa6c5b8b43e22741801939bf087ba4fe8ff32ff224fffae03f4ce64",
+      "topos/matrix_union.py": "b395668be2c46d418292f6f6008457b11bedc714c490d4205583c4038e9fd536",
+      "topos/matrix_workflow.py": "28a6ed68e4a729869b836e89dedb3383a3bbb497636f7a6f26d0098c859e44b5",
+      "topos/method_matrix.py": "3433e393b4f68e9e80b4679e8bc0993b9e10d64ee1fb98086bd2e9f8658054af",
+      "topos/ml.py": "f1abf663588e9641e27361b3e84202a6695df79c91ec13f8678ca2cfc39e894b",
+      "topos/ml_crest.py": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e",
+      "topos/ml_extopt.py": "b535036ece101bf5f221b5d6860d8e091b2074d8020e7c3673cdd1f06f904517",
+      "topos/ml_training.py": "1ccbbe7c803c685c922e0ce4a66a8eb52e7b71733006d57dfe44b687167d1377",
+      "topos/ml_training_worker.py": "281081f60dfb1749d002c431ec2f1f964f58f6934aad4f40746993ba24216ce3",
+      "topos/ml_worker.py": "0e5d47a34cba9e8a855054d32ba51ee0dadbbe724ae571ddde9a8e8f60d72087",
+      "topos/ml_workflow.py": "2084fcb1c358daba063857ad71a0d1f6abe69a93c411496ffd8ad16dbd791c37",
+      "topos/models.py": "c1e5c4240942ffb03edde0869473418aba90cc396ffabb1f396f29150a9de205",
+      "topos/month_geometry.py": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92",
+      "topos/native_diagnostics.py": "362147f9857c99a8cf7aba259f4708db549c50b96c612b0ed07a579148cdaba3",
+      "topos/native_hessian.py": "1ca103c9d217486ad9ecfba4f2b59bf4f64b837844720bcb58a48072a149c98b",
+      "topos/native_mass_rotors.py": "950565073bf33bb88d2ba20cff117491834621cd82a191e655cec4f48ed3b940",
+      "topos/orca_basis_names.py": "d538fea40c80f3ce6c98f3470cdecbcf1be67414a929a850e996c3797406318d",
+      "topos/orca_f12_composite.py": "b6d917761aa2f8bf0805a98a91b89b4763f7e2e03c86ed58da574f331e6cef85",
+      "topos/orca_geometry_evidence.py": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814",
+      "topos/orca_numerical_geometry.py": "0657b11f8300573efb38426479c3a930baf59ddc5a7e5bc967b12edc01aac47f",
+      "topos/publication.py": "9a004557eaee60f7f39fb61849cbeb7ccda2a6d34456c84a935c3c7e924a9bf9",
+      "topos/references.py": "e7c5681d3c17f432e96c116f9f1538202b2345c0ae816c522ca449b41bac3342",
+      "topos/release.py": "112ed5c3277b7d4de31642ac4e711234edfe6744cd1c6752e0b3b486714d8226",
+      "topos/remote_workflow.py": "c0a25d86a0640b8492b7b090276a25df7d7d5b82f6a368f4f62eac408eafc7e0",
+      "topos/reporting.py": "e8116f7bab85682c9770a5a63f1022c1d429cbfb89aa28fca0a3ca1c5466d86b",
+      "topos/review.py": "0b126bc9e325b9cbcefc71921545117acc026c76b308eb22e4a9248dba2aecbb",
+      "topos/rotational_transfer.py": "92616cc5cc6af134e59f0241d5a512f2c15850375843c2d02a09504761ad3c7c",
+      "topos/runtime.py": "9dadf17248d8ac3cf506c93c90a6364bb9fdf749c8c342126583c9e48795c3e0",
+      "topos/sampling.py": "1b67e3ed887dc29431fdc91f477738f5697f32e68d2eca5a84d254be4e126b53",
+      "topos/scans.py": "92216f8a75496e1d6fb84b2fb0170c60cf119323cbd8aa4b695864756804e01f",
+      "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+      "topos/storage.py": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732",
+      "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+      "topos/symmetry.py": "9a5db0424a0d4a0cd93ffe3328f0fd94bffe0d29010a9077dabb9b316e5e3fd7",
+      "topos/thermochemistry.py": "4b1b5a7907407b024d779b9d827703e5c8ef8fff347d2ffb23ce4ba0178060d1",
+      "topos/ui.py": "323d49e5d6b26875f362a053bb5a61d204dfd610b2ab698bda1eb5ed04a5fed9",
+      "topos/workflow.py": "b00fa17e474d64003605666b91a52223b17e2c0e27d487f441a369479bd46d61"
+    },
+    "checks": [
+      {
+        "check": "pytest",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--junitxml=/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/whole-suite.xml"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 569.5967900859978,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/pytest.log",
+        "log_sha256": "dd660993c9952da61f16a0e2ffd64a0123babd39b183170e4c8e57b441b1fa7f",
+        "junit": {
+          "tests": 1814,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 2
+        },
+        "junit_path": "evidence/TOPOS_CURRENT_SUITE_20261007T194749Z.xml",
+        "junit_sha256": "3e18a1c7dc4c27163af9b6d2cec831f0c953b1df2a30cb0336a010f81838d41a"
+      },
+      {
+        "check": "ruff",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "topos",
+          "scripts",
+          "tests",
+          "setup.py",
+          "cochem_topos_web.py"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.044139208999695256,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/ruff.log",
+        "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "check": "pip-check",
+        "command": [
+          "/workspace/.cochem-base-runtime/ui-env/bin/python",
+          "-m",
+          "pip",
+          "check"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.42369475500890985,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/pip-check.log",
+        "log_sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+      },
+      {
+        "check": "actionlint",
+        "command": [
+          "/tmp/topos-actionlint",
+          "/workspace/CoChem-TOPOS/.github/workflows/cochem_topos_ci.yml",
+          "/workspace/CoChem-TOPOS/.github/workflows/orca_hosted.yml",
+          "/workspace/CoChem-TOPOS/.github/workflows/topos_base_ci.yml",
+          "/workspace/CoChem-TOPOS/.github/workflows/topos_compute.yml",
+          "/workspace/CoChem-TOPOS/.github/workflows/topos_orca_acceptance.yml",
+          "/workspace/CoChem-TOPOS/.github/workflows/topos_release.yml"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.003674848994705826,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/actionlint.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "check": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          ".",
+          ":!tests/fixtures",
+          ":!tests/v010/fixtures",
+          ":!.docs/patches"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.002913919001002796,
+        "log_path": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z/diff-check.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "engine_environment": {
+      "COCHEM_CONFIG": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+      "COCHEM_BASE_ROOT": "/workspace/CoChem-BASE",
+      "COCHEM_TORQ_ROOT": "/workspace/CoChem-TORQ",
+      "TOPOS_EXECUTION_BACKEND": "development",
+      "TOPOS_REQUIRE_BASE": "1",
+      "TOPOS_REQUIRE_REAL_ENGINES": "1",
+      "TOPOS_XTB_EXECUTABLE": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+      "TOPOS_CREST_EXECUTABLE": "/workspace/.tools/crest-3.0.2/crest/crest",
+      "TOPOS_CREST_ML_EXECUTABLE": "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/crest",
+      "TOPOS_ABCLUSTER_EXECUTABLE": "/workspace/.tools/abcluster-3.4/abcluster-Release/rigidmol",
+      "TOPOS_PSI4_EXECUTABLE": "/workspace/.cochem-setup/psi4-runtime/bin/psi4",
+      "TOPOS_ML_TEST_PYTHON": "/workspace/.venvs/topos-ml/bin/python",
+      "TOPOS_ML_TEST_REQUEST": "/workspace/.cochem-setup/ml-mace-request.json",
+      "TOPOS_AIMNET_TEST_REQUEST": "/workspace/.cochem-setup/ml-aimnet-request.json",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    },
+    "sources_unchanged": true,
+    "finished_at": "2026-10-07T19:47:49Z",
+    "status": "passed"
+  },
+  "matrix_support": {
+    "catalog_revision": "method-matrix-v4-2026-08-09",
+    "catalog_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+    "catalog_rows": 140,
+    "topos_owned_rows": 44,
+    "topos_track_gaps": [
+      "T3C-10s",
+      "T3C-1min"
+    ],
+    "unavailable_by_design": [
+      {
+        "row_id": "T3C-10s",
+        "disposition": "unavailable-by-design",
+        "source_path": "wiki/Method_Matrix.md",
+        "source_lines": [
+          36,
+          3034
+        ],
+        "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d"
+      },
+      {
+        "row_id": "T3C-1min",
+        "disposition": "unavailable-by-design",
+        "source_path": "wiki/Method_Matrix.md",
+        "source_lines": [
+          36,
+          3035
+        ],
+        "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d"
+      }
+    ],
+    "unresolved_track_gaps": [],
+    "compiled_complete_recipes": [
+      "T1-10s",
+      "T1-12h",
+      "T1-1d",
+      "T1-1h",
+      "T1-1min",
+      "T1-1mo",
+      "T1-1w",
+      "T1-30min",
+      "T1-3d",
+      "T1-3h",
+      "T2-10s",
+      "T2-1h",
+      "T2-1min",
+      "T2-30min",
+      "T3C-12h",
+      "T3C-1d",
+      "T3C-1h",
+      "T3C-1mo",
+      "T3C-1w",
+      "T3C-30min",
+      "T3C-3d",
+      "T3C-3h",
+      "T3O-10s",
+      "T3O-12h",
+      "T3O-1d",
+      "T3O-1h",
+      "T3O-1min",
+      "T3O-1mo",
+      "T3O-1w",
+      "T3O-30min",
+      "T3O-3d",
+      "T3O-3h",
+      "T5-10s",
+      "T5-12h",
+      "T5-1d",
+      "T5-1h",
+      "T5-1min",
+      "T5-1mo",
+      "T5-1w",
+      "T5-30min",
+      "T5-3d",
+      "T5-3h"
+    ],
+    "compiled_recipe_count": 42,
+    "implemented_partial_branches": [
+      "T3C-1mo",
+      "T3O-1mo"
+    ],
+    "source_conflict_rows": [
+      "T3O-1d",
+      "T4O-30min",
+      "T5-30min",
+      "T5-3h"
+    ],
+    "reviewed_scientific_revisions": {
+      "r2-b3lyp-d4-vpt2-transfer-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "r2-b3lyp-d4-vpt2-transfer-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-3h",
+          "kind": "r2-dft-vpt2-transfer",
+          "title": "R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed B3LYP-D4 VPT2 correction transfer",
+          "reference_method": "B3LYP",
+          "reference_dispersion": "D4",
+          "delivers": [
+            "frozen-monomer QZ geometry and counterpoise interaction energy",
+            "approximate ground-state rotational constants from a separate B3LYP-D4 VPT2 correction with matched axes and masses",
+            "both geometry identities and explicit transferability limits"
+          ],
+          "replaces": "Nonstationary frozen-monomer VPT2 and the unavailable native wB97X-V analytic-Hessian reference",
+          "decision_basis": "User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback.",
+          "sources": [
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html"
+          ],
+          "differences": [
+            "wB97M-V/def2-QZVPP target geometry remains constrained to explicit high-level monomer shapes",
+            "Ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO counterpoise has no F12 Hamiltonian or CABS",
+            "Independently fully relaxed B3LYP-D4/def2-TZVPP replaces wB97X-V only in the explicitly selected DFT VPT2 reference; this is a different functional and dispersion treatment",
+            "Native wB97X-V/VV10 analytic Hessians are unsupported in ORCA 6.1 and never silently replaced",
+            "B0_approx=B_R2+(B0_DFT-Be_DFT) uses common attested native masses and compatible principal axes",
+            "Same-basin transferability and functional error are uncalibrated; no source benchmark or experimental accuracy claim"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html"
+        ],
+        "user_decision": "User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback."
+      },
+      "r2-separate-dft-vpt2-transfer-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "r2-separate-dft-vpt2-transfer-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-3h",
+          "kind": "r2-dft-vpt2-transfer",
+          "title": "R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed DFT VPT2 correction transfer",
+          "reference_method": "wB97X-V",
+          "reference_dispersion": null,
+          "native_capability_blocker": "ORCA 6.1 excludes VV10/nonlocal dispersion from analytic Hessians; native VPT2 requires analytic Hessians. The wB97X-V VPT2 reference is unavailable. Select an explicitly named different reference protocol; no automatic functional substitution.",
+          "delivers": [
+            "frozen-monomer QZ geometry and counterpoise interaction energy",
+            "approximate ground-state rotational constants from axis- and mass-matched separate DFT VPT2 correction",
+            "both geometry identities, all raw stages and explicit transferability limits"
+          ],
+          "replaces": "Full-dimensional VPT2 at a nonstationary frozen-monomer R2 geometry and ambiguous F12 energy label",
+          "decision_basis": "User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite",
+          "sources": [
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+          ],
+          "differences": [
+            "wB97M-V/def2-QZVPP geometry remains constrained to explicit high-level monomer shapes",
+            "Counterpoise uses ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO; orbital F12 basis name does not select an F12 Hamiltonian or CABS",
+            "Independent fully relaxed strict wB97X-V/def2-TZVPP reference feeds native VPT2; unsupported native derivative capability fails explicitly with no B3LYP substitution",
+            "B0_approx=B_R2+(B0_DFT-Be_DFT) only after explicit atom/mass/axis and semirigid-domain checks",
+            "Both geometry identities retained; same-basin transferability remains an explicit approximation, with no experimental accuracy or numerical uncertainty claim"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+        ],
+        "user_decision": "User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite"
+      },
+      "cfour-relaxed-counterpoise-geometry-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-relaxed-counterpoise-geometry-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1w",
+          "kind": "cfour-counterpoise-geometry",
+          "title": "CFOUR raw and relaxed-counterpoise CBS/CV/full-triples/full-quadruples geometry bracket",
+          "delivers": [
+            "separate raw and CP composite geometries and rigid-rotor constants",
+            "native component energies and checked numerical derivative evidence"
+          ],
+          "replaces": "Unspecified native driver, component bases and raw/CP bracket implementation",
+          "decision_basis": "Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention",
+          "sources": [
+            "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py",
+            "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py"
+          ],
+          "differences": [
+            "Every one of eight components is independently optimized on both E_AB and E_AB+sum(E_i_own-E_i_ghost)",
+            "Actual CFOUR 2.1 native energies with checked h/h2 numerical derivatives; no native analytic correlated CP-gradient claim",
+            "Closed-shell gas-phase H-Ne domain; conventional H/He=0 and Li-Ne=1 occupied core per physical nucleus",
+            "Separate raw/CP sensitivity bracket, no default midpoint, statistical uncertainty, verified composite minimum or transferred benchmark"
+          ]
+        },
+        "sources": [
+          "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py",
+          "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py"
+        ],
+        "user_decision": "Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention"
+      },
+      "cfour-observed-default-mass-small-correction-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-observed-default-mass-small-correction-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3C-1mo",
+          "kind": "observed-mass-month-geometry",
+          "title": "CFOUR higher composite with HF X2C/DBOC small corrections and native-observed default-mass rigid rotors",
+          "delivers": [
+            "explicit small-correction composite geometry",
+            "Product A equilibrium rigid-rotor constants from observed native atomic masses",
+            "complete per-evaluation native mass observations and print-precision intervals"
+          ],
+          "replaces": "Unspecified scalar/DBOC basis choices and previously withheld default-mass rotor deliverable",
+          "decision_basis": "Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred",
+          "sources": [
+            "wiki/Method_Matrix.md:3043",
+            "wiki/Method_Matrix.md:3057",
+            "wiki/Method_Matrix.md:3109",
+            "https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out"
+          ],
+          "differences": [
+            "Explicit same-basis all-electron HF X2C1E minus nonrelativistic and HF+DBOC minus HF coordinate increments",
+            "Every actual CFOUR 2.1 DBOC-enabled evaluation must report the same complete mapped native atomic-mass vector and print precision with retained raw evidence",
+            "The final rotor uses these observed atomic masses; internal DBOC nuclear masses are neither substituted nor claimed numerically known",
+            "H/C/N/O/F only, no explicit isotope requests; no generic isotope-campaign or most-abundant mass-table substitution",
+            "Composite geometry and Be are Product A outputs, not B0, a common-potential stationary point, a verified minimum or transferred benchmark accuracy"
+          ]
+        },
+        "sources": [
+          "wiki/Method_Matrix.md:3043",
+          "wiki/Method_Matrix.md:3057",
+          "wiki/Method_Matrix.md:3109",
+          "https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out"
+        ],
+        "user_decision": "Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred"
+      },
+      "cfour-native-default-mass-corrected-geometry-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-native-default-mass-corrected-geometry-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3C-1mo",
+          "kind": "conditional-month-geometry",
+          "title": "CFOUR higher composite plus explicit HF X2C and native-default HF DBOC geometry increments",
+          "delivers": [
+            "conditional corrected geometry and native component evidence",
+            "no mass-bound rotor constants or full archived row completion"
+          ],
+          "replaces": "Unspecified scalar/DBOC model choices; isotope-consistent rotor deliverable remains incomplete",
+          "decision_basis": "Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution",
+          "sources": [
+            "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc",
+            "https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py"
+          ],
+          "differences": [
+            "Explicit same-basis HF X2C1E minus nonrelativistic geometry increment",
+            "Explicit same-basis HF+native-default-DBOC minus HF geometry increment",
+            "Only H/C/N/O/F with no explicit isotope; this compatibility variant intentionally does not publish observed-mass rotors",
+            "All rotor constants withheld; not completion of the full archived month row"
+          ]
+        },
+        "sources": [
+          "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc",
+          "https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py"
+        ],
+        "user_decision": "Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution"
+      },
+      "orca-f12d-composite-interaction-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-composite-interaction-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T5-3h",
+          "kind": "composite-interaction",
+          "title": "ORCA F12D/RI plus split MP2-F12 CBS and same-basis MP2 core-valence interaction",
+          "delivers": [
+            "explicit composite frozen-inc interaction energy",
+            "all native component energies and HF/CABS/correlation partitions"
+          ],
+          "base": "fc-CCSD(T)-F12D/RI/jun-cc-pVTZ",
+          "cbs": "matched fc-MP2-F12 jun-cc-pVTZ/jun-cc-pVQZ; separate HF+CABS exponential and F12 correlation inverse-power extrapolation",
+          "core_valence": "MP2(all electron)-MP2(frozen core), both cc-pwCVTZ",
+          "replaces": "junChS-F12b composite stated as an ORCA calculation",
+          "differences": [
+            "Explicit ORCA F12D/RI approximation, not CCSD(T)-F12b or a published junChS-F12b benchmark recipe",
+            "All CABS, fitting sets, SCF/core choices and extrapolation exponents are explicit",
+            "HF+CABS singles and F12 correlation are extrapolated separately",
+            "Frozen-inc interaction energy; no counterpoise, binding-energy or three-hour guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      },
+      "orca-f12d-numerical-geometry-dz-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-numerical-geometry-dz-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1d",
+          "title": "ORCA canonical fc-CCSD(T)-F12D/RI double-zeta numerical geometry",
+          "delivers": [
+            "numerically stationary geometry and electronic energy",
+            "rigid-rotor constants at the stationary geometry",
+            "gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee"
+          ],
+          "orbital_basis": "cc-pVDZ-F12",
+          "cabs": "cc-pVDZ-F12-CABS",
+          "auxiliary_c": "cc-pVDZ/C",
+          "replaces": "Conflicting MPQC/ORCA/F12 numerical-geometry specification",
+          "differences": [
+            "Canonical F12D/RI, not MPQC or local DLPNO",
+            "Explicit frozen core and conventional RHF integrals",
+            "TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient",
+            "Finite double-zeta model; no CBS, reference-accuracy or nominal one-day guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      },
+      "orca-f12d-numerical-geometry-tz-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-numerical-geometry-tz-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1mo",
+          "title": "ORCA canonical fc-CCSD(T)-F12D/RI triple-zeta numerical geometry",
+          "delivers": [
+            "numerically stationary geometry and electronic energy",
+            "rigid-rotor constants at the stationary geometry",
+            "gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee"
+          ],
+          "orbital_basis": "cc-pVTZ-F12",
+          "cabs": "cc-pVTZ-F12-CABS",
+          "auxiliary_c": "cc-pVTZ/C",
+          "replaces": "Molpro F12 optimized-reference-geometry requirement",
+          "differences": [
+            "ORCA canonical F12D/RI, not Molpro F12a/F12b",
+            "Explicit frozen core and conventional RHF integrals",
+            "TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient",
+            "Finite triple-zeta model; no reference-accuracy or nominal one-month guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      }
+    },
+    "revision_scope": "Original v4 rows remain archived verbatim. Compiled revised rows require their explicit separately hashed reviewed variant; source benchmark claims are not transferred.",
+    "conditional_recipe_resolutions": {
+      "T1-3h": {
+        "source_literal": "ORCA Freq (native analytic Hessian)",
+        "implemented_derivative": "native ORCA analytic Hessian with separate real reference-gradient stationarity evidence",
+        "optional_explicit_resolution": "physical-central-gradient-hessian-v1 uses central differences of actual analytic gradients",
+        "source_attribution_limit": "Native CREST --screen disables origin tracking; only input counts/exact input overlap and combined-union final provenance are established"
+      },
+      "T3O-12h": {
+        "required_explicit_resolution": "junchs-same-basis-core-valence-v1",
+        "source_conflict": "source definitions differ for the MP2 core-valence subtraction",
+        "implemented_variant": "ae minus fc at the same cc-pwCVTZ basis; full independent internal-coordinate chart required"
+      },
+      "T3O-3d": {
+        "required_explicit_resolution": "autoci-conventional-transformation-v1",
+        "source_conflict": "MDCI AO-direct options cannot be transplanted to AUTOCI",
+        "implemented_variant": "canonical AUTOCI analytic gradients and native integral transformation; no AO-direct claim"
+      },
+      "T3O-1d": {
+        "required_explicit_resolution": "orca-f12d-numerical-geometry-dz-v1",
+        "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVDZ-F12/CABS/cc-pVDZ/C; checked numerical energy derivatives and explicit stationarity controls"
+      },
+      "T3O-1mo": {
+        "required_explicit_resolution": "orca-f12d-numerical-geometry-tz-v1",
+        "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVTZ-F12/CABS/cc-pVTZ/C; checked numerical energy derivatives, not Molpro F12b",
+        "compatibility_branch": "orca-f12-reference-singlepoint-v1 remains explicitly energy-only and does not complete the revised geometry protocol"
+      },
+      "T5-12h": {
+        "required_input": "complete correlated_protocol with exact correlation fitting basis and core convention",
+        "implemented_variant": "plain DLPNO-CCSD(T1) with cc-pVDZ-F12 orbital basis and native !LED; not an F12 Hamiltonian"
+      },
+      "T5-1d": {
+        "required_input": "complete DLPNO protocol; identical reference/settings except consecutive TCutPNO6/7",
+        "implemented_variant": "HF + correlation6 + 1.5*(correlation7-correlation6), then frozen fragment subtraction"
+      },
+      "T5-3d": {
+        "required_input": "explicit RI correlation fitting basis omitted by the source row",
+        "implemented_variant": "canonical CCSD(T)-F12D/RI with cc-pVTZ-F12 and its CABS; never relabeled F12b"
+      },
+      "T5-3h": {
+        "required_explicit_resolution": "orca-f12d-composite-interaction-v1",
+        "implemented_variant": "five exact ORCA protocols per frozen complex/fragment: F12D/RI base, separate HF+CABS exponential and F12-correlation inverse-power CBS, same-basis MP2 ae-fc correction",
+        "scientific_difference": "Explicit reviewed ORCA approximation; not archived junChS-F12b or its A14 benchmark"
+      },
+      "T5-30min": {
+        "required_explicit_resolution": "native-composite-rawinteraction-v1",
+        "implemented_variant": "native r2SCAN-3c frozen interaction including built-in gCP; no separate CP/half-CP claim"
+      },
+      "T5-1w": {
+        "required_input": "energy_composite with explicit consecutive CBS bases, HF exponential coefficient, correlation power, core-valence and full-triples bases",
+        "implemented_variant": "eight genuine native CFOUR components per complex/fragment; no named HEAT/Wn recipe or benchmark-accuracy transfer"
+      },
+      "T3C geometry rows": {
+        "required_explicit_resolution": "cfour-topos-cartesian-optimizer-v1",
+        "implemented_variant": "TOPOS Cartesian L-BFGS-B using actual CFOUR analytic gradients; not the source's native internal-coordinate optimizer"
+      },
+      "T3C-1w": {
+        "required_input": "higher_geometry with explicit consecutive CBS bases, geometry exponent, CV/full-triples/full-quadruples bases and independent coordinate chart",
+        "implemented_variant": "seven optimizations use native analytic derivatives; the full-quadruples optimization uses checked h/h2 central differences of genuine CFOUR 2.1 NCC CCSDTQ energies",
+        "derivative_limit": "No native CCSDTQ analytic-gradient claim; same torsional-basin membership remains an explicit unverified assumption"
+      },
+      "T3O-1w": {
+        "required_explicit_resolution": "cfour-relaxed-counterpoise-geometry-v1",
+        "required_input": "cfour_counterpoise with every native basis/core/chart/numerical derivative choice",
+        "implemented_variant": "sixteen component optimizations: eight raw and eight relaxed CP total surfaces; separate parameter-wise composite geometry bracket",
+        "validation_limit": "Strict conditional CFOUR 2.1 ghost/core/native output contract; live correlated ghost acceptance remains pending, no benchmark or verified composite minimum claim"
+      },
+      "T3O-3h": {
+        "required_explicit_resolution": "r2-b3lyp-d4-vpt2-transfer-v1",
+        "implemented_variant": "frozen QZ target plus ordinary DLPNO CP; independently relaxed strict B3LYP-D4/TZVPP native VPT2 reference and explicit axis/mass matched correction transfer",
+        "validation_limit": "Approximate composite with explicitly changed reference functional; archived wB97X-V/VV10 native VPT2 remains unsupported, no automatic fallback or experimental accuracy claim"
+      },
+      "T3C-1mo": {
+        "required_explicit_resolution": "cfour-observed-default-mass-small-correction-v1",
+        "implemented_variant": "higher composite plus paired HF X2C/native-default HF DBOC increments and Product A rotors using raw-bound observed native atomic masses",
+        "completion_limit": "Every actual DBOC-enabled evaluation must attest the same complete mass vector and print precision; H/C/N/O/F with no explicit isotope requests, no B0 or generic isotope campaign",
+        "compatibility_branch": "cfour-native-default-mass-corrected-geometry-v1 remains geometry-only and does not complete Product A"
+      },
+      "T1-30min": {
+        "required_input": "explicit AIMNet2 checkpoint manifest and concurrent ML/ORCA resource allocation",
+        "implemented_variant": "native GOAT-EXPLORE ExtOpt followed by actual common r2SCAN-3c refinement and Stage-A native CREGEN; ML energies remain raw enumeration observations"
+      },
+      "T1-1w": {
+        "required_input": "100\u2013500 provenance-verified DFT configurations, group-disjoint data partitions, explicit GPU training/model/allocation, and hash-verified CREST 3.0.2+topos-generic-paths-v1",
+        "implemented_variant": "float64 MACE fine-tuning and held-out evaluation; both native GOAT and patched CREST use the identical trained checkpoint; real common r2SCAN-3c refinement and native Stage-A CREGEN",
+        "validation_limit": "Native reduced-profile CREST/MACE interface passed; no actual GPU training, combined native GOAT/ML or full default compound-campaign acceptance is claimed"
+      },
+      "T1-1d": {
+        "required_input": "identical explicit seed geometries at 298.15 K",
+        "implemented_variant": "both native stopping criteria plus abs(GOAT Sconf-CREST Sconf)<0.1; excludes CREST total entropy and delta-RRHO"
+      },
+      "T1-1mo": {
+        "required_input": "at least three distinct seeds and an exact coupled-cluster energy protocol",
+        "implemented_variant": "native GOAT-DIVERSITY and CREST-v4, actual common GFN2 refinement, native CREGEN and DLPNO reranking; no exhaustive-sampling proof"
+      },
+      "T5-1min": {
+        "required_input": "independent float64 committee and explicit ml_no_energy_culling=True",
+        "implemented_variant": "frozen interaction and paired committee disagreement; retains all structures, no pruning without a separate G4 audit"
+      }
+    },
+    "additional_adapter_recipes": [],
+    "torq_owned_rows": 96,
+    "validation_scope": "Catalog/compiled orchestration coverage only. Each execution must verify its real engines and scientific outputs."
+  },
+  "environment": {
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.12.14",
+    "dependencies": [
+      {
+        "name": "altair",
+        "version": "6.3.0",
+        "requires_dist": [
+          "altair-tiles>=0.3.0; extra == 'all'",
+          "anywidget>=0.9.0; extra == 'all'",
+          "docutils; extra == 'doc'",
+          "duckdb>=1.0; extra == 'dev'",
+          "geopandas>=0.14.3; extra == 'dev'",
+          "hatch>=1.13.0; extra == 'dev'",
+          "ipykernel; extra == 'dev'",
+          "ipython; extra == 'dev'",
+          "jinja2",
+          "jinja2; extra == 'doc'",
+          "jsonschema>=3.0",
+          "mistune; extra == 'dev'",
+          "mypy; extra == 'dev'",
+          "myst-parser; extra == 'doc'",
+          "narwhals>=2.4.0",
+          "numpy; extra == 'all'",
+          "numpydoc; extra == 'doc'",
+          "packaging",
+          "pandas-stubs>=3.0.3.260530; extra == 'dev'",
+          "pandas>=1.5.3; extra == 'all'",
+          "pandas>=1.5.3; extra == 'dev'",
+          "pillow; extra == 'doc'",
+          "polars>=0.20.3; extra == 'dev'",
+          "pyarrow-stubs; extra == 'dev'",
+          "pyarrow>=11; extra == 'all'",
+          "pydata-sphinx-theme>=0.14.1; extra == 'doc'",
+          "pytest-cov; extra == 'dev'",
+          "pytest-xdist[psutil]~=3.5; extra == 'dev'",
+          "pytest; extra == 'dev'",
+          "ruff>=0.9.5; extra == 'dev'",
+          "scipy-stubs; extra == 'doc'",
+          "scipy; extra == 'doc'",
+          "sphinx-autobuild; extra == 'doc'",
+          "sphinx-copybutton; extra == 'doc'",
+          "sphinx-design; extra == 'doc'",
+          "sphinx; extra == 'doc'",
+          "sphinxext-altair; extra == 'doc'",
+          "taskipy>=1.14.1; extra == 'dev'",
+          "ty; extra == 'dev'",
+          "types-jsonschema; extra == 'dev'",
+          "types-setuptools; extra == 'dev'",
+          "typing-extensions>=4.12.0; python_version < '3.15'",
+          "vegafusion>=2.0.3; extra == 'all'",
+          "vl-convert-python>=1.9.0; extra == 'all'",
+          "vl-convert-python>=1.9.0; extra == 'save'"
+        ],
+        "metadata_sha256": "e2c96038445540d765950ee1286995e6bf2b74eb70133aebf7ab0f2634be0b1e"
+      },
+      {
+        "name": "annotated-types",
+        "version": "0.8.0",
+        "requires_dist": [],
+        "metadata_sha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298"
+      },
+      {
+        "name": "anyio",
+        "version": "4.15.1",
+        "requires_dist": [
+          "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+          "idna>=2.8",
+          "trio>=0.32.0; extra == \"trio\"",
+          "typing_extensions>=4.16.0; python_version < \"3.15\""
+        ],
+        "metadata_sha256": "043aecb571af7189e8a6c528f5d8e32545f1b2cdfaaf761d51e6d5b67ea3ca81"
+      },
+      {
+        "name": "argon2-cffi",
+        "version": "25.1.0",
+        "requires_dist": [
+          "argon2-cffi-bindings"
+        ],
+        "metadata_sha256": "e90851075b68261faccf407b29430f45e6a5b1a0759a0d50b8d93101b0de2179"
+      },
+      {
+        "name": "argon2-cffi-bindings",
+        "version": "26.1.0",
+        "requires_dist": [
+          "cffi>=1.0.1; python_version < \"3.14\"",
+          "cffi>=2; python_version >= \"3.14\""
+        ],
+        "metadata_sha256": "f6bd89c593104a1d78990be57cdf022b414b666c7630a480de6d67309a02323b"
+      },
+      {
+        "name": "arrow",
+        "version": "1.4.0",
+        "requires_dist": [
+          "backports.zoneinfo==0.2.1;python_version<'3.9'",
+          "dateparser==1.* ; extra == \"test\"",
+          "doc8 ; extra == \"doc\"",
+          "pre-commit ; extra == \"test\"",
+          "pytest ; extra == \"test\"",
+          "pytest-cov ; extra == \"test\"",
+          "pytest-mock ; extra == \"test\"",
+          "python-dateutil>=2.7.0",
+          "pytz==2025.2 ; extra == \"test\"",
+          "simplejson==3.* ; extra == \"test\"",
+          "sphinx-autobuild ; extra == \"doc\"",
+          "sphinx-autodoc-typehints ; extra == \"doc\"",
+          "sphinx>=7.0.0 ; extra == \"doc\"",
+          "sphinx_rtd_theme>=1.3.0 ; extra == \"doc\"",
+          "tzdata;python_version>='3.9'"
+        ],
+        "metadata_sha256": "36407a40cd6a7f3147f8c8ab802d516fb4c152d7e2aabab52718ff3407a1706d"
+      },
+      {
+        "name": "ase",
+        "version": "3.29.0",
+        "requires_dist": [
+          "matplotlib>=3.5.2",
+          "mypy; extra == \"lint\"",
+          "numpy>=1.21.6",
+          "pillow; extra == \"docs\"",
+          "pytest-xdist>=3.2.0; extra == \"test\"",
+          "pytest>=7.4.0; extra == \"test\"",
+          "ruff; extra == \"lint\"",
+          "scipy>=1.8.1",
+          "spglib>=1.9; extra == \"spglib\"",
+          "sphinx-gallery; extra == \"docs\"",
+          "sphinx; extra == \"docs\"",
+          "sphinx_book_theme; extra == \"docs\"",
+          "sphinxcontrib-video; extra == \"docs\"",
+          "types-PyMySQL; extra == \"lint\"",
+          "types-docutils; extra == \"lint\"",
+          "typing_extensions>=4.13.1"
+        ],
+        "metadata_sha256": "6fac364e5cec27d94f17f3baff52276ef97014692b3d6691c55fc6dce43b06d7"
+      },
+      {
+        "name": "ast_serialize",
+        "version": "0.12.1",
+        "requires_dist": [],
+        "metadata_sha256": "c8d0c9674916504d917340f0bafcb5b1d2549a2a53d4839fcd02346309a3c89d"
+      },
+      {
+        "name": "asttokens",
+        "version": "3.0.2",
+        "requires_dist": [
+          "astroid<5,>=2; extra == \"astroid\"",
+          "astroid<5,>=2; extra == \"test\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest-xdist; extra == \"test\"",
+          "pytest<9.0; extra == \"test\""
+        ],
+        "metadata_sha256": "8b3567b29654e6e9a60ab50fde2c317899152790acadaab7868a708bf931c3d3"
+      },
+      {
+        "name": "attrs",
+        "version": "26.1.0",
+        "requires_dist": [],
+        "metadata_sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+      },
+      {
+        "name": "babel",
+        "version": "2.18.0",
+        "requires_dist": [
+          "backports.zoneinfo; python_version < \"3.9\" and extra == \"dev\"",
+          "freezegun~=1.0; extra == \"dev\"",
+          "jinja2>=3.0; extra == \"dev\"",
+          "pytest-cov; extra == \"dev\"",
+          "pytest>=6.0; extra == \"dev\"",
+          "pytz; extra == \"dev\"",
+          "pytz>=2015.7; python_version < \"3.9\"",
+          "setuptools; extra == \"dev\"",
+          "tzdata; sys_platform == \"win32\" and extra == \"dev\""
+        ],
+        "metadata_sha256": "11399bc03a6b81fd20e8b82823392052a8db969a8ef150382b0cf5996afcf41a"
+      },
+      {
+        "name": "beautifulsoup4",
+        "version": "4.15.0",
+        "requires_dist": [
+          "cchardet; extra == 'cchardet'",
+          "chardet; extra == 'chardet'",
+          "charset-normalizer; extra == 'charset-normalizer'",
+          "html5lib; extra == 'html5lib'",
+          "lxml; extra == 'lxml'",
+          "soupsieve>=1.6.1",
+          "typing-extensions>=4.0.0"
+        ],
+        "metadata_sha256": "b2f888103259f1607c85f3b1163be1bc49fc9941a3243c3b89a21075bfc6d4fb"
+      },
+      {
+        "name": "bleach",
+        "version": "6.4.0",
+        "requires_dist": [
+          "tinycss2>=1.1.0; extra == \"css\"",
+          "webencodings"
+        ],
+        "metadata_sha256": "757bfd0f144af9186a9bd94f06014963f5b0919a4e124fa55e9737a8c8981764"
+      },
+      {
+        "name": "build",
+        "version": "1.6.1",
+        "requires_dist": [
+          "colorama; os_name == \"nt\"",
+          "importlib-metadata >= 4.6; python_full_version < \"3.10.2\"",
+          "keyring ; extra == \"keyring\"",
+          "packaging >= 24.0",
+          "pyproject_hooks",
+          "tomli >= 1.1.0; python_version < \"3.11\"",
+          "uv >= 0.1.18 ; extra == \"uv\"",
+          "virtualenv >= 20.36.1 ; extra == \"virtualenv\""
+        ],
+        "metadata_sha256": "f3623590844a25dcf308a71a988c73e293b7ef779a1f43acb83ad1be218d61a0"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.7.22",
+        "requires_dist": [],
+        "metadata_sha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090"
+      },
+      {
+        "name": "cffi",
+        "version": "2.1.1",
+        "requires_dist": [
+          "pycparser; implementation_name != \"PyPy\""
+        ],
+        "metadata_sha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918"
+      },
+      {
+        "name": "charset-normalizer",
+        "version": "3.5.2",
+        "requires_dist": [],
+        "metadata_sha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb"
+      },
+      {
+        "name": "click",
+        "version": "8.5.0",
+        "requires_dist": [],
+        "metadata_sha256": "e87bce0bd194de70dfb8e708e0a6b0483009f25611804eaf87bfeb63e6c20501"
+      },
+      {
+        "name": "CoChem-BASE",
+        "version": "1.0.0",
+        "requires_dist": [
+          "MolSym==1.2.0; extra == \"symmetry\"",
+          "PySide6",
+          "ase; extra == \"ui\"",
+          "cryptography>=50.0.1",
+          "filelock>=3.32.5",
+          "google-genai>=2.28.0; extra == \"scribe\"",
+          "h5py>=3.9.0",
+          "ipykernel; extra == \"ui\"",
+          "ipywidgets; extra == \"ui\"",
+          "jinja2",
+          "jinja2; extra == \"ui\"",
+          "matplotlib; extra == \"ui\"",
+          "mendeleev>=1.2.0",
+          "mmh3>=5.3.0",
+          "msgpack>=1.0",
+          "mypy>=1.8.0; extra == \"dev\"",
+          "networkx>=3.6.1",
+          "numpy",
+          "pandas; extra == \"catalog\"",
+          "parsl; extra == \"dev\"",
+          "parsl; extra == \"hpc\"",
+          "pluggy",
+          "psutil",
+          "py3Dmol; extra == \"ui\"",
+          "pyarrow; extra == \"catalog\"",
+          "pydantic>=2",
+          "pynacl; extra == \"ui\"",
+          "pyqtgraph",
+          "pytest-asyncio; extra == \"dev\"",
+          "pytest-qt; extra == \"dev\"",
+          "pytest; extra == \"dev\"",
+          "pyvista",
+          "pyvistaqt",
+          "pyzmq>=25.1.0",
+          "qcelemental>=0.29; extra == \"dev\"",
+          "rdkit>=2026.3.5",
+          "requests; extra == \"ui\"",
+          "ruff>=0.1.0; extra == \"dev\"",
+          "scipy>=1.17.1",
+          "tenacity>=8.2",
+          "voila; extra == \"ui\"",
+          "vtk",
+          "watchdog>=6.0.0; extra == \"ui\"",
+          "zstandard>=0.25.0; extra == \"scribe\""
+        ],
+        "metadata_sha256": "604c69689dc161d3a9d243ab7280b8515edf79e9ff35236c82713f7017f2f451",
+        "editable": true,
+        "direct_origin_kind": "local-or-archive"
+      },
+      {
+        "name": "cochem-topos",
+        "version": "0.1.0",
+        "requires_dist": [
+          "CoChem-BASE==1.0.0",
+          "CoChem-TORQ==0.1.0",
+          "MolSym<2,>=1.2",
+          "ase<4,>=3.29",
+          "build>=1.2; extra == \"dev\"",
+          "filelock>=3.13",
+          "h5py>=3.9",
+          "mendeleev>=0.20",
+          "networkx>=3.1",
+          "numpy>=1.24",
+          "psutil>=5.9",
+          "pydantic>=2.4",
+          "pytest-cov>=5; extra == \"dev\"",
+          "pytest>=8; extra == \"dev\"",
+          "qcelemental==0.51.2; extra == \"external\"",
+          "qcengine==0.51.0; extra == \"external\"",
+          "ruff>=0.9; extra == \"dev\"",
+          "scipy>=1.11",
+          "setuptools>=77; extra == \"dev\"",
+          "streamlit>=1.37; extra == \"ui\"",
+          "wheel>=0.45; extra == \"dev\""
+        ],
+        "metadata_sha256": "969a55e23a4f95b67370a7742daf5b65b86958874aed7c00d8a79de49f0fed12",
+        "editable": true,
+        "direct_origin_kind": "local-or-archive"
+      },
+      {
+        "name": "CoChem-TORQ",
+        "version": "0.1.0",
+        "requires_dist": [
+          "h5py",
+          "jax",
+          "jaxlib",
+          "mypy; extra == \"dev\"",
+          "networkx",
+          "psutil",
+          "pyarrow",
+          "pydantic",
+          "pytest; extra == \"dev\"",
+          "ruff; extra == \"dev\"",
+          "scipy"
+        ],
+        "metadata_sha256": "9082e87f15e44bb9cfa5cb5a1cb5db5c18252bf02ffc6cd57a739cb4bc8dc41f",
+        "editable": true,
+        "direct_origin_kind": "local-or-archive"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6",
+        "requires_dist": [],
+        "metadata_sha256": "7baed29eb50c3b29bdb33ff84e3177bf1bc05784f7685ecdcaa4471c7dd810cc"
+      },
+      {
+        "name": "comm",
+        "version": "0.2.3",
+        "requires_dist": [
+          "pytest; extra == 'test'"
+        ],
+        "metadata_sha256": "e475291f8fdedbecbbfd788a2c5de9c912424d23574aba7b9fc51985d7158878"
+      },
+      {
+        "name": "contourpy",
+        "version": "1.4.0",
+        "requires_dist": [
+          "Pillow; extra == \"test\"",
+          "bokeh; extra == \"bokeh\"",
+          "bokeh; extra == \"mypy\"",
+          "contourpy[bokeh,docs]; extra == \"mypy\"",
+          "contourpy[test-no-images]; extra == \"test\"",
+          "docutils-stubs; extra == \"mypy\"",
+          "matplotlib; extra == \"test\"",
+          "mypy==2.1.0; extra == \"mypy\"",
+          "myst-parser; extra == \"docs\"",
+          "numpy>=2.0",
+          "pre-commit; extra == \"test\"",
+          "pytest-cov; extra == \"test-no-images\"",
+          "pytest-rerunfailures<16; extra == \"test-no-images\"",
+          "pytest-xdist; extra == \"test-no-images\"",
+          "pytest; extra == \"test-no-images\"",
+          "selenium; extra == \"bokeh\"",
+          "sphinx-book-theme; extra == \"docs\"",
+          "sphinx-copybutton; extra == \"docs\"",
+          "sphinx; extra == \"docs\"",
+          "types-Pillow; extra == \"mypy\"",
+          "wurlitzer; extra == \"test-no-images\""
+        ],
+        "metadata_sha256": "40450acd747b288a5db999c435e1e921ffee0a38c7884a80cd46934c8004568f"
+      },
+      {
+        "name": "coverage",
+        "version": "7.16.2",
+        "requires_dist": [
+          "tomli; python_full_version <= \"3.11.0a6\" and extra == \"toml\""
+        ],
+        "metadata_sha256": "a5447449aa5b0b5a8b7c6a800434623a70c316750fcdde7ebd5b0b41fe756f99"
+      },
+      {
+        "name": "cryptography",
+        "version": "50.0.2",
+        "requires_dist": [
+          "bcrypt>=3.1.5 ; extra == 'ssh'",
+          "cffi>=2.0.0 ; platform_python_implementation != 'PyPy'",
+          "typing-extensions>=4.13.2 ; python_full_version < '3.11'"
+        ],
+        "metadata_sha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee"
+      },
+      {
+        "name": "cycler",
+        "version": "0.12.1",
+        "requires_dist": [
+          "ipython ; extra == 'docs'",
+          "matplotlib ; extra == 'docs'",
+          "numpydoc ; extra == 'docs'",
+          "pytest ; extra == 'tests'",
+          "pytest-cov ; extra == 'tests'",
+          "pytest-xdist ; extra == 'tests'",
+          "sphinx ; extra == 'docs'"
+        ],
+        "metadata_sha256": "23289e19b76f1e01394227696e6af2b6cd1ce79e89731209bf9195148b18ed36"
+      },
+      {
+        "name": "cyclopts",
+        "version": "5.2.0",
+        "requires_dist": [
+          "attrs>=23.1.0",
+          "coverage[toml]>=5.1; extra == 'dev'",
+          "docstring-parser<4.0,>=0.15",
+          "gitpython>=3.1.31; extra == 'docs'",
+          "ipdb>=0.13.9; extra == 'debug'",
+          "line-profiler>=3.5.1; extra == 'debug'",
+          "markdown>=3.3; extra == 'mkdocs'",
+          "mkdocs>=1.4.0; extra == 'dev'",
+          "mkdocs>=1.4.0; extra == 'mkdocs'",
+          "myst-parser[linkify]<6.0.0,>=3.0.1; extra == 'docs'",
+          "pexpect>=4.9.0; (sys_platform != 'win32') and extra == 'dev'",
+          "pre-commit>=2.16.0; extra == 'dev'",
+          "pydantic<3.0.0,>=2.11.2; extra == 'dev'",
+          "pymdown-extensions>=10.0; extra == 'mkdocs'",
+          "pytest-cov>=3.0.0; extra == 'dev'",
+          "pytest-mock>=3.7.0; extra == 'dev'",
+          "pytest-timeout>=2.3.0; extra == 'dev'",
+          "pytest>=8.2.0; extra == 'dev'",
+          "pyyaml>=6.0.1; extra == 'dev'",
+          "pyyaml>=6.0.1; extra == 'yaml'",
+          "rich-rst<3,>=2.0.1",
+          "rich>=13.6.0",
+          "sphinx-autodoc-typehints<4.0.0,>=1.25.2; extra == 'docs'",
+          "sphinx-copybutton<1.0,>=0.5; extra == 'docs'",
+          "sphinx-rtd-dark-mode<2.0.0,>=1.3.0; extra == 'docs'",
+          "sphinx-rtd-theme<4.0.0,>=3.0.0; extra == 'docs'",
+          "sphinx<10.0.0,>=7.4.7; extra == 'docs'",
+          "syrupy>=4.0.0; extra == 'dev'",
+          "toml<1.0.0,>=0.10.2; extra == 'dev'",
+          "trio>=0.10.0; extra == 'dev'",
+          "trio>=0.10.0; extra == 'trio'"
+        ],
+        "metadata_sha256": "a1bcd1e587744ec6f5c5c64126ac03a03fc2468f7c91cd1c44572a5ac11dcb2a"
+      },
+      {
+        "name": "debugpy",
+        "version": "1.8.22",
+        "requires_dist": [],
+        "metadata_sha256": "c9d6ef5712b5e28d2cd2146a0fc764260381f1729ff0e0da9b0c77dd2230bc64"
+      },
+      {
+        "name": "defusedxml",
+        "version": "0.7.1",
+        "requires_dist": [],
+        "metadata_sha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1"
+      },
+      {
+        "name": "Deprecated",
+        "version": "1.3.1",
+        "requires_dist": [
+          "PyTest-Cov; extra == \"dev\"",
+          "PyTest; extra == \"dev\"",
+          "bump2version<1; extra == \"dev\"",
+          "inspect2; python_version < \"3\"",
+          "setuptools; python_version >= \"3.12\" and extra == \"dev\"",
+          "tox; extra == \"dev\"",
+          "wrapt<3,>=1.10"
+        ],
+        "metadata_sha256": "409767ac23878c1c694888ce4acc43dab6b37efa2b40499567fb5c7d9dce5852"
+      },
+      {
+        "name": "dill",
+        "version": "0.4.1",
+        "requires_dist": [
+          "gprof2dot>=2022.7.29; extra == \"profile\"",
+          "objgraph>=1.7.2; extra == \"graph\""
+        ],
+        "metadata_sha256": "040d6c84eddf29c8c14dc2aef214962a919803f557243824dd4f8aa3b49e3868"
+      },
+      {
+        "name": "docstring_parser",
+        "version": "0.18.0",
+        "requires_dist": [
+          "pre-commit>=2.16.0; (python_version >= '3.9') and extra == 'dev'",
+          "pydoctor>=25.4.0; extra == 'dev'",
+          "pydoctor>=25.4.0; extra == 'docs'",
+          "pytest; extra == 'dev'",
+          "pytest; extra == 'test'"
+        ],
+        "metadata_sha256": "cbc42027997fd4b194ae5fd064a4d1e57b92976941d0c26d369561a7c016a333"
+      },
+      {
+        "name": "executing",
+        "version": "2.2.1",
+        "requires_dist": [
+          "asttokens>=2.1.0; extra == \"tests\"",
+          "coverage-enable-subprocess; extra == \"tests\"",
+          "coverage; extra == \"tests\"",
+          "ipython; extra == \"tests\"",
+          "littleutils; extra == \"tests\"",
+          "pytest; extra == \"tests\"",
+          "rich; python_version >= \"3.11\" and extra == \"tests\""
+        ],
+        "metadata_sha256": "d7586d1ae225bee126c4237eb0c4d7699a8580b81eb558cc500c263d29a633ff"
+      },
+      {
+        "name": "fastjsonschema",
+        "version": "2.22.2",
+        "requires_dist": [
+          "colorama; extra == \"devel\"",
+          "json-spec; extra == \"devel\"",
+          "jsonschema; extra == \"devel\"",
+          "pylint; extra == \"devel\"",
+          "pytest-benchmark; extra == \"devel\"",
+          "pytest-cache; extra == \"devel\"",
+          "pytest; extra == \"devel\"",
+          "validictory; extra == \"devel\""
+        ],
+        "metadata_sha256": "fb4512dbb43517f2c8cbca21b3052bf74b2113ba67df8eb7eb9b53d8349aebbb"
+      },
+      {
+        "name": "filelock",
+        "version": "3.32.7",
+        "requires_dist": [],
+        "metadata_sha256": "8ca3e60f5144b556a3e5ed85cdf45ad708f28f1358be397ce9b052d8b450a363"
+      },
+      {
+        "name": "flexcache",
+        "version": "0.3",
+        "requires_dist": [
+          "pytest ; extra == 'test'",
+          "pytest-cov ; extra == 'test'",
+          "pytest-mpl ; extra == 'test'",
+          "pytest-subtests ; extra == 'test'",
+          "typing-extensions"
+        ],
+        "metadata_sha256": "13081e02b52beb171ca5b244ff8b412f03e8ac8c6eaad49fa83b559558de6b45"
+      },
+      {
+        "name": "flexparser",
+        "version": "0.4",
+        "requires_dist": [
+          "pytest-cov; extra == \"test\"",
+          "pytest-mpl; extra == \"test\"",
+          "pytest-subtests; extra == \"test\"",
+          "pytest; extra == \"test\"",
+          "typing-extensions"
+        ],
+        "metadata_sha256": "19ab3b2a5c81b171f64a09720ca2181d86c24029935e81c06fc778d8d9589c0d"
+      },
+      {
+        "name": "fonttools",
+        "version": "4.66.1",
+        "requires_dist": [
+          "brotli>=1.0.1; platform_python_implementation == \"CPython\" and extra == \"all\"",
+          "brotli>=1.0.1; platform_python_implementation == \"CPython\" and extra == \"woff\"",
+          "brotlicffi>=0.8.0; platform_python_implementation != \"CPython\" and extra == \"all\"",
+          "brotlicffi>=0.8.0; platform_python_implementation != \"CPython\" and extra == \"woff\"",
+          "lxml>=4.0; extra == \"all\"",
+          "lxml>=4.0; extra == \"lxml\"",
+          "lz4>=1.7.4.2; extra == \"all\"",
+          "lz4>=1.7.4.2; extra == \"graphite\"",
+          "matplotlib; extra == \"all\"",
+          "matplotlib; extra == \"plot\"",
+          "munkres; platform_python_implementation == \"PyPy\" and extra == \"all\"",
+          "munkres; platform_python_implementation == \"PyPy\" and extra == \"interpolatable\"",
+          "pycairo; extra == \"all\"",
+          "pycairo; extra == \"interpolatable\"",
+          "scipy; platform_python_implementation != \"PyPy\" and extra == \"all\"",
+          "scipy; platform_python_implementation != \"PyPy\" and extra == \"interpolatable\"",
+          "skia-pathops>=0.5.0; extra == \"all\"",
+          "skia-pathops>=0.5.0; extra == \"pathops\"",
+          "sympy; extra == \"all\"",
+          "sympy; extra == \"symfont\"",
+          "uharfbuzz>=0.45.0; extra == \"all\"",
+          "uharfbuzz>=0.45.0; extra == \"repacker\"",
+          "unicodedata2>=18.0.0; python_version <= \"3.15\" and extra == \"all\"",
+          "unicodedata2>=18.0.0; python_version <= \"3.15\" and extra == \"unicode\"",
+          "xattr; sys_platform == \"darwin\" and extra == \"all\"",
+          "xattr; sys_platform == \"darwin\" and extra == \"type1\"",
+          "zopfli>=0.1.4; extra == \"all\"",
+          "zopfli>=0.1.4; extra == \"woff\""
+        ],
+        "metadata_sha256": "d354d7b32166f817cb64da296e3e3152df8130c8a09a65fa8399631e20e3d672"
+      },
+      {
+        "name": "fqdn",
+        "version": "1.6.0",
+        "requires_dist": [
+          "cached-property>=1.3.0; python_version < \"3.8\"",
+          "myst-parser>=3.0; python_version >= \"3.9\" and extra == \"docs\"",
+          "sphinx>=7.2; python_version >= \"3.9\" and extra == \"docs\""
+        ],
+        "metadata_sha256": "3baa3c9f310023b1ea28d08f35a2179ca4dd624149902d0e0dbdd68dcac58db0"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0",
+        "requires_dist": [],
+        "metadata_sha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64"
+      },
+      {
+        "name": "h5py",
+        "version": "3.16.0",
+        "requires_dist": [
+          "numpy>=1.21.2"
+        ],
+        "metadata_sha256": "e461fcf7eb9fee6242205f9225cc178455a0212d1c0cb8f997f7eebf8cd9695e"
+      },
+      {
+        "name": "httptools",
+        "version": "0.8.0",
+        "requires_dist": [],
+        "metadata_sha256": "7b5c0231580b589e7721b111f37324276f2a585bc2d27aedd67297e0c9b4bda8"
+      },
+      {
+        "name": "idna",
+        "version": "3.20",
+        "requires_dist": [
+          "coverage >= 7.10.0 ; extra == \"all\"",
+          "hypothesis >= 6.141.1 ; extra == \"all\"",
+          "mypy >= 1.11.2 ; extra == \"all\"",
+          "pytest >= 8.3.2 ; extra == \"all\"",
+          "ruff >= 0.16.0 ; extra == \"all\"",
+          "ty >= 0.0.37 ; extra == \"all\""
+        ],
+        "metadata_sha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85"
+      },
+      {
+        "name": "iniconfig",
+        "version": "2.3.1",
+        "requires_dist": [],
+        "metadata_sha256": "47c2c35d936f5c649d8074c6464719a42966a67b5cebad01e3e5784cf090cfb6"
+      },
+      {
+        "name": "ipykernel",
+        "version": "7.4.0",
+        "requires_dist": [
+          "appnope>=0.1.2; platform_system == 'Darwin'",
+          "comm>=0.1.1",
+          "debugpy>=1.6.5",
+          "ipython>=7.23.1",
+          "jupyter-client>=8.9.0",
+          "jupyter-core!=6.0.*,>=5.1",
+          "matplotlib-inline>=0.1",
+          "nest-asyncio2>=1.7.0",
+          "packaging>=22",
+          "pyzmq>=25",
+          "tornado>=6.5.7",
+          "traitlets>=5.4.0"
+        ],
+        "metadata_sha256": "39f6a0cbe6a0d0b404880684902f085c1c6c93947d218b317b0d8a9c3ee1a137"
+      },
+      {
+        "name": "ipython",
+        "version": "9.17.1",
+        "requires_dist": [
+          "argcomplete>=3.0; extra == \"all\"",
+          "black; extra == \"black\"",
+          "colorama>=0.4.4; sys_platform == \"win32\"",
+          "curio; extra == \"test-extra\"",
+          "docrepr; extra == \"doc\"",
+          "exceptiongroup; extra == \"doc\"",
+          "intersphinx_registry; extra == \"doc\"",
+          "ipykernel; extra == \"doc\"",
+          "ipykernel>6.30; extra == \"test-extra\"",
+          "ipython-pygments-lexers>=1.0.0",
+          "ipython[doc,matplotlib,test,test_extra]; extra == \"all\"",
+          "ipython[matplotlib,test]; extra == \"doc\"",
+          "ipython[matplotlib]; extra == \"test-extra\"",
+          "ipython[test]; extra == \"test-extra\"",
+          "jedi>=0.18.2",
+          "jupyter_ai; extra == \"test-extra\"",
+          "matplotlib-inline>=0.1.6",
+          "matplotlib>3.9; extra == \"matplotlib\"",
+          "nbclient; extra == \"test-extra\"",
+          "nbformat; extra == \"test-extra\"",
+          "numpy>=2.0; extra == \"test-extra\"",
+          "packaging>=23.0.0; extra == \"test\"",
+          "pandas>2.1; extra == \"test-extra\"",
+          "pexpect>4.6; sys_platform != \"win32\" and sys_platform != \"emscripten\"",
+          "prompt_toolkit<3.1.0,>=3.0.41",
+          "psutil>=7; sys_platform != \"emscripten\" and sys_platform != \"cygwin\"",
+          "pygments>=2.14.0",
+          "pytest-asyncio>=1.0.0; extra == \"test\"",
+          "pytest>=7.0.0; extra == \"test\"",
+          "setuptools>=80.0; extra == \"doc\"",
+          "setuptools>=80.0; extra == \"test\"",
+          "sphinx-rtd-theme>=0.1.8; extra == \"doc\"",
+          "sphinx>=8.0; extra == \"doc\"",
+          "sphinx_toml==0.0.4; extra == \"doc\"",
+          "stack_data>=0.6.0",
+          "testpath>=0.2; extra == \"test\"",
+          "traitlets>=5.13.0",
+          "trio>=0.22.0; extra == \"test-extra\"",
+          "typing_extensions; extra == \"doc\"",
+          "typing_extensions>=4.6; python_version < \"3.12\""
+        ],
+        "metadata_sha256": "e78cb2a71fde4012b32de9b2db8d3c50ba618a1bb1975acc1bf107453365a1be"
+      },
+      {
+        "name": "ipython_pygments_lexers",
+        "version": "1.1.1",
+        "requires_dist": [
+          "pygments"
+        ],
+        "metadata_sha256": "6b38c0946bdbc4778f4e38e2298547cbd7d13aeba9979ec4e4a412eabfbdfadb"
+      },
+      {
+        "name": "ipywidgets",
+        "version": "8.1.9",
+        "requires_dist": [
+          "comm>=0.1.3",
+          "ipykernel; extra == \"test\"",
+          "ipython>=6.1.0",
+          "jsonschema; extra == \"test\"",
+          "jupyterlab_widgets~=3.0.17",
+          "pytest-cov; extra == \"test\"",
+          "pytest>=3.6.0; extra == \"test\"",
+          "pytz; extra == \"test\"",
+          "traitlets>=4.3.1",
+          "widgetsnbextension~=4.0.16"
+        ],
+        "metadata_sha256": "aea2814e0dd68918a6e4a38c37faf17981525636a8a8ef023f0481e93cb8b8a7"
+      },
+      {
+        "name": "isoduration",
+        "version": "20.11.0",
+        "requires_dist": [
+          "arrow (>=0.15.0)"
+        ],
+        "metadata_sha256": "440045201154827793cad24bafbd54deca6800819259e3b17f6edbc06ca7b56b"
+      },
+      {
+        "name": "itsdangerous",
+        "version": "2.2.0",
+        "requires_dist": [],
+        "metadata_sha256": "d2b934fb56708a1b94e439f0255c0f5a8108e3258ec827b18a1dc9c991db9611"
+      },
+      {
+        "name": "jax",
+        "version": "0.11.2",
+        "requires_dist": [
+          "jax-cuda12-plugin<=0.11.2,>=0.11.2; extra == \"cuda12-local\"",
+          "jax-cuda12-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda\"",
+          "jax-cuda12-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda12\"",
+          "jax-cuda13-plugin<=0.11.2,>=0.11.2; extra == \"cuda13-local\"",
+          "jax-cuda13-plugin[with-cuda]<=0.11.2,>=0.11.2; extra == \"cuda13\"",
+          "jax-oneapi-plugin[with-oneapi]<=0.11.2,>=0.11.2; extra == \"oneapi\"",
+          "jax-rocm7-plugin==0.11.2.*; extra == \"rocm7-local\"",
+          "jaxlib<=0.11.2,>=0.11.2",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda12\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda12-local\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda13\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"cuda13-local\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"oneapi\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"rocm7-local\"",
+          "jaxlib<=0.11.2,>=0.11.2; extra == \"tpu\"",
+          "jaxlib==0.11.1; extra == \"ci\"",
+          "jaxlib==0.11.2; extra == \"minimum-jaxlib\"",
+          "kubernetes; extra == \"k8s\"",
+          "libtpu==0.0.48.*; extra == \"tpu\"",
+          "ml_dtypes>=0.5.0",
+          "numpy>=2.1",
+          "opt_einsum",
+          "requests; extra == \"tpu\"",
+          "scipy>=1.15",
+          "xprof; extra == \"xprof\""
+        ],
+        "metadata_sha256": "c5b555876b5bebca82b4338a2754ef33afcd7932e5eeba2e300bb8c5ad5e10c8"
+      },
+      {
+        "name": "jaxlib",
+        "version": "0.11.2",
+        "requires_dist": [
+          "ml_dtypes>=0.5.0",
+          "numpy>=2.0",
+          "scipy>=1.14"
+        ],
+        "metadata_sha256": "e4dc641e32319949e1dcc4ad823a9ab4dd690e33e691f5d5ace89d474030447b"
+      },
+      {
+        "name": "jedi",
+        "version": "0.20.0",
+        "requires_dist": [
+          "Django ; extra == 'dev'",
+          "Jinja2 ==3.1.6 ; extra == 'docs'",
+          "MarkupSafe ==3.0.3 ; extra == 'docs'",
+          "Pygments ==2.20.0 ; extra == 'docs'",
+          "Sphinx ==9.1.0 ; extra == 'docs'",
+          "alabaster ==1.0.0 ; extra == 'docs'",
+          "attrs ; extra == 'dev'",
+          "babel ==2.18.0 ; extra == 'docs'",
+          "certifi ==2026.4.22 ; extra == 'docs'",
+          "charset-normalizer ==3.4.7 ; extra == 'docs'",
+          "colorama ; extra == 'dev'",
+          "docopt ; extra == 'dev'",
+          "docutils ==0.22.4 ; extra == 'docs'",
+          "flake8 ==7.1.2 ; extra == 'dev'",
+          "idna ==3.13 ; extra == 'docs'",
+          "imagesize ==2.0.0 ; extra == 'docs'",
+          "iniconfig ==2.3.0 ; extra == 'docs'",
+          "packaging ==26.2 ; extra == 'docs'",
+          "parso <0.9.0,>=0.8.6",
+          "pluggy ==1.6.0 ; extra == 'docs'",
+          "pytest <9.0.0 ; extra == 'dev'",
+          "pytest ==9.0.3 ; extra == 'docs'",
+          "requests ==2.33.1 ; extra == 'docs'",
+          "roman-numerals ==4.1.0 ; extra == 'docs'",
+          "snowballstemmer ==3.0.1 ; extra == 'docs'",
+          "sphinx-rtd-theme ==3.1.0 ; extra == 'docs'",
+          "sphinxcontrib-applehelp ==2.0.0 ; extra == 'docs'",
+          "sphinxcontrib-devhelp ==2.0.0 ; extra == 'docs'",
+          "sphinxcontrib-htmlhelp ==2.1.0 ; extra == 'docs'",
+          "sphinxcontrib-jquery ==4.1 ; extra == 'docs'",
+          "sphinxcontrib-jsmath ==1.0.1 ; extra == 'docs'",
+          "sphinxcontrib-qthelp ==2.0.0 ; extra == 'docs'",
+          "sphinxcontrib-serializinghtml ==2.0.0 ; extra == 'docs'",
+          "types-setuptools ==80.9.0.20250529 ; extra == 'dev'",
+          "typing-extensions ; extra == 'dev'",
+          "urllib3 ==2.6.3 ; extra == 'docs'",
+          "zuban ==0.7.0 ; extra == 'dev'"
+        ],
+        "metadata_sha256": "436bd0fb249b82dee15e85e2fb91d08d8e797481a16af48a725b8e4fb5340478"
+      },
+      {
+        "name": "Jinja2",
+        "version": "3.1.6",
+        "requires_dist": [
+          "Babel>=2.7 ; extra == \"i18n\"",
+          "MarkupSafe>=2.0"
+        ],
+        "metadata_sha256": "68c5548fb67c4132a13898d9b31ec50c6bea2abdd915d921f214355c3a6499c8"
+      },
+      {
+        "name": "json5",
+        "version": "0.15.0",
+        "requires_dist": [],
+        "metadata_sha256": "4c3b0f1382e4c994a7762b5b142543e19b31d5f7a6dbdecfe1674fc9c3276404"
+      },
+      {
+        "name": "jsonpointer",
+        "version": "3.1.1",
+        "requires_dist": [],
+        "metadata_sha256": "b461427459b7a1d595585ba05a9d0466b134b849204f4ddfbc1b1ed20775ba5d"
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.26.0",
+        "requires_dist": [
+          "attrs>=22.2.0",
+          "fqdn; extra == 'format'",
+          "fqdn; extra == 'format-nongpl'",
+          "idna; extra == 'format'",
+          "idna; extra == 'format-nongpl'",
+          "isoduration; extra == 'format'",
+          "isoduration; extra == 'format-nongpl'",
+          "jsonpointer>1.13; extra == 'format'",
+          "jsonpointer>1.13; extra == 'format-nongpl'",
+          "jsonschema-specifications>=2023.03.6",
+          "referencing>=0.28.4",
+          "rfc3339-validator; extra == 'format'",
+          "rfc3339-validator; extra == 'format-nongpl'",
+          "rfc3986-validator>0.1.0; extra == 'format-nongpl'",
+          "rfc3987-syntax>=1.1.0; extra == 'format-nongpl'",
+          "rfc3987; extra == 'format'",
+          "rpds-py>=0.25.0",
+          "uri-template; extra == 'format'",
+          "uri-template; extra == 'format-nongpl'",
+          "webcolors>=1.11; extra == 'format'",
+          "webcolors>=24.6.0; extra == 'format-nongpl'"
+        ],
+        "metadata_sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1",
+        "requires_dist": [
+          "referencing>=0.31.0"
+        ],
+        "metadata_sha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d"
+      },
+      {
+        "name": "jupyter-events",
+        "version": "0.12.1",
+        "requires_dist": [
+          "click; extra == 'cli'",
+          "click; extra == 'test'",
+          "jsonschema[format-nongpl]>=4.18.0",
+          "jupyterlite-sphinx; extra == 'docs'",
+          "myst-parser; extra == 'docs'",
+          "packaging",
+          "pre-commit; extra == 'test'",
+          "pydata-sphinx-theme>=0.16; extra == 'docs'",
+          "pytest-asyncio>=0.19.0; extra == 'test'",
+          "pytest-console-scripts; extra == 'test'",
+          "pytest>=7.0; extra == 'test'",
+          "python-json-logger>=2.0.4",
+          "pyyaml>=5.3",
+          "referencing",
+          "rfc3339-validator",
+          "rfc3986-validator>=0.1.1",
+          "rich; extra == 'cli'",
+          "rich; extra == 'test'",
+          "sphinx>=8; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "traitlets>=5.3"
+        ],
+        "metadata_sha256": "eaba123d824409959b98e9d5ab4e725f7bc64de041da34779df7bc993b03d4fa"
+      },
+      {
+        "name": "jupyter_client",
+        "version": "8.10.0",
+        "requires_dist": [
+          "anyio; extra == 'test'",
+          "coverage; extra == 'test'",
+          "ipykernel; extra == 'docs'",
+          "ipykernel>=6.14; extra == 'test'",
+          "jupyter-core>=5.1",
+          "msgpack; extra == 'test'",
+          "mypy; (platform_python_implementation != 'PyPy') and extra == 'test'",
+          "myst-parser; extra == 'docs'",
+          "orjson; extra == 'orjson'",
+          "paramiko; (sys_platform == 'win32') and extra == 'test'",
+          "pre-commit; extra == 'test'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-cov; extra == 'test'",
+          "pytest-jupyter[client]>=0.6.2; extra == 'test'",
+          "pytest-timeout; extra == 'test'",
+          "pytest; extra == 'test'",
+          "python-dateutil>=2.8.2",
+          "pyzmq>=25.0",
+          "sphinx-autodoc-typehints; extra == 'docs'",
+          "sphinx>=4; extra == 'docs'",
+          "sphinxcontrib-github-alt; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "tornado>=6.4.1",
+          "traitlets>=5.3",
+          "typing-extensions>=4.13.0"
+        ],
+        "metadata_sha256": "95ec04e32a2decceb7325efa691e6e160201e4e8184db1b1e36a239f9170f560"
+      },
+      {
+        "name": "jupyter_core",
+        "version": "5.9.1",
+        "requires_dist": [
+          "intersphinx-registry; extra == 'docs'",
+          "ipykernel; extra == 'test'",
+          "myst-parser; extra == 'docs'",
+          "platformdirs>=2.5",
+          "pre-commit; extra == 'test'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-cov; extra == 'test'",
+          "pytest-timeout; extra == 'test'",
+          "pytest<9; extra == 'test'",
+          "sphinx-autodoc-typehints; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "traitlets; extra == 'docs'",
+          "traitlets>=5.3"
+        ],
+        "metadata_sha256": "68a656d7e2ebe45d40becf6032998192790d8a7536942f72167d79b8559e5ded"
+      },
+      {
+        "name": "jupyter_server",
+        "version": "2.21.1",
+        "requires_dist": [
+          "anyio>=3.1.0",
+          "argon2-cffi>=21.1",
+          "flaky; extra == 'test'",
+          "ipykernel; extra == 'docs'",
+          "ipykernel; extra == 'test'",
+          "jinja2; extra == 'docs'",
+          "jinja2>=3.0.3",
+          "jupyter-client; extra == 'docs'",
+          "jupyter-client>=7.4.4",
+          "jupyter-core!=5.0.*,>=4.12",
+          "jupyter-events>=0.11.0",
+          "jupyter-server-terminals>=0.4.4",
+          "myst-parser; extra == 'docs'",
+          "nbconvert>=6.4.4",
+          "nbformat; extra == 'docs'",
+          "nbformat>=5.3.0",
+          "overrides>=5.0; python_version < '3.12'",
+          "packaging>=22.0",
+          "pre-commit; extra == 'test'",
+          "prometheus-client; extra == 'docs'",
+          "prometheus-client>=0.9",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-console-scripts; extra == 'test'",
+          "pytest-jupyter[server]>=0.7; extra == 'test'",
+          "pytest-timeout; extra == 'test'",
+          "pytest<10,>=7.0; extra == 'test'",
+          "pywinpty!=3.0.4,>=2.0.1; os_name == 'nt'",
+          "pyzmq>=24",
+          "requests; extra == 'test'",
+          "send2trash; extra == 'docs'",
+          "send2trash>=1.8.2",
+          "sphinx-autodoc-typehints; extra == 'docs'",
+          "sphinx<9.0; extra == 'docs'",
+          "sphinxcontrib-github-alt; extra == 'docs'",
+          "sphinxcontrib-openapi>=0.8.0; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "sphinxemoji; extra == 'docs'",
+          "terminado>=0.8.3",
+          "tornado; extra == 'docs'",
+          "tornado>=6.2.0",
+          "traitlets>=5.6.0",
+          "typing-extensions; extra == 'docs'",
+          "websocket-client>=1.7"
+        ],
+        "metadata_sha256": "8226733ae338cde3da8cf2ca7f4e3f338ec3518485602cad0f49fddf1bf6d11d"
+      },
+      {
+        "name": "jupyter_server_terminals",
+        "version": "0.5.4",
+        "requires_dist": [
+          "jinja2; extra == 'docs'",
+          "jupyter-server; extra == 'docs'",
+          "jupyter-server>=2.0.0; extra == 'test'",
+          "mistune<4.0; extra == 'docs'",
+          "myst-parser; extra == 'docs'",
+          "nbformat; extra == 'docs'",
+          "packaging; extra == 'docs'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-jupyter[server]>=0.5.3; extra == 'test'",
+          "pytest-timeout; extra == 'test'",
+          "pytest>=7.0; extra == 'test'",
+          "pywinpty>=2.0.3; os_name == 'nt'",
+          "sphinxcontrib-github-alt; extra == 'docs'",
+          "sphinxcontrib-openapi; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "sphinxemoji; extra == 'docs'",
+          "terminado>=0.8.3",
+          "tornado; extra == 'docs'"
+        ],
+        "metadata_sha256": "811110bdf2240b02fde7baf2a6ace5ba8e6726739daf00547922675919daae8e"
+      },
+      {
+        "name": "jupyterlab_pygments",
+        "version": "0.3.0",
+        "requires_dist": [],
+        "metadata_sha256": "779802ccb231a915a67e42fd6247daacf6c6f5c2a29d3a61914b58b4c35cae46"
+      },
+      {
+        "name": "jupyterlab_server",
+        "version": "2.28.1",
+        "requires_dist": [
+          "autodoc-traits; extra == 'docs'",
+          "babel>=2.10",
+          "hatch; extra == 'test'",
+          "ipykernel; extra == 'test'",
+          "jinja2<3.2.0; extra == 'docs'",
+          "jinja2>=3.0.3",
+          "json5>=0.9.0",
+          "jsonschema>=4.18.0",
+          "jupyter-server<3,>=1.21",
+          "mistune<4; extra == 'docs'",
+          "myst-parser; extra == 'docs'",
+          "openapi-core~=0.18.0; extra == 'openapi'",
+          "openapi-core~=0.18.0; extra == 'test'",
+          "openapi-spec-validator<0.8.0,>=0.6.0; extra == 'test'",
+          "packaging>=21.3",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-console-scripts; extra == 'test'",
+          "pytest-cov; extra == 'test'",
+          "pytest-jupyter[server]>=0.6.2; extra == 'test'",
+          "pytest-timeout; extra == 'test'",
+          "pytest<8,>=7.0; extra == 'test'",
+          "requests-mock; extra == 'test'",
+          "requests>=2.31",
+          "ruamel-yaml; extra == 'openapi'",
+          "ruamel-yaml; extra == 'test'",
+          "sphinx-copybutton; extra == 'docs'",
+          "sphinx; extra == 'docs'",
+          "sphinxcontrib-openapi>0.8; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'test'",
+          "strict-rfc3339; extra == 'test'",
+          "werkzeug; extra == 'test'"
+        ],
+        "metadata_sha256": "f569da8b222c13982ba106fff96f2eeadf68c877faf5897f867dbf2839d89eaf"
+      },
+      {
+        "name": "jupyterlab_widgets",
+        "version": "3.0.17",
+        "requires_dist": [],
+        "metadata_sha256": "4afc9ec69f8ecf916f2620116b0906efccda8e29a2f1940bedd8632237fadcac"
+      },
+      {
+        "name": "kiwisolver",
+        "version": "1.5.1",
+        "requires_dist": [],
+        "metadata_sha256": "f07b7b6c0c9c2a624c8a31f931e16712f2cf3490e7dfd51643d68e9d42d4b2c9"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1",
+        "requires_dist": [
+          "atomicwrites; extra == \"atomic-cache\"",
+          "interegular<0.4.0,>=0.3.1; extra == \"interegular\"",
+          "js2py; extra == \"nearley\"",
+          "regex; extra == \"regex\""
+        ],
+        "metadata_sha256": "730d3f056045a9096bc0a65e4faccae53fe7f3634055174d4b8245cd19cb4cde"
+      },
+      {
+        "name": "librt",
+        "version": "0.16.0",
+        "requires_dist": [],
+        "metadata_sha256": "d8d86b1900c9bd2deee1d47b226769832d9854dba7911e07637873a142e88c1a"
+      },
+      {
+        "name": "markdown-it-py",
+        "version": "4.2.0",
+        "requires_dist": [
+          "commonmark~=0.9 ; extra == \"compare\"",
+          "coverage ; extra == \"testing\"",
+          "gprof2dot ; extra == \"profiling\"",
+          "ipykernel ; extra == \"rtd\"",
+          "jupyter_sphinx ; extra == \"rtd\"",
+          "linkify-it-py>=1,<3 ; extra == \"linkify\"",
+          "markdown-it-pyrs ; extra == \"compare\"",
+          "markdown~=3.4 ; extra == \"compare\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"plugins\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"rtd\"",
+          "mdurl~=0.1",
+          "mistletoe~=1.0 ; extra == \"compare\"",
+          "mistune~=3.0 ; extra == \"compare\"",
+          "myst-parser ; extra == \"rtd\"",
+          "panflute~=2.3 ; extra == \"compare\"",
+          "psutil ; extra == \"benchmarking\"",
+          "pytest ; extra == \"benchmarking\"",
+          "pytest ; extra == \"testing\"",
+          "pytest-benchmark ; extra == \"benchmarking\"",
+          "pytest-cov ; extra == \"testing\"",
+          "pytest-regressions ; extra == \"testing\"",
+          "pytest-timeout ; extra == \"testing\"",
+          "pyyaml ; extra == \"rtd\"",
+          "requests ; extra == \"testing\"",
+          "sphinx ; extra == \"rtd\"",
+          "sphinx-book-theme~=1.0 ; extra == \"rtd\"",
+          "sphinx-copybutton ; extra == \"rtd\"",
+          "sphinx-design ; extra == \"rtd\""
+        ],
+        "metadata_sha256": "72c36ff516755443b1ecb61e17b2567a990230b49a504b0eb0c42d5f82448a9c"
+      },
+      {
+        "name": "MarkupSafe",
+        "version": "3.0.4",
+        "requires_dist": [],
+        "metadata_sha256": "66767d76388ece15d49d50dafb655891ef5d868715e7128e7f7d737a70b353c4"
+      },
+      {
+        "name": "matplotlib",
+        "version": "3.11.2",
+        "requires_dist": [
+          "contourpy>=1.0.1",
+          "cycler>=0.10",
+          "fonttools>=4.28.2",
+          "kiwisolver>=1.3.1",
+          "numpy>=1.25",
+          "packaging>=20.0",
+          "pillow>=9",
+          "pyparsing>=3",
+          "python-dateutil>=2.7"
+        ],
+        "metadata_sha256": "e5f532226d1025af2dd15ff951df27391f66d46403b8244ea61e6b8eb3e4d806"
+      },
+      {
+        "name": "matplotlib-inline",
+        "version": "0.2.2",
+        "requires_dist": [
+          "flake8 ; extra == \"test\"",
+          "matplotlib ; extra == \"test\"",
+          "nbdime ; extra == \"test\"",
+          "nbval ; extra == \"test\"",
+          "notebook ; extra == \"test\"",
+          "pytest ; extra == \"test\"",
+          "traitlets"
+        ],
+        "metadata_sha256": "fedb3d587ec2d3fa4b0a81fd5353df697d2534c8ee714dbf050009afc60bcab7"
+      },
+      {
+        "name": "mdurl",
+        "version": "0.1.2",
+        "requires_dist": [],
+        "metadata_sha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d"
+      },
+      {
+        "name": "mendeleev",
+        "version": "1.3.0",
+        "requires_dist": [
+          "Pygments (>=2.11.2,<3.0.0)",
+          "SQLAlchemy (>=1.4.0)",
+          "bokeh (>=3.0,<4.0) ; extra == \"vis\"",
+          "colorama (>=0.4.6,<0.5.0)",
+          "deprecated (>=1.2.14,<2.0.0)",
+          "jupyter-bokeh (>=4.0,<5.0) ; extra == \"vis\"",
+          "numpy (>=2.0,<3.0)",
+          "pandas (>=2.1)",
+          "pint (>=0.24.4,<0.25.0)",
+          "plotly (>=5.0) ; extra == \"vis\"",
+          "pydantic (>=2.12,<3.0)",
+          "pydantic-core (>=2.23,<3.0)",
+          "pyfiglet (>=0.8.post1,<0.9)",
+          "seaborn (>=0.12) ; extra == \"vis\""
+        ],
+        "metadata_sha256": "a39522182e2d6cc314a95c2a16c965fa7e5633ad8b8b259e0823d71f0d56a8ff"
+      },
+      {
+        "name": "mistune",
+        "version": "3.3.4",
+        "requires_dist": [
+          "typing-extensions; python_version < \"3.11\""
+        ],
+        "metadata_sha256": "0655c262ad851c4ac26b84a0830dc0ab38a302f58c9bf86fe0d31ee2ab03d650"
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.6.0",
+        "requires_dist": [
+          "absl-py; extra == \"dev\"",
+          "numpy>=2.0.0",
+          "numpy>=2.1.0; python_version >= \"3.13\"",
+          "numpy>=2.3.0; python_version >= \"3.14\"",
+          "pyink; extra == \"dev\"",
+          "pylint>=2.6.0; extra == \"dev\"",
+          "pytest-xdist; extra == \"dev\"",
+          "pytest; extra == \"dev\""
+        ],
+        "metadata_sha256": "363d582174259be78c619e314216fc8979e5a5ec245337ee236b244945df3f01"
+      },
+      {
+        "name": "mmh3",
+        "version": "5.3.1",
+        "requires_dist": [
+          "actionlint-py==1.7.12.24; extra == \"lint\"",
+          "clang-format==23.1.0; extra == \"lint\"",
+          "codespell==2.4.3; extra == \"lint\"",
+          "matplotlib==3.10.9; extra == \"plot\"",
+          "mypy==2.3.1; extra == \"type\"",
+          "myst-parser==5.0.0; extra == \"docs\"",
+          "pandas==3.0.1; extra == \"plot\"",
+          "pylint==4.0.8; extra == \"lint\"",
+          "pymmh3==0.0.5; extra == \"benchmark\"",
+          "pyperf==2.10.0; extra == \"benchmark\"",
+          "pytest-sugar==1.1.1; extra == \"test\"",
+          "pytest==9.1.1; extra == \"test\"",
+          "ruff==0.16.5; extra == \"lint\"",
+          "shibuya==2026.7.12; extra == \"docs\"",
+          "sphinx-copybutton==0.5.2; extra == \"docs\"",
+          "sphinx==8.2.3; extra == \"docs\"",
+          "xxhash==4.0.1; extra == \"benchmark\""
+        ],
+        "metadata_sha256": "c0e9c9f193d0caa406ca8e603b9c937cd80aa90314da5a9f9b7b5a176ae25a52"
+      },
+      {
+        "name": "MolSym",
+        "version": "1.2.0",
+        "requires_dist": [
+          "numpy>=1.23.4",
+          "qcelemental>=0.50.0; extra == \"qcel\""
+        ],
+        "metadata_sha256": "7f28b3dc924fcf0a845a43040ce6557eec3e2e17560beb822b6afe79e78594f6"
+      },
+      {
+        "name": "msgpack",
+        "version": "1.2.3",
+        "requires_dist": [],
+        "metadata_sha256": "f47c09192e9f4f81b8b4a63979473a13f7a63c67dcdc41be2e0f97353a9dc5b4"
+      },
+      {
+        "name": "mypy",
+        "version": "2.4.0",
+        "requires_dist": [
+          "ast-serialize<1.0.0,>=0.11.2",
+          "librt>=0.16.0; platform_python_implementation != \"PyPy\"",
+          "lxml; extra == \"reports\"",
+          "mypy_extensions>=1.0.0",
+          "orjson; extra == \"faster-cache\"",
+          "pathspec>=1.0.0",
+          "pip; extra == \"install-types\"",
+          "psutil>=4.0; extra == \"dmypy\"",
+          "setuptools>=50; extra == \"mypyc\"",
+          "tomli>=1.1.0; python_version < \"3.11\"",
+          "typing_extensions>=4.14.0; python_version >= \"3.15\"",
+          "typing_extensions>=4.6.0; python_version < \"3.15\""
+        ],
+        "metadata_sha256": "0dde788d2abb4252a7c5c6a11177ba591aae10102e9b84e618ff29a8f1cbcd88"
+      },
+      {
+        "name": "mypy_extensions",
+        "version": "1.1.0",
+        "requires_dist": [],
+        "metadata_sha256": "2c4a44936d885f30433181ca40bbf62457351f1f6b0871b11f8789564f87477f"
+      },
+      {
+        "name": "narwhals",
+        "version": "2.26.0",
+        "requires_dist": [
+          "cudf-cu12>=24.10.0 ; sys_platform == 'linux' and extra == 'cudf'",
+          "dask[dataframe]>=2024.8 ; extra == 'dask'",
+          "duckdb>=1.1 ; extra == 'duckdb'",
+          "ibis-framework>=6.0.0 ; extra == 'ibis'",
+          "modin>=0.22.0 ; extra == 'modin'",
+          "narwhals[duckdb] ; extra == 'sql'",
+          "packaging>=21.3 ; extra == 'ibis'",
+          "pandas>=1.3.4 ; extra == 'pandas'",
+          "polars>=0.20.4 ; extra == 'polars'",
+          "pyarrow-hotfix>=0.7 ; extra == 'ibis'",
+          "pyarrow>=13.0.0 ; extra == 'pyarrow'",
+          "pyspark>=3.5.0 ; extra == 'pyspark'",
+          "pyspark[connect]>=3.5.0 ; extra == 'pyspark-connect'",
+          "sqlframe>=3.22.0,!=3.39.3 ; extra == 'sqlframe'",
+          "sqlparse>=0.5.5 ; extra == 'sql'"
+        ],
+        "metadata_sha256": "7e09d821259f98ca6ce639ddf38d5314fca112911dc3ba58d8546381ac1b2861"
+      },
+      {
+        "name": "nbclient",
+        "version": "0.11.0",
+        "requires_dist": [
+          "autodoc-traits; extra == 'docs'",
+          "flaky; extra == 'docs'",
+          "flaky; extra == 'test'",
+          "ipykernel>=6.19.3; extra == 'docs'",
+          "ipykernel>=6.19.3; extra == 'test'",
+          "ipython; extra == 'docs'",
+          "ipython; extra == 'test'",
+          "ipywidgets; extra == 'docs'",
+          "ipywidgets; extra == 'test'",
+          "jupyter-client>=7.0.0",
+          "jupyter-core>=5.4.0",
+          "mock; extra == 'docs'",
+          "moto; extra == 'docs'",
+          "myst-parser; extra == 'docs'",
+          "nbconvert>=7.1.0; extra == 'docs'",
+          "nbconvert>=7.1.0; extra == 'test'",
+          "nbformat>=5.2.0",
+          "pre-commit; extra == 'dev'",
+          "pytest-asyncio>=1.3.0; extra == 'docs'",
+          "pytest-asyncio>=1.3.0; extra == 'test'",
+          "pytest-cov>=4.0; extra == 'docs'",
+          "pytest-cov>=4.0; extra == 'test'",
+          "pytest<10,>=9.0.1; extra == 'docs'",
+          "pytest<10,>=9.0.1; extra == 'test'",
+          "sphinx-book-theme; extra == 'docs'",
+          "sphinx>=1.7; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "testpath; extra == 'docs'",
+          "testpath; extra == 'test'",
+          "traitlets>=5.13",
+          "xmltodict; extra == 'docs'",
+          "xmltodict; extra == 'test'"
+        ],
+        "metadata_sha256": "97b199c27c838caf67939deb40ea5432a3cc0ce2b68deb5bb20043dd7e295191"
+      },
+      {
+        "name": "nbconvert",
+        "version": "7.17.1",
+        "requires_dist": [
+          "beautifulsoup4",
+          "bleach[css]!=5.0.0",
+          "defusedxml",
+          "flaky; extra == 'all'",
+          "flaky; extra == 'test'",
+          "importlib-metadata>=3.6; python_version < '3.10'",
+          "intersphinx-registry; extra == 'all'",
+          "intersphinx-registry; extra == 'docs'",
+          "ipykernel; extra == 'all'",
+          "ipykernel; extra == 'docs'",
+          "ipykernel; extra == 'test'",
+          "ipython; extra == 'all'",
+          "ipython; extra == 'docs'",
+          "ipywidgets>=7.5; extra == 'all'",
+          "ipywidgets>=7.5; extra == 'test'",
+          "jinja2>=3.0",
+          "jupyter-core>=4.7",
+          "jupyterlab-pygments",
+          "markupsafe>=2.0",
+          "mistune<4,>=2.0.3",
+          "myst-parser; extra == 'all'",
+          "myst-parser; extra == 'docs'",
+          "nbclient>=0.5.0",
+          "nbformat>=5.7",
+          "nbsphinx>=0.2.12; extra == 'all'",
+          "nbsphinx>=0.2.12; extra == 'docs'",
+          "packaging",
+          "pandocfilters>=1.4.1",
+          "playwright; extra == 'all'",
+          "playwright; extra == 'webpdf'",
+          "pydata-sphinx-theme; extra == 'all'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pygments>=2.4.1",
+          "pyqtwebengine>=5.15; extra == 'all'",
+          "pyqtwebengine>=5.15; extra == 'qtpdf'",
+          "pyqtwebengine>=5.15; extra == 'qtpng'",
+          "pytest>=7; extra == 'all'",
+          "pytest>=7; extra == 'test'",
+          "sphinx>=5.0.2; extra == 'all'",
+          "sphinx>=5.0.2; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'all'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "tornado>=6.1; extra == 'all'",
+          "tornado>=6.1; extra == 'serve'",
+          "traitlets>=5.1"
+        ],
+        "metadata_sha256": "ff2b5c1e1f14cc033f39305cc753cc53f5c5735c127a5c3289f68c63a490202e"
+      },
+      {
+        "name": "nbformat",
+        "version": "5.11.1",
+        "requires_dist": [
+          "fastjsonschema>=2.15",
+          "intersphinx-registry; extra == 'docs'",
+          "jsonschema>=2.6",
+          "jupyter-core!=5.0.*,>=4.12",
+          "myst-parser; extra == 'docs'",
+          "packaging; extra == 'test'",
+          "pre-commit; extra == 'test'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest; extra == 'test'",
+          "sphinx; extra == 'docs'",
+          "sphinxcontrib-github-alt; extra == 'docs'",
+          "sphinxcontrib-spelling; extra == 'docs'",
+          "testpath; extra == 'test'",
+          "traitlets>=5.1"
+        ],
+        "metadata_sha256": "6a25a2f961025655ed80a66f794ac6b8ded4e4ea4c0600ad1801876c0bec6c74"
+      },
+      {
+        "name": "nest-asyncio2",
+        "version": "1.7.3",
+        "requires_dist": [],
+        "metadata_sha256": "559e9bae8f420876b6a83cb35b0cb2bbf86b3952b4e27fa6e9429984893c97a7"
+      },
+      {
+        "name": "networkx",
+        "version": "3.7",
+        "requires_dist": [
+          "asv>=0.6.5; extra == \"benchmarking\"",
+          "build>=0.10; extra == \"release\"",
+          "cairocffi>=1.7; extra == \"example\"",
+          "changelist==0.5; extra == \"release\"",
+          "contextily>=1.6; extra == \"example\"",
+          "hiveplotlib>=0.28; extra == \"example\"",
+          "igraph>=0.11; extra == \"example\"",
+          "intersphinx-registry; extra == \"doc\"",
+          "iplotx>=0.9.0; extra == \"example\"",
+          "lxml>=4.6; extra == \"extra\"",
+          "matplotlib>=3.10; extra == \"default\"",
+          "momepy>=0.7.2; extra == \"example\"",
+          "mypy>=1.15; extra == \"developer\"",
+          "myst-nb>=1.1; extra == \"doc\"",
+          "numpy>=2.2; extra == \"default\"",
+          "numpydoc>=1.8.0; extra == \"doc\"",
+          "osmnx>=2.0.0; extra == \"example\"",
+          "pandas>=2.3; extra == \"default\"",
+          "pillow>=10; extra == \"doc\"",
+          "pre-commit>=4.1; extra == \"developer\"",
+          "py-rattler<0.22,>=0.21; extra == \"benchmarking\"",
+          "pydata-sphinx-theme>=0.16; extra == \"doc\"",
+          "pydot>=3.0.1; extra == \"extra\"",
+          "pygraphviz>=2.0; extra == \"extra\"",
+          "pytest-cov>=4.0; extra == \"test\"",
+          "pytest-mpl; extra == \"test-extras\"",
+          "pytest-randomly; extra == \"test-extras\"",
+          "pytest-xdist>=3.0; extra == \"test\"",
+          "pytest>=7.2; extra == \"test\"",
+          "scikit-learn>=1.6; extra == \"example\"",
+          "scipy>=1.15; extra == \"default\"",
+          "seaborn>=0.13; extra == \"example\"",
+          "sphinx-gallery>=0.18; extra == \"doc\"",
+          "sphinx>=8.0; extra == \"doc\"",
+          "sympy>=1.10; extra == \"extra\"",
+          "texext>=0.6.7; extra == \"doc\"",
+          "twine>=4.0; extra == \"release\"",
+          "virtualenv; extra == \"benchmarking\"",
+          "wheel>=0.40; extra == \"release\""
+        ],
+        "metadata_sha256": "ffcf42a343af6ffc54ff9cc4c09cf9638cd73b131370f395abd11b630186c90c"
+      },
+      {
+        "name": "numpy",
+        "version": "2.5.3",
+        "requires_dist": [],
+        "metadata_sha256": "451a9b8028000588e66b0b415587b6aef0bbc51a96d8e8a0cba0dc23acf64f99"
+      },
+      {
+        "name": "nvidia-ml-py",
+        "version": "13.615.71",
+        "requires_dist": [],
+        "metadata_sha256": "df52f2f04ac78c5259e776be3194ae3bfee274cadc0623576be6a699621ef6a8"
+      },
+      {
+        "name": "opt_einsum",
+        "version": "3.4.0",
+        "requires_dist": [],
+        "metadata_sha256": "9f6791140c5e1be4f1b189365e6312d711a1eaaeb399b5dd6741f7a4bd99d03b"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3",
+        "requires_dist": [],
+        "metadata_sha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763"
+      },
+      {
+        "name": "pandas",
+        "version": "3.0.6",
+        "requires_dist": [
+          "PyQt5>=5.15.9; extra == \"all\"",
+          "PyQt5>=5.15.9; extra == \"clipboard\"",
+          "SQLAlchemy>=2.0.36; extra == \"all\"",
+          "SQLAlchemy>=2.0.36; extra == \"mysql\"",
+          "SQLAlchemy>=2.0.36; extra == \"postgresql\"",
+          "SQLAlchemy>=2.0.36; extra == \"sql-other\"",
+          "adbc-driver-postgresql>=1.2.0; extra == \"all\"",
+          "adbc-driver-postgresql>=1.2.0; extra == \"postgresql\"",
+          "adbc-driver-postgresql>=1.2.0; extra == \"sql-other\"",
+          "adbc-driver-sqlite>=1.2.0; extra == \"all\"",
+          "adbc-driver-sqlite>=1.2.0; extra == \"sql-other\"",
+          "beautifulsoup4>=4.12.3; extra == \"all\"",
+          "beautifulsoup4>=4.12.3; extra == \"html\"",
+          "bottleneck>=1.4.2; extra == \"all\"",
+          "bottleneck>=1.4.2; extra == \"performance\"",
+          "fastparquet>=2024.11.0; extra == \"all\"",
+          "fsspec>=2024.10.0; extra == \"all\"",
+          "fsspec>=2024.10.0; extra == \"fss\"",
+          "gcsfs>=2024.10.0; extra == \"all\"",
+          "gcsfs>=2024.10.0; extra == \"gcp\"",
+          "html5lib>=1.1; extra == \"all\"",
+          "html5lib>=1.1; extra == \"html\"",
+          "hypothesis>=6.116.0; extra == \"all\"",
+          "hypothesis>=6.116.0; extra == \"test\"",
+          "jinja2>=3.1.5; extra == \"all\"",
+          "jinja2>=3.1.5; extra == \"output-formatting\"",
+          "lxml>=5.3.0; extra == \"all\"",
+          "lxml>=5.3.0; extra == \"html\"",
+          "lxml>=5.3.0; extra == \"xml\"",
+          "matplotlib>=3.9.3; extra == \"all\"",
+          "matplotlib>=3.9.3; extra == \"plot\"",
+          "numba>=0.60.0; extra == \"all\"",
+          "numba>=0.60.0; extra == \"performance\"",
+          "numexpr>=2.10.2; extra == \"all\"",
+          "numexpr>=2.10.2; extra == \"performance\"",
+          "numpy>=1.26.0; python_version < \"3.14\"",
+          "numpy>=2.3.3; python_version >= \"3.14\"",
+          "odfpy>=1.4.1; extra == \"all\"",
+          "odfpy>=1.4.1; extra == \"excel\"",
+          "openpyxl>=3.1.5; extra == \"all\"",
+          "openpyxl>=3.1.5; extra == \"excel\"",
+          "psycopg2>=2.9.10; extra == \"all\"",
+          "psycopg2>=2.9.10; extra == \"postgresql\"",
+          "pyarrow>=13.0.0; extra == \"all\"",
+          "pyarrow>=13.0.0; extra == \"feather\"",
+          "pyarrow>=13.0.0; extra == \"parquet\"",
+          "pyarrow>=13.0.0; extra == \"pyarrow\"",
+          "pyiceberg>=0.8.1; extra == \"all\"",
+          "pyiceberg>=0.8.1; extra == \"iceberg\"",
+          "pymysql>=1.1.1; extra == \"all\"",
+          "pymysql>=1.1.1; extra == \"mysql\"",
+          "pyreadstat>=1.2.8; extra == \"all\"",
+          "pyreadstat>=1.2.8; extra == \"spss\"",
+          "pytest-xdist>=3.6.1; extra == \"all\"",
+          "pytest-xdist>=3.6.1; extra == \"test\"",
+          "pytest<9.1,>=8.3.4; extra == \"test\"",
+          "pytest>=8.3.4; extra == \"all\"",
+          "python-calamine>=0.3.0; extra == \"all\"",
+          "python-calamine>=0.3.0; extra == \"excel\"",
+          "python-dateutil>=2.8.2",
+          "pytz>=2020.1; extra == \"all\"",
+          "pytz>=2020.1; extra == \"timezone\"",
+          "pyxlsb>=1.0.10; extra == \"all\"",
+          "pyxlsb>=1.0.10; extra == \"excel\"",
+          "qtpy>=2.4.2; extra == \"all\"",
+          "qtpy>=2.4.2; extra == \"clipboard\"",
+          "s3fs>=2024.10.0; extra == \"all\"",
+          "s3fs>=2024.10.0; extra == \"aws\"",
+          "scipy>=1.14.1; extra == \"all\"",
+          "scipy>=1.14.1; extra == \"computation\"",
+          "tables>=3.10.1; extra == \"all\"",
+          "tables>=3.10.1; extra == \"hdf5\"",
+          "tabulate>=0.9.0; extra == \"all\"",
+          "tabulate>=0.9.0; extra == \"output-formatting\"",
+          "tzdata; sys_platform == \"emscripten\"",
+          "tzdata; sys_platform == \"win32\"",
+          "xarray>=2024.10.0; extra == \"all\"",
+          "xarray>=2024.10.0; extra == \"computation\"",
+          "xlrd>=2.0.1; extra == \"all\"",
+          "xlrd>=2.0.1; extra == \"excel\"",
+          "xlsxwriter>=3.2.0; extra == \"all\"",
+          "xlsxwriter>=3.2.0; extra == \"excel\"",
+          "zstandard>=0.23.0; extra == \"all\"",
+          "zstandard>=0.23.0; extra == \"compression\""
+        ],
+        "metadata_sha256": "c2e8c472e1f49c30b7b00dc1cde8b8ed384b1b6d85b4d5ffe163e800e71dbc61"
+      },
+      {
+        "name": "pandocfilters",
+        "version": "1.5.1",
+        "requires_dist": [],
+        "metadata_sha256": "c3ef8768dba260dd46311e1acc3a67863a0e5671a9d23fcd2e1a7b7256aab52e"
+      },
+      {
+        "name": "parsl",
+        "version": "2026.10.5",
+        "requires_dist": [
+          "Flask>=1.0.2; extra == \"all\"",
+          "Flask>=1.0.2; extra == \"visualization\"",
+          "azure<=4; extra == \"all\"",
+          "azure<=4; extra == \"azure\"",
+          "boto3; extra == \"all\"",
+          "boto3; extra == \"aws\"",
+          "cffi; extra == \"all\"",
+          "cffi; extra == \"flux\"",
+          "dill",
+          "filelock<4,>=3.13",
+          "flask_sqlalchemy; extra == \"all\"",
+          "flask_sqlalchemy; extra == \"visualization\"",
+          "globus-sdk; extra == \"all\"",
+          "globus-sdk; extra == \"globus-transfer\"",
+          "globus_compute_sdk>=2.34.0; extra == \"all\"",
+          "globus_compute_sdk>=2.34.0; extra == \"globus-compute\"",
+          "google-api-python-client; extra == \"all\"",
+          "google-api-python-client; extra == \"google-cloud\"",
+          "google-auth; extra == \"all\"",
+          "google-auth; extra == \"google-cloud\"",
+          "ipython<=8.6.0; extra == \"all\"",
+          "ipython<=8.6.0; extra == \"docs\"",
+          "jsonschema; extra == \"all\"",
+          "jsonschema; extra == \"flux\"",
+          "kubernetes; extra == \"all\"",
+          "kubernetes; extra == \"kubernetes\"",
+          "msrestazure; extra == \"all\"",
+          "msrestazure; extra == \"azure\"",
+          "nbsphinx; extra == \"all\"",
+          "nbsphinx; extra == \"docs\"",
+          "networkx<3.3,>=3.2; extra == \"all\"",
+          "networkx<3.3,>=3.2; extra == \"visualization\"",
+          "pandas<3,>=2.2; extra == \"all\"",
+          "pandas<3,>=2.2; extra == \"visualization\"",
+          "plotly<7,>=5.19; extra == \"all\"",
+          "plotly<7,>=5.19; extra == \"visualization\"",
+          "proxystore; extra == \"all\"",
+          "proxystore; extra == \"proxystore\"",
+          "psutil>=5.5.1",
+          "pydot>=1.4.2; extra == \"all\"",
+          "pydot>=1.4.2; extra == \"visualization\"",
+          "python-daemon; extra == \"all\"",
+          "python-daemon; extra == \"visualization\"",
+          "python-gssapi; extra == \"all\"",
+          "python-gssapi; extra == \"gssapi\"",
+          "pyyaml; extra == \"all\"",
+          "pyyaml; extra == \"flux\"",
+          "pyzmq>=17.1.2",
+          "radical.pilot==1.90; extra == \"all\"",
+          "radical.pilot==1.90; extra == \"radical-pilot\"",
+          "radical.utils==1.90; extra == \"all\"",
+          "radical.utils==1.90; extra == \"radical-pilot\"",
+          "requests",
+          "setproctitle",
+          "sortedcontainers",
+          "sphinx<8,>=7.4; extra == \"all\"",
+          "sphinx<8,>=7.4; extra == \"docs\"",
+          "sphinx_rtd_theme; extra == \"all\"",
+          "sphinx_rtd_theme; extra == \"docs\"",
+          "sqlalchemy<2.1,>=2; extra == \"all\"",
+          "sqlalchemy<2.1,>=2; extra == \"monitoring\"",
+          "tblib",
+          "typeguard!=3.*,<5,>=2.10",
+          "typing-extensions<5,>=4.6",
+          "work_queue; extra == \"all\"",
+          "work_queue; extra == \"workqueue\""
+        ],
+        "metadata_sha256": "b85a76c8442ff4b939c405b98aba6a3c350164997375601f5232b06864cf1d1f"
+      },
+      {
+        "name": "parso",
+        "version": "0.8.7",
+        "requires_dist": [
+          "docopt ; extra == 'testing'",
+          "flake8 ==5.0.4 ; extra == 'qa'",
+          "pytest ; extra == 'testing'",
+          "types-setuptools ==67.2.0.1 ; extra == 'qa'",
+          "zuban ==0.5.1 ; extra == 'qa'"
+        ],
+        "metadata_sha256": "2fd8c9f8209218163a6c086ba8075d177122430645fea770cc02c53cd426119d"
+      },
+      {
+        "name": "pathspec",
+        "version": "1.1.1",
+        "requires_dist": [
+          "google-re2 >=1.1 ; extra == \"re2\"",
+          "hyperscan >=0.7 ; extra == \"hyperscan\"",
+          "typing-extensions >=4 ; extra == \"optional\""
+        ],
+        "metadata_sha256": "68de3f158b6592f086e78754c962092f32a761944ab66a660c0d62ad79c4b69b"
+      },
+      {
+        "name": "pexpect",
+        "version": "4.9.0",
+        "requires_dist": [
+          "ptyprocess (>=0.5)"
+        ],
+        "metadata_sha256": "2d7c5ac5fdefde4a0194ec522fbcc0ca70e99e1a2a956eea444168f8591650aa"
+      },
+      {
+        "name": "pillow",
+        "version": "12.3.0",
+        "requires_dist": [
+          "arro3-compute; extra == \"test-arrow\"",
+          "arro3-core; extra == \"test-arrow\"",
+          "coverage>=7.4.2; extra == \"tests\"",
+          "defusedxml; extra == \"tests\"",
+          "defusedxml; extra == \"xmp\"",
+          "furo; extra == \"docs\"",
+          "markdown2; extra == \"tests\"",
+          "nanoarrow; extra == \"test-arrow\"",
+          "olefile; extra == \"docs\"",
+          "olefile; extra == \"fpx\"",
+          "olefile; extra == \"mic\"",
+          "olefile; extra == \"tests\"",
+          "packaging; extra == \"tests\"",
+          "pyarrow; extra == \"test-arrow\"",
+          "pytest-cov; extra == \"tests\"",
+          "pytest-timeout; extra == \"tests\"",
+          "pytest-xdist; extra == \"tests\"",
+          "pytest; extra == \"tests\"",
+          "setuptools; extra == \"tests\"",
+          "sphinx-autobuild; extra == \"docs\"",
+          "sphinx-copybutton; extra == \"docs\"",
+          "sphinx-inline-tabs; extra == \"docs\"",
+          "sphinx>=8.2; extra == \"docs\"",
+          "sphinxext-opengraph; extra == \"docs\"",
+          "trove-classifiers>=2024.10.12; extra == \"tests\""
+        ],
+        "metadata_sha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+      },
+      {
+        "name": "Pint",
+        "version": "0.24.4",
+        "requires_dist": [
+          "babel<=2.8; extra == \"babel\"",
+          "dask; extra == \"dask\"",
+          "flexcache>=0.3",
+          "flexparser>=0.4",
+          "mip>=1.13; extra == \"mip\"",
+          "numpy>=1.23; extra == \"numpy\"",
+          "pint-pandas>=0.3; extra == \"pandas\"",
+          "platformdirs>=2.1.0",
+          "pytest-benchmark; extra == \"test\"",
+          "pytest-benchmark; extra == \"testbase\"",
+          "pytest-codspeed; extra == \"bench\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest-cov; extra == \"testbase\"",
+          "pytest-mpl; extra == \"test\"",
+          "pytest-subtests; extra == \"test\"",
+          "pytest-subtests; extra == \"testbase\"",
+          "pytest; extra == \"bench\"",
+          "pytest; extra == \"test\"",
+          "pytest; extra == \"testbase\"",
+          "typing-extensions>=4.0.0",
+          "uncertainties>=3.1.6; extra == \"uncertainties\"",
+          "xarray; extra == \"xarray\""
+        ],
+        "metadata_sha256": "4ab5d03ba2b04bf52c52a16ee271d48388ed466c95be79e5ac1cca8093dea63e"
+      },
+      {
+        "name": "pip",
+        "version": "25.0.1",
+        "requires_dist": [],
+        "metadata_sha256": "4fa7318cf30f979db7cec45c12cbbc2b4f88a15f12eefbf59a6291d0a03af926"
+      },
+      {
+        "name": "platformdirs",
+        "version": "4.12.3",
+        "requires_dist": [],
+        "metadata_sha256": "5b28a4e5ed5d077a5972c38ab5e5b25e10c378f6829676636c343187709d5be5"
+      },
+      {
+        "name": "pluggy",
+        "version": "1.6.0",
+        "requires_dist": [
+          "coverage; extra == \"testing\"",
+          "pre-commit; extra == \"dev\"",
+          "pytest-benchmark; extra == \"testing\"",
+          "pytest; extra == \"testing\"",
+          "tox; extra == \"dev\""
+        ],
+        "metadata_sha256": "7438c35ee25a095eb7416f84b461c2d74425c5e734ad54c3912453c65244e01c"
+      },
+      {
+        "name": "pooch",
+        "version": "1.9.0",
+        "requires_dist": [
+          "packaging>=20.0",
+          "paramiko>=2.7.0; extra == \"sftp\"",
+          "platformdirs>=2.5.0",
+          "pytest-httpserver; extra == \"test\"",
+          "pytest-localftpserver; extra == \"test\"",
+          "requests>=2.19.0",
+          "tqdm<5.0.0,>=4.41.0; extra == \"progress\"",
+          "xxhash>=1.4.3; extra == \"xxhash\""
+        ],
+        "metadata_sha256": "7a67b1fba8575748276b1abee0db0d0c7d673d1f4f8f404699e949f1359da962"
+      },
+      {
+        "name": "prometheus_client",
+        "version": "0.26.0",
+        "requires_dist": [
+          "aiohttp; extra == \"aiohttp\"",
+          "django; extra == \"django\"",
+          "twisted; extra == \"twisted\""
+        ],
+        "metadata_sha256": "ea4a4f111b1723da4c588baa002fe7b7886f0e8f653c4dd3d05738686ea85004"
+      },
+      {
+        "name": "prompt_toolkit",
+        "version": "3.0.53",
+        "requires_dist": [
+          "wcwidth>=0.1.4"
+        ],
+        "metadata_sha256": "d04994e4401b88abf884ca54fb3b85e50a8b4fb1fde1ed7eb3ece9d8bf5459a9"
+      },
+      {
+        "name": "protobuf",
+        "version": "7.36.2",
+        "requires_dist": [],
+        "metadata_sha256": "445916389cc3a87d5f815d763192372a17a221339d474cb661523157bf07d61c"
+      },
+      {
+        "name": "psutil",
+        "version": "7.2.2",
+        "requires_dist": [
+          "abi3audit ; extra == 'dev'",
+          "black ; extra == 'dev'",
+          "check-manifest ; extra == 'dev'",
+          "colorama ; (os_name == \"nt\") and extra == 'dev'",
+          "coverage ; extra == 'dev'",
+          "packaging ; extra == 'dev'",
+          "psleak ; extra == 'dev'",
+          "psleak ; extra == 'test'",
+          "pylint ; extra == 'dev'",
+          "pyperf ; extra == 'dev'",
+          "pypinfo ; extra == 'dev'",
+          "pyreadline3 ; (os_name == \"nt\") and extra == 'dev'",
+          "pytest ; extra == 'dev'",
+          "pytest ; extra == 'test'",
+          "pytest-cov ; extra == 'dev'",
+          "pytest-instafail ; extra == 'dev'",
+          "pytest-instafail ; extra == 'test'",
+          "pytest-xdist ; extra == 'dev'",
+          "pytest-xdist ; extra == 'test'",
+          "pywin32 ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+          "pywin32 ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'",
+          "requests ; extra == 'dev'",
+          "rstcheck ; extra == 'dev'",
+          "ruff ; extra == 'dev'",
+          "setuptools ; extra == 'dev'",
+          "setuptools ; extra == 'test'",
+          "sphinx ; extra == 'dev'",
+          "sphinx-rtd-theme ; extra == 'dev'",
+          "toml-sort ; extra == 'dev'",
+          "twine ; extra == 'dev'",
+          "validate-pyproject[all] ; extra == 'dev'",
+          "virtualenv ; extra == 'dev'",
+          "vulture ; extra == 'dev'",
+          "wheel ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+          "wheel ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'",
+          "wheel ; extra == 'dev'",
+          "wmi ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'dev'",
+          "wmi ; (os_name == \"nt\" and implementation_name != \"pypy\") and extra == 'test'"
+        ],
+        "metadata_sha256": "525f8ba78523cf7bc3759d62a105e7c57fd679ea702402b9449fb0746aa0217f"
+      },
+      {
+        "name": "ptyprocess",
+        "version": "0.7.0",
+        "requires_dist": [],
+        "metadata_sha256": "c3c2b96b5d9a55da5958c34d08c18a0849f56609026cc46d5c95b8b77fcf3e0c"
+      },
+      {
+        "name": "pure_eval",
+        "version": "0.2.4",
+        "requires_dist": [
+          "pytest; extra == \"tests\""
+        ],
+        "metadata_sha256": "4fe70f69411b9963d7275084210743afa819c2350899a29150bc43b1abf105d0"
+      },
+      {
+        "name": "py-cpuinfo",
+        "version": "9.0.0",
+        "requires_dist": [],
+        "metadata_sha256": "ad115e96f84576861c5e75d760301b81d23143cfe25546b99541e01265379dc1"
+      },
+      {
+        "name": "py3Dmol",
+        "version": "2.5.5",
+        "requires_dist": [
+          "IPython; extra == \"ipython\""
+        ],
+        "metadata_sha256": "a2133dce4ce402e871514a591a8d16b809befa1a9f10786db44deeaa20da9b9e"
+      },
+      {
+        "name": "pyarrow",
+        "version": "25.0.1",
+        "requires_dist": [],
+        "metadata_sha256": "12ed8d0988a6f7153fec923ee47b7fc1d6134463a86b1b89fa36f24c250163ff"
+      },
+      {
+        "name": "pycparser",
+        "version": "3.0",
+        "requires_dist": [],
+        "metadata_sha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.13.5",
+        "requires_dist": [
+          "annotated-types>=0.6.0",
+          "email-validator>=2.0.0; extra == 'email'",
+          "pydantic-core==2.46.5",
+          "typing-extensions>=4.14.1",
+          "typing-inspection>=0.4.2",
+          "tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'"
+        ],
+        "metadata_sha256": "0685830d13647bd6f3f05526043d32a8b2a221d86b53773053d6c52bb17a9c07"
+      },
+      {
+        "name": "pydantic-settings",
+        "version": "2.15.0",
+        "requires_dist": [
+          "azure-identity>=1.16.0; extra == 'azure-key-vault'",
+          "azure-keyvault-secrets>=4.8.0; extra == 'azure-key-vault'",
+          "boto3>=1.35.0; extra == 'aws-secrets-manager'",
+          "google-cloud-secret-manager>=2.23.1; extra == 'gcp-secret-manager'",
+          "pydantic>=2.7.0",
+          "python-dotenv>=0.21.0",
+          "pyyaml>=6.0.1; extra == 'yaml'",
+          "tomli>=2.0.1; extra == 'toml'",
+          "typing-inspection>=0.4.0"
+        ],
+        "metadata_sha256": "5ac12e408df62f1d4c7643146d9df04ace749f1fe5cf28b3b794be0b2834ca6d"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.46.5",
+        "requires_dist": [
+          "typing-extensions>=4.14.1"
+        ],
+        "metadata_sha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028"
+      },
+      {
+        "name": "pydeck",
+        "version": "0.9.3",
+        "requires_dist": [
+          "ipykernel>=5.1.2; extra == \"jupyter\"",
+          "ipywidgets<8,>=7; extra == \"jupyter\"",
+          "jinja2>=2.10.1",
+          "numpy>=1.16.4",
+          "pydeck-carto; extra == \"carto\"",
+          "traitlets>=4.3.2; extra == \"jupyter\""
+        ],
+        "metadata_sha256": "c906606245b896f48f560a2175dc6ade991447f8e545dec8539678e1134eb71d"
+      },
+      {
+        "name": "pyfiglet",
+        "version": "0.8.post1",
+        "requires_dist": [],
+        "metadata_sha256": "1268efd506d6aada59f3a201edb9a96e9cdccc085b14266c232513847bb8b85c"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.21.0",
+        "requires_dist": [
+          "colorama>=0.4.6; extra == 'windows-terminal'"
+        ],
+        "metadata_sha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43"
+      },
+      {
+        "name": "PyNaCl",
+        "version": "1.6.2",
+        "requires_dist": [
+          "cffi>=1.4.1; platform_python_implementation != \"PyPy\" and python_version < \"3.9\"",
+          "cffi>=2.0.0; platform_python_implementation != \"PyPy\" and python_version >= \"3.9\"",
+          "hypothesis>=3.27.0; extra == \"tests\"",
+          "pytest-cov>=2.10.1; extra == \"tests\"",
+          "pytest-xdist>=3.5.0; extra == \"tests\"",
+          "pytest>=7.4.0; extra == \"tests\"",
+          "sphinx<7; extra == \"docs\"",
+          "sphinx_rtd_theme; extra == \"docs\""
+        ],
+        "metadata_sha256": "143914f93191bef3bff7ba953dea6a38fb05f7f9e38e2a2e6ae31bd14ba81709"
+      },
+      {
+        "name": "pynvml",
+        "version": "13.0.1",
+        "requires_dist": [
+          "nvidia-ml-py>=12.0.0",
+          "pytest-cov; extra == \"test\"",
+          "pytest-runner; extra == \"test\"",
+          "pytest>=3.6; extra == \"test\""
+        ],
+        "metadata_sha256": "3c8f5bafb4fb1115c02def5a38eae4c3aa458f75a54bd590dda16fcabda92baf"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.3",
+        "requires_dist": [
+          "jinja2 ; extra == \"diagrams\"",
+          "railroad-diagrams ; extra == \"diagrams\""
+        ],
+        "metadata_sha256": "f2ca34052d720622d300023472ef8ae94fe5b57d69acbb28a8667f6dd0e13497"
+      },
+      {
+        "name": "pyproject_hooks",
+        "version": "1.3.3",
+        "requires_dist": [],
+        "metadata_sha256": "844e375bb28dcbe42a0502fbd9428d9ba4669db25028ee7a7afaa8dd7ada2e00"
+      },
+      {
+        "name": "pyqtgraph",
+        "version": "0.14.0",
+        "requires_dist": [
+          "colorama",
+          "numpy>=1.25.0"
+        ],
+        "metadata_sha256": "69d844365130964cebecee828adc7628724e852305666cf37647b21b0a96a3bb"
+      },
+      {
+        "name": "PySide6",
+        "version": "6.11.2",
+        "requires_dist": [
+          "PySide6_Addons==6.11.2",
+          "PySide6_Essentials==6.11.2",
+          "shiboken6==6.11.2",
+          "tomli>=2.0.1; python_version < \"3.11\""
+        ],
+        "metadata_sha256": "08af5ec7d07fef5f85611330c09caf2a49209f85fbfe911b7b422808408916b3"
+      },
+      {
+        "name": "PySide6_Addons",
+        "version": "6.11.2",
+        "requires_dist": [
+          "PySide6_Essentials==6.11.2",
+          "shiboken6==6.11.2"
+        ],
+        "metadata_sha256": "28034cdfb0826f79d4f55cf3f8f56f3ca764c00b58652a4efb0cbed37581ab23"
+      },
+      {
+        "name": "PySide6_Essentials",
+        "version": "6.11.2",
+        "requires_dist": [
+          "shiboken6==6.11.2"
+        ],
+        "metadata_sha256": "a4e0d97dfc9aeb7f65f42c05281fdc0372297a95d1a3e498df14806729644677"
+      },
+      {
+        "name": "pytest",
+        "version": "9.1.1",
+        "requires_dist": [
+          "argcomplete; extra == \"dev\"",
+          "attrs>=19.2; extra == \"dev\"",
+          "colorama>=0.4; sys_platform == \"win32\"",
+          "exceptiongroup>=1; python_version < \"3.11\"",
+          "hypothesis>=3.56; extra == \"dev\"",
+          "iniconfig>=1.0.1",
+          "mock; extra == \"dev\"",
+          "packaging>=22",
+          "pluggy<2,>=1.5",
+          "pygments>=2.7.2",
+          "requests; extra == \"dev\"",
+          "setuptools; extra == \"dev\"",
+          "tomli>=1; python_version < \"3.11\"",
+          "xmlschema; extra == \"dev\""
+        ],
+        "metadata_sha256": "c5d032518012789cabc870d46589aca3aeda36cf9fa4399ee88bda3d10438451"
+      },
+      {
+        "name": "pytest-asyncio",
+        "version": "1.4.0",
+        "requires_dist": [
+          "backports-asyncio-runner<2,>=1.1; python_version < \"3.11\"",
+          "coverage>=6.2; extra == \"testing\"",
+          "hypothesis>=5.7.1; extra == \"testing\"",
+          "pytest<10,>=8.4",
+          "sphinx-rtd-theme>=1; extra == \"docs\"",
+          "sphinx-tabs>=3.5; extra == \"docs\"",
+          "sphinx>=5.3; extra == \"docs\"",
+          "typing-extensions>=4.12; python_version < \"3.13\""
+        ],
+        "metadata_sha256": "4e583f46befbdb780e30a98856ab46afb88da6e65b6c9fb94d3794746faa8516"
+      },
+      {
+        "name": "pytest-cov",
+        "version": "7.1.0",
+        "requires_dist": [
+          "coverage[toml]>=7.10.6",
+          "pluggy>=1.2",
+          "process-tests; extra == 'testing'",
+          "pytest-xdist; extra == 'testing'",
+          "pytest>=7",
+          "virtualenv; extra == 'testing'"
+        ],
+        "metadata_sha256": "d670e42439ea5a87c46d5659cfcbf64e29aaf7da3aca69dc03eecdafe7e4894c"
+      },
+      {
+        "name": "pytest-qt",
+        "version": "4.5.0",
+        "requires_dist": [
+          "pluggy>=1.1",
+          "pre-commit; extra == \"dev\"",
+          "pytest",
+          "sphinx; extra == \"doc\"",
+          "sphinx_rtd_theme; extra == \"doc\"",
+          "tox; extra == \"dev\"",
+          "typing_extensions"
+        ],
+        "metadata_sha256": "7b4d6f7e14706179168313263b998d877896d818d1769c4136c0669ff262f44f"
+      },
+      {
+        "name": "python-dateutil",
+        "version": "2.9.0.post0",
+        "requires_dist": [
+          "six >=1.5"
+        ],
+        "metadata_sha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93"
+      },
+      {
+        "name": "python-dotenv",
+        "version": "1.2.4",
+        "requires_dist": [
+          "click>=5.0; extra == \"cli\""
+        ],
+        "metadata_sha256": "87cfee6042412d48df1100ea7822684988c3f2b79de7a250f4717f4df3026d6f"
+      },
+      {
+        "name": "python-json-logger",
+        "version": "4.2.0",
+        "requires_dist": [],
+        "metadata_sha256": "92071f7474963816ff791dd78383abf06cf2b83c3d1db0a5633f5c4f1e32e465"
+      },
+      {
+        "name": "python-multipart",
+        "version": "0.0.32",
+        "requires_dist": [],
+        "metadata_sha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86"
+      },
+      {
+        "name": "pyvista",
+        "version": "0.49.0",
+        "requires_dist": [
+          "cmcrameri; extra == \"colormaps\"",
+          "cmocean; extra == \"colormaps\"",
+          "colorcet; extra == \"colormaps\"",
+          "cvista[all]<9.8.0,>=9.7.0.2; extra == \"cvista\"",
+          "cyclopts>=4.0.0",
+          "fsspec; extra == \"io\"",
+          "imageio; extra == \"io\"",
+          "ipywidgets; extra == \"jupyter\"",
+          "matplotlib>=3.0.1",
+          "meshio>=5.2; extra == \"io\"",
+          "nest-asyncio2; extra == \"jupyter\"",
+          "numpy>=1.21.0",
+          "pillow",
+          "pooch",
+          "pyobjc-framework-Cocoa; sys_platform == \"darwin\"",
+          "pyvista-frd-reader>=0.2.1; extra == \"io\"",
+          "pyvista-miniply>=0.5.2; extra == \"io-override\"",
+          "pyvista-stl>=0.5.3; extra == \"io-override\"",
+          "pyvista-validation==0.2.2",
+          "pyvista-zstd>=0.3.1; extra == \"io\"",
+          "pyvista[colormaps,io,io-override,jupyter]; extra == \"all\"",
+          "scooby>=0.5.1",
+          "trame-pyvista; extra == \"jupyter\"",
+          "typing-extensions>=4.10",
+          "vtk!=9.4.0",
+          "vtk!=9.4.1",
+          "vtk<9.8.0",
+          "vtk>=9.3.1"
+        ],
+        "metadata_sha256": "6da1f560995d813f9dd3cb5786cb95e622c783aa1b22a05666913a7d229cd021"
+      },
+      {
+        "name": "pyvista-validation",
+        "version": "0.2.2",
+        "requires_dist": [
+          "numpy>=1.21.0",
+          "pyvista-validation[scipy,vtk]; extra == \"all\"",
+          "scipy; extra == \"scipy\"",
+          "typing-extensions>=4.4; python_version < \"3.13\"",
+          "vtk; extra == \"vtk\""
+        ],
+        "metadata_sha256": "698aa89b7ff0933fdc0c44346c86943db0fb1677779a05991fe63b0562f23b62"
+      },
+      {
+        "name": "pyvistaqt",
+        "version": "0.13.1",
+        "requires_dist": [
+          "QtPy>=1.9.0",
+          "Sphinx; extra == \"docs\"",
+          "ipython==8.39.0; extra == \"test\"",
+          "numpy==2.2.6; python_version < \"3.11\" and extra == \"test\"",
+          "numpy==2.4.4; python_version >= \"3.11\" and extra == \"test\"",
+          "pre-commit; extra == \"dev\"",
+          "pydata-sphinx-theme; extra == \"docs\"",
+          "pytest-cov==7.1.0; extra == \"test\"",
+          "pytest-memprof==0.2.0; extra == \"test\"",
+          "pytest-qt==4.5.0; extra == \"test\"",
+          "pytest==9.1.1; extra == \"test\"",
+          "pyvista>=0.43.7",
+          "pyvista[jupyter]; extra == \"test\"",
+          "refleak==0.2.2; extra == \"test\"",
+          "scooby==0.11.2; extra == \"test\"",
+          "sphinx-copybutton; extra == \"docs\"",
+          "sphinx-notfound-page; extra == \"docs\"",
+          "sphinx_gallery==0.21.0; extra == \"test\""
+        ],
+        "metadata_sha256": "9c86df51d931f331288b5ec79f72c0701a48e336402eddeaf581e449a1497716"
+      },
+      {
+        "name": "PyYAML",
+        "version": "6.0.3",
+        "requires_dist": [],
+        "metadata_sha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+      },
+      {
+        "name": "pyzmq",
+        "version": "27.2.0",
+        "requires_dist": [
+          "cffi; implementation_name == \"pypy\""
+        ],
+        "metadata_sha256": "efca840a7cf3173e6ffce4c77e50b5b449a6c44388abc272bc3e82bb27e97043"
+      },
+      {
+        "name": "qcelemental",
+        "version": "0.51.2",
+        "requires_dist": [
+          "autodoc-pydantic>2.0; extra == \"docs\"",
+          "black<26.0a0,>=25.1.0; extra == \"lint\"",
+          "codecov; extra == \"test\"",
+          "docutils; extra == \"docs\"",
+          "ipykernel<6.0; extra == \"viz\"",
+          "isort>=6.1.0; extra == \"lint\"",
+          "jsonschema; extra == \"standard\"",
+          "msgpack; extra == \"standard\"",
+          "networkx<3.0; extra == \"align\"",
+          "nglview; extra == \"viz\"",
+          "numpy; python_version < \"3.14\"",
+          "numpy>=2.3.3; python_version >= \"3.14\"",
+          "numpydoc; extra == \"docs\"",
+          "pint>=0.24",
+          "pre-commit; extra == \"lint\"",
+          "pydantic>=2.11; python_version < \"3.14\"",
+          "pydantic>=2.12; python_version >= \"3.14\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest; extra == \"test\"",
+          "scipy; extra == \"align\"",
+          "setuptools>=68.0.0; python_version >= \"3.12\" and extra == \"viz\"",
+          "sphinx-automodapi; extra == \"docs\"",
+          "sphinx-rtd-theme; extra == \"docs\"",
+          "sphinx>=7.0.0; extra == \"docs\"",
+          "sphinxcontrib-napoleon; extra == \"docs\""
+        ],
+        "metadata_sha256": "b8ca15edf43b75a135403ff11ef0f877dfa8c366b72d273a57aa58e7f3476248"
+      },
+      {
+        "name": "qcengine",
+        "version": "0.51.0",
+        "requires_dist": [
+          "autodoc-pydantic>=2.0; extra == \"docs\"",
+          "black<23.0a0,>=22.1.0; extra == \"lint\"",
+          "codecov; extra == \"test\"",
+          "isort>=5.13.2; extra == \"lint\"",
+          "numpydoc; extra == \"docs\"",
+          "packaging",
+          "pre-commit; extra == \"lint\"",
+          "psutil",
+          "py-cpuinfo",
+          "pydantic-settings",
+          "pydantic>=2.11; python_version < \"3.14\"",
+          "pydantic>=2.12; python_version >= \"3.14\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest; extra == \"test\"",
+          "pyyaml",
+          "qcelemental<0.70.0,>=0.50.4",
+          "sphinx-rtd-theme; extra == \"docs\"",
+          "sphinx>=7.0.0; extra == \"docs\"",
+          "sphinxcontrib-napoleon; extra == \"docs\""
+        ],
+        "metadata_sha256": "3789ea911b7f9caeec5d28d72572069b2107687192581dd34178fe570d5fbe68"
+      },
+      {
+        "name": "QtPy",
+        "version": "2.4.3",
+        "requires_dist": [
+          "packaging",
+          "pytest!=7.0.0,!=7.0.1,>=6; extra == \"test\"",
+          "pytest-cov>=3.0.0; extra == \"test\"",
+          "pytest-qt; extra == \"test\""
+        ],
+        "metadata_sha256": "2f1fb69814bd422e47969be0b1f4c0e37e0561e876a765cf8d4856c491eff9fb"
+      },
+      {
+        "name": "rdkit",
+        "version": "2026.3.6",
+        "requires_dist": [
+          "Pillow",
+          "numpy"
+        ],
+        "metadata_sha256": "80d457cad3c9d1b8a5775cf0408c0537c4739b34d5025eaae99e1c16ffc0e268"
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0",
+        "requires_dist": [
+          "attrs>=22.2.0",
+          "rpds-py>=0.7.0",
+          "typing-extensions>=4.4.0; python_version < '3.13'"
+        ],
+        "metadata_sha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a"
+      },
+      {
+        "name": "requests",
+        "version": "2.34.2",
+        "requires_dist": [
+          "PySocks!=1.5.7,>=1.5.6; extra == \"socks\"",
+          "certifi>=2023.5.7",
+          "chardet<8,>=3.0.2; extra == \"use-chardet-on-py3\"",
+          "charset_normalizer<4,>=2",
+          "idna<4,>=2.5",
+          "urllib3<3,>=1.26"
+        ],
+        "metadata_sha256": "8c384ba3e979480faae2859d3c5e6c1276dd2c3616e322e124d52c8cfc556f27"
+      },
+      {
+        "name": "rfc3339-validator",
+        "version": "0.1.4",
+        "requires_dist": [
+          "six"
+        ],
+        "metadata_sha256": "ac4dc2cdea6a8b61c16babbf35c0e9fa6e22e45f1c0338e66e089108dde872d2"
+      },
+      {
+        "name": "rfc3986-validator",
+        "version": "0.1.1",
+        "requires_dist": [],
+        "metadata_sha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c"
+      },
+      {
+        "name": "rfc3987-syntax",
+        "version": "1.1.0",
+        "requires_dist": [
+          "lark>=1.2.2",
+          "pytest>=8.3.5; extra == 'testing'"
+        ],
+        "metadata_sha256": "7a518ae5bb5685568b537061e8207a4dbba766ae785b16ad26d930ad3853cb0d"
+      },
+      {
+        "name": "rich",
+        "version": "15.0.0",
+        "requires_dist": [
+          "ipywidgets (>=7.5.1,<9) ; extra == \"jupyter\"",
+          "markdown-it-py (>=2.2.0)",
+          "pygments (>=2.13.0,<3.0.0)"
+        ],
+        "metadata_sha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b"
+      },
+      {
+        "name": "rich-rst",
+        "version": "2.2.0",
+        "requires_dist": [
+          "docutils; extra == \"docs\"",
+          "mypy; extra == \"dev\"",
+          "pre-commit; extra == \"dev\"",
+          "pygments>=2.0.0",
+          "pytest-cov; extra == \"tests\"",
+          "pytest; extra == \"tests\"",
+          "rich>=12.0.0",
+          "ruff; extra == \"dev\"",
+          "sphinx; extra == \"docs\"",
+          "sphinx_copybutton; extra == \"docs\"",
+          "sphinx_rtd_theme; extra == \"docs\""
+        ],
+        "metadata_sha256": "2cd1f39149e69bd94c4f1c30cb26c763e45689e6d6527b4c23afa1112c48f165"
+      },
+      {
+        "name": "rpds-py",
+        "version": "2026.9.1",
+        "requires_dist": [],
+        "metadata_sha256": "5d72dca2e387c8d2b4180b68ee87c15b64751e059100a6db58891ec9995445c3"
+      },
+      {
+        "name": "ruff",
+        "version": "0.16.10",
+        "requires_dist": [],
+        "metadata_sha256": "2f914c8907d59fc48255be1689e1edca6679a52962fa321fb6ddea08b4a25046"
+      },
+      {
+        "name": "scipy",
+        "version": "1.18.1",
+        "requires_dist": [
+          "Cython; extra == \"test\"",
+          "array-api-strict>=2.3.1; extra == \"test\"",
+          "asv; extra == \"test\"",
+          "click<8.3.0; extra == \"dev\"",
+          "cython-lint>=0.12.2; extra == \"dev\"",
+          "gmpy2; extra == \"test\"",
+          "hypothesis>=6.30; extra == \"test\"",
+          "intersphinx_registry; extra == \"doc\"",
+          "jupyterlite-pyodide-kernel; extra == \"doc\"",
+          "jupyterlite-sphinx>=0.19.1; extra == \"doc\"",
+          "jupytext; extra == \"doc\"",
+          "linkify-it-py; extra == \"doc\"",
+          "matplotlib>=3.5; extra == \"doc\"",
+          "meson; extra == \"test\"",
+          "mpmath; extra == \"test\"",
+          "mypy==1.19.1; extra == \"dev\"",
+          "myst-nb>=1.2.0; extra == \"doc\"",
+          "ninja; sys_platform != \"emscripten\" and extra == \"test\"",
+          "numpy<2.8,>=2.0.0",
+          "numpydoc; extra == \"doc\"",
+          "pooch; extra == \"doc\"",
+          "pooch; extra == \"test\"",
+          "pycodestyle; extra == \"dev\"",
+          "pydata-sphinx-theme>=0.15.2; extra == \"doc\"",
+          "pyrefly==0.63.0; extra == \"dev\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest-timeout; extra == \"test\"",
+          "pytest-xdist; extra == \"test\"",
+          "pytest>=8.0.0; extra == \"test\"",
+          "ruff>=0.12.0; extra == \"dev\"",
+          "scikit-umfpack; extra == \"test\"",
+          "scipy-doctest>=2.0.0; extra == \"test\"",
+          "sphinx-copybutton; extra == \"doc\"",
+          "sphinx-design>=0.4.0; extra == \"doc\"",
+          "sphinx<8.2.0,>=5.0.0; extra == \"doc\"",
+          "spin; extra == \"dev\"",
+          "tabulate; extra == \"doc\"",
+          "threadpoolctl; extra == \"test\"",
+          "types-psutil; extra == \"dev\"",
+          "typing_extensions; extra == \"dev\""
+        ],
+        "metadata_sha256": "6d1ebfbce110009e25e8249fea05e21c0449735144e9bd8df1a52931f957c1ea"
+      },
+      {
+        "name": "scooby",
+        "version": "0.12.0",
+        "requires_dist": [
+          "mkl; platform_system != \"Darwin\" and extra == \"cpu\"",
+          "psutil; extra == \"cpu\""
+        ],
+        "metadata_sha256": "76e9ececf6b3dca0672417a9db076fc45a7c284849135e14cbab2b65afdfe4d3"
+      },
+      {
+        "name": "Send2Trash",
+        "version": "2.1.0",
+        "requires_dist": [
+          "pyobjc>=9.0; sys_platform == \"darwin\" and extra == \"nativelib\"",
+          "pytest>=8; extra == \"test\"",
+          "pywin32>=305; sys_platform == \"win32\" and extra == \"nativelib\""
+        ],
+        "metadata_sha256": "46fa0831249d43b7e86ee03ceb58901f11262266f813011fb0cfba32973ad300"
+      },
+      {
+        "name": "setproctitle",
+        "version": "1.3.8",
+        "requires_dist": [
+          "pytest; extra == \"test\""
+        ],
+        "metadata_sha256": "8093ff8af9357364b865abc215932a8e19f8e139007ba9516cde5331d526d281"
+      },
+      {
+        "name": "setuptools",
+        "version": "80.9.0",
+        "requires_dist": [
+          "build[virtualenv]>=1.0.3; extra == \"test\"",
+          "filelock>=3.4.0; extra == \"test\"",
+          "furo; extra == \"doc\"",
+          "importlib_metadata>=6; python_version < \"3.10\" and extra == \"core\"",
+          "importlib_metadata>=7.0.2; python_version < \"3.10\" and extra == \"type\"",
+          "ini2toml[lite]>=0.14; extra == \"test\"",
+          "jaraco.develop>=7.21; (python_version >= \"3.9\" and sys_platform != \"cygwin\") and extra == \"test\"",
+          "jaraco.develop>=7.21; sys_platform != \"cygwin\" and extra == \"type\"",
+          "jaraco.envs>=2.2; extra == \"test\"",
+          "jaraco.functools>=4; extra == \"core\"",
+          "jaraco.packaging>=9.3; extra == \"doc\"",
+          "jaraco.path>=3.7.2; extra == \"test\"",
+          "jaraco.test>=5.5; extra == \"test\"",
+          "jaraco.text>=3.7; extra == \"core\"",
+          "jaraco.tidelift>=1.4; extra == \"doc\"",
+          "more_itertools; extra == \"core\"",
+          "more_itertools>=8.8; extra == \"core\"",
+          "mypy==1.14.*; extra == \"type\"",
+          "packaging>=24.2; extra == \"core\"",
+          "packaging>=24.2; extra == \"test\"",
+          "pip>=19.1; extra == \"test\"",
+          "platformdirs>=4.2.2; extra == \"core\"",
+          "pygments-github-lexers==0.0.5; extra == \"doc\"",
+          "pyproject-hooks!=1.1; extra == \"doc\"",
+          "pyproject-hooks!=1.1; extra == \"test\"",
+          "pytest!=8.1.*,>=6; extra == \"test\"",
+          "pytest-checkdocs>=2.4; extra == \"check\"",
+          "pytest-cov; extra == \"cover\"",
+          "pytest-enabler>=2.2; extra == \"enabler\"",
+          "pytest-home>=0.5; extra == \"test\"",
+          "pytest-mypy; extra == \"type\"",
+          "pytest-perf; sys_platform != \"cygwin\" and extra == \"test\"",
+          "pytest-ruff>=0.2.1; sys_platform != \"cygwin\" and extra == \"check\"",
+          "pytest-subprocess; extra == \"test\"",
+          "pytest-timeout; extra == \"test\"",
+          "pytest-xdist>=3; extra == \"test\"",
+          "rst.linker>=1.9; extra == \"doc\"",
+          "ruff>=0.8.0; sys_platform != \"cygwin\" and extra == \"check\"",
+          "sphinx-favicon; extra == \"doc\"",
+          "sphinx-inline-tabs; extra == \"doc\"",
+          "sphinx-lint; extra == \"doc\"",
+          "sphinx-notfound-page<2,>=1; extra == \"doc\"",
+          "sphinx-reredirects; extra == \"doc\"",
+          "sphinx>=3.5; extra == \"doc\"",
+          "sphinxcontrib-towncrier; extra == \"doc\"",
+          "tomli-w>=1.0.0; extra == \"test\"",
+          "tomli>=2.0.1; python_version < \"3.11\" and extra == \"core\"",
+          "towncrier<24.7; extra == \"doc\"",
+          "virtualenv>=13.0.0; extra == \"test\"",
+          "wheel>=0.43.0; extra == \"core\"",
+          "wheel>=0.44.0; extra == \"test\""
+        ],
+        "metadata_sha256": "7f890ca8dbc16b63b568c89312ed6a7f9f0a79d0b2b7f3c83bf796ac3d930615"
+      },
+      {
+        "name": "shiboken6",
+        "version": "6.11.2",
+        "requires_dist": [],
+        "metadata_sha256": "5b25d571d8ef04593b5eaadd02c3d635fb1fe5ff42de7477e93eb33d61c58708"
+      },
+      {
+        "name": "six",
+        "version": "1.17.0",
+        "requires_dist": [],
+        "metadata_sha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468"
+      },
+      {
+        "name": "sortedcontainers",
+        "version": "2.4.0",
+        "requires_dist": [],
+        "metadata_sha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473"
+      },
+      {
+        "name": "soupsieve",
+        "version": "2.10",
+        "requires_dist": [],
+        "metadata_sha256": "02ecd6c72d2fa0911bedfd99d53b2198e1bbf556f4606108819e8c19fdf32880"
+      },
+      {
+        "name": "SQLAlchemy",
+        "version": "2.1.3",
+        "requires_dist": [
+          "aiomysql; extra == \"aiomysql\"",
+          "aioodbc; extra == \"aioodbc\"",
+          "aiosqlite; extra == \"aiosqlite\"",
+          "asyncmy>=0.2.12; extra == \"asyncmy\"",
+          "asyncpg; extra == \"postgresql-asyncpg\"",
+          "cx_oracle>=8; extra == \"oracle-cxoracle\"",
+          "cymysql; extra == \"cymysql\"",
+          "greenlet>=1; extra == \"asyncio\"",
+          "mariadb!=1.1.10,!=1.1.2,!=1.1.5,>=1.0.1; extra == \"mariadb-connector\"",
+          "mssql-python>=1.9.0; extra == \"mssql-python\"",
+          "mypy>=2.4; extra == \"mypy\"",
+          "mysql-connector-python; extra == \"mysql-connector\"",
+          "mysqlclient>=1.4.0; extra == \"mysql\"",
+          "oracledb>=2.0.1; extra == \"oracle\"",
+          "oracledb>=2.0.1; extra == \"oracle-oracledb\"",
+          "pg8000>=1.29.3; extra == \"postgresql-pg8000\"",
+          "psycopg!=3.1.15,>=3.0.7; extra == \"postgresql\"",
+          "psycopg!=3.1.15,>=3.0.7; extra == \"postgresql-psycopg\"",
+          "psycopg2-binary; extra == \"postgresql-psycopg2binary\"",
+          "psycopg2cffi; extra == \"postgresql-psycopg2cffi\"",
+          "psycopg[binary]!=3.1.15,>=3.0.7; extra == \"postgresql-psycopgbinary\"",
+          "pymssql; extra == \"mssql-pymssql\"",
+          "pymysql; extra == \"pymysql\"",
+          "pyodbc; extra == \"mssql\"",
+          "pyodbc; extra == \"mssql-pyodbc\"",
+          "sqlalchemy[asyncio]; extra == \"aiomysql\"",
+          "sqlalchemy[asyncio]; extra == \"aioodbc\"",
+          "sqlalchemy[asyncio]; extra == \"aiosqlite\"",
+          "sqlalchemy[asyncio]; extra == \"asyncmy\"",
+          "sqlalchemy[asyncio]; extra == \"postgresql-asyncpg\"",
+          "sqlcipher3_binary; extra == \"sqlcipher\"",
+          "types-greenlet>=2; extra == \"mypy\"",
+          "typing-extensions>=4.6.0"
+        ],
+        "metadata_sha256": "455fb25aedae04317f4d4aae4594cd940daf97876f3c7b023f7bcd5f9a34ddbe"
+      },
+      {
+        "name": "stack-data",
+        "version": "0.6.3",
+        "requires_dist": [
+          "asttokens >=2.1.0",
+          "cython ; extra == 'tests'",
+          "executing >=1.2.0",
+          "littleutils ; extra == 'tests'",
+          "pure-eval",
+          "pygments ; extra == 'tests'",
+          "pytest ; extra == 'tests'",
+          "typeguard ; extra == 'tests'"
+        ],
+        "metadata_sha256": "f28a66f2adde54e7031355e09a166e437bc0d023a31c10c973ac494288ca4c6f"
+      },
+      {
+        "name": "starlette",
+        "version": "1.7.0",
+        "requires_dist": [
+          "anyio<5,>=4.0.0",
+          "httpx2>=2.0.0; extra == 'full'",
+          "httpx<0.29.0,>=0.27.0; extra == 'full'",
+          "itsdangerous; extra == 'full'",
+          "jinja2; extra == 'full'",
+          "opentelemetry-api; extra == 'full'",
+          "python-multipart>=0.0.18; extra == 'full'",
+          "pyyaml; extra == 'full'",
+          "typing-extensions>=4.10.0; python_version < '3.13'"
+        ],
+        "metadata_sha256": "f7870fc19ab7c2e364887057340b9fb47e9bda74d24b06c58ca399494abfe019"
+      },
+      {
+        "name": "streamlit",
+        "version": "1.65.0",
+        "requires_dist": [
+          "Authlib>=1.3.2; extra == \"auth\"",
+          "SQLAlchemy>=2.0.0; extra == \"sql\"",
+          "altair!=5.4.0,!=5.4.1,<7,>=5.0.0",
+          "anyio<5,>=4.0.0",
+          "click<9,>=7.0",
+          "graphviz>=0.19.0; extra == \"charts\"",
+          "httptools<1,>=0.6.3",
+          "httpx>=0.24.1; extra == \"auth\"",
+          "itsdangerous<3,>=2.1.2",
+          "matplotlib>=3.0.0; extra == \"charts\"",
+          "numpy<3,>=1.23",
+          "orjson>=3.5.0; extra == \"charts\"",
+          "orjson>=3.5.0; extra == \"performance\"",
+          "packaging>=20",
+          "pandas<4,>=1.4.0",
+          "pillow<13,>=7.1.0",
+          "plotly>=4.0.0; extra == \"charts\"",
+          "protobuf<8,>=5.26.1",
+          "pyarrow!=25.0.0,<26,>=7.0",
+          "pydeck<1,>=0.8.0b4",
+          "python-multipart<1,>=0.0.10",
+          "requests<3,>=2.27",
+          "rich>=11.0.0; extra == \"all\"",
+          "snowflake-connector-python>=3.3.0; extra == \"snowflake\"",
+          "snowflake-snowpark-python[modin]>=1.17.0; extra == \"snowflake\"",
+          "starlette<2,>=0.46.0",
+          "streamlit-pdf>=2.1.0; extra == \"pdf\"",
+          "streamlit[auth,charts,pdf,performance,snowflake,sql]; extra == \"all\"",
+          "toml<2,>=0.10.1",
+          "typing-extensions<5,>=4.10.0",
+          "uvicorn<1,>=0.30.0",
+          "uvloop>=0.15.2; (sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\") and extra == \"performance\"",
+          "watchdog<7,>=2.1.5; platform_system != \"Darwin\"",
+          "websockets<18,>=12.0.0"
+        ],
+        "metadata_sha256": "7870c06b2efa359b1e7abe155af7c8c9ddafe8ffd221040b644b10dc07491457"
+      },
+      {
+        "name": "tblib",
+        "version": "3.2.2",
+        "requires_dist": [],
+        "metadata_sha256": "eabb97fa3e0b90575f68cb65430548fa0680d7bf4e86488886589a151303bc2b"
+      },
+      {
+        "name": "tenacity",
+        "version": "9.1.4",
+        "requires_dist": [
+          "pytest; extra == \"test\"",
+          "reno; extra == \"doc\"",
+          "sphinx; extra == \"doc\"",
+          "tornado>=4.5; extra == \"test\"",
+          "typeguard; extra == \"test\""
+        ],
+        "metadata_sha256": "2e3b45ca8334494f30fd1306d2adce6d47bc5c1d7a4e5df5462a3d1bd74bf5b0"
+      },
+      {
+        "name": "terminado",
+        "version": "0.18.1",
+        "requires_dist": [
+          "mypy~=1.6; extra == 'typing'",
+          "myst-parser; extra == 'docs'",
+          "pre-commit; extra == 'test'",
+          "ptyprocess; os_name != 'nt'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-timeout; extra == 'test'",
+          "pytest>=7.0; extra == 'test'",
+          "pywinpty>=1.1.0; os_name == 'nt'",
+          "sphinx; extra == 'docs'",
+          "tornado>=6.1.0",
+          "traitlets>=5.11.1; extra == 'typing'"
+        ],
+        "metadata_sha256": "b8fbc894ff0bdf734736edc53bdac8456eb8a8f251762bcfde4ab89fb4d5ba65"
+      },
+      {
+        "name": "tinycss2",
+        "version": "1.5.1",
+        "requires_dist": [
+          "furo ; extra == \"doc\"",
+          "pytest ; extra == \"test\"",
+          "ruff ; extra == \"test\"",
+          "sphinx ; extra == \"doc\"",
+          "webencodings >=0.4"
+        ],
+        "metadata_sha256": "97a184ce0b479d613e7bb4bbc693067ae4c04e5665fd78e8381252f855bcab59"
+      },
+      {
+        "name": "toml",
+        "version": "0.10.2",
+        "requires_dist": [],
+        "metadata_sha256": "9ff624b29bc48a177f4172c8659e74595485cf7ad9fe4ee340ff8e535594a566"
+      },
+      {
+        "name": "tornado",
+        "version": "6.5.10",
+        "requires_dist": [],
+        "metadata_sha256": "36c44104b9c3b4a601e40aff328960ab81168962dc24e00c0b95e45cf2df66c1"
+      },
+      {
+        "name": "traitlets",
+        "version": "5.16.1",
+        "requires_dist": [
+          "argcomplete>=3.0.3; (python_version < '3.12') and extra == 'test'",
+          "argcomplete>=3.5.2; (python_version >= '3.12') and extra == 'test'",
+          "mypy>=2.0; (implementation_name != 'pypy') and extra == 'test'",
+          "myst-parser; extra == 'docs'",
+          "pre-commit; extra == 'test'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-mock; extra == 'test'",
+          "pytest-mypy-testing; (implementation_name != 'pypy') and extra == 'test'",
+          "pytest<10.0,>=7.0; extra == 'test'",
+          "sphinx; extra == 'docs'"
+        ],
+        "metadata_sha256": "e42b503240c058625ffb30c390818d72933117840cb25060614cb24f0be9e587"
+      },
+      {
+        "name": "typeguard",
+        "version": "4.6.0",
+        "requires_dist": [
+          "typing_extensions>=4.14.0"
+        ],
+        "metadata_sha256": "9548e2e34c3e9368f90c3034223c54085e0bf54db03cf425be974d18c0efea01"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.4",
+        "requires_dist": [
+          "typing-extensions>=4.15.0"
+        ],
+        "metadata_sha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0",
+        "requires_dist": [],
+        "metadata_sha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46"
+      },
+      {
+        "name": "tzdata",
+        "version": "2026.5",
+        "requires_dist": [],
+        "metadata_sha256": "e0780e8b6dc8882ce87e871a9d4589d59cb05a0c2d64f58b1ba62cde1ee91f6a"
+      },
+      {
+        "name": "uri-template",
+        "version": "1.3.0",
+        "requires_dist": [
+          "flake8 ; extra == 'dev'",
+          "flake8-annotations ; extra == 'dev'",
+          "flake8-bandit ; extra == 'dev'",
+          "flake8-bugbear ; extra == 'dev'",
+          "flake8-commas ; extra == 'dev'",
+          "flake8-comprehensions ; extra == 'dev'",
+          "flake8-continuation ; extra == 'dev'",
+          "flake8-datetimez ; extra == 'dev'",
+          "flake8-docstrings ; extra == 'dev'",
+          "flake8-import-order ; extra == 'dev'",
+          "flake8-literal ; extra == 'dev'",
+          "flake8-modern-annotations ; extra == 'dev'",
+          "flake8-noqa ; extra == 'dev'",
+          "flake8-pyproject ; extra == 'dev'",
+          "flake8-requirements ; extra == 'dev'",
+          "flake8-typechecking-import ; extra == 'dev'",
+          "flake8-use-fstring ; extra == 'dev'",
+          "mypy ; extra == 'dev'",
+          "pep8-naming ; extra == 'dev'",
+          "types-PyYAML ; extra == 'dev'"
+        ],
+        "metadata_sha256": "3a8c53a915e5755c13b09faa29a4211fcff0c6ee188a169fc02cc092d89f46bc"
+      },
+      {
+        "name": "urllib3",
+        "version": "2.8.0",
+        "requires_dist": [
+          "backports-zstd>=1.0.0; (python_version < '3.14') and extra == 'zstd'",
+          "brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+          "brotlicffi>=1.2.0.0; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+          "h2<5,>=4; extra == 'h2'",
+          "pysocks!=1.5.7,<2.0,>=1.5.6; extra == 'socks'"
+        ],
+        "metadata_sha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4"
+      },
+      {
+        "name": "uvicorn",
+        "version": "0.54.0",
+        "requires_dist": [
+          "click>=7.0",
+          "h11>=0.8",
+          "httptools>=0.8.0; extra == 'standard'",
+          "python-dotenv>=0.13; extra == 'standard'",
+          "pyyaml>=5.1; extra == 'standard'",
+          "typing-extensions>=4.0; python_version < '3.11'",
+          "uvloop>=0.15.1; (sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')) and extra == 'standard'",
+          "watchfiles>=0.20; extra == 'standard'",
+          "websockets>=13.0; extra == 'standard'"
+        ],
+        "metadata_sha256": "9399e5ddda3d26e842d6fb5420c38b0857aac568d53badbdc224b3a21339efa8"
+      },
+      {
+        "name": "voila",
+        "version": "0.5.13",
+        "requires_dist": [
+          "black; extra == 'dev'",
+          "hatch; extra == 'dev'",
+          "ipykernel; extra == 'test'",
+          "ipykernel; extra == 'test7'",
+          "ipywidgets; extra == 'test'",
+          "ipywidgets==7.8.2; extra == 'test7'",
+          "jupyter-client<9,>=7.4.4",
+          "jupyter-core>=4.11.0",
+          "jupyter-releaser; extra == 'dev'",
+          "jupyter-server<3,>=1.18",
+          "jupyterlab-server<3,>=2.3.0",
+          "matplotlib; extra == 'test'",
+          "matplotlib; extra == 'test7'",
+          "myst-parser; extra == 'docs'",
+          "nbclient>=0.4.0",
+          "nbconvert<8,>=6.4.5",
+          "numpy; extra == 'test'",
+          "numpy; extra == 'test7'",
+          "pandas; extra == 'test'",
+          "pandas; extra == 'test7'",
+          "papermill; extra == 'test'",
+          "papermill; extra == 'test7'",
+          "pre-commit; extra == 'dev'",
+          "pydata-sphinx-theme; extra == 'docs'",
+          "pytest-tornasync; extra == 'test'",
+          "pytest-tornasync; extra == 'test7'",
+          "pytest; extra == 'test'",
+          "pytest; extra == 'test7'",
+          "sphinx-autobuild; extra == 'docs'",
+          "sphinx; extra == 'docs'",
+          "sphinxcontrib-video; extra == 'docs'",
+          "traitlets<6,>=5.0.3",
+          "websockets>=9.0"
+        ],
+        "metadata_sha256": "0c7acec325767a74a156e9544d067c0ba2e1e0a143b97b726fdf671ca8c9ddc6"
+      },
+      {
+        "name": "vtk",
+        "version": "9.7.1",
+        "requires_dist": [
+          "matplotlib>=2.0.0",
+          "numpy>=1.9; extra == \"numpy\"",
+          "wslink>=1.0.4; extra == \"web\""
+        ],
+        "metadata_sha256": "feeb42f60aa6e9f04d7f4b64b773fa5ae6c4e3b149ad5cdea25bed5d2ccc567b"
+      },
+      {
+        "name": "watchdog",
+        "version": "6.0.0",
+        "requires_dist": [
+          "PyYAML>=3.10; extra == \"watchmedo\""
+        ],
+        "metadata_sha256": "ecfde023047e7761dce06d4488abcede89e398399961a052f2fccb39b001e279"
+      },
+      {
+        "name": "wcwidth",
+        "version": "0.9.2",
+        "requires_dist": [],
+        "metadata_sha256": "cce73426c72bcd655c08f6229262e5868bf69c1e9e10130119b275ebd200e2b8"
+      },
+      {
+        "name": "webcolors",
+        "version": "25.10.0",
+        "requires_dist": [],
+        "metadata_sha256": "53b0da874b2e90dd8f1ccaa9c75c41e8db9107eb2568fc7a4e605b71c955d099"
+      },
+      {
+        "name": "webencodings",
+        "version": "0.6.1",
+        "requires_dist": [
+          "furo ; extra == \"doc\"",
+          "pytest ; extra == \"test\"",
+          "ruff ; extra == \"test\"",
+          "sphinx ; extra == \"doc\""
+        ],
+        "metadata_sha256": "3d9819d1209e5b56d4c6315efca7d5ca452ba7e55d4c3617ec63555c099bfb70"
+      },
+      {
+        "name": "websocket-client",
+        "version": "1.9.2",
+        "requires_dist": [
+          "Sphinx>=6.0; extra == \"docs\"",
+          "myst-parser>=2.0.0; extra == \"docs\"",
+          "pytest; extra == \"test\"",
+          "python-socks; extra == \"optional\"",
+          "sphinx_rtd_theme>=1.1.0; extra == \"docs\"",
+          "websockets; extra == \"test\"",
+          "wsaccel; extra == \"optional\""
+        ],
+        "metadata_sha256": "4a97c326e009bd602e900d0059912bc57c56b5fa1129f6198d10533b6e89450c"
+      },
+      {
+        "name": "websockets",
+        "version": "17.2",
+        "requires_dist": [],
+        "metadata_sha256": "0d5f1279d095e7ba84ef21614af0822dc500ccb2e51b7c3a19eda7159b2dade4"
+      },
+      {
+        "name": "wheel",
+        "version": "0.45.1",
+        "requires_dist": [
+          "pytest >= 6.0.0 ; extra == \"test\"",
+          "setuptools >= 65 ; extra == \"test\""
+        ],
+        "metadata_sha256": "98acfce07ee6ee3b31272cde21c4d53918936f434f315dfd2af3886211a09a30"
+      },
+      {
+        "name": "widgetsnbextension",
+        "version": "4.0.16",
+        "requires_dist": [],
+        "metadata_sha256": "d8a9a76b9ad68a2a105fe37e05c6e2258e37c33175f73cec4d7b1cb62008b894"
+      },
+      {
+        "name": "wrapt",
+        "version": "2.5.0",
+        "requires_dist": [
+          "pytest; extra == \"dev\"",
+          "setuptools; extra == \"dev\""
+        ],
+        "metadata_sha256": "36db74ec7635580b3ac8132323769f7f3957ce1e08ce0592524621d44d68f061"
+      }
+    ]
+  },
+  "evidence_classification": {
+    "regression": "Executed unit, mathematical, parser, infrastructure, UI and genuine configured-engine tests; fixtures are not live engine calculations",
+    "licensed_local": "No ORCA or CFOUR executable was installed or executed here; each skipped test remains named in retained JUnit",
+    "native_local": "Actual xTB, CREST, reviewed patched CREST/MACE, ABCluster, Psi4 and CPU MACE/AIMNet are selected explicitly by the retained test command environment",
+    "base_authority": "BASE integration tests require the actual mandatory Stage 0 authority; isolated numerical development tests remain separately named",
+    "gpu": "No physical GPU or GPU training execution is certified by these CPU results",
+    "accuracy": "Passing numerical consistency does not establish experimental accuracy, exhaustive search or model-domain transferability"
+  },
+  "verification_driver": {
+    "path": "/workspace/.cochem-setup/validate_topos_current.py",
+    "sha256": "a2c6dc56559d9c7823e9f9f2886c95bda01e8c446e54e1778d2de179536796e3"
+  }
+}

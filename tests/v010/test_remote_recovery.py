@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from threading import Event
 
 import pytest
@@ -91,6 +92,8 @@ def test_queue_budget_import_preserves_distinct_caller_and_worker_identities(own
 
 @pytest.mark.parametrize("configuration", [
     {"remote_repository": "another/controller"}, {"remote_ref": "another-ref"},
+    {"remote_base_commit": "b" * 40},
+    {"remote_controller_profile": "legacy-topos-orca"},
 ])
 def test_recovery_rejects_changed_controller_configuration_before_network(owned_remote, configuration, monkeypatch):
     workflow, request, client, transport = owned_remote
@@ -98,7 +101,7 @@ def test_recovery_rejects_changed_controller_configuration_before_network(owned_
     for key, value in configuration.items():
         setattr(workflow.config, key, value)
     transport.calls.clear()
-    with pytest.raises(IntegrityError, match="different configured controller or ref"):
+    with pytest.raises(IntegrityError, match="different configured"):
         workflow.resume(folder)
     assert transport.calls == []
 
@@ -106,6 +109,7 @@ def test_recovery_rejects_changed_controller_configuration_before_network(owned_
 @pytest.mark.parametrize("key,value", [
     ("request_sha256", "b" * 64), ("commit_sha", None),
     ("dispatch_id", "topos_unowned"), ("workflow_name", "other.yml"),
+    ("base_commit", "b" * 40),
 ])
 def test_recovery_rejects_inconsistent_saved_ownership_before_network(owned_remote, monkeypatch, key, value):
     workflow, request, client, transport = owned_remote
@@ -273,3 +277,44 @@ def test_submission_unconfirmed_does_not_claim_job_exists(owned_remote, monkeypa
     assert polled.remote_job_id is None
     assert polled.status == "submitted"
     assert polled.record is None
+
+
+def test_initial_external_dispatch_retains_distinct_caller_and_worker_inputs(owned_remote, tmp_path, monkeypatch):
+    from topos.chemistry import to_xyz
+    from topos.ingestion import ExternalImportSpec, ExternalSource, stage_external
+
+    workflow, request, client, transport = owned_remote
+    original = tmp_path / "student-prepared.xyz"
+    original.write_text(to_xyz(request.molecule, "User prepared geometry; no energy or execution attestation"))
+    spec = ExternalImportSpec(format="xyz", entrypoint="geometry", reference=request.molecule,
+                              source=ExternalSource(engine="external", engine_version="declared-unknown",
+                                                    method="geometry preparation", created_by="student",
+                                                    description="Geometry input only, not a scientific calculation",
+                                                    atom_order=request.molecule.atom_ids))
+    staged = stage_external(original, spec, request, workflow.output_root)
+    folder = Path(staged.metadata["run_dir"])
+    original_request = (folder / "request.json").read_bytes()
+    original_geometry = (folder / "input.xyz").read_bytes()
+    original_uploaded = (folder / "external-inputs/input-0001.txt").read_bytes()
+    original_dispatch = client.dispatch_request
+
+    def submit_and_retain_failure(request, ref):
+        receipt = original_dispatch(request, ref=ref)
+        make_evidence(tmp_path / "external-worker-transport-fixture", transport, receipt, retain_inputs=True)
+        return receipt
+
+    monkeypatch.setattr(client, "dispatch_request", submit_and_retain_failure)
+    result = remote_workflow.run_remote(workflow, staged.request, staged_record=staged)
+    assert result.run_id == staged.run_id and result.status == "failed"
+    assert result.metadata["remote_completion_confirmed"] is True
+    assert (folder / "request.json").read_bytes() == original_request
+    assert (folder / "input.xyz").read_bytes() == original_geometry
+    assert (folder / "external-inputs/input-0001.txt").read_bytes() == original_uploaded
+    worker_request = json.loads((folder / "remote-worker-inputs/request.json").read_text())
+    assert worker_request["calculation_environment"] == "local"
+    assert json.loads(original_request)["calculation_environment"] == "github-actions"
+    assert RunStore(folder).load()["metadata"]["external_import"] == staged.metadata["external_import"]
+    assert len([path for method, path, _ in transport.calls if method == "POST" and path.endswith("/dispatches")]) == 1
+    assert workflow.resume(folder).model_dump(mode="json") == result.model_dump(mode="json")
+    with pytest.raises(IntegrityError, match="pristine queued"):
+        remote_workflow.run_remote(workflow, staged.request, staged_record=staged)

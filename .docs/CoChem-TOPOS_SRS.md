@@ -87,6 +87,8 @@ Mendeleev supplies the specified mass/radius data, not every physical constant. 
 
 **TOPOS-010-011.** Rigid packing, flexible search, and frozen-monomer refinement shall state movable coordinates, confinement, clash handling, and deformation policy. ABCluster, ORCA GOAT, CREST, and internal jiggle–quench routines retain their actual algorithm identities.
 
+**Independent starting states.** The student GUI, CLI and BASE entry point shall accept independently prepared inputs at every supported starting stage. This includes a single starting geometry for each calculation purpose, independently generated GOAT/CREST ensembles for common-level refinement, and the explicitly typed seed, ensemble and isolated-monomer inputs of matrix recipes. Users shall select the starting stage and frame membership rather than repeat an unrelated upstream search. Intake shall preserve the original files and hashes, source method/version and settings, units, atom mapping, molecular/fragment states and the user's attribution. Validate chemistry and stage compatibility before creating a canonical request. External source declarations and energy comments shall remain observations; they shall not mint a BASE-authorized execution attempt, waive stationarity or common-level requirements, or replace missing calculated quantities. Native checkpoints and computed-property imports require their own supported engine/state/geometry compatibility contracts. A verified saved CoChem run may instead use its existing recovery contract.
+
 ## 5. Method matrix, purpose, and hardware
 
 ### 5.1 Selection and route inventory
@@ -252,6 +254,8 @@ Explain unavailable capabilities in actionable user terms. Internal implementati
 ## 11. Human review and TORQ handoff
 
 **TOPOS-010-043.** Baskets expose structures, provenance, metrics, consistency, unresolved chemistry. Overrides retain original decision, actor/reason/scope. Manual symmetry/grouping is annotation, not raw-data rewriting. One branch may await review while independent work continues; silence is not approval.
+
+The student interface shall provide a structure view, validated file-intake preview, explicit selection of available matrix purpose/time/device routes, saved-run recovery, and browser retrieval of verified exports. Unavailable hardware or a source-defined missing protocol shall have an actionable explanation. BASE shall open the complete installed TOPOS interface through the reviewed mandatory package; an installation button or a generic JSON panel alone does not demonstrate this student workflow.
 
 **TOPOS-010-044.** Handoff includes versioned member/geometry IDs, maps/states/protocols/constraints, review/uncertainty, digests. TORQ acknowledges the exact manifest/schema. Reject incompatible/incomplete handoffs; changes create a new ensemble version. Search provenance does not guarantee TORQ never needs more sampling.
 

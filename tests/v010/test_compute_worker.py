@@ -2,14 +2,19 @@
 import base64
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
 from test_hosted_worker import setup_context, smoke_payload
 
-from topos.actions.compute_worker import decode_request, run_compute_worker
+from topos.actions.compute_worker import decode_request, run_compute_worker, verify_base_checkout
 from topos.actions.hosted_requirements import main as preflight_main
-from topos.actions.hosted_requirements import required_native_engines, validate_submission
+from topos.actions.hosted_requirements import (
+    required_calculation_engines,
+    required_native_engines,
+    validate_submission,
+)
 from topos.actions.hosted_worker import verify_evidence
 from topos.models import RunRequest
 from topos.storage import digest_json, json_bytes
@@ -18,6 +23,21 @@ from topos.storage import digest_json, json_bytes
 def encoded_request(**changes):
     data = RunRequest.model_validate({**smoke_payload(), "calculation_environment": "github-actions", **changes}).model_dump(mode="json")
     return data, base64.b64encode(json_bytes(data)).decode(), digest_json(data)
+
+
+def dispatch_inputs(monkeypatch, dispatch_id, encoded, digest):
+    """Real separate Git checkout fixture; it supplies no chemical results."""
+    checkout = Path(os.environ["GITHUB_WORKSPACE"]) / ".cochem-dependencies" / "base"
+    checkout.mkdir(parents=True)
+    (checkout / "source.txt").write_text("Source identity infrastructure fixture\n")
+    for arguments in (["init", "-q"], ["config", "user.name", "BASE source infrastructure fixture"],
+                      ["config", "user.email", "source-test@example.invalid"],
+                      ["add", "source.txt"], ["commit", "-qm", "Retained source fixture"]):
+        subprocess.run(["git", "-C", str(checkout), *arguments], check=True, capture_output=True)
+    revision = subprocess.check_output(["git", "-C", str(checkout), "rev-parse", "HEAD"], text=True).strip()
+    monkeypatch.setenv("BASE_COMMIT", revision)
+    return {"dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": digest,
+            "base_commit": revision}
 
 
 def test_worker_preserves_original_and_explicitly_localizes_only_execution():
@@ -63,7 +83,7 @@ def test_free_request_has_no_orca_license_gate_but_still_requires_base(tmp_path,
     dispatch_id = "topos_" + "b" * 32
     event = Path(os.environ["GITHUB_EVENT_PATH"])
     data = json.loads(event.read_text())
-    data["inputs"] = {"dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": digest}
+    data["inputs"] = dispatch_inputs(monkeypatch, dispatch_id, encoded, digest)
     event.write_text(json.dumps(data))
     receipt, code = run_compute_worker(encoded, digest, dispatch_id, temporary / "runs", temporary / "evidence")
     assert code != 0 and receipt["context_verified"]
@@ -142,11 +162,55 @@ def test_free_matrix_worker_does_not_require_orca_license(tmp_path, monkeypatch)
     dispatch_id = "topos_" + "e" * 32
     event = Path(os.environ["GITHUB_EVENT_PATH"])
     payload = json.loads(event.read_text())
-    payload["inputs"] = {"dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": digest}
+    payload["inputs"] = dispatch_inputs(monkeypatch, dispatch_id, encoded, digest)
     event.write_text(json.dumps(payload))
     receipt, code = run_compute_worker(encoded, digest, dispatch_id, temporary / "runs", temporary / "evidence")
     assert code != 0 and receipt["context_verified"]
     assert "BASE setup registry" in receipt["failure"]["message"]
+
+
+@pytest.mark.parametrize("change", ["extra-input", "event-revision", "environment-revision",
+                                    "dirty-source", "wrong-checkout", "missing-base-input"])
+def test_real_dispatch_schema_and_base_source_are_checked_before_calculation(tmp_path, monkeypatch, change):
+    _, temporary, _ = setup_context(tmp_path, monkeypatch)
+    _, encoded, digest = encoded_request(engine="xtb", engine_version="6.7.1", method="GFN2-xTB",
+                                         profile_id="screening-v1")
+    dispatch_id = "topos_" + "1" * 32
+    inputs = dispatch_inputs(monkeypatch, dispatch_id, encoded, digest)
+    checkout = Path(os.environ["GITHUB_WORKSPACE"]) / ".cochem-dependencies" / "base"
+    if change == "extra-input":
+        inputs["unreviewed_override"] = "true"
+    elif change == "event-revision":
+        inputs["base_commit"] = "b" * 40
+    elif change == "environment-revision":
+        monkeypatch.setenv("BASE_COMMIT", "b" * 40)
+    elif change == "dirty-source":
+        (checkout / "source.txt").write_text("Changed after the actual source checkout\n")
+    elif change == "wrong-checkout":
+        monkeypatch.setenv("BASE_COMMIT", "b" * 40)
+        inputs["base_commit"] = "b" * 40
+    else:
+        inputs.pop("base_commit")
+    event = Path(os.environ["GITHUB_EVENT_PATH"])
+    payload = json.loads(event.read_text())
+    payload["inputs"] = inputs
+    event.write_text(json.dumps(payload))
+    monkeypatch.setattr("topos.actions.compute_worker.Workflow",
+                        lambda *args, **kwargs: pytest.fail("Invalid source cannot construct a calculation workflow"))
+    receipt, code = run_compute_worker(encoded, digest, dispatch_id, temporary / "runs", temporary / "evidence")
+    assert code != 0 and receipt["run_path"] is None
+    assert receipt["failure"]
+    assert not (temporary / "runs").exists()
+    verify_evidence(temporary / "evidence")
+
+
+def test_declared_source_is_verified_from_a_real_separate_git_checkout(tmp_path, monkeypatch):
+    setup_context(tmp_path, monkeypatch)
+    inputs = dispatch_inputs(monkeypatch, "topos_" + "2" * 32, "encoded-infrastructure-fixture", "a" * 64)
+    observed = verify_base_checkout(inputs["base_commit"])
+    assert observed["commit_sha"] == inputs["base_commit"]
+    assert len(observed["tree_sha"]) == 40
+    assert observed["checked_out_source_verified"] is True
 
 
 def test_expired_queue_budget_commits_no_attempt_without_constructing_workflow(tmp_path, monkeypatch):
@@ -159,7 +223,7 @@ def test_expired_queue_budget_commits_no_attempt_without_constructing_workflow(t
     dispatch_id = "topos_" + "f" * 32
     event_path = Path(os.environ["GITHUB_EVENT_PATH"])
     event = json.loads(event_path.read_text())
-    event["inputs"] = {"dispatch_id": dispatch_id, "request_b64": encoded, "request_sha256": digest}
+    event["inputs"] = dispatch_inputs(monkeypatch, dispatch_id, encoded, digest)
     event_path.write_text(json.dumps(event))
     registry = temporary / "unread-registry.json"
     registry.write_text("{}")
@@ -189,3 +253,60 @@ def test_explicit_reference_energy_branch_requires_orca_without_claiming_geometr
     request["matrix_inputs"] = {}
     with pytest.raises(ValueError, match="explicit compiled source resolution"):
         required_native_engines(request)
+
+
+@pytest.mark.parametrize("row", ["T3C-30min", "T3C-1h", "T3C-3h", "T3C-12h", "T3C-1d",
+                                 "T3C-3d", "T3C-1w", "T5-1w"])
+def test_calculation_dependencies_include_cfour_without_pretending_generic_host_provisions_it(row):
+    original, _, _ = encoded_request(purpose="matrix", matrix_row_id=row)
+    assert required_calculation_engines(original) == {"cfour"}
+    with pytest.raises(ValueError, match="separate private TOPOS calculation workflow"):
+        required_native_engines(original)
+
+
+def test_dependency_classifier_uses_reviewed_selected_engine_instead_of_archived_source():
+    original, _, _ = encoded_request(
+        purpose="matrix", matrix_row_id="T3O-1w",
+        matrix_inputs={"source_resolution": "cfour-relaxed-counterpoise-geometry-v1"},
+    )
+    assert required_calculation_engines(original) == {"cfour"}
+    original["matrix_inputs"]["source_resolution"] = "orca-f12-reference-singlepoint-v1"
+    with pytest.raises(ValueError, match="matches this row"):
+        required_calculation_engines(original)
+
+
+@pytest.mark.parametrize(("row", "expected"), [
+    ("T1-30min", {"orca", "aimnet2", "crest", "xtb"}),
+    ("T1-1w", {"orca", "mace", "crest", "xtb"}),
+    ("T1-1mo", {"orca", "crest", "xtb"}),
+    ("T2-1min", {"mlff"}),
+    ("T5-1mo", {"psi4"}),
+])
+def test_complete_dependency_classifier_preserves_model_and_external_engine_requirements(row, expected):
+    original, _, _ = encoded_request(purpose="matrix", matrix_row_id=row)
+    assert required_calculation_engines(original) == expected
+    if expected <= {"xtb", "crest", "orca"}:
+        assert required_native_engines(original) == expected
+    else:
+        with pytest.raises(ValueError, match="unsupported hosted engine"):
+            required_native_engines(original)
+
+
+@pytest.mark.parametrize("row", ["T3C-10s", "T3C-1min", "T4O-1h", "T999-10s", "T3O-1d", "T3O-1mo"])
+def test_complete_dependency_classifier_rejects_gaps_foreign_ownership_and_unresolved_science(row):
+    original, _, _ = encoded_request(purpose="matrix", matrix_row_id=row)
+    with pytest.raises(ValueError):
+        required_calculation_engines(original)
+
+
+@pytest.mark.parametrize(("engine", "method"), [("orca+cfour", "CCSD(T)"),
+                                                  ("orca+crest", "unreviewed-method"),
+                                                  ("orca+aimnet2", "unreviewed-method")])
+def test_dependency_classifier_does_not_split_unknown_compounds_or_invent_method_mapping(monkeypatch, engine, method):
+    from topos.method_matrix import ScientificStep
+
+    original, _, _ = encoded_request(purpose="matrix", matrix_row_id="T1-1mo")
+    step = ScientificStep(step_id="unreviewed", engine=engine, method=method, operation="exhaustive-union")
+    monkeypatch.setattr("topos.method_matrix.resolved_recipe", lambda *args: ([step], []))
+    with pytest.raises(ValueError, match="dependency mapping"):
+        required_calculation_engines(original)

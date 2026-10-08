@@ -7,7 +7,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
+        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       hosted_acceptance_run_id:
         description: Completed TOPOS ORCA acceptance run with GOAT and counterpoise evidence
         required: false
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
+      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
       COCHEM_HEADLESS: '1'
       QT_QPA_PLATFORM: offscreen
       COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus

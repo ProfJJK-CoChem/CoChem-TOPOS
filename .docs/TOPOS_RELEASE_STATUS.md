@@ -1,5 +1,14 @@
 # TOPOS 0.1.0 release status
 
+The student testing implementation now includes canonical external starting
+states, all 42 compiled matrix rows in the complete browser interface, verified
+downloads and BASE's separately staged private native Actions route. The current
+unfiltered [source regression](evidence/TOPOS_STUDENT_VALIDATION_20261008.json)
+passed **2,808 tests**, with **42 explicit availability skips** and no failures or
+errors. Its source remained unchanged. Fresh installed-kit and live hosted
+receipts accompany the separate downloadable candidate; regression alone does
+not establish those deployment or scientific results.
+
 TOPOS exposes all **42 available TOPOS method-matrix recipe entry points**
 and has historical mandatory BASE/TOPOS/TORQ installation evidence. Full SRS acceptance and
 scientific release certification remain **blocked**. A compiled recipe, passing
@@ -11,11 +20,58 @@ explicitly omits **T3C-10s and T3C-1min**; these are preserved as unavailable
 source protocol entries. Both month-tier routes have conditional implementations.
 Current-source TOPOS CFOUR execution still needs verification; BASE has separately verified native providers.
 
-## Current completion work — 7 October 2026, America/Chicago
+## Current student deployment implementation — 8 October 2026, America/Chicago
 
-Evidence below was retained on 8 October 2026 UTC. The reviewed executable
-source is `2082d04dccf593a9186238ac5a9a73253b5c4d5e`; it is an interim source
-milestone, with final SRS, installation and scientific acceptance still pending.
+The mandatory package versions are BASE **1.0.1**, TOPOS **0.1.0**, and TORQ
+**0.1.0**. BASE's source-bound catalog and complete ecosystem kit select compatible
+sources, wheels and setup helpers. The compatible-core TORQ importer line and the
+newer separately isolated TORQ student calculator have distinct environment
+profiles; installing a later TORQ `main` into the BASE/TOPOS authority interpreter
+is not the supported upgrade path.
+
+The student-facing code now includes:
+
+- BASE complete-kit installation and an installed TOPOS dashboard launcher.
+- Shared local/CLI/BASE/browser request contracts and all 42 compiled TOPOS
+  matrix entry points, selected by purpose, tier and engine track with explicit
+  reviewed scientific variants and actual recipe methods.
+- XYZ/state/fragment forms, interactive mapped structures, named canonical
+  external GOAT/CREST/geometry entry steps, selected-frame refinement and retained
+  original supporting files. Imported observations never supply native success.
+- Saved-record recovery, a separate retained-geometry calculation with new
+  identity and budget, append-only review, TORQ handoff and verified publication
+  downloads. Matrix seed channels require their named input stage rather than
+  silently replaying old ensembles.
+- Canonical request export and an explicit BASE private Actions worker export.
+  The latter changes the execution location to native local execution inside
+  that runner, retains scientific selections and records original provenance.
+
+See [student readiness](TOPOS_STUDENT_READINESS.md),
+[installation](TOPOS_INSTALLATION.md), and
+[independent starting states](TOPOS_EXTERNAL_STARTING_STATES.md) for the actual
+interfaces. The [GUI tests](../tests/v010/test_student_browser.py) exercise browser
+route selection, input rejection, exact frame/export binding, structure display,
+verified download and continuation behavior. These contract tests do not assert
+native ORCA/CFOUR or GPU scientific acceptance.
+
+BASE's dedicated private `topos_calculation.yml` pathway is being integrated with
+separate kit and licensed-engine staging receipts and a source-bound native
+receiver. This current integration is not yet a published or successfully tested
+student deployment in this status document. The final source identities, full
+regression, candidate artifacts, clean installation and actual private hosted
+lifecycle evidence must be attached after the source is frozen and exercised.
+
+The historical 50-requirement acceptance ledger remains an evidence ledger for
+its original assessment until rebound to those genuine final results. Current
+code coverage is not permission to overwrite its physical conditions or mark
+unexecuted scientific campaigns verified.
+
+## Historical component milestones — preserved original scope
+
+Evidence below was retained on 8 October 2026 UTC. The historical executable
+source was `2082d04dccf593a9186238ac5a9a73253b5c4d5e`. Its original outcomes
+below are retained for that milestone; they are not a current operational pin or
+acceptance of the later student deployment changes.
 
 CFOUR runtime authorization, newline-only native controls, framed control-table
 parsing, mandatory `qcengine==0.51.0`/`qcelemental==0.51.2` preflight and controlled
@@ -52,8 +108,9 @@ this implementation. See the [EFG policy](TOPOS_CFOUR_EFG_POLICY.md).
 The reviewed BASE foundation `14202e182e1fa4f99258ed32a8ae9ba8c1c565ad`
 combines the scientific integration with BASE 1.0.1. Its exact tree passed 299
 focused checks with zero skips; the six original generated metadata files were
-preserved. TOPOS requires exactly BASE 1.0.1, and workflow defaults identify this
-foundation. Package version strings alone do not establish runtime compatibility.
+preserved. TOPOS requires exactly BASE 1.0.1. This historical foundation result does
+not select the source revision of a new student installation. Use its source-bound
+kit/catalog; package version strings alone do not establish runtime compatibility.
 
 The raw-XYZ isotope handoff now verifies atom order, coordinates, explicit nuclear
 labels and the typed TOPOS request without rewriting original evidence. Its
@@ -61,17 +118,15 @@ focused 102-test subset passed with zero skips, including genuine BASE/xTB
 handoff. Final installation must still repeat the actual source-bound ecosystem
 checks.
 
-The outside 21-file mandatory BASE installer/broker/surface/export proposal
-passed 207 source/transport checks with zero skips. Five separately run installed
-checks also passed, but their borrowed dependency environment failed `pip check`
-against old TOPOS metadata. The separately reviewed 22-file revision adds a
-complete source-content anchor and rejects unexpected bootstrap imports before
-loading source code; actual artifact binding and shared integration remain pending. These
-results do not establish a fresh final BASE/TOPOS/TORQ installation, catalog,
-reproducible kit, or release. The final installer catalog must bind the actual
-frozen TOPOS wheel and setup helper before those gates can be assessed.
+The earlier outside installer/broker/surface/export proposal passed its recorded
+207 source/transport checks and five focused installed checks, while the borrowed
+dependency environment failed `pip check` against older TOPOS metadata. Those
+original outcomes remain historical. The installer, complete source-content
+anchor, broker and module surface are now implemented in BASE; the earlier
+outside-proposal description is not their current integration status. Their new
+candidate still needs exact current-source artifact and clean-install evidence.
 
-## Verified source milestones
+## Historical verified source milestones
 
 - The [e4 milestone](evidence/TOPOS_WORKER14_LOCAL_E4_20261008_INDEX.json)
   retains **2,196 passed, three named licensed ORCA tests skipped, zero failures
@@ -96,15 +151,15 @@ frozen TOPOS wheel and setup helper before those gates can be assessed.
   separately binds its installed-worker and ordinary CI results. These original
   receipts remain tied to their actual source revisions.
 
-The current source additionally rejects consistently checksummed unsuccessful
-Stage 0 phases. Further scientific repairs and their complete regression and
-installation checks are in progress. The existing
+The implemented source rejects consistently checksummed unsuccessful
+Stage 0 phases. Each new source candidate still needs its own complete regression
+and installation checks. The existing
 [50-requirement ledger](TOPOS_SRS_ACCEPTANCE.json) still retains the older
 `053c827` assessment; it must be rebound to the final tested source before it can
 supply current-source acceptance. Its historical statuses are not a new release
 claim.
 
-## Native ORCA evidence
+## Historical native ORCA/CFOUR evidence
 
 The protected BASE providers are available. [BASE ORCA run
 37703993551](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37703993551)
@@ -166,31 +221,49 @@ the strict VPT2 reference remains a distinct protocol. Legacy profiles/caches ar
 not silently relabeled. This narrow water calibration does not complete R2,
 all matrix rows, independent reference accuracy or current-source release gates.
 
-## Hosted scheduling and product profile
+## Current execution profiles
+
+Local calculations use the mandatory installed BASE registry and bounded broker.
+Every requested recipe still needs its declared scientific inputs, native
+installation, exact model/derivative contract and suitable hardware.
+
+The generic TOPOS correlated Actions adapter retains its bounded xTB/CREST and
+legacy ORCA compatibility installation profile, with its existing resource caps.
+It does not provision CFOUR, Psi4, ABCluster or ML/GPU simply because a GUI offers
+the corresponding matrix recipe. Unsupported requirements return an explicit
+reason. A nominal month-tier label is not a month-long hosted allocation.
+
+The new BASE private TOPOS Actions receiver is being integrated separately. Its
+current CPU profile is limited to two threads and 4096 MB; its worker executes
+an exact committed local-native TOPOS request after independently verifying the
+mandatory kit and any engine-specific private staging receipts. ORCA/CFOUR assets
+remain controlled distributions. The source-bound staged workflow, real student's
+project and complete hosted lifecycle require their own acceptance evidence.
+GPU/model and other external-engine paths retain their local/appropriate-worker
+requirements and are not replaced by free-engine calculations.
+
+Personal private projects use the student's own Actions context and authorized
+account access. Organization secrets do not propagate to those personal projects.
+Organization-owned projects use organization access and accounting. Codespaces
+authentication is separate from an Actions job's authentication. See
+[BASE student deployment](https://github.com/ProfJJK-CoChem/CoChem-BASE/blob/main/docs/topos_student_deployment.md).
+
+### Historical scheduling incidents
 
 [TOPOS CI 37723914727](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37723914727)
-at `b71908d` and [BASE CI 37723351559](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37723351559)
-at `e6955f8`
-were rejected before runner assignment: runner ID zero, no executed steps.
-GitHub reported: “The job was not started because recent account payments have
-failed or your spending limit needs to be increased. Please check the 'Billing &
-plans' section in your settings”. No test or native calculation ran in these
-jobs. This account scheduling failure does not negate the earlier verified
-ORCA/CFOUR provider availability.
+and [BASE CI 37723351559](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37723351559)
+were rejected before runner assignment. GitHub reported an account payment or
+spending-limit condition; no test/native calculation ran in those jobs. This is
+an immutable outcome for those job IDs, not a statement that GitHub currently
+blocks all new calculations. Later public hosted CI and mandatory ecosystem
+acceptance ran successfully at their separately recorded sources.
 
-The reviewed ORCA acceptance controller was published at
-`518c948dcfdd5c9b48576d7846332f218159c8ee`, bound to interim TOPOS `3bb003f`,
-BASE `14202e1` and TORQ `79fbb11`. **No dispatch or native attempt occurred**;
-dispatch remains held while hosted jobs are blocked. It must be rebound and
-reviewed if used to accept a later source.
-
-The downloadable product's generic protected hosted worker supports xTB/CREST/
-ORCA installations only, with requests capped at four hours, four cores and
-12 GiB. CFOUR, Psi4, ABCluster, ML/GPU and TOPOS-only matrix routes are not
-provisioned by that generic worker. The separately protected BASE diagnostic
-providers establish their own provider availability; they do not expand this
-product deployment profile. All 42 compiled recipes are subject to their local
-BASE-authorized engine/domain requirements and separate authentic acceptance.
+The earlier ORCA acceptance controller at
+`518c948dcfdd5c9b48576d7846332f218159c8ee` was bound to its then-interim source
+set and had zero recorded dispatch/native attempts in that review. That original
+scope remains unchanged. It is not the current student controller or evidence
+for later source. Rebind any new acceptance run to its actual executing sources,
+private owning repository and retained native results.
 
 ## Remaining release conditions
 
@@ -198,8 +271,9 @@ Release requires the final source's full regression and installation evidence,
 complete native ORCA acceptance including all named licensed tests, physical GPU
 and CFOUR execution, all 42 BASE-authorized matrix rows in their explicitly reviewed isolated-gas
 5–10-atom noncovalent-complex cases with at least two declared fragments, and deployed hosted
-completion/expiry/cancellation/retrieval acceptance. The protected controller's
-bootstrap and canonical-request corrections are prepared separately.
+completion/expiry/cancellation/retrieval acceptance. The dedicated private controller's
+current source, bootstrap and staged request/kit boundaries must be verified as
+part of those actual runs.
 
 The [reference campaign](TOPOS_SCIENTIFIC_REFERENCE_CAMPAIGN.md) additionally
 requires reviewed coverage for every scientific-reference obligation, with

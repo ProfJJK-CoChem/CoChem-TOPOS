@@ -7,7 +7,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
+        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       include_goat:
         description: Run genuine native GOAT sampling and common r2SCAN-3c refinement
         type: boolean
@@ -23,7 +23,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit
         required: false
         type: string
-        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
+        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       include_goat:
         type: boolean
         default: true
@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 330
     environment: cochem-student-tests
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
+      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
       ORCA_CLOUD_LICENSE_CONFIRMED: ${{ vars.ORCA_CLOUD_LICENSE_CONFIRMED }}
       TOPOS_REQUIRE_BASE: '1'
       TOPOS_EXECUTION_BACKEND: base
