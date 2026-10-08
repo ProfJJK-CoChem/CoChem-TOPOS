@@ -1,5 +1,10 @@
 # TOPOS 0.1.0 implementation status — 7 October 2026
 
+This retains the earlier `053c827` assessment. Current completion work and the
+8 October provider observations are tracked in the
+[release status](TOPOS_RELEASE_STATUS.md); the historical counts below do not
+certify later source revisions.
+
 TOPOS has implemented all 42 available recipe entry points and passed the
 source-bound local regression and fresh BASE/TOPOS/TORQ installation checks.
 **Full SRS acceptance and scientific release certification remain incomplete.**
