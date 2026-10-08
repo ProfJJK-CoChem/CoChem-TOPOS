@@ -4,6 +4,10 @@ from __future__ import annotations
 from threading import Event
 from typing import Any
 
+from .cfour_properties import (
+    first_order_quadrupole_output,
+    validate_quadrupole_targets,
+)
 from .external_engines import ExternalProtocol, run_external
 from .matrix_components import run_component
 from .models import Artifact, RunRecord
@@ -120,6 +124,14 @@ def execute_external_recipe(workflow: Any, record: RunRecord, store: RunStore, i
     row = record.request.matrix_row_id
     try:
         protocol = protocol_for_row(row, inputs.external_protocol)
+        if inputs.cfour_quadrupole_moments or inputs.cfour_quadrupole_frame != "requested-cartesian":
+            if row != "T3C-1h":
+                raise ValueError("Explicit nuclear quadrupole inputs apply to T3C-1h only")
+            validate_quadrupole_targets(record.request.molecule, inputs.cfour_quadrupole_moments)
+            if inputs.cfour_quadrupole_frame == "rigid-inertial":
+                from .chemistry import resolved_masses
+
+                resolved_masses(record.request.molecule, isotope_policy="require_explicit")
         if protocol.operation == "optimize" and inputs.external_resolution != "cfour-topos-cartesian-optimizer-v1":
             raise ValueError("The source uses CFOUR internal-coordinate optimization. Explicit external_resolution='cfour-topos-cartesian-optimizer-v1' is required for TOPOS Cartesian optimization using native analytic derivatives")
         if row == "T3C-3d":
@@ -152,13 +164,27 @@ def execute_external_recipe(workflow: Any, record: RunRecord, store: RunStore, i
                           geometry_optimized=False, automatic_pes_performed=False,
                           selected_source_branch="SAPT2+3; no SAPT(DFT) or automatic PES claim")
         elif protocol.operation == "first-order-properties":
-            if "dipole_atomic_units" not in native:
-                raise IntegrityError("First-order-property row lacks the actual native correlated dipole")
+            if "dipole_atomic_units" not in native or "efg_observation" not in native:
+                raise IntegrityError("First-order-property row requires the actual correlated dipole and indexed EFG")
+            efg = native["efg_observation"]
             output.update(output_kind="fixed-geometry-first-order-properties",
-                          definition="Native CCSD(T) electronic energy and first-order electric dipole at the supplied geometry",
+                          definition="Native CCSD(T) electronic energy, correlated electric dipole and indexed EFG at the supplied geometry",
                           electronic_energy_hartree=result.energy_hartree,
-                          dipole_atomic_units=native["dipole_atomic_units"], geometry_optimized=False,
-                          equilibrium_rotational_constants_mhz=None)
+                          dipole_atomic_units=native["dipole_atomic_units"], efg_observation=efg,
+                          geometry_optimized=False, equilibrium_rotational_constants_mhz=None,
+                          full_matrix_row_completed=False, nuclear_quadrupole_couplings=None)
+            couplings, reasons = first_order_quadrupole_output(result.molecule, efg,
+                inputs.cfour_quadrupole_moments, inputs.cfour_quadrupole_frame)
+            output["nuclear_quadrupole_couplings"] = couplings
+            if reasons:
+                output["completion_scope"] = "Verified native correlated property acquisition; chi full-row acceptance withheld"
+                output["missing_scientific_authority"] = reasons
+                _publish(record, store, output)
+                record.status, record.validation_status = "partial", "human-review"
+                record.metadata["termination_reason"] = "; ".join(reasons)
+                store.commit(record)
+                return False
+            output["full_matrix_row_completed"] = True
         else:
             output.update(output_kind="stationary-geometry",
                           definition="TOPOS Cartesian L-BFGS-B optimization with actual native CFOUR analytic gradients",

@@ -27,7 +27,8 @@ PROTOCOL = ExternalProtocol.model_validate(PROOF["requested_protocol"])
 
 
 def parse(raw):
-    return parse_cfour_output(raw, MOLECULE, PROTOCOL, dipol=(FIXTURE / "DIPOL.out").read_text())
+    return parse_cfour_output(raw, MOLECULE, PROTOCOL, dipol=(FIXTURE / "DIPOL.out").read_text(),
+                              efg=(FIXTURE / "EFG.out").read_text())
 
 
 def test_exact_original_native_artifacts_and_control_rows():
@@ -51,7 +52,8 @@ def test_genuine_spherical_first_order_output_parses_without_native_execution():
     assert np.linalg.norm(result["dipole_atomic_units"]) == pytest.approx(
         np.linalg.norm(native_dipole), abs=1e-10
     )
-    assert "efg_tensors_atomic_units" not in result  # Separate property parser work.
+    assert result["efg_observation"]["units"] == "native-unlabeled-EFG-components"
+    assert result["efg_observation"]["native_unit_sign_independently_verified"] is False
 
 
 @pytest.mark.parametrize(

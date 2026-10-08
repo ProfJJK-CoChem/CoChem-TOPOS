@@ -165,3 +165,8 @@ export only the verified current snapshot through this guard. Updating TOPOS
 alone does not repair a controller that recursively uploads arbitrary execution
 directories. Neither this policy nor a successful storage regression establishes
 EFG or full-matrix scientific acceptance.
+
+For T3C-1h correlated EFG acquisition, explicit signed nuclear-Q inputs,
+conditional Cartesian/inertial chi conversion and unresolved independent native
+unit/sign authority, see [the CFOUR EFG policy](TOPOS_CFOUR_EFG_POLICY.md).
+Dipole-only or caller-declared-convention results cannot complete that row.

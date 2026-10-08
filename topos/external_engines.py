@@ -7,6 +7,7 @@ documented Python API. Molpro F12 and MPQC remain unresolved protocol choices.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -23,6 +24,8 @@ from .base_integration import BaseRuntime
 from .cfour_artifacts import finalize_artifacts, native_text
 from .cfour_controls import native_control_value
 from .cfour_dependencies import require_cfour_parsers
+from .cfour_efg import parse_cfour_efg
+from .cfour_properties import CfourEfgConventionDeclaration
 from .engines import EngineParseError, EngineResult, _number, artifact_inventory
 from .fragments import split_fragments
 from .models import Contract, Molecule, ResourceLimits
@@ -59,6 +62,7 @@ class ExternalProtocol(Contract):
     gradient_max_hartree_per_bohr: float = Field(default=1e-5, gt=0, le=1e-4)
     gradient_rms_hartree_per_bohr: float = Field(default=3e-6, gt=0, le=1e-4)
     sapt_natural_orbitals: Literal[False] = False
+    efg_convention: CfourEfgConventionDeclaration | None = None
 
     @model_validator(mode="after")
     def exact_choices(self):
@@ -69,6 +73,10 @@ class ExternalProtocol(Contract):
             raise ValueError("An exact native engine version is required")
         if (self.genbas_path is None) != (self.genbas_sha256 is None):
             raise ValueError("GENBAS location and checksum must be supplied together")
+        if self.efg_convention is not None and (self.engine != "cfour"
+                or self.operation != "first-order-properties" or self.method != "CCSD(T)"
+                or self.engine_version != self.efg_convention.engine_version):
+            raise ValueError("An EFG convention declaration requires the exact CFOUR 2.1 CCSD(T) FIRST_ORDER protocol")
         if self.engine == "cfour":
             if self.method not in _CFOUR_METHODS or self.operation == "sapt-decomposition":
                 raise ValueError("Unsupported CFOUR method/operation; higher increments require their own verified adapter")
@@ -209,7 +217,8 @@ def _native_completion(raw: str, protocol: ExternalProtocol) -> str:
 
 
 def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
-                       *, grd: str | None = None, dipol: str | None = None) -> dict[str, Any]:
+                       *, grd: str | None = None, dipol: str | None = None,
+                       efg: str | None = None) -> dict[str, Any]:
     """Interpret one actual Cartesian evaluation, never an earlier optimization step."""
     harvest_GRD, harvest_outfile_pass = require_cfour_parsers()
 
@@ -281,6 +290,12 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         values = dipol.split()
         if len(values) != 3:
             raise EngineParseError("CFOUR DIPOL requires exactly three atomic-unit components")
+        efg_observation = parse_cfour_efg(raw, efg, molecule, native_xyz,
+            engine_version=observed_version, method=protocol.method, declaration=protocol.efg_convention)
+        efg_observation["raw_artifacts_sha256"]["DIPOL"] = hashlib.sha256(dipol.encode("utf-8")).hexdigest()
+        dipole_components = [_number(v) for v in values]
+        if dipole_components != efg_observation["correlated_dipole_native_atomic_units"]:
+            raise EngineParseError("Native DIPOL differs from the exact correlated-density xprops dipole")
         dipole_xyz = native_xyz
         if grd:
             # QCEngine documents DIPOL in GRD's orientation when GRD exists.
@@ -291,8 +306,9 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
             if list(grd_molecule.symbols) != molecule.symbols:
                 raise EngineParseError("DIPOL's GRD coordinate frame changes molecular identities")
             dipole_xyz = np.asarray(grd_molecule.geometry) * BOHR_ANGSTROM
-        observation["dipole_atomic_units"] = _dipole_in_requested_frame([_number(v) for v in values], dipole_xyz, molecule)
+        observation["dipole_atomic_units"] = _dipole_in_requested_frame(dipole_components, dipole_xyz, molecule)
         observation["dipole_origin"] = "requested Cartesian coordinate origin, including the charge-dependent translation term"
+        observation["efg_observation"] = efg_observation
     return observation
 
 
@@ -388,6 +404,9 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
         _physical_input(molecule, resources)
         if protocol.engine == "cfour":
             require_cfour_parsers()
+        if protocol.engine == "cfour" and protocol.operation == "first-order-properties" and (
+                protocol.engine_version != "2.1" or protocol.method != "CCSD(T)"):
+            raise ValueError("The positively supported FIRST_ORDER property parser requires exact CFOUR 2.1 CCSD(T)")
         if protocol.engine in {"molpro", "mpqc"}:
             raise ValueError("Molpro F12 requires a verified explicit F12 variant/gradient protocol; the MPQC source row conflicts with its ORCA track. Neither is an executable recipe yet")
         if folder.exists() and any(folder.iterdir()):
@@ -473,7 +492,8 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                     result.status, result.diagnostics["reason"] = process.status, process.reason
                     raise _NativeFailure()
                 observation = parse_cfour_output(native_text(evaluation, "engine.stdout", required=True, process_path=process.stdout_path), current, protocol,
-                                                 grd=native_text(evaluation, "GRD"), dipol=native_text(evaluation, "DIPOL"))
+                                                 grd=native_text(evaluation, "GRD"), dipol=native_text(evaluation, "DIPOL"),
+                                                 efg=native_text(evaluation, "EFG"))
                 atomic_json(evaluation / "native-result.json", observation)
                 evaluated[key] = (current, observation)
             current, observation = evaluated[key]

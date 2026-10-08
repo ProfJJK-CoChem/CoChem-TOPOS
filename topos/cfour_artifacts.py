@@ -46,7 +46,9 @@ def native_text(folder: Path, name: str, *, required: bool = False,
             raise EngineParseError('Required CFOUR native evidence is missing: ' + name)
         return None
     try:
-        return confined_file(folder, name).read_text(encoding='utf-8')
+        # Preserve the exact native UTF-8 bytes in downstream hash bindings;
+        # universal-newline text loading can silently normalize CRLF to LF.
+        return confined_file(folder, name).read_bytes().decode('utf-8')
     except (IntegrityError, OSError, UnicodeError) as exc:
         raise EngineParseError('CFOUR native evidence is not a confined regular text file: ' + name) from exc
 
