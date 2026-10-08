@@ -121,17 +121,39 @@ is still required before compiling a positive scientific-authority rule.
 `matrix_inputs.cfour_quadrupole_moments` is a list of typed nuclear targets:
 exact `atom_id`, element, explicitly declared molecular isotope mass number,
 twice nuclear spin (at least 2), **signed spectroscopic Q in millibarns**,
-standard uncertainty with coverage factor 1, and separate source citations,
+sourced uncertainty interpretation, and separate source citations,
 persistent identifiers and exact table/value locators for spin, Q and
 uncertainty. Q is an area, not e×area. No nuclear moment, spin or Q sign is
 inferred from a mass or native Mass-number default. Nuclear target identity is
 validated before native work. EFG acquisition does not require Q.
 
+The uncertainty contract has two mutually exclusive branches:
+
+- `uncertainty_convention="standard-uncertainty-k1"` (the compatibility default)
+  requires `q_standard_uncertainty_millibarn` and its independent source. It
+  rejects source-reported uncertainty fields.
+- `uncertainty_convention="reported-source-uncertainty"` requires
+  `q_reported_uncertainty_millibarn`, a nonblank
+  `q_reported_uncertainty_policy`, and `q_uncertainty_source`. It rejects a
+  simultaneous standard uncertainty. The output retains the declared source
+  error, citation and policy; standard component error bars are null in both
+  Cartesian and inertial frames. It does not infer a probability distribution,
+  coverage factor, confidence interval or standard uncertainty.
+
+For example, an explicitly declared deuterium target may cite Stone's Table 1
+p.7 [6] for Q=+2.86 millibarns, twice spin=2, and the **reported** parenthetic
+uncertainty 0.02 millibarns. Its policy should identify Stone's pp.3–4 rounding
+and adoption conventions and state that a k=1 statistical interpretation has
+not been established. This is an explicit user nuclear-data declaration, never
+a built-in moment, isotope default, or automatic independent verification.
+
 Under the explicitly conditional declared potential-Hessian convention,
 `χ=eQV/h` uses the matrix factor exactly. The output retains the full signed
 Cartesian tensor, EFG principal values/η, signed Q sensitivity, Q-only standard
-uncertainty and separate print-rounding bounds. All Q uncertainties across a
-tensor share the same scalar Q; components are not independent random errors.
+uncertainty where explicitly declared, and separate print-rounding bounds.
+The Q sensitivity is retained for both uncertainty branches. In the k=1 branch,
+all Q standard uncertainties across a tensor share the same scalar Q;
+components are not independent random errors.
 Nuclear citations remain caller declarations, not automatic verification.
 Electronic-structure, basis, geometry, vibrational and legacy-factor errors are
 not included in these partial uncertainty terms.
