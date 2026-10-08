@@ -1,7 +1,7 @@
 # TOPOS 0.1.0 release status
 
-TOPOS has implementations for all **42 available TOPOS method-matrix recipes**
-and a tested mandatory BASE/TOPOS/TORQ installation path. Full SRS acceptance and
+TOPOS exposes all **42 available TOPOS method-matrix recipe entry points**
+and has historical mandatory BASE/TOPOS/TORQ installation evidence. Full SRS acceptance and
 scientific release certification remain **blocked**. A compiled recipe, passing
 parser test, installed package, or successful individual calculation cannot
 complete the remaining physical campaigns.
@@ -11,8 +11,37 @@ explicitly omits **T3C-10s and T3C-1min**; these are preserved as unavailable
 source protocol entries. Both month-tier routes have conditional implementations.
 Native CFOUR execution still needs verification.
 
+## Current completion work — 8 October 2026
+
+The executable source at `3c28253` adds full CFOUR runtime-seal authorization,
+pre/post native-input integrity, component-recovery checks, and parsing of the
+genuine inline and two-line native invocation formats. Its focused parser,
+runtime and distribution checks passed; it has not yet completed current-source
+native CFOUR acceptance. See the
+[CFOUR compatibility boundary](TOPOS_CFOUR_BASE_COMPATIBILITY.md).
+
+The audit identified two additional CFOUR issues that remain open: SPECIAL-basis
+counterpoise must recognize the actual 2.1 ZMAT echo framing, and `T3C-1h` must
+retain electric-field-gradient tensors as well as dipoles. The archived row
+explicitly requires both observables. An energy/dipole result cannot certify that
+entire row while its EFG handling is incomplete.
+
+The reviewed BASE foundation merge `0a8392b` preserves the scientific provisioners
+and adds the audited CFOUR provider. Its 218 focused checks passed and the merge
+was pushed to the integration branch. BASE subsequently released `1.0.1` on
+`main` (`c3b20e1`); the combined foundation and typed mandatory installer are under
+review. Stock version numbers do not establish compatibility with TOPOS's exact
+runtime requirements. Final source, worker, setup, installation and native
+receipts must use the same reviewed foundation.
+
 ## Verified source milestones
 
+- The [e4 milestone](evidence/TOPOS_WORKER14_LOCAL_E4_20261008_INDEX.json)
+  retains **2,196 passed, three named licensed ORCA tests skipped, zero failures
+  or errors**, together with its actual worker14 and eleven-phase BASE audit.
+  All 329 historical source files and retained evidence bytes were verified.
+  This is evidence for `e4cabf8`, not for later executable changes. Local licensed
+  skips do not mean that the protected BASE Actions providers are unavailable.
 - At `48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2`, [ordinary CI 37699227832](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37699227832)
   passed on Python 3.11 and 3.12: **2,010 passed, 44 skipped, zero failures or
   errors per interpreter**. Original artifact digests, JUnits, actual checkout
@@ -40,6 +69,15 @@ claim.
 
 ## Native ORCA evidence
 
+The protected BASE providers are available. [BASE ORCA run
+37703993551](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37703993551)
+passed its genuine native provider tests at `80dfec3`; [BASE CFOUR run
+37704401496](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37704401496)
+passed ten bounded scientific cases and an isotope harmonic case at `7144f82`.
+Original API-bound artifact ZIPs and scientific receipts were retrieved and
+checksum-verified. These are BASE provider results, not TOPOS matrix or release
+acceptance. Licensed binaries were not installed in the Codex workspace.
+
 [Full run 37675771359](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359)
 tested `053c827` and failed overall: **3/5 baseline, 9/13 extended and 26/27
 licensed tests passed**. Original artifacts and failures remain retained.
@@ -54,11 +92,22 @@ failure is corrected in later source. The third native thermal acceptance test
 was absent. Every original archive member and immutable snapshot was verified.
 
 [COSX diagnostic 37700474984](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37700474984)
-is testing a documented fixed numerical-grid experiment at diagnostic source
-`6227e61`. It establishes no numerical outcome until native evidence is retrieved
-and verified. The preceding diagnostic stopped before native execution because
+failed its fixed numerical-grid experiment at diagnostic source `6227e61`.
+Both genuine optimizer/fresh-gradient energy gaps were approximately
+`7.42e-7` hartree, exceeding the unchanged `2e-7` guard. ORCA also raised the
+requested final integration accuracy, so the authored grid was not realized
+exactly. No production fixed-grid change follows from this result. The preceding
+diagnostic stopped before native execution because
 its package-origin check mishandled BASE's namespace package; that failure is
 retained. Neither diagnostic is full current-source acceptance.
+
+The separately controlled [SCF-mode diagnostic
+37708503109](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37708503109)
+changes only the documented `ConvCheckMode 0` setting in the optimization and
+independently started gradient. It preserves the Hamiltonian, grids, tolerances,
+two CPU workers, 2048 MB and one shared 900-second native budget. Its numerical
+outcome remains pending independent raw-output verification. It cannot establish
+current-source acceptance or fix the separate R2 reference convergence failure.
 
 ## Remaining release conditions
 
