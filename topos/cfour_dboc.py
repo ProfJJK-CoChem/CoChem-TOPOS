@@ -19,8 +19,9 @@ from typing import Any, Callable, Literal
 import numpy as np
 
 from .base_integration import BaseRuntime
+from .cfour_artifacts import finalize_artifacts, native_text
 from .cfour_corrections import ScalarCampaignStopped, apply_scalar_geometry_increment
-from .engines import EngineParseError, EngineResult, _number, artifact_inventory
+from .engines import EngineParseError, EngineResult, _number
 from .external_engines import (
     ExternalProtocol,
     _native_completion,
@@ -87,8 +88,8 @@ def dboc_input(molecule: Molecule, protocol: DefaultMassDBOCProtocol, resources:
         # Native DBOC requires internal response/second-derivative machinery;
         # historical successful input lets DBOC select it, rather than forcing
         # DERIV_LEVEL=ZERO and suppressing required native modules.
-        before = before.removesuffix(",\nDERIV_LEVEL=ZERO")
-    return before + f",\nDBOC={'ON' if protocol.dboc else 'OFF'},\nRELATIVISTIC=OFF,\nCONTRACTION={protocol.contraction})" + after
+        before = before.removesuffix("\nDERIV_LEVEL=ZERO")
+    return before + f"\nDBOC={'ON' if protocol.dboc else 'OFF'}\nRELATIVISTIC=OFF\nCONTRACTION={protocol.contraction})" + after
 
 
 def _rounding_bound(value: str) -> float:
@@ -391,10 +392,11 @@ def run_default_mass_dboc(molecule: Molecule, protocol: DefaultMassDBOCProtocol,
         if process.status != "completed" or process.returncode != 0:
             if process.status == "completed":
                 result.status = "failed"
+            result.diagnostics["reason"] = process.reason or f"CFOUR process returned {process.returncode}"
             return result
         if (folder / "ISOMASS").exists() or any(Path(path).is_symlink() or file_digest(Path(path)) != sha for path, sha in immutable.items()):
             raise IntegrityError("Native-default DBOC input changed or custom ISOMASS appeared")
-        native = parse_dboc_output(Path(process.stdout_path).read_text(errors="replace"), molecule, protocol)
+        native = parse_dboc_output(native_text(folder, "engine.stdout", required=True, process_path=process.stdout_path), molecule, protocol)
         if protocol.dboc:
             native['rotor_mass_attestation'] = _bind_rotor_mass_execution(native['rotor_mass_attestation'], molecule,
                 [native['engine_version'], result.metadata['executable_sha256'], protocol.genbas_sha256], process.stdout_path)
@@ -413,7 +415,7 @@ def run_default_mass_dboc(molecule: Molecule, protocol: DefaultMassDBOCProtocol,
     finally:
         result.elapsed_seconds = time.monotonic() - started
         if folder.is_dir() and not folder.is_symlink():
-            result.artifacts = artifact_inventory(folder)
+            finalize_artifacts(result, folder)
 
 
 def _optimize_dboc_surface(workflow, record, store, protocol, options, deadline, cancel_event):

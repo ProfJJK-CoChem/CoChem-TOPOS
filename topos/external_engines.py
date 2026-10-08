@@ -21,6 +21,7 @@ import numpy as np
 from pydantic import Field, model_validator
 
 from .base_integration import BaseRuntime
+from .cfour_artifacts import finalize_artifacts, native_text
 from .engines import EngineParseError, EngineResult, _number, artifact_inventory
 from .fragments import split_fragments
 from .models import Contract, Molecule, ResourceLimits
@@ -119,8 +120,10 @@ def cfour_input(molecule: Molecule, protocol: ExternalProtocol, resources: Resou
     if protocol.method in {"CCSDT", "CCSDTQ"}:
         options.append("CC_PROG=" + ("NCC" if protocol.method == "CCSDTQ" else "ECC"))
     options.append("PROPS=FIRST_ORDER" if properties else f"DERIV_LEVEL={'FIRST' if gradient else 'ZERO'}")
-    lines.extend(["", "*CFOUR(" + ",\n".join(options) + ")", ""])
-    return "\n".join(lines)
+    # Use the newline-only control grammar of native CFOUR/QCEngine; a comma
+    # immediately before a newline can produce an empty keyword field.
+    lines.extend(["", "*CFOUR(" + "\n".join(options) + ")", ""])
+    return "\n".join(lines) + "\n"
 
 
 def _proper_rotation(native: np.ndarray, requested: np.ndarray) -> np.ndarray:
@@ -470,9 +473,8 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                 if process.status != "completed":
                     result.status, result.diagnostics["reason"] = process.status, process.reason
                     raise _NativeFailure()
-                observation = parse_cfour_output(Path(process.stdout_path).read_text(errors="replace"), current, protocol,
-                                                 grd=(evaluation / "GRD").read_text() if (evaluation / "GRD").is_file() else None,
-                                                 dipol=(evaluation / "DIPOL").read_text() if (evaluation / "DIPOL").is_file() else None)
+                observation = parse_cfour_output(native_text(evaluation, "engine.stdout", required=True, process_path=process.stdout_path), current, protocol,
+                                                 grd=native_text(evaluation, "GRD"), dipol=native_text(evaluation, "DIPOL"))
                 atomic_json(evaluation / "native-result.json", observation)
                 evaluated[key] = (current, observation)
             current, observation = evaluated[key]
@@ -522,7 +524,10 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
     finally:
         result.elapsed_seconds = time.monotonic() - started
         if folder.is_dir():
-            result.artifacts = artifact_inventory(folder)
+            if protocol.engine == "cfour":
+                finalize_artifacts(result, folder)
+            else:
+                result.artifacts = artifact_inventory(folder)
 
 
 class _NativeFailure(Exception):

@@ -1,0 +1,73 @@
+ --invoking executable--
+/home/runner/work/_temp/cochem-cfour-install/bin/xjoda
+
+
+   *************************************************************************
+         <<<     CCCCCC     CCCCCC   |||     CCCCCC     CCCCCC   >>>
+       <<<      CCC        CCC       |||    CCC        CCC         >>>
+      <<<      CCC        CCC        |||   CCC        CCC            >>>
+    <<<        CCC        CCC        |||   CCC        CCC              >>>
+      <<<      CCC        CCC        |||   CCC        CCC            >>>
+       <<<      CCC        CCC       |||    CCC        CCC         >>>
+         <<<     CCCCCC     CCCCCC   |||     CCCCCC     CCCCCC   >>>
+   *************************************************************************
+
+     ****************************************************************
+     * CFOUR Coupled-Cluster techniques for Computational Chemistry *
+     ****************************************************************
+
+
+   Department of Chemistry                Institut fuer Physikalische Chemie
+   University of Florida                  Universitaet Mainz
+   Gainesville, FL 32611, USA             D-55099 Mainz, Germany
+
+   Department of Chemistry                Fakultaet fuer Chemie und Biowiss.
+   Johns Hopkins University               Karlsruher Institut fuer Technologie
+   Baltimore, MD 21218, USA               D-76131 Karlsruhe, Germany
+
+   Department of Chemistry                Department of Physical Chemistry
+   Southern Methodist University          Eotvos Lorand University
+   Dallas, TX 75275, USA                  H-1053 Budapest, Hungary
+
+
+                       Version 2.1
+
+                     runnervmmprz5                                     
+                     Thu Oct  8 01:41:14 UTC 2026                      
+                     integer*8 version is running
+
+********************************************************************************
+*                          Input from ZMAT file                                *
+********************************************************************************
+CoChem TOPOS explicit native CFOUR evaluation                                   
+O 0.3 -0.2 0.4                                                                  
+H 1.163340874048407 -0.5337215443356982 0.6547007382076628                      
+H 0.4362693824140611 0.741400748956536 0.266976373224289                        
+                                                                                
+*CFOUR(CALC_LEVEL=CCSD[T],                                                      
+BASIS=PVTZ,                                                                     
+REFERENCE=RHF,                                                                  
+CHARGE=0,                                                                       
+MULTIPLICITY=1,                                                                 
+COORDINATES=CARTESIAN,                                                          
+UNITS=ANGSTROM,                                                                 
+SYMMETRY=OFF,                                                                   
+SPHERICAL=ON,                                                                   
+ABCDTYPE=AOBASIS,                                                               
+FROZEN_CORE=OFF,                                                                
+SCF_CONV=10,                                                                    
+CC_CONV=10,                                                                     
+LINEQ_CONV=10,                                                                  
+MEM_UNIT=INTEGERWORDS,                                                          
+MEMORY_SIZE=201326592,                                                          
+PROPS=FIRST_ORDER)                                                              
+********************************************************************************
+  @GTFLGS-F, Must supply value for keyword string                                                                                 
+ @CHECKOUT-I, Total execution time (CPU/WALL):        0.00/       0.01 seconds.
+
+  ERROR ERROR ERROR ERROR ERROR ERROR 
+  Job has terminated with error flag 
+  ERROR ERROR ERROR ERROR ERROR ERROR 
+
+--executable xjoda finished with status   256 in        0.01 seconds (walltime).
+  This computation required                            0.02 seconds (walltime).
