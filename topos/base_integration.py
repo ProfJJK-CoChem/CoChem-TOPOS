@@ -250,6 +250,36 @@ class BaseRuntime:
         except Exception as exc:
             raise BaseIntegrationError(f"CFOUR sealed-runtime authority is unavailable: {exc}") from exc
 
+    def cfour_property_runtime_identity(self) -> dict[str, Any]:
+        """Bind property-program identity to actual complete BASE authorization.
+
+        The property fingerprint is obtained from BASE's independent file
+        verification, never a user protocol, version string or cached display
+        flag. The existing general runtime identity/receipt remains compatible.
+        """
+        try:
+            from cochem_base.core_engine.cfour_runtime import verify_cfour_runtime
+
+            authorization = self._authorize("cfour", registry_path=self.registry_path, cores=1, maxcore_mb=1)
+            authority = _cfour_authorization_identity(authorization,
+                self.registry.model_dump(mode="json")["engines"].get("cfour", {}))
+            observed = verify_cfour_runtime(authorization.executable)
+            executable = observed.get("executable_record", {})
+            xprops = observed.get("helpers", {}).get("xprops", {})
+            if (observed.get("runtime_seal_sha256") != authority["runtime_seal_sha256"]
+                    or observed.get("executable") != authority["executable"]
+                    or executable.get("sha256") != authority["binary_sha256"]
+                    or not Path(str(xprops.get("path", ""))).is_absolute()
+                    or not re.fullmatch(r"[a-f0-9]{64}", str(xprops.get("sha256", "")))
+                    or type(xprops.get("bytes")) is not int or xprops["bytes"] < 1):
+                raise BaseIntegrationError("Actual property-program inventory differs from complete BASE authority")
+            return {"schema": "topos-cfour-property-runtime/1", "runtime_authority": authority,
+                    "mode": observed.get("mode"), "native_version": observed.get("version"),
+                    "runtime_inventory_sha256": observed.get("runtime_inventory_sha256"),
+                    "xprops": {key: xprops[key] for key in ("path", "sha256", "bytes")}}
+        except Exception as exc:
+            raise BaseIntegrationError(f"CFOUR actual property-runtime authority is unavailable: {exc}") from exc
+
     def validate_resources(self, resources: ResourceLimits, *, engine: str | None = None,
                            gpu_index: int | None = None, gpu_memory_mb: int | None = None) -> None:
         from .runtime import available_cpu_count
@@ -748,6 +778,7 @@ print(json.dumps(result,sort_keys=True))
                 engine, native_environment, executable=authorization.executable,
             )
         cfour_runtime = None
+        cfour_property_runtime = None
         if engine == "cfour":
             from cochem_base.core_engine.engine_environment import engine_runtime_environment
 
@@ -769,6 +800,10 @@ print(json.dumps(result,sort_keys=True))
             input_paths = {name: folder / name for name in ("ZMAT", "GENBAS")}
             if any(path.is_symlink() or not path.is_file() for path in input_paths.values()):
                 raise BaseIntegrationError("CFOUR requires confined regular native ZMAT and GENBAS inputs")
+            if re.search(r"\bPROPS\s*=\s*FIRST_ORDER\b", input_paths["ZMAT"].read_text(encoding="utf-8"), re.I):
+                cfour_property_runtime = self.cfour_property_runtime_identity()
+                if cfour_property_runtime["runtime_authority"] != cfour_runtime:
+                    raise BaseIntegrationError("CFOUR property program and process have different complete runtime authority")
             native_inputs = {name: file_digest(path) for name, path in input_paths.items()}
             process_binding = {"command": command, "workdir": str(folder), "native_inputs_sha256": native_inputs,
                                "stdout_name": stdout.name, "stderr_name": stderr.name,
@@ -776,6 +811,7 @@ print(json.dumps(result,sort_keys=True))
             atomic_json(folder / (log_prefix + "-cfour-runtime.json"), {
                 "schema": "topos-cfour-runtime-integrity/1", "status": "pending-native-completion",
                 "runtime_before": cfour_runtime, **process_binding,
+                **({"property_runtime_before": cfour_property_runtime} if cfour_property_runtime is not None else {}),
             })
         if cuda_visible_devices is not None:
             supplied["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
@@ -862,16 +898,22 @@ print(json.dumps(result,sort_keys=True))
                         cores=authorization.cores, maxcore_mb=authorization.maxcore_mb,
                     )
                     after = _cfour_authorization_identity(final_authorization, cfour_record)
+                    property_after = (self.cfour_property_runtime_identity()
+                                      if cfour_property_runtime is not None else None)
                     if any(path.is_symlink() or not path.is_file() or file_digest(path) != native_inputs[name]
                            for name, path in input_paths.items()):
                         raise BaseIntegrationError("CFOUR native input changed during execution")
                     if after != cfour_runtime:
                         raise BaseIntegrationError("CFOUR runtime authority changed during native execution")
+                    if property_after != cfour_property_runtime:
+                        raise BaseIntegrationError("CFOUR property-runtime identity changed during native execution")
                 except (OSError, ValueError, RuntimeError) as exc:
-                    after, runtime_error = None, str(exc)
+                    after, property_after, runtime_error = None, None, str(exc)
                 atomic_json(folder / (log_prefix + "-cfour-runtime.json"), {
                     "schema": "topos-cfour-runtime-integrity/1", "status": "failed" if runtime_error else "verified",
                     "runtime_before": cfour_runtime, "runtime_after": after, "reason": runtime_error,
+                    **({"property_runtime_before": cfour_property_runtime, "property_runtime_after": property_after}
+                       if cfour_property_runtime is not None else {}),
                     **process_binding, "stdout_sha256": file_digest(stdout), "stderr_sha256": file_digest(stderr),
                 })
             status = "failed" if runtime_error else state["status"] or ("timed-out" if result.returncode == -124 else

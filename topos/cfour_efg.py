@@ -2,9 +2,10 @@
 
 The positively supported grammar is the authentic CCSD(T) FIRST_ORDER output
 from the retained private Actions diagnostic 37717679093. Native atom/frame
-and correlated density are checked independently of nuclear moments. Printed
-native units/sign lack independent corroboration, so acquisition is always
-available but conditional chi conversion cannot certify the full matrix row.
+and correlated density are checked independently of nuclear moments.
+Acquisition remains available independently of nuclear moments. Native units
+and sign can be admitted by a separate compiled, protocol-scoped empirical
+profile only with fresh exact-build BASE authority and bound process evidence.
 """
 from __future__ import annotations
 
@@ -191,7 +192,8 @@ def parse_cfour_efg(raw: str, efg: str | None, molecule: Molecule,
 
 
 def verify_cfour_property_recovery(folder: Path, artifact_paths: list[Path], molecule: Molecule,
-                                   protocol_data: dict, observation: dict) -> dict:
+                                   protocol_data: dict, observation: dict,
+                                   runtime_authority: dict | None = None) -> dict:
     """Reparse raw property evidence; caller separately verifies hashes/runtime."""
     from .external_engines import ExternalProtocol, parse_cfour_output
 
@@ -218,6 +220,11 @@ def verify_cfour_property_recovery(folder: Path, artifact_paths: list[Path], mol
         ExternalProtocol.model_validate(protocol_data), dipol=adjacent["DIPOL"], efg=adjacent["EFG"],
         grd=confined_file(folder, grd.relative_to(folder).as_posix()).read_bytes().decode("utf-8", errors="strict")
             if grd in paths else None)
+    if runtime_authority is not None:
+        from .cfour_operator import apply_operator_authority, property_operator_authority
+
+        context = property_operator_authority(folder, paths, runtime_authority, molecule, protocol_data)
+        observed["efg_observation"] = apply_operator_authority(observed["efg_observation"], context)
     if observation != observed:
         raise IntegrityError("CFOUR property result differs from a fresh parse of its exact native raw evidence")
     return observed

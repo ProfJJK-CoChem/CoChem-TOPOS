@@ -494,6 +494,18 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                 observation = parse_cfour_output(native_text(evaluation, "engine.stdout", required=True, process_path=process.stdout_path), current, protocol,
                                                  grd=native_text(evaluation, "GRD"), dipol=native_text(evaluation, "DIPOL"),
                                                  efg=native_text(evaluation, "EFG"))
+                if protocol.operation == "first-order-properties" and isinstance(
+                        getattr(process_runner, "__self__", None), BaseRuntime):
+                    from .cfour_operator import (
+                        apply_operator_authority,
+                        property_operator_authority,
+                    )
+
+                    actual_runtime = process_runner.__self__.cfour_property_runtime_identity()
+                    context = property_operator_authority(folder, [path for path in evaluation.iterdir() if path.is_file()],
+                        actual_runtime["runtime_authority"], current, protocol.model_dump(mode="json"),
+                        current_property_runtime=actual_runtime)
+                    observation["efg_observation"] = apply_operator_authority(observation["efg_observation"], context)
                 atomic_json(evaluation / "native-result.json", observation)
                 evaluated[key] = (current, observation)
             current, observation = evaluated[key]

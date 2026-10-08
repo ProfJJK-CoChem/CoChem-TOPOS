@@ -16,6 +16,7 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import Field, model_validator
 
+from .cfour_operator import CfourOperatorAuthority, validate_operator_observation
 from .models import Contract, Molecule
 
 MATRIX_QUADRUPOLE_FACTOR = 234.96474
@@ -344,29 +345,43 @@ def inertial_quadrupole_couplings(molecule: Molecule, cartesian_couplings: dict[
 
 
 def first_order_quadrupole_output(molecule: Molecule, efg: dict[str, Any],
-                                  nuclei: list[NuclearQuadrupoleMoment], frame: str) -> tuple[dict | None, list[str]]:
-    """Build conditional conversion and honest incomplete-authority reasons."""
+                                  nuclei: list[NuclearQuadrupoleMoment], frame: str,
+                                  operator_authority: CfourOperatorAuthority | None = None) -> tuple[dict | None, list[str]]:
+    """Admit exact-build operator evidence or retain conditional conversion.
+
+    Computational coverage is distinct from independent nuclear-data review,
+    correlated accuracy, native campaign acceptance and full release readiness.
+    A persisted dictionary/boolean alone never authorizes the operator.
+    """
     if frame not in {"requested-cartesian", "rigid-inertial"}:
         raise ValueError("Unknown nuclear quadrupole tensor frame")
     validate_quadrupole_targets(molecule, nuclei)
+    verified_operator = validate_operator_observation(efg, operator_authority, molecule)
     couplings, reasons = None, []
     if not nuclei:
         reasons.append("Explicit indexed isotope, signed nuclear Q, spin, sourced uncertainty interpretation and independent citations are required for chi")
-    if efg.get("native_convention_declaration") is None:
+    if not verified_operator and efg.get("native_convention_declaration") is None:
         reasons.append("The native EFG unit/sign convention is unresolved")
     elif nuclei:
-        declaration = CfourEfgConventionDeclaration.model_validate(efg["native_convention_declaration"])
-        if efg.get("units") != declaration.native_units:
+        declaration = (CfourEfgConventionDeclaration.model_validate(efg["native_convention_declaration"])
+                       if not verified_operator else None)
+        if efg.get("units") != (declaration.native_units if declaration is not None
+                                else "atomic-unit-electric-field-gradient"):
             raise ValueError("Native EFG units differ from the declared version-bound convention")
         couplings = nuclear_quadrupole_couplings(molecule, efg["tensors_native_units"],
                     efg["component_rounding_bounds_native_units"], nuclei)
-        couplings["unit_sign_authority"] = "Explicit caller-reviewed declaration; native unit/sign independently unverified"
-        couplings["native_unit_sign_independently_verified"] = False
+        couplings["unit_sign_authority"] = ("Compiled exact-build empirical RHF conformance; correlated same-xprops operator inference"
+            if verified_operator else "Explicit caller-reviewed declaration; native unit/sign independently unverified")
+        couplings["native_unit_sign_independently_verified"] = verified_operator
         couplings["validity"] = "human-review"
-        couplings["definition"] = "Conditional chi=eQV/h using the explicitly declared, independently unverified native EFG convention"
+        couplings["definition"] = ("chi=eQV/h using admitted exact-build empirical EFG convention with inferred correlated operator and explicitly sourced caller nuclear data"
+            if verified_operator else "Conditional chi=eQV/h using the explicitly declared, independently unverified native EFG convention")
+        if verified_operator:
+            couplings["runtime_operator_evidence"] = operator_authority.metadata()
         if frame == "rigid-inertial":
             couplings["inertial_frame"] = inertial_quadrupole_couplings(molecule, couplings)
-    # No independently reviewed compiled native sign/unit authority exists yet.
-    # A user-controlled dictionary flag must never promote a caller declaration.
-    reasons.append("Independent reviewed CFOUR 2.1 native EFG unit/sign authority is still required; caller declarations cannot certify the full row")
+            if not couplings["inertial_frame"]["axes_resolved"]:
+                reasons.append("Requested rigid-inertial chi frame is unresolved because its inertia axes are degenerate")
+    if not verified_operator:
+        reasons.append("Admitted exact-build CFOUR EFG operator authority is required; caller declarations cannot certify the full row")
     return couplings, reasons

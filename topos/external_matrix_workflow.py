@@ -1,6 +1,7 @@
 """Whole native CFOUR/Psi4 recipes with explicit source resolutions and evidence."""
 from __future__ import annotations
 
+from pathlib import Path
 from threading import Event
 from typing import Any
 
@@ -164,9 +165,14 @@ def execute_external_recipe(workflow: Any, record: RunRecord, store: RunStore, i
                           geometry_optimized=False, automatic_pes_performed=False,
                           selected_source_branch="SAPT2+3; no SAPT(DFT) or automatic PES claim")
         elif protocol.operation == "first-order-properties":
+            from .cfour_operator import property_operator_authority
+
             if "dipole_atomic_units" not in native or "efg_observation" not in native:
                 raise IntegrityError("First-order-property row requires the actual correlated dipole and indexed EFG")
             efg = native["efg_observation"]
+            paths = [Path(artifact.path).absolute() for artifact in result.artifacts]
+            context = property_operator_authority(store.run_dir, paths,
+                record.metadata.get("cfour_runtime_authority"), result.molecule, protocol.model_dump(mode="json"))
             output.update(output_kind="fixed-geometry-first-order-properties",
                           definition="Native CCSD(T) electronic energy, correlated electric dipole and indexed EFG at the supplied geometry",
                           electronic_energy_hartree=result.energy_hartree,
@@ -174,7 +180,7 @@ def execute_external_recipe(workflow: Any, record: RunRecord, store: RunStore, i
                           geometry_optimized=False, equilibrium_rotational_constants_mhz=None,
                           full_matrix_row_completed=False, nuclear_quadrupole_couplings=None)
             couplings, reasons = first_order_quadrupole_output(result.molecule, efg,
-                inputs.cfour_quadrupole_moments, inputs.cfour_quadrupole_frame)
+                inputs.cfour_quadrupole_moments, inputs.cfour_quadrupole_frame, context)
             output["nuclear_quadrupole_couplings"] = couplings
             if reasons:
                 output["completion_scope"] = "Verified native correlated property acquisition; chi full-row acceptance withheld"
@@ -185,6 +191,7 @@ def execute_external_recipe(workflow: Any, record: RunRecord, store: RunStore, i
                 store.commit(record)
                 return False
             output["full_matrix_row_completed"] = True
+            output["completion_scope"] = "Computational coverage of the requested fixed-geometry properties; nuclear data remain sourced caller declarations, correlated accuracy and campaign/release acceptance are separate"
         else:
             output.update(output_kind="stationary-geometry",
                           definition="TOPOS Cartesian L-BFGS-B optimization with actual native CFOUR analytic gradients",

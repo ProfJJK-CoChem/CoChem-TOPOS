@@ -221,7 +221,7 @@ def _current_cfour_authority(workflow, record):
     return observed
 
 
-def _completed_result(result, molecule, protocol_data, folder):
+def _completed_result(result, molecule, protocol_data, folder, cfour_authority=None):
     """Recheck exact input identity on both fresh and cached native results."""
     interaction = result.metadata.get("native_result", {}).get("interaction_energy_hartree")
     is_sapt = (protocol_data.get("operation") == "sapt-decomposition"
@@ -267,7 +267,7 @@ def _completed_result(result, molecule, protocol_data, folder):
         from .cfour_efg import verify_cfour_property_recovery
 
         verify_cfour_property_recovery(folder, [Path(a.path) for a in result.artifacts], molecule,
-                                      protocol_data, result.metadata.get("native_result"))
+                                      protocol_data, result.metadata.get("native_result"), cfour_authority)
     return is_sapt, stereo
 
 
@@ -296,7 +296,8 @@ def _verified_component(attempt, store, molecule, protocol_data, identity, cfour
     if len(receipts) != 1 or receipts[0].path != expected or read_json(store.run_dir / expected) != payload:
         raise IntegrityError("Completed component requires its exact durable native result receipt")
     cached = EngineResult.model_validate(payload)
-    is_sapt, _ = _completed_result(cached, molecule, protocol_data, folder)
+    is_sapt, _ = _completed_result(cached, molecule, protocol_data, folder,
+                                   attempt.metadata.get("cfour_runtime_authority"))
     if cached.engine == "cfour":
         retained_authority = attempt.metadata.get("cfour_runtime_authority")
         if cfour_authority is not None and retained_authority != cfour_authority:
@@ -418,7 +419,7 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
         attempt.metadata["native_result_sha256"] = digest_json(attempt.metadata["native_result"])
         is_sapt, stereo = False, None
         if result.status == "completed":
-            is_sapt, stereo = _completed_result(result, molecule, protocol_data, folder)
+            is_sapt, stereo = _completed_result(result, molecule, protocol_data, folder, cfour_authority)
         if stereo is not None:
             attempt.metadata["stereochemistry_validation"] = stereo
         attempt.artifacts = []
