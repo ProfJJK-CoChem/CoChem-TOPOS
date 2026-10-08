@@ -1,0 +1,126 @@
+{
+  "schema": "topos-current-installation-evidence-review/1",
+  "reviewed_at": "2026-10-08T05:48:05.221316+00:00",
+  "source_pins": {
+    "base": "397d48d806d2f5fed2605cd68ca4a21dac470e23",
+    "topos": "ef750eaaf6a990a3b9e1d65eca240ac89b6632ce",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "status": "passed-for-unlicensed-installed-application-profile",
+  "fresh_environment": true,
+  "noneditable": true,
+  "stage0_phases_executed": 11,
+  "stage0_overall_status": "DEGRADED_OPERATIONAL",
+  "stage0_missing_capabilities": [
+    "abcluster",
+    "aimnet2",
+    "apptainer",
+    "c4cleanup",
+    "c4init",
+    "cfour",
+    "cochem_aimnet2_silo",
+    "cochem_calc_silo",
+    "cochem_mace_silo",
+    "cuda",
+    "gxtb",
+    "mace",
+    "mopac",
+    "mps",
+    "orca",
+    "orca_2mkl",
+    "orca_vpt2_prep",
+    "psi4",
+    "pyscf",
+    "qe",
+    "singularity"
+  ],
+  "topos_wheel_sha256": "a8e57f4ed91050f5e45be8121ed390de76524377ff7295286a03b9bf892a9f8f",
+  "registry_sha256": "0d8df96f552d427f81b72ae00232eba1b5063923d3aef9c1e5aabedc972b32d9",
+  "source_receipts": [
+    {
+      "path": "/workspace/.cochem-setup/ef750ea-v2-evidence/managed-install-success/installation.json",
+      "sha256": "458c0d9603e368967f91c0362ecd736ef3e03e07ec0a3c8e6b781257cdf346a8"
+    },
+    {
+      "path": "/workspace/.cochem-setup/ef750ea-v2-evidence/managed-install-success/runtime/setup-receipt.json",
+      "sha256": "27c96fcbc0272d77800de02bfab8510db9a59682b4b0b52f3dc796d6ee0160cc"
+    },
+    {
+      "path": "/workspace/.cochem-setup/ef750ea-v2-evidence/managed-install-success/runtime/Registry/setup_summary.json",
+      "sha256": "e4012ede5025e3355236c05d5116ae0087cc4f516ca3a9fa5588829f73f8ea5c"
+    },
+    {
+      "path": "/workspace/.cochem-setup/ef750ea-v2-evidence/installed-application-success/installed-acceptance.json",
+      "sha256": "23c13b2b2d90ec41b40f08f896ba483f43d2a164c3109105d253f2693490ba80"
+    },
+    {
+      "path": "/workspace/.cochem-setup/ef750ea-v2-evidence/installed-application-success/preservation-proof.json",
+      "sha256": "a9fbc857c189fcd8fbd4f6d626dd54c030d48236660134c943784b75dd1c7fcd"
+    }
+  ],
+  "installed_application_checks": [
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/python",
+      "-I",
+      "-m",
+      "pip",
+      "check"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/python",
+      "-I",
+      "-m",
+      "topos",
+      "--version"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/python",
+      "-I",
+      "-m",
+      "topos",
+      "request-schema"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/python",
+      "-I",
+      "-m",
+      "topos",
+      "matrix",
+      "support"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/cochem-topos",
+      "--version"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/cochem-topos-release",
+      "--help"
+    ],
+    [
+      "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/bin/topos-ui",
+      "--help"
+    ]
+  ],
+  "browser": {
+    "status": "passed",
+    "source": "/tmp/cochem-topos-ef750ea-v2/build/managed-modules-v3/topos/ef750eaaf6a990a3b9e1d65eca240ac89b6632ce/runtime/ui-env/lib/python3.12/site-packages/topos/streamlit_app.py",
+    "selectboxes": 14,
+    "buttons": 2,
+    "scope": "real installed Streamlit application render; native computation checked separately"
+  },
+  "native_run": {
+    "run_id": "run_719d0bbddef742aeba87068878d989cb",
+    "status": "completed",
+    "validation_status": "human-review",
+    "execution_kind": "real",
+    "engine_version": "6.7.1",
+    "energy_hartree": -5.070544054679
+  },
+  "torq_import_acknowledgment": "passed; Libraries.cochem_torq_topos_handoff actual installed consumer",
+  "torq_computation_performed": false,
+  "base_ecosystem_display_consumer_ready": false,
+  "scope": "Actual fresh managed noneditable mandatory ecosystem: installed UI, genuine BASE-authorized xTB, reviewed RunStore/bundle/replay, TORQ import acknowledgment; no TORQ computation or complete matrix/native/GPU certification",
+  "current_installed_whole_suite_executed": false,
+  "licensed_native_executed": false,
+  "release_certified": false
+}

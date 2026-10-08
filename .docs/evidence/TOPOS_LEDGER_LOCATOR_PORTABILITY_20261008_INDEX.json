@@ -1,0 +1,52 @@
+{
+  "current_native_or_scientific_acceptance": false,
+  "files": [
+    {
+      "original_path": "/workspace/.cochem-setup/topos-srs-ef750ea-current-receipt-review-20261008-r2/CURRENT_INSTALLATION_BINDING.json",
+      "path": "ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
+      "scope": "Original ef750ea receipt-review bytes; historical, not current student source native/scientific release acceptance",
+      "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
+      "size_bytes": 4697
+    },
+    {
+      "original_path": "/workspace/.cochem-setup/topos-srs-ef750ea-current-receipt-review-20261008-r2/CURRENT_REGRESSION_BINDING.json",
+      "path": "ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
+      "scope": "Original ef750ea receipt-review bytes; historical, not current student source native/scientific release acceptance",
+      "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56",
+      "size_bytes": 168833
+    },
+    {
+      "original_path": "/workspace/.cochem-setup/topos-srs-ef750ea-current-receipt-review-20261008-r2/all-parameterized-junit-outcomes.json",
+      "path": "ef750ea-receipt-review-20261008/all-parameterized-junit-outcomes.json",
+      "scope": "Original ef750ea receipt-review bytes; historical, not current student source native/scientific release acceptance",
+      "sha256": "f69ff7601adc1fc58fc077c0122875f14298cc25f10278b71b58c2183ec38769",
+      "size_bytes": 2203286
+    },
+    {
+      "original_path": "/workspace/.cochem-setup/topos-srs-ef750ea-current-receipt-review-20261008-r2/current-git-source-inventory.json",
+      "path": "ef750ea-receipt-review-20261008/current-git-source-inventory.json",
+      "scope": "Original ef750ea receipt-review bytes; historical, not current student source native/scientific release acceptance",
+      "sha256": "a610c09bfee9244f3aaba6754f19f7999eb558b2c2282941da682f186f03f9a6",
+      "size_bytes": 305438
+    },
+    {
+      "original_git_path": "tests/v010/test_orca_geometry_evidence.py",
+      "original_git_revision": "053c827638b3481c5c3d645856b69d50c47b387f",
+      "path": "historical-053c827-orca-geometry-test-definition.txt",
+      "scope": "Unchanged historical test-definition text for the original collection/provenance review; not a test execution or native result",
+      "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
+      "size_bytes": 7928
+    },
+    {
+      "original_path": "/workspace/.cochem-setup/topos-srs-current-source-audit-b71908d-20261008/FINAL_RECEIPT.json",
+      "path": "ef750ea-receipt-review-20261008/PRECEDING_AUDIT_FINAL_RECEIPT.json",
+      "scope": "Unchanged original preceding b71908d source audit receipt; historical, no test execution or native/scientific acceptance",
+      "sha256": "77251b1f6182154cd12b2c06bfae703847dd84511435edf4cb651a56296531df",
+      "size_bytes": 2031
+    }
+  ],
+  "portability_limit": "This index retains direct ledger inputs and adjacent original review sidecars. Absolute internal origin paths/old command paths within original receipts remain historical provenance; full original raw RunStores/environments are not claimed portable.",
+  "schema": "topos-retained-ledger-locator-provenance/1",
+  "scope": "Exact original historical evidence relocated for direct ledger locators; payloads remain unchanged.",
+  "source_behavior_changes": false
+}

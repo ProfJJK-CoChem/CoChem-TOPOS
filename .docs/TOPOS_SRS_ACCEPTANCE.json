@@ -312,22 +312,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -797,22 +797,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -1148,52 +1148,52 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
           "sha256": "393715f1221c1e72d318d721960ad0619ed17c0eecbc685d9c4817ca959e393e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
           "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
           "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -1476,22 +1476,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -1843,17 +1843,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -2059,17 +2059,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -2405,22 +2405,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -2742,17 +2742,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -3032,17 +3032,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -3236,17 +3236,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -3266,7 +3266,7 @@
     },
     "TOPOS-010-011": {
       "chapter": "4. Scientific inputs and fragment triage",
-      "requirement_source": "**TOPOS-010-011.** Rigid packing, flexible search, and frozen-monomer refinement shall state movable coordinates, confinement, clash handling, and deformation policy. ABCluster, ORCA GOAT, CREST, and internal jiggle\u2013quench routines retain their actual algorithm identities.",
+      "requirement_source": "**TOPOS-010-011.** Rigid packing, flexible search, and frozen-monomer refinement shall state movable coordinates, confinement, clash handling, and deformation policy. ABCluster, ORCA GOAT, CREST, and internal jiggle–quench routines retain their actual algorithm identities.",
       "status": "verification-pending",
       "assessment": "Rigid-molecule ABCluster 3.4 adapter and workflow preserve explicit atom-mapped force-field parameters, native classical-score identity, bounded execution and immutable recovery. Genuine neon/methanol sampling and quantum-refined search, deduplication, resume, review, export and monomer-first association passed focused tests. CREST/GOAT identities remain separate. The current-source whole suite passed, and an independently retained BASE-authorized native Ne2 run completed rigidmol 3.4 sampling, two actual GFN2-xTB 6.7.1 refinements and verified completed-record recovery without new processes. Its 46 native artifact hashes were verified; it does not establish complete matrix campaigns or exhaustive sampling.",
       "implementation": [
@@ -3635,27 +3635,27 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
           "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -5325,22 +5325,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CFOUR_CP_RESEARCH_20261007.json",
+          "path": "evidence/TOPOS_CFOUR_CP_RESEARCH_20261007.json",
           "sha256": "ca2438c2a40173382911f115e36c11178f94065675b0c7255ca8da9d6003015c",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -5603,17 +5603,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -5633,7 +5633,7 @@
     },
     "TOPOS-010-014": {
       "chapter": "5. Method matrix, purpose, and hardware",
-      "requirement_source": "**TOPOS-010-014.** Select hardware after scientific applicability and backend verification. Record allocated cores/threads, RAM, GPU/VRAM, runtime, precision, elapsed/queue time. Bound workers \u00d7 per-worker threads/memory. Do not transplant fixed P/E-core indices between machines. CPU execution of the same validated model may be allowed; replacing its Hamiltonian with xTB/LJ is a separate method decision. [S07](TOPOS_0.1.0_REFERENCES.md#s07)",
+      "requirement_source": "**TOPOS-010-014.** Select hardware after scientific applicability and backend verification. Record allocated cores/threads, RAM, GPU/VRAM, runtime, precision, elapsed/queue time. Bound workers × per-worker threads/memory. Do not transplant fixed P/E-core indices between machines. CPU execution of the same validated model may be allowed; replacing its Hamiltonian with xTB/LJ is a separate method decision. [S07](TOPOS_0.1.0_REFERENCES.md#s07)",
       "status": "verification-pending",
       "assessment": "BASE enforces audited CPU/thread/memory allocations and isolated model workers. Genuine MACE and AIMNet2 CPU inference and worker packaging have focused evidence. CUDA package profiles and device checks are implemented, but no physical GPU execution or broad hardware timing calibration is claimed.",
       "implementation": [
@@ -6087,87 +6087,87 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
           "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER05_DISTRIBUTION.json",
           "sha256": "f9a0ec163ba9ea0a9441a317bb0d44f061c752f865bed18681e5378ae40e3b29",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_CPU.json",
           "sha256": "56cd40c9298b440ce99487ad81e82f18cbe8868f00753bbc68236d0cd36d49bc",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_AIMNET_CPU.json",
           "sha256": "1ee79bcf8c828c12649aa1f7b35aaf0e2274118f533b3de1b72bbf3af7250b14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
           "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
           "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
           "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
           "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -6190,7 +6190,7 @@
     },
     "TOPOS-010-015": {
       "chapter": "5. Method matrix, purpose, and hardware",
-      "requirement_source": "**TOPOS-010-015.** Treat HF-3c/r\u00b2SCAN-3c as complete recipes, not arbitrary hybrid-DFT/basis combinations. The mapping\u2019s r\u00b2SCAN-3c \u201cmTZ2\u201d description conflicts with the verified composite\u2019s mTZVPP basis; use the validated engine-native recipe rather than an ad hoc replacement. HF-3c is not a hybrid functional; coupled-cluster approximations are not exact thermodynamics. \u201cBasis not applicable\u201d for xTB/MLFF is a schema/UI state, not an invented `--basis none` engine flag. GFN2-xTB and GFN-FF remain distinct. [S01](TOPOS_0.1.0_REFERENCES.md#s01), [S04](TOPOS_0.1.0_REFERENCES.md#s04)",
+      "requirement_source": "**TOPOS-010-015.** Treat HF-3c/r²SCAN-3c as complete recipes, not arbitrary hybrid-DFT/basis combinations. The mapping’s r²SCAN-3c “mTZ2” description conflicts with the verified composite’s mTZVPP basis; use the validated engine-native recipe rather than an ad hoc replacement. HF-3c is not a hybrid functional; coupled-cluster approximations are not exact thermodynamics. “Basis not applicable” for xTB/MLFF is a schema/UI state, not an invented `--basis none` engine flag. GFN2-xTB and GFN-FF remain distinct. [S01](TOPOS_0.1.0_REFERENCES.md#s01), [S04](TOPOS_0.1.0_REFERENCES.md#s04)",
       "status": "verification-pending",
       "assessment": "Native HF-3c/r2SCAN-3c recipes reject arbitrary basis/correction overrides; xTB has no fabricated basis flag. Parser/deck tests distinguish recipe from successful native execution.",
       "implementation": [
@@ -6391,17 +6391,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -6938,77 +6938,77 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
           "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE07_ASE_IO.json",
           "sha256": "470edaf0967dff9d4e6cb67a52bced4d2e6113472e1342636318150ca6a53f7b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER05_DISTRIBUTION.json",
           "sha256": "f9a0ec163ba9ea0a9441a317bb0d44f061c752f865bed18681e5378ae40e3b29",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_CPU.json",
           "sha256": "56cd40c9298b440ce99487ad81e82f18cbe8868f00753bbc68236d0cd36d49bc",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_AIMNET_CPU.json",
           "sha256": "1ee79bcf8c828c12649aa1f7b35aaf0e2274118f533b3de1b72bbf3af7250b14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
           "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
           "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
           "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
           "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -7444,32 +7444,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_ORCA_OPTIMIZER_POLICY.md",
+          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
           "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
           "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/tests/v010/fixtures/orca_one_cycle_native/provenance.json",
+          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
           "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -7747,22 +7747,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -7779,7 +7779,7 @@
     },
     "TOPOS-010-019": {
       "chapter": "6. Search, refinement, and union",
-      "requirement_source": "**TOPOS-010-019.** Archive initial structures, algorithm/potential, seeds, perturbations, constraints, windows/units, observations, and termination. Jiggle\u2013quench does not guarantee every high-barrier basin. Search hits, unique conformers, and populations differ.",
+      "requirement_source": "**TOPOS-010-019.** Archive initial structures, algorithm/potential, seeds, perturbations, constraints, windows/units, observations, and termination. Jiggle–quench does not guarantee every high-barrier basin. Search hits, unique conformers, and populations differ.",
       "status": "verification-pending",
       "assessment": "Seeded searches preserve input/perturbations/windows/source observations, failure reasons and budget termination; discovery counts do not imply exhaustive coverage.",
       "implementation": [
@@ -8029,22 +8029,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -8506,27 +8506,27 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
           "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -8804,17 +8804,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -9510,32 +9510,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_ORCA_OPTIMIZER_POLICY.md",
+          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
           "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
           "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/tests/v010/fixtures/orca_one_cycle_native/provenance.json",
+          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
           "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -9770,17 +9770,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -9800,7 +9800,7 @@
     },
     "TOPOS-010-024": {
       "chapter": "6. Search, refinement, and union",
-      "requirement_source": "**TOPOS-010-024.** Monitor intrafragment distance drift and free-subspace convergence. Mapping tolerance is `max|rij(t)\u2212rij(0)| < 1e-6 \u00c5`; Chunk 3 uses `1e-8 \u00c5`. Resolve/record the profile and ensure output precision can resolve it. Frozen-coordinate residual forces may be nonzero; retain their units/projection/strain separately. Constrained stationary points are not automatically full-dimensional minima.",
+      "requirement_source": "**TOPOS-010-024.** Monitor intrafragment distance drift and free-subspace convergence. Mapping tolerance is `max|rij(t)−rij(0)| < 1e-6 Å`; Chunk 3 uses `1e-8 Å`. Resolve/record the profile and ensure output precision can resolve it. Frozen-coordinate residual forces may be nonzero; retain their units/projection/strain separately. Constrained stationary points are not automatically full-dimensional minima.",
       "status": "verification-pending",
       "assessment": "Explicit 1e-6/1e-8 Angstrom profiles reject ambiguity, record distance drift and projected/residual forces, and limit claims to the allowed subspace.",
       "implementation": [
@@ -9899,17 +9899,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -10112,22 +10112,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -10423,17 +10423,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -10667,22 +10667,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -11059,17 +11059,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -11086,7 +11086,7 @@
     },
     "TOPOS-010-029": {
       "chapter": "7. Deduplication, chirality, and spectroscopy",
-      "requirement_source": "**TOPOS-010-029.** Distinguish equilibrium `Ae,Be,Ce` from averaged `A0,B0,C0`; record units, isotopes, geometry level, correction model, uncertainty. The semi-rigid expression `B0=Be\u2212\u00bd\u03a3r \u03b1rB` has different mode/validity assumptions for linear, constrained, and large-amplitude systems. Uncorrected `Be` is not experimental `B0`; empirical scaling needs independent validation.",
+      "requirement_source": "**TOPOS-010-029.** Distinguish equilibrium `Ae,Be,Ce` from averaged `A0,B0,C0`; record units, isotopes, geometry level, correction model, uncertainty. The semi-rigid expression `B0=Be−½Σr αrB` has different mode/validity assumptions for linear, constrained, and large-amplitude systems. Uncorrected `Be` is not experimental `B0`; empirical scaling needs independent validation.",
       "status": "verification-pending",
       "assessment": "Equilibrium rotational constants remain distinct from native ORCA VPT2 vibration-rotation corrections and explicitly supplied corrections. Literal native analytic Hessian/VPT2 adapters are implemented with method and stationarity restrictions; licensed current-source acceptance remains separate. TORQ-owned DVR/large-amplitude spectroscopy is not claimed. The conditional CFOUR raw/CP geometry bracket preserves two derived structures and their separate equilibrium rotational constants; it does not infer a confidence interval or a single composite-potential minimum. The reviewed R2 B3LYP-D4/def2-TZVPP VPT2 correction transfer is implemented with two retained geometries, native-mass inertia checks, proper-axis alignment, basin/topology guards and explicit approximate-composite labeling; its full native campaign remains unverified. The observed-native-mass month Product A route now computes equilibrium rotors from its corrected geometry with every mass observation bound to genuine native outputs; decimal-rounding intervals remain distinct from scientific model uncertainty. Native CFOUR 2.1 acceptance is pending. CFOUR EFG-to-chi conversion now admits the compiled exact-build empirical operator profile only through internal freshly rederived complete runtime/raw contexts. RHF conformance is direct; its correlated same-xprops convention is an explicitly labeled inference. Nuclear data retain independent source declarations, reported-uncertainty interpretation and human-review status. Unresolved rigid axes withhold requested frame completion; there is no correlated accuracy or complete model-uncertainty certification.",
       "implementation": [
@@ -11779,17 +11779,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -11806,7 +11806,7 @@
     },
     "TOPOS-010-030": {
       "chapter": "8. Quantities, corrections, and thermodynamics",
-      "requirement_source": "**TOPOS-010-030.** Every quantity shall include value/units, definition, geometry/attempt, method/parser, and validity/convergence. Retain raw output; normalize once. Proposed exchange convention: coordinates \u00c5, energy Eh, gradient Eh/bohr, Hessian Eh/bohr\u00b2. Other internal conventions need boundary conversion.",
+      "requirement_source": "**TOPOS-010-030.** Every quantity shall include value/units, definition, geometry/attempt, method/parser, and validity/convergence. Retain raw output; normalize once. Proposed exchange convention: coordinates Å, energy Eh, gradient Eh/bohr, Hessian Eh/bohr². Other internal conventions need boundary conversion.",
       "status": "verification-pending",
       "assessment": "Structured quantities bind units, definition, method/parser, geometry/attempt and validation to retained actual raw artifacts; absent values remain absent. Supplementary one-cycle energy differences explicitly retain hartree units, literal source energies, raw-output SHA256 and line references, signed difference, printed-precision allowance, conservative absolute bound, unchanged threshold and pass/fail. The source is identified as computed from actual native evaluations; printed_energy_change_status remains NOT_EVALUATED. Execution and DFT import recompute the same evidence; neither an absent energy nor an unexecuted final gradient is synthesized. Correlated CFOUR CCSD(T) EFG/dipole observations are reparsed from genuine retained raw fixtures. The computational operator policy binds tensor, indexed atom frame, density, native token/rounding evidence, units, scope and build labels; constructed authority objects in policy tests are not native calculation receipts. Reported nuclear-Q errors do not become invented k=1 tensor standard errors.",
       "implementation": [
@@ -12853,32 +12853,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_ORCA_OPTIMIZER_POLICY.md",
+          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
           "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
           "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/tests/v010/fixtures/orca_one_cycle_native/provenance.json",
+          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
           "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -12898,7 +12898,7 @@
     },
     "TOPOS-010-031": {
       "chapter": "8. Quantities, corrections, and thermodynamics",
-      "requirement_source": "**TOPOS-010-031.** Validate finite values, atom order, `N\u00d73` gradients, `3N\u00d73N` Cartesian Hessians, symmetry tolerance, and derivative consistency. Missing is not zero. Zero gradients can be physical; detect fabrication through provenance/numerical checks, not a nonzero rule. Label projected/constrained quantities separately.",
+      "requirement_source": "**TOPOS-010-031.** Validate finite values, atom order, `N×3` gradients, `3N×3N` Cartesian Hessians, symmetry tolerance, and derivative consistency. Missing is not zero. Zero gradients can be physical; detect fabrication through provenance/numerical checks, not a nonzero rule. Label projected/constrained quantities separately.",
       "status": "verification-pending",
       "assessment": "Physical central-gradient Hessians preserve displaced native evidence, step-size consistency, modes and stationarity. A native ORCA analytic-Hessian reader/compiler is also implemented and refuses unsupported correlated methods. Real xTB numerical evidence, authentic parser tests and pending licensed ORCA execution are distinguished.",
       "implementation": [
@@ -13204,17 +13204,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -13501,17 +13501,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -13530,7 +13530,7 @@
       "chapter": "8. Quantities, corrections, and thermodynamics",
       "requirement_source": "**TOPOS-010-033.** Specify whole-method BSSE policy, fragments/states, observable, and sign. For two fragments at complex geometry:",
       "status": "verification-pending",
-      "assessment": "Five-leg Boys\u2013Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H\u2013Ne atoms. Native correlated CFOUR 2.1 validation remains outstanding.",
+      "assessment": "Five-leg Boys–Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H–Ne atoms. Native correlated CFOUR 2.1 validation remains outstanding.",
       "implementation": [
         {
           "path": "topos/counterpoise.py",
@@ -14081,17 +14081,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -14099,7 +14099,7 @@
           "sha256": "8b8cd395912a297aca5fe1e0d7fb3a136f30f5c29163d5fa43aded67acb5bf30"
         }
       ],
-      "historical_assessment": "Five-leg Boys\u2013Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H\u2013Ne atoms. Native correlated CFOUR 2.1 validation remains outstanding.",
+      "historical_assessment": "Five-leg Boys–Bernardi raw/CP/half-CP interaction arithmetic and a separate ordinary-DLPNO R2 three-leg CP contribution preserve physical fragment states and ghost basis centers. Named-basis identity requires actual BASE exporter receipts; local contracts are tested while live ORCA acceptance remains required. The R2 three-leg contribution does not invent own-basis or deformation energies. The separately implemented conditional CFOUR adapter differentiates the relaxed-total CP surface with every ghost center displaced, retains separate raw and CP geometry branches, and restricts its declared conventional core count to physical H–Ne atoms. Native correlated CFOUR 2.1 validation remains outstanding.",
       "software_assessment": {
         "implementation": "coded-with-explicit-supported-profile-guards",
         "new_concrete_coding_gap_established_by_this_review": false,
@@ -14108,7 +14108,7 @@
     },
     "TOPOS-010-034": {
       "chapter": "8. Quantities, corrections, and thermodynamics",
-      "requirement_source": "**TOPOS-010-034.** Separate electronic energy, ZPE, thermal enthalpy, entropy, solvation, standard-state correction, and Gibbs energy. A justified mixed-level construction is `G=Ehigh+(Glow\u2212Elow)`, not `Ehigh+Glow`. Record scaling, imaginary-mode policy, quasi-RRHO/rotors, uncertainty. For frozen/constrained geometries, declare the Hessian subspace, constraints, and thermal model; do not automatically apply whole-molecule RRHO. Distinguish excluded rigid motions and numerical near-zero modes from genuine unstable modes. A full-dimensional minimum claim requires the appropriate stationary-point/mode validation; a constrained minimum establishes stability only in its allowed subspace. Electronic-energy weights are not full thermodynamic populations. [S06](TOPOS_0.1.0_REFERENCES.md#s06)",
+      "requirement_source": "**TOPOS-010-034.** Separate electronic energy, ZPE, thermal enthalpy, entropy, solvation, standard-state correction, and Gibbs energy. A justified mixed-level construction is `G=Ehigh+(Glow−Elow)`, not `Ehigh+Glow`. Record scaling, imaginary-mode policy, quasi-RRHO/rotors, uncertainty. For frozen/constrained geometries, declare the Hessian subspace, constraints, and thermal model; do not automatically apply whole-molecule RRHO. Distinguish excluded rigid motions and numerical near-zero modes from genuine unstable modes. A full-dimensional minimum claim requires the appropriate stationary-point/mode validation; a constrained minimum establishes stability only in its allowed subspace. Electronic-energy weights are not full thermodynamic populations. [S06](TOPOS_0.1.0_REFERENCES.md#s06)",
       "status": "verification-pending",
       "assessment": "Electronic, ZPE, enthalpy, entropy and standard-state terms are separate. RRHO, labelled frequency-floor sensitivity and native VPT2 adapters exist; constrained full-dimensional RRHO/VPT2 is refused without a defined stationary model. Genuine CREST entropy and xTB thermal workflows have local evidence; native ORCA anharmonic acceptance remains separate. The updated ORCA convergence check applies to the stationary reference prerequisite only. A recovered one-cycle energy condition still requires the separately executed final gradient, and it proves neither a Hessian minimum nor valid frequencies, RRHO or VPT2. Existing full-dimensional/subspace, mode, semirigid and thermal-model checks remain required. Added gate tests are prerequisite evidence, not new thermochemistry or anharmonic native acceptance.",
       "implementation": [
@@ -14480,32 +14480,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_ORCA_OPTIMIZER_POLICY.md",
+          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
           "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
           "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/tests/v010/fixtures/orca_one_cycle_native/provenance.json",
+          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
           "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -14894,22 +14894,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -14926,7 +14926,7 @@
     },
     "TOPOS-010-036": {
       "chapter": "8. Quantities, corrections, and thermodynamics",
-      "requirement_source": "**TOPOS-010-036.** Preserve structural identity independently of kinetics. NEB potential maxima are not automatically free-energy barriers or verified saddles. Barrier `<kBT` alone shall not delete/merge conformers. Kinetic grouping needs timescale, temperature, model, uncertainty, reversible links. Simple unimolecular TST uses `k=\u03ba(kBT/h)exp(\u2212\u0394G\u2021/RT)` under its assumptions; detailed kinetics needs a validated TOPOS/TORQ contract. [S12](TOPOS_0.1.0_REFERENCES.md#s12)",
+      "requirement_source": "**TOPOS-010-036.** Preserve structural identity independently of kinetics. NEB potential maxima are not automatically free-energy barriers or verified saddles. Barrier `<kBT` alone shall not delete/merge conformers. Kinetic grouping needs timescale, temperature, model, uncertainty, reversible links. Simple unimolecular TST uses `k=κ(kBT/h)exp(−ΔG‡/RT)` under its assumptions; detailed kinetics needs a validated TOPOS/TORQ contract. [S12](TOPOS_0.1.0_REFERENCES.md#s12)",
       "status": "verification-pending",
       "assessment": "Structural deduplication is independent of barriers; scans do not claim saddles/minima or delete species. Automatic kinetic grouping is explicitly unavailable; no unsupported TOPOS/TORQ kinetics contract is fabricated.",
       "implementation": [
@@ -15175,17 +15175,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -15737,22 +15737,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -15906,22 +15906,22 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -16356,27 +16356,27 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -16736,37 +16736,37 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -17273,17 +17273,17 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -17537,32 +17537,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -17890,27 +17890,27 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -18191,57 +18191,57 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_TORQ_CONSUMPTION_20261007.json",
+          "path": "evidence/TOPOS_TORQ_CONSUMPTION_20261007.json",
           "sha256": "6967bfdd7ded0c577f3847802dabb15107411ca1a79510fba96761387bf9966f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
           "sha256": "393715f1221c1e72d318d721960ad0619ed17c0eecbc685d9c4817ca959e393e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_TORQ_CONSUMPTION.json",
+          "path": "evidence/TOPOS_CANDIDATE07_TORQ_CONSUMPTION.json",
           "sha256": "7e6735f8961885b672f5a8080b6c4940dfa8b00768f2660209ee994c5aa2f435",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
           "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json",
+          "path": "evidence/TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json",
           "sha256": "80b85af22a2812a5a88bfb513bfa33e5b2c3154f27c5de1e7d8c9094c68149c5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -18638,42 +18638,42 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -19125,42 +19125,42 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -19419,27 +19419,27 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -19662,32 +19662,32 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -19706,7 +19706,7 @@
       "chapter": "13. Verification and acceptance",
       "requirement_source": "**TOPOS-010-049.** Distinguish deterministic algorithms, authentic parser fixtures, real-engine integration, end-to-end dispatch, and scientific references. Generated/test-double values cannot represent real chemistry. Council no-spoof/no-skip gates need exact engine/environment evidence; unavailable dependencies leave capabilities unverified.",
       "status": "verification-pending",
-      "assessment": "Deterministic algorithms, analytical checks, authentic fixtures, real free engines, installed BASE authority and hosted/scientific acceptance remain separate evidence classes. All 2684 current-source JUnit outcomes are retained: 2681 passed and three explicitly licensed ORCA cases skipped. Genuine free-engine selectors were configured, but this complete regression used the preserved existing runtime rather than the fresh installed runtime. Separate actual fresh managed installation, installed Streamlit, BASE-authorized xTB, reviewed export/replay and TORQ import passed. No current licensed ORCA/CFOUR full-row, GPU, deployed queue, 42-row matrix or 20-obligation independent-reference campaign is certified.",
+      "assessment": "Deterministic algorithms, analytical checks, authentic fixtures, real free engines, installed BASE authority and hosted/scientific acceptance remain separate evidence classes. The historical ef750ea regression retained all 2684 JUnit outcomes: 2681 passed and three explicitly licensed ORCA cases skipped. Genuine free-engine selectors were configured in that historical run, but its complete regression used the preserved existing runtime rather than the fresh installed runtime. Separate actual fresh managed installation, installed Streamlit, BASE-authorized xTB, reviewed export/replay and TORQ import passed. No current licensed ORCA/CFOUR full-row, GPU, deployed queue, 42-row matrix or 20-obligation independent-reference campaign is certified.",
       "implementation": [
         {
           "path": "topos/release.py",
@@ -21111,142 +21111,142 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_VERIFICATION_20261007.json",
           "sha256": "0958daa65043e1ae6728259008e366e82f9afe3c9a4b1cd162d1f436cb9fabe5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
+          "path": "evidence/TOPOS_AIMNET_CPU_RAW_20261007.json",
           "sha256": "eb2766721721ac07eb7a85a3da221601c131851fa6402add94c8e02a8561928b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE07_ASE_IO.json",
           "sha256": "470edaf0967dff9d4e6cb67a52bced4d2e6113472e1342636318150ca6a53f7b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_CPU.json",
           "sha256": "56cd40c9298b440ce99487ad81e82f18cbe8868f00753bbc68236d0cd36d49bc",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_AIMNET_CPU.json",
           "sha256": "1ee79bcf8c828c12649aa1f7b35aaf0e2274118f533b3de1b72bbf3af7250b14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER05_ABCLUSTER_BASE.json",
           "sha256": "5c415775c6aaacdb3c2a13f2b4898095cd4f043560a4a093c4197e1e9938549b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259.json",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259.json",
           "sha256": "8abf14060dceb0b8ade55c6532528bb5fc55bd2bcf2cb4eebf5d89ded72843af",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259_PY311.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY311.xml",
           "sha256": "5d701a2c3cb21b2318122ecd59e31405a5dd0737761f60293b409b9f69a6db55",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
           "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
           "sha256": "228411adcebc038a72f5f18848deb3a0ac0ca74e555288e4bd81730a1126611d",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
           "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
           "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
+          "path": "evidence/TOPOS_WORKER07_ABCLUSTER_BASE.json",
           "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361.json",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361.json",
           "sha256": "e9fd40f1cf21c702b5f8ed85e6d4950eae7c29e1b4136e15e78267e422714c27",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
           "sha256": "e78e0c51cfd4e72fc2e6aa83138c0db05a692ec19498e91d07b9aa61ecfee3d9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
           "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_ORCA_OPTIMIZER_POLICY.md",
+          "path": "TOPOS_ORCA_OPTIMIZER_POLICY.md",
           "sha256": "20966e4d718767e324d6e3db5f7b429412b9928e4dacb1e78059da745fd02fb9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+          "path": "evidence/TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
           "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/tests/v010/fixtures/orca_one_cycle_native/provenance.json",
+          "path": "../tests/v010/fixtures/orca_one_cycle_native/provenance.json",
           "sha256": "c5e21545d53460835f10af29d27e5b2733f4bdb3ac0d5ecd8f7737cdfdf18bb7",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -21269,7 +21269,7 @@
     },
     "TOPOS-010-050": {
       "chapter": "13. Verification and acceptance",
-      "requirement_source": "**TOPOS-010-050.** Record tested revision/configuration, targets/counts, logs/results, tolerances, unavailable/excluded checks, references/hardware/limitations. Old receipts, static checks, and absent modules cannot replace current evidence. Document delivery requires saved files and a reviewable diff\u2014the applicable RES-167 lesson.",
+      "requirement_source": "**TOPOS-010-050.** Record tested revision/configuration, targets/counts, logs/results, tolerances, unavailable/excluded checks, references/hardware/limitations. Old receipts, static checks, and absent modules cannot replace current evidence. Document delivery requires saved files and a reviewable diff—the applicable RES-167 lesson.",
       "status": "verification-pending",
       "assessment": "Receipts bind source hashes, environment, counts, logs, limitations and artifact identities; deterministic candidates and fresh wheel acceptance are implemented. Historical receipts are not current-source certification. Current source-stable unfiltered regression and independent fresh managed/application receipts bind their exact source pins and limitations. The original run retained an in-memory 1008-file before/after comparison as an unchanged boolean; the explicit inventory here is a later clean Git derivation. Every parameterized JUnit outcome remains in the attached index. Proposed ledger changes themselves would create a new source revision and require deliberate artifact/catalog/source rebinding; this outside proposal is not a published or signed release.",
       "implementation": [
@@ -21934,162 +21934,162 @@
       },
       "evidence": [
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_VALIDATION_20261007_113240.json",
+          "path": "evidence/TOPOS_VALIDATION_20261007_113240.json",
           "sha256": "e91b3f09572557c7570b1a83a093466528f2342fc979ea6f8c5efd4d6a221c14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
+          "path": "evidence/TOPOS_WHEEL_INSTALLATION_20261007.json",
           "sha256": "17440d0ca5f7e94f3f7a0ad9d858794bb8acf3bb28d70f6c9fb24e2bd8af9d40",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
+          "path": "evidence/TOPOS_PUBLICATION_RELEASE_20261007.json",
           "sha256": "83cc1a05562761e25def5c300b7475165c477fd130583c5daf60ecac777a450f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE07_INSTALLED_ACCEPTANCE.json",
           "sha256": "095967825df997943ff76f3c5a2cb5906a337ad6c7198d418cd700ef9985fab5",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE07_CLEAN_INSTALL.json",
           "sha256": "393715f1221c1e72d318d721960ad0619ed17c0eecbc685d9c4817ca959e393e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE07_ASE_IO.json",
           "sha256": "470edaf0967dff9d4e6cb67a52bced4d2e6113472e1342636318150ca6a53f7b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_COMPANION_BUILDS.json",
+          "path": "evidence/TOPOS_CANDIDATE07_COMPANION_BUILDS.json",
           "sha256": "07cbeda327a19108008d0e3d3499957c713e9e31efc8f1a814b3ca526078062d",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE07_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_CANDIDATE07_DISTRIBUTION.json",
           "sha256": "b2669c6fec6592955267ab541297abffd733eab74863d3d7e33f2f545fd7296f",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER05_DISTRIBUTION.json",
           "sha256": "f9a0ec163ba9ea0a9441a317bb0d44f061c752f865bed18681e5378ae40e3b29",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_CPU.json",
           "sha256": "56cd40c9298b440ce99487ad81e82f18cbe8868f00753bbc68236d0cd36d49bc",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_AIMNET_CPU.json",
           "sha256": "1ee79bcf8c828c12649aa1f7b35aaf0e2274118f533b3de1b72bbf3af7250b14",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER05_MACE_PERSISTENT_CPU.json",
           "sha256": "f332bf0ee4ba004d2dc0f642d8918425777420852583967826cf64a8e1cd8102",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259.json",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259.json",
           "sha256": "8abf14060dceb0b8ade55c6532528bb5fc55bd2bcf2cb4eebf5d89ded72843af",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259_PY311.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY311.xml",
           "sha256": "5d701a2c3cb21b2318122ecd59e31405a5dd0737761f60293b409b9f69a6db55",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37654067259_PY312.xml",
           "sha256": "11b39d85f6dc67da67756037f4b8829aad75d37f63afb354f0acd3bc4a7fd738",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
           "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+          "path": "evidence/TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
           "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_ASE_IO.json",
+          "path": "evidence/TOPOS_CANDIDATE10_ASE_IO.json",
           "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_COMPANION_BUILDS.json",
+          "path": "evidence/TOPOS_CANDIDATE10_COMPANION_BUILDS.json",
           "sha256": "07cbeda327a19108008d0e3d3499957c713e9e31efc8f1a814b3ca526078062d",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_CANDIDATE10_DISTRIBUTION.json",
           "sha256": "667cef131f25d98c120a3bc1b08a14fd82b54bf904fd4e32de0495b4aa7e3121",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
+          "path": "evidence/TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
           "sha256": "228411adcebc038a72f5f18848deb3a0ac0ca74e555288e4bd81730a1126611d",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_DISTRIBUTION.json",
+          "path": "evidence/TOPOS_WORKER07_DISTRIBUTION.json",
           "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_CPU.json",
           "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_AIMNET_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_AIMNET_CPU.json",
           "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+          "path": "evidence/TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
           "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
+          "path": "evidence/TOPOS_WORKER07_ALL_ELEVEN.json",
           "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361.json",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361.json",
           "sha256": "e9fd40f1cf21c702b5f8ed85e6d4950eae7c29e1b4136e15e78267e422714c27",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY311.xml",
           "sha256": "e78e0c51cfd4e72fc2e6aa83138c0db05a692ec19498e91d07b9aa61ecfee3d9",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
+          "path": "evidence/TOPOS_ORDINARY_CI_37666928361_PY312.xml",
           "sha256": "b59547c4af3e42fc8051fed12f9554a211b0e29605dee85c38b0df0a21e0340a",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../../../CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+          "path": "evidence/TOPOS_PRE_STUDENT_COMPLETION_VALIDATION_20261008.json",
           "sha256": "7ddbf57323c556ac03884d8f8a3ff2751452d0cd13f82c340ec1eae95bd0860b",
           "scope": "preserved historical receipt"
         },
         {
-          "path": "../../CURRENT_INSTALLATION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
           "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961",
           "scope": "Actual fresh mandatory unlicensed installed application/profile only; no licensed/GPU/TORQ solver/full-matrix certification"
         },
         {
-          "path": "../../CURRENT_REGRESSION_BINDING.json",
+          "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
           "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
         },
         {
@@ -22110,13 +22110,14 @@
   },
   "notes": [
     "Original 053c827 acceptance ledger and all historical receipts are preserved without relabeling.",
-    "Current full suite is an existing-runtime source regression: 2681 passes, three licensed ORCA skips, no failures/errors, all 1008 tracked TOPOS bytes and the preserved registry unchanged.",
+    "The historical ef750ea full suite was an existing-runtime source regression: 2681 passes, three licensed ORCA skips, no failures/errors, all 1008 tracked TOPOS bytes and the preserved registry unchanged.",
     "Later clean Git inventory is explicitly derived after the run; its per-file hashes were not persisted by the original run.",
     "Fresh actual managed noneditable BASE397d/TOPOSef/TORQ79 installation, all 11 Stage0 phases, pip check, installed UI/xTB/review/export/replay and actual TORQ importer acknowledgment passed. Optional/licensed/GPU capabilities are explicit and Stage0 is DEGRADED_OPERATIONAL.",
     "Three named licensed skips are local provisioning restrictions; BASE has separately verified private ORCA/CFOUR providers. New GitHub-hosted jobs were blocked before runner assignment by billing/spending limits, so no current-source native acceptance ran.",
     "The CFOUR compiled empirical operator now makes computational full-row completion reachable within its exact-build protocol, but neither bookkeeping parser tests nor RHF operator conformance certify current native CCSD(T) accuracy, source nuclear constants or full release readiness.",
     "A11 scientific-reference and authentic full-row matrix campaign conditions remain explicit. Changing this ledger changes the reviewed requirement scope and requires new prospective campaign reviews/source binding; no old independent-accuracy plan is silently relabeled.",
-    "No dispatch, licensed execution, new test, engine installation, source edit, publication or release certification occurred during this receipt review."
+    "No dispatch, licensed execution, new test, engine installation, source edit, publication or release certification occurred during this receipt review.",
+    "The separate current student-source regression receipt TOPOS_COMPLETION_VALIDATION.json retains 2850 outcomes: 2808 passed, 42 explicit skipped cases, zero failures/errors. Its source inventory and JUnit are independently bound; it does not replace historical ef750ea receipts or clear licensed/native/GPU/hosted/all-row/reference conditions."
   ],
   "historical_source_change_review": {
     "schema": "topos-srs-source-diff-review/1",
@@ -22797,7 +22798,7 @@
     "whole_suite_state_at_preparation": "Current source-bound whole suite is in progress; this draft has not consumed a completed 053c827 receipt. Existing 1776-test/2-skip verification fields and executed test lists still describe the retained prior 65af1e0 receipt until refresh.",
     "validation_work_directory": "/workspace/.cochem-setup/topos-current-validation-20261007T193819Z",
     "new_helper_test_collection": {
-      "path": "tests/v010/test_orca_geometry_evidence.py",
+      "path": "evidence/historical-053c827-orca-geometry-test-definition.txt",
       "sha256": "42f03734549923cf805fa896bfc1afedf78d4d62b2607b88f42641ee60795331",
       "named_test_functions": [
         "test_retained_native_stdout_matches_unchanged_hosted_provenance",
@@ -22882,23 +22883,23 @@
       "full_matrix_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
       "review_scope": "All 50 original exact clauses, current implementation hashes and named test definitions, all actual parameterized outcomes, actual current managed/application receipts, and retained scientific/native release boundaries. No new scientific measurement or current licensed acceptance.",
       "preceding_audit": {
-        "path": "/workspace/.cochem-setup/topos-srs-current-source-audit-b71908d-20261008/FINAL_RECEIPT.json",
+        "path": "evidence/ef750ea-receipt-review-20261008/PRECEDING_AUDIT_FINAL_RECEIPT.json",
         "sha256": "77251b1f6182154cd12b2c06bfae703847dd84511435edf4cb651a56296531df"
       },
       "all_case_index": {
-        "path": "../../all-parameterized-junit-outcomes.json",
+        "path": "evidence/ef750ea-receipt-review-20261008/all-parameterized-junit-outcomes.json",
         "sha256": "f69ff7601adc1fc58fc077c0122875f14298cc25f10278b71b58c2183ec38769"
       },
       "post_run_git_inventory": {
-        "path": "../../current-git-source-inventory.json",
+        "path": "evidence/ef750ea-receipt-review-20261008/current-git-source-inventory.json",
         "sha256": "a610c09bfee9244f3aaba6754f19f7999eb558b2c2282941da682f186f03f9a6"
       },
       "regression_receipt_derivation": {
-        "path": "../../CURRENT_REGRESSION_BINDING.json",
+        "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_REGRESSION_BINDING.json",
         "sha256": "39e920ef5406876578d3a8366c625052bdc20d072f4f9e799a4e2df9693cac56"
       },
       "current_installation_review": {
-        "path": "../../CURRENT_INSTALLATION_BINDING.json",
+        "path": "evidence/ef750ea-receipt-review-20261008/CURRENT_INSTALLATION_BINDING.json",
         "sha256": "51f0629780a53bd0bb70ea96ab1bb8b424bc07856eded4396df42ca75e3af961"
       },
       "release_certified": false

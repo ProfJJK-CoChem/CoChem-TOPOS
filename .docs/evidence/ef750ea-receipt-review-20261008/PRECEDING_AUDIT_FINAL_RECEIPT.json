@@ -1,0 +1,61 @@
+{
+  "schema": "topos-current-source-srs-audit/1",
+  "source_commit": "b71908dd0a1e495cef3684118b67eb33a8da5e26",
+  "files": {
+    "CHAPTER_AUDIT.md": {
+      "sha256": "7cc6bfa0d599ad91d42709ec81d6ffff3e346ce9c0357f8f2d9e9e779984e1b9",
+      "size_bytes": 11685
+    },
+    "documentation-proposal.json": {
+      "sha256": "e7c897ea696939267d290a8553927370cb5eecd07309d22fead456dca7784391",
+      "size_bytes": 1539
+    },
+    "ledger-notes-candidate.json": {
+      "sha256": "4c86b6d2df7cc8f97898d7464dedd3d6c8912935dcc2a463fd6d1d4bf14dd047",
+      "size_bytes": 389744
+    },
+    "named-test-inventory.json": {
+      "sha256": "44f127603593df09ee39ef0187ee6143c295953d84f61e0f7e0253b838fb4c78",
+      "size_bytes": 86999
+    },
+    "prepare_audit.py": {
+      "sha256": "d0c5a25c850c9ff2176500d4a7ceb3e9f9063b64fb42c29a4b148d58f98b2553",
+      "size_bytes": 24151
+    },
+    "proposal/.docs/TOPOS_BASE_INTEGRATION.md": {
+      "sha256": "6c9c1a02a868a07f5824d248f4ef5845de9cb45b925f8dd4630647246d12b4a9",
+      "size_bytes": 12488
+    },
+    "proposal/.docs/TOPOS_COMPLETION_CHECKLIST.md": {
+      "sha256": "a28e0c1db4f2596bccc854f8a2f3ce4fa4c335451a7a081287433c6625c4c302",
+      "size_bytes": 34468
+    },
+    "proposal/.docs/TOPOS_RELEASE_STATUS.md": {
+      "sha256": "457b5f4c1a63e6c67e2575645675269b49bbed2d837693c09c3eef034b913353",
+      "size_bytes": 13622
+    },
+    "source-inventory.json": {
+      "sha256": "ef31b765e3a0964c20db693ef67b8f2f156480d0af0207f77b2152bda0ae8070",
+      "size_bytes": 44631
+    },
+    "three-doc-status-candidate.patch": {
+      "sha256": "404fd6b6069fe944a8d6d88d2532ffc930d6edecfb8117cf3740faf929536e29",
+      "size_bytes": 62048
+    }
+  },
+  "source_mutated": false,
+  "tests_executed": false,
+  "native_engine_execution": false,
+  "installation_performed": false,
+  "action_dispatched": false,
+  "release_certified": false,
+  "patch_apply_check": {
+    "exit_code": 0,
+    "command": [
+      "git",
+      "apply",
+      "--check",
+      "three-doc-status-candidate.patch"
+    ]
+  }
+}
