@@ -1,0 +1,79 @@
+{
+  "phase_id": "PHASE_5_NVIDIA_MPS_VRAM_BUDGETING",
+  "status": "PASSED",
+  "timestamp_utc": "2026-10-07T23:55:16.750739+00:00",
+  "mps_daemon": {
+    "mps_control_binary": null,
+    "mps_server_binary": null,
+    "status": "NOT_SUPPORTED",
+    "pipe_directory": "/tmp/cochem_mps_agent",
+    "log_directory": "/tmp/cochem_mps_log_agent",
+    "socket_path": "/tmp/cochem_mps_agent",
+    "is_daemon_active": false,
+    "pid": null,
+    "socket_permissions": "0o700",
+    "is_permission_secure": true,
+    "server_active": false,
+    "control_active": false,
+    "environment_variables": {
+      "CUDA_MPS_PIPE_DIRECTORY": "/tmp/cochem_mps_agent",
+      "CUDA_MPS_LOG_DIRECTORY": "/tmp/cochem_mps_log_agent",
+      "CUDA_MPS_ENABLE_PER_DEVICE_PINNED_MEM_LIMIT": "1",
+      "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE": "50"
+    },
+    "details": "nvidia-cuda-mps-control binary not found in PATH or standard system locations"
+  },
+  "vram_budget": {
+    "total_gpus_detected": 0,
+    "active_gpu_devices": [],
+    "total_cluster_vram_mb": 0.0,
+    "total_reserved_vram_mb": 0.0,
+    "total_allocatable_vram_mb": 0.0,
+    "worker_concurrency_target": 2,
+    "default_pinned_mem_limit": null,
+    "per_device_limits": {},
+    "is_vram_bounded": true,
+    "strategy": "ZERO_GPU_DEGRADED"
+  },
+  "is_cuda_available": false,
+  "is_hpc_slurm": false,
+  "config_lock": {
+    "golden_registry_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json",
+    "status": "LOCKED",
+    "checksum": "935fe265c4d9ed8930667367f77fb95203cce1ae493bf64aecab58c5ab1247ce",
+    "posix_lock_test": {
+      "passed": true,
+      "method": "POSIX_FCNTL_LOCKF",
+      "single_threaded_mode": false,
+      "target_path": "/workspace/.cochem-base-runtime/Registry/.cochem_swmr_lock_probe_0d258fd4.lock",
+      "lock_type": "POSIX_BYTE_RANGE_LOCK",
+      "error_message": null
+    },
+    "sweep_report": {
+      "swept_files_count": 0,
+      "cleaned_paths": [],
+      "retained_paths": [],
+      "trash_dir": null
+    },
+    "intermediate_phases_found": [
+      "p1.json",
+      "p2.json",
+      "p3.json",
+      "p4.json",
+      "p5.json",
+      "p6.json",
+      "p7.json",
+      "p8.json",
+      "p9.json",
+      "p10.json",
+      "p11.json"
+    ],
+    "is_immutable_mode_enforced": false
+  },
+  "warnings": [
+    "No active NVIDIA CUDA GPU detected; execution operating in CPU-only or direct compute fallback mode."
+  ],
+  "errors": [],
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p5.json",
+  "golden_config_path": "/workspace/.cochem-base-runtime/Registry/cochem_system_config.json"
+}

@@ -1,0 +1,119 @@
+{
+  "phase_id": "cochem_setup_phase_9",
+  "status": "DEGRADED",
+  "timestamp_utc": "2026-10-07T23:55:17.567354+00:00",
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p9.json",
+  "scout_anchor_profile": {
+    "total_physical_cores": 5,
+    "total_logical_cores": 5,
+    "anchor_cores": 4,
+    "scout_cores": 1,
+    "scout_gpu_workers": 0,
+    "scout_step_latency_ms": null,
+    "anchor_executor": {
+      "label": "cochem_anchor_cpu",
+      "stream": "CPU_ANCHOR",
+      "provider": "LOCAL",
+      "max_workers_per_node": 4,
+      "cores_per_worker": 1.0,
+      "mem_per_worker_gb": null,
+      "cpu_affinity": "list:0,1,2,3",
+      "worker_port_range": [
+        50000,
+        52499
+      ],
+      "interchange_port_range": [
+        52500,
+        54999
+      ],
+      "init_blocks": 1,
+      "min_blocks": 0,
+      "max_blocks": 1,
+      "nodes_per_block": 1,
+      "walltime": "01:00:00",
+      "launcher": "SimpleLauncher"
+    },
+    "scout_executor": {
+      "label": "cochem_scout_gpu",
+      "stream": "GPU_SCOUT",
+      "provider": "LOCAL",
+      "max_workers_per_node": 1,
+      "cores_per_worker": 1.0,
+      "mem_per_worker_gb": null,
+      "cpu_affinity": "list:4",
+      "worker_port_range": [
+        55000,
+        57499
+      ],
+      "interchange_port_range": [
+        57500,
+        60000
+      ],
+      "init_blocks": 1,
+      "min_blocks": 0,
+      "max_blocks": 1,
+      "nodes_per_block": 1,
+      "walltime": "01:00:00",
+      "launcher": "SimpleLauncher"
+    },
+    "anchor_affinity": {
+      "stream": "CPU_ANCHOR",
+      "core_count": 4,
+      "core_ids": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "affinity_string": "list:0,1,2,3",
+      "strategy": "PINNED_EXPLICIT"
+    },
+    "scout_affinity": {
+      "stream": "GPU_SCOUT",
+      "core_count": 1,
+      "core_ids": [
+        4
+      ],
+      "affinity_string": "list:4",
+      "strategy": "PINNED_EXPLICIT"
+    },
+    "is_parsl_installed": true,
+    "parsl_version": "2026.10.05",
+    "is_heterogeneous_balanced": true
+  },
+  "amnesty_profile": {
+    "amnesty_file_path": "/workspace/CoChem-BASE/.anti_spoof_amnesty.json",
+    "is_amnesty_present": true,
+    "total_amnestied_entries": 264,
+    "is_utf8_lf_compliant": true,
+    "is_alphabetically_sorted": true,
+    "has_zero_duplicates": false,
+    "parsl_whitelisted": true,
+    "scanned_concurrency_modules": [
+      "parsl",
+      "multiprocessing",
+      "concurrent.futures",
+      "dask",
+      "ray",
+      "mpi4py",
+      "threading"
+    ]
+  },
+  "injected_env_vars": {
+    "COCHEM_PARSL_ANCHOR_LABEL": "cochem_anchor_cpu",
+    "COCHEM_PARSL_ANCHOR_CORES": "4",
+    "COCHEM_PARSL_ANCHOR_AFFINITY": "list:0,1,2,3",
+    "COCHEM_PARSL_SCOUT_LABEL": "cochem_scout_gpu",
+    "COCHEM_PARSL_SCOUT_CORES": "1",
+    "COCHEM_PARSL_SCOUT_WORKERS": "0",
+    "COCHEM_PARSL_SCOUT_AFFINITY": "list:4",
+    "COCHEM_PARSL_PROVIDER": "LOCAL",
+    "COCHEM_PARSL_AMNESTY_VERIFIED": "1",
+    "COCHEM_PARSL_CONFIG_READY": "1"
+  },
+  "warnings": [
+    ".anti_spoof_amnesty.json contains duplicate entries.",
+    "No measured CUDA GPU allocation; GPU Scout executor is disabled"
+  ],
+  "errors": []
+}

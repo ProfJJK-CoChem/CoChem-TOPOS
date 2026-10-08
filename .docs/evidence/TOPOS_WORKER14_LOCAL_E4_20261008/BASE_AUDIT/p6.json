@@ -1,0 +1,49 @@
+{
+  "phase_id": "cochem_setup_phase_6",
+  "status": "PASSED",
+  "storage_mode": "BIFURCATED",
+  "timestamp_utc": "2026-10-07T23:55:16.967536+00:00",
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p6.json",
+  "storage_paths": {
+    "databases_directory": "/workspace/.cochem-base-runtime/Databases",
+    "scratch_directory": "/workspace/.cochem-base-runtime/Scratch",
+    "runtime_active_db_path": "/workspace/.cochem-base-runtime/Databases/runtime_active.h5",
+    "archive_pes_db_path": "/workspace/.cochem-base-runtime/Databases/archive_pes.h5",
+    "sqlite_wal_db_path": "/workspace/.cochem-base-runtime/Databases/runtime_active.db",
+    "is_git_ignored": true,
+    "filesystem_type": "overlay",
+    "free_disk_space_gb": 4.569,
+    "min_disk_space_required_gb": 1.0,
+    "is_disk_quota_sufficient": true
+  },
+  "swmr_audit": {
+    "swmr_supported": true,
+    "lock_test_passed": true,
+    "backend_selected": "HDF5_SWMR",
+    "lock_file_path": "/workspace/.cochem-base-runtime/Databases/cochem_runtime.lock",
+    "error_detail": null
+  },
+  "archive_audit": {
+    "qcschema_version": "1.0",
+    "groups_created": [
+      "/meta",
+      "/methods",
+      "/points",
+      "/grids",
+      "/hessians",
+      "/telemetry"
+    ],
+    "filters_applied": {
+      "compression": "gzip",
+      "compression_opts": 4,
+      "shuffle": true,
+      "fletcher32": true,
+      "scaleoffset": null,
+      "chunk_pts": 512
+    },
+    "scaleoffset_banned": true,
+    "file_size_bytes": 10255
+  },
+  "warnings": [],
+  "errors": []
+}

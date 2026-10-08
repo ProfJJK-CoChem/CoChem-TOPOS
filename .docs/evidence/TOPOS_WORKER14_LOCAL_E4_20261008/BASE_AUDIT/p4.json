@@ -1,0 +1,200 @@
+{
+  "phase_id": "PHASE_4_MICRO_SILO_PROVISIONING",
+  "status": "PASSED",
+  "timestamp_utc": "2026-10-07T23:54:54.729577+00:00",
+  "silos": {
+    "cochem_core_silo": {
+      "name": "cochem_core_silo",
+      "silo_type": "cochem_core_silo",
+      "path": "/workspace/.cochem-base-runtime/Silos/cochem_core_silo",
+      "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_core_silo/bin/python",
+      "python_version": "3.12.14",
+      "status": "EXISTS_VALID",
+      "is_available": true,
+      "is_heavy": false,
+      "stack_flags_injected": [
+        "-Wl,-z,stack-size=67108864"
+      ],
+      "env_vars_injected": {
+        "OMP_STACKSIZE": "64M",
+        "PYTHONSTACKSIZE": "67108864",
+        "KMP_STACKSIZE": "64M",
+        "GFORTRAN_UNBUFFERED_ALL": "y"
+      },
+      "error_detail": null,
+      "packages_verified": [
+        "pydantic",
+        "h5py",
+        "psutil",
+        "filelock",
+        "mendeleev"
+      ],
+      "dependency_profile": null,
+      "created_at": "2026-10-07T23:54:56.368571+00:00"
+    },
+    "cochem_ui_silo": {
+      "name": "cochem_ui_silo",
+      "silo_type": "cochem_ui_silo",
+      "path": "/workspace/.cochem-base-runtime/Silos/cochem_ui_silo",
+      "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_ui_silo/bin/python",
+      "python_version": "3.12.14",
+      "status": "EXISTS_VALID",
+      "is_available": true,
+      "is_heavy": false,
+      "stack_flags_injected": [
+        "-Wl,-z,stack-size=67108864"
+      ],
+      "env_vars_injected": {
+        "OMP_STACKSIZE": "64M",
+        "PYTHONSTACKSIZE": "67108864",
+        "KMP_STACKSIZE": "64M",
+        "GFORTRAN_UNBUFFERED_ALL": "y"
+      },
+      "error_detail": null,
+      "packages_verified": [
+        "voila",
+        "ipywidgets",
+        "networkx",
+        "matplotlib"
+      ],
+      "dependency_profile": null,
+      "created_at": "2026-10-07T23:54:58.757806+00:00"
+    },
+    "cochem_calc_silo": {
+      "name": "cochem_calc_silo",
+      "silo_type": "cochem_calc_silo",
+      "path": "/workspace/.cochem-base-runtime/Silos/cochem_calc_silo",
+      "python_executable": null,
+      "python_version": null,
+      "status": "BYPASSED",
+      "is_available": false,
+      "is_heavy": true,
+      "stack_flags_injected": [],
+      "env_vars_injected": {},
+      "error_detail": null,
+      "packages_verified": [],
+      "dependency_profile": null,
+      "created_at": null
+    },
+    "cochem_mace_silo": {
+      "name": "cochem_mace_silo",
+      "silo_type": "cochem_mace_silo",
+      "path": "/workspace/.cochem-base-runtime/Silos/cochem_mace_silo",
+      "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_mace_silo/bin/python",
+      "python_version": "3.12.14",
+      "status": "EXISTS_VALID",
+      "is_available": true,
+      "is_heavy": true,
+      "stack_flags_injected": [
+        "-Wl,-z,stack-size=67108864"
+      ],
+      "env_vars_injected": {
+        "OMP_STACKSIZE": "64M",
+        "PYTHONSTACKSIZE": "67108864",
+        "KMP_STACKSIZE": "64M",
+        "GFORTRAN_UNBUFFERED_ALL": "y"
+      },
+      "error_detail": null,
+      "packages_verified": [
+        "mace-torch",
+        "torch",
+        "e3nn"
+      ],
+      "dependency_profile": "cpu",
+      "created_at": "2026-10-07T23:55:02.177538+00:00"
+    },
+    "cochem_aimnet2_silo": {
+      "name": "cochem_aimnet2_silo",
+      "silo_type": "cochem_aimnet2_silo",
+      "path": "/workspace/.cochem-base-runtime/Silos/cochem_aimnet2_silo",
+      "python_executable": "/workspace/.cochem-base-runtime/Silos/cochem_aimnet2_silo/bin/python",
+      "python_version": "3.12.14",
+      "status": "EXISTS_VALID",
+      "is_available": true,
+      "is_heavy": true,
+      "stack_flags_injected": [
+        "-Wl,-z,stack-size=67108864"
+      ],
+      "env_vars_injected": {
+        "OMP_STACKSIZE": "64M",
+        "PYTHONSTACKSIZE": "67108864",
+        "KMP_STACKSIZE": "64M",
+        "GFORTRAN_UNBUFFERED_ALL": "y",
+        "CUDA_VISIBLE_DEVICES": ""
+      },
+      "error_detail": null,
+      "packages_verified": [
+        "aimnet",
+        "torch",
+        "warp-lang",
+        "nvalchemi-toolkit-ops"
+      ],
+      "dependency_profile": null,
+      "created_at": "2026-10-07T23:55:16.750041+00:00"
+    }
+  },
+  "version_walking": {
+    "initial_version": "3.12",
+    "target_version": "3.12",
+    "version_chain": [
+      "3.12"
+    ],
+    "resolved_version": "3.12",
+    "used_local_fallback": false,
+    "fallback_binary_path": null,
+    "steps": [
+      {
+        "attempted_version": "3.12",
+        "success": true,
+        "fallback_wheel_found": null,
+        "error_summary": null
+      }
+    ],
+    "status": "PASSED"
+  },
+  "mendeleev_authority": {
+    "symbol": "C",
+    "atomic_number": 6,
+    "monoisotopic_mass": 12.0,
+    "c13_mass": 13.00335483534,
+    "h1_mass": 1.007825031898,
+    "o16_mass": 15.99491461926,
+    "authority": "mendeleev-live",
+    "is_exact_carbon12": true,
+    "c13_mass_verified": true
+  },
+  "ipc_security": {
+    "socket_path": "/tmp/nvidia-mps",
+    "socket_permissions": "0o700",
+    "is_permission_secure": true,
+    "pid_namespace_isolated": false,
+    "mps_service_available": false,
+    "ipc_spoofing_shielded": false,
+    "details": "Socket permissions 0o700 strictly enclosed; Separate PID namespace not verified"
+  },
+  "manifest_filter": {
+    "manifest_path": "/workspace/.cochem-base-runtime/mandatory-deployment-with-ml.json",
+    "manifest_loaded": true,
+    "selected_repositories": [
+      "CoChem-BASE",
+      "CoChem-TOPOS",
+      "CoChem-TORQ"
+    ],
+    "requested_silos": [
+      "cochem_core_silo",
+      "cochem_ui_silo",
+      "cochem_mace_silo",
+      "cochem_aimnet2_silo"
+    ],
+    "heavy_silos_requested": true,
+    "skipped_silos": [
+      "cochem_calc_silo"
+    ],
+    "disk_space_saved_estimated_mb": 4500.0
+  },
+  "warnings": [
+    "Skipped unrequested heavy silos (cochem_calc_silo), saving ~4500 MB disk space."
+  ],
+  "errors": [],
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p4.json"
+}

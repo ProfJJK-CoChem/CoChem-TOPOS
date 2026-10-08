@@ -1,0 +1,70 @@
+{
+  "phase_id": "cochem_setup_phase_8",
+  "status": "PASSED",
+  "timestamp_utc": "2026-10-07T23:55:17.566859+00:00",
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p8.json",
+  "gateway_profile": {
+    "bind_host": "127.0.0.1",
+    "bind_policy": "LOCALHOST_ONLY",
+    "dock_api": {
+      "service": "DOCK_REST_API",
+      "protocol": "TCP",
+      "requested_port": 8000,
+      "allocated_port": 8000,
+      "bind_host": "127.0.0.1",
+      "is_bound_successfully": true,
+      "is_conflict_resolved": false,
+      "environment_variable": "COCHEM_DOCK_PORT",
+      "url": "http://127.0.0.1:8000"
+    },
+    "gateway_zmq": {
+      "service": "GATEWAY_IPC_ZMQ",
+      "protocol": "TCP",
+      "requested_port": 5555,
+      "allocated_port": 5555,
+      "bind_host": "127.0.0.1",
+      "is_bound_successfully": true,
+      "is_conflict_resolved": false,
+      "environment_variable": "COCHEM_GATEWAY_PORT",
+      "url": "tcp://127.0.0.1:5555"
+    },
+    "ui_dashboard": {
+      "service": "UI_DASHBOARD",
+      "protocol": "TCP",
+      "requested_port": 8888,
+      "allocated_port": 8888,
+      "bind_host": "127.0.0.1",
+      "is_bound_successfully": true,
+      "is_conflict_resolved": false,
+      "environment_variable": "COCHEM_UI_PORT",
+      "url": "http://127.0.0.1:8888"
+    },
+    "telemetry_stream": {
+      "service": "TELEMETRY_STREAM",
+      "protocol": "UDP",
+      "requested_port": 54321,
+      "allocated_port": 54321,
+      "bind_host": "127.0.0.1",
+      "is_bound_successfully": true,
+      "is_conflict_resolved": false,
+      "environment_variable": "COCHEM_TELEMETRY_PORT",
+      "url": "udp://127.0.0.1:54321"
+    },
+    "all_services_allocated": true,
+    "total_services_bound": 4
+  },
+  "injected_env_vars": {
+    "COCHEM_BIND_HOST": "127.0.0.1",
+    "COCHEM_DOCK_PORT": "8000",
+    "COCHEM_DOCK_URL": "http://127.0.0.1:8000",
+    "COCHEM_GATEWAY_PORT": "5555",
+    "COCHEM_ZMQ_PORT": "5555",
+    "COCHEM_GATEWAY_URL": "tcp://127.0.0.1:5555",
+    "COCHEM_UI_PORT": "8888",
+    "COCHEM_UI_URL": "http://127.0.0.1:8888",
+    "COCHEM_TELEMETRY_PORT": "54321",
+    "COCHEM_TELEMETRY_URL": "udp://127.0.0.1:54321"
+  },
+  "warnings": [],
+  "errors": []
+}
