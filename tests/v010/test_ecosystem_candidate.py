@@ -269,7 +269,9 @@ def test_workflow_retains_complete_three_source_download():
     assert "14202e182e1fa4f99258ed32a8ae9ba8c1c565ad" in workflow
     assert "base_commit:" in workflow and "ref: ${{ env.BASE_COMMIT }}" in workflow
     assert '--base-pin "$BASE_COMMIT"' in workflow
-    assert "79fbb111125e50627a1a2c129888a45496f368d4" in workflow
+    torq_commit = "4f323800227dbde00ffb082bd6d9e44d851e1c7a"
+    assert f"ref: {torq_commit}" in workflow
+    assert f"--torq-pin {torq_commit}" in workflow
     assert "--output \"$RUNNER_TEMP/topos-candidate/release-gate.json\"" in workflow
 
 
