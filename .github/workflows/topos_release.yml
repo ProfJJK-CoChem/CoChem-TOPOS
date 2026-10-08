@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: ProfJJK-CoChem/CoChem-TORQ
-          ref: 79fbb111125e50627a1a2c129888a45496f368d4
+          ref: 4f323800227dbde00ffb082bd6d9e44d851e1c7a
           token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
           path: .cochem-dependencies/torq
           persist-credentials: false
@@ -97,7 +97,7 @@ jobs:
             --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
             --base-pin "$BASE_COMMIT" \
             --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
-            --torq-pin 79fbb111125e50627a1a2c129888a45496f368d4 \
+            --torq-pin 4f323800227dbde00ffb082bd6d9e44d851e1c7a \
             --output "$RUNNER_TEMP/wheelhouse"
           cp "$RUNNER_TEMP"/topos-candidate/*.whl "$RUNNER_TEMP/wheelhouse/"
           python - <<'PY'
