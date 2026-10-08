@@ -148,6 +148,7 @@ def release_files(root: Path) -> list[Path]:
                             ".docs": {".md", ".json", ".patch", ".xml"}, "wiki": {".md"},
                             ".github/workflows": {".yml"}}.items():
         selected.update(path for path in (root / folder).rglob("*") if path.suffix in suffixes)
+    selected.update(path for path in (root / "tests").rglob("*") if path.name in {"GRD", "ZMAT"})
     selected.update(path for path in (root / ".docs/evidence").rglob("*")
                     if path.suffix in EVIDENCE_TEXT_SUFFIXES)
     result = []

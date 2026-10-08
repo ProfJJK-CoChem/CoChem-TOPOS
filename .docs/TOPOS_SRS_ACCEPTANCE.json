@@ -1,6 +1,6 @@
 {
   "schema_version": "topos-srs-acceptance/0.1.0",
-  "generated_at": "2026-10-08T23:07:45.802336+00:00",
+  "generated_at": "2026-10-08T23:15:35.440619+00:00",
   "srs_sha256": "7e70b41cb15e31c5ef8c2ad98568691c5913bd2e866ce1abdc7d50748b834271",
   "status": "incomplete",
   "interpretation": "Requirement-by-requirement current-source implementation and retained-receipt proposal. Verified means the listed supported-profile software behavior has source-matched passing local tests; it is not full engine/domain or complete release certification. All scientific/native/GPU/hosted conditions remain explicit. This outside candidate is not applied to shared sources.",
@@ -8572,7 +8572,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -8897,7 +8897,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -9398,7 +9398,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -9741,7 +9741,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -10552,7 +10552,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -10816,7 +10816,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -10962,7 +10962,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -11208,7 +11208,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -11538,7 +11538,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -11815,7 +11815,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -12254,7 +12254,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -13051,7 +13051,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -14257,7 +14257,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -14646,7 +14646,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -14975,7 +14975,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -15598,7 +15598,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -16020,7 +16020,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -16448,7 +16448,7 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/scientific_references.py",
@@ -21298,11 +21298,19 @@
         },
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "scripts/assemble_ecosystem_candidate.py",
           "sha256": "29f7bf389526a9c5a814a81e3e6bf7622f5ebda1bb853a04d83a67b3c04989f5"
+        },
+        {
+          "path": "scripts/build_release.py",
+          "sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+        },
+        {
+          "path": "MANIFEST.in",
+          "sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
         }
       ],
       "acceptance_tests": [
@@ -21335,7 +21343,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+          "sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -21352,7 +21360,18 @@
             "test_worker_installer_refuses_controller_ownership_before_pip",
             "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
             "test_release_gate_composes_only_exact_same_source_named_test_results",
-            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets",
+            "test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "test_native_fixture_mutation_invalidates_source_receipt",
+            "test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
           ]
         },
         {
@@ -21525,8 +21544,12 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "MANIFEST.in",
           "scripts/assemble_ecosystem_candidate.py",
-          "tests/v010/test_ecosystem_candidate.py"
+          "scripts/build_release.py",
+          "tests/v010/test_ecosystem_candidate.py",
+          "tests/v010/test_release.py",
+          "topos/release.py"
         ],
         "missing_acceptance_tests": [
           "tests/v010/test_ecosystem_candidate.py::test_archive_paths_cannot_escape_or_alias",
@@ -21543,7 +21566,18 @@
           "tests/v010/test_ecosystem_candidate.py::test_unreviewed_base_version_cannot_join_exact_1_0_1_release_set",
           "tests/v010/test_ecosystem_candidate.py::test_worker_payload_is_checked_even_if_its_archive_hash_is_replaced",
           "tests/v010/test_ecosystem_candidate.py::test_workflow_requires_an_explicit_immutable_base_source_before_checkout",
-          "tests/v010/test_ecosystem_candidate.py::test_workflow_retains_complete_three_source_download"
+          "tests/v010/test_ecosystem_candidate.py::test_workflow_retains_complete_three_source_download",
+          "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+          "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+          "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+          "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+          "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+          "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+          "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+          "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+          "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
         ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
@@ -21600,7 +21634,7 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/orca_geometry_evidence.py",
@@ -21709,6 +21743,14 @@
         {
           "path": "topos/workflow.py",
           "sha256": "7f23041e18ece5a17a55ea22f37b7e15ffc005311d04a51b69a4a36adca93ae0"
+        },
+        {
+          "path": "scripts/build_release.py",
+          "sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+        },
+        {
+          "path": "MANIFEST.in",
+          "sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
         }
       ],
       "acceptance_tests": [
@@ -21794,7 +21836,7 @@
         },
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+          "sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -21811,7 +21853,18 @@
             "test_worker_installer_refuses_controller_ownership_before_pip",
             "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
             "test_release_gate_composes_only_exact_same_source_named_test_results",
-            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets",
+            "test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "test_native_fixture_mutation_invalidates_source_receipt",
+            "test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
           ]
         },
         {
@@ -23143,7 +23196,9 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "MANIFEST.in",
           "scripts/accept_cfour_topos.py",
+          "scripts/build_release.py",
           "tests/v010/fixtures/cfour_2_1_mp2_density_reload/provenance.json",
           "tests/v010/test_base_integration.py",
           "tests/v010/test_cfour_local_acceptance.py",
@@ -23153,6 +23208,7 @@
           "tests/v010/test_matrix_external_route.py",
           "tests/v010/test_ml_gas_environment.py",
           "tests/v010/test_orca_scf_continuation.py",
+          "tests/v010/test_release.py",
           "topos/base_integration.py",
           "topos/capabilities.py",
           "topos/cfour_gradient.py",
@@ -23163,6 +23219,7 @@
           "topos/ml.py",
           "topos/ml_training.py",
           "topos/orca_scf_continuation.py",
+          "topos/release.py",
           "topos/workflow.py"
         ],
         "missing_acceptance_tests": [
@@ -23215,7 +23272,18 @@
           "tests/v010/test_orca_scf_continuation.py::test_incomplete_or_changed_native_profile_never_continues",
           "tests/v010/test_orca_scf_continuation.py::test_native_continuation_cannot_change_the_scientific_input",
           "tests/v010/test_orca_scf_continuation.py::test_native_continuation_without_own_orbital_marker_cannot_be_accepted",
-          "tests/v010/test_orca_scf_continuation.py::test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline"
+          "tests/v010/test_orca_scf_continuation.py::test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline",
+          "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+          "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+          "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+          "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+          "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+          "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+          "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+          "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+          "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
         ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
@@ -23393,7 +23461,7 @@
       "implementation": [
         {
           "path": "topos/release.py",
-          "sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449"
+          "sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
         },
         {
           "path": "topos/matrix_campaign.py",
@@ -23490,12 +23558,20 @@
         {
           "path": "topos/workflow.py",
           "sha256": "7f23041e18ece5a17a55ea22f37b7e15ffc005311d04a51b69a4a36adca93ae0"
+        },
+        {
+          "path": "scripts/build_release.py",
+          "sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+        },
+        {
+          "path": "MANIFEST.in",
+          "sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
         }
       ],
       "acceptance_tests": [
         {
           "path": "tests/v010/test_release.py",
-          "sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+          "sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c",
           "test_functions": [
             "test_candidate_sources_exclude_binaries_caches_and_base_frontend",
             "test_candidate_rejects_symlinked_source_before_build",
@@ -23512,7 +23588,18 @@
             "test_worker_installer_refuses_controller_ownership_before_pip",
             "test_srs_refresh_uses_hashed_named_results_and_preserves_unrelated_native_skip",
             "test_release_gate_composes_only_exact_same_source_named_test_results",
-            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets"
+            "test_hosted_receipts_require_same_selected_run_and_both_native_case_sets",
+            "test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "test_native_fixture_mutation_invalidates_source_receipt",
+            "test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
           ]
         },
         {
@@ -24199,8 +24286,10 @@
         "current_suite_tests": 0,
         "current_suite_skipped": 0,
         "current_receipt_missing_files": [
+          "MANIFEST.in",
           "scripts/accept_cfour_topos.py",
           "scripts/assemble_ecosystem_candidate.py",
+          "scripts/build_release.py",
           "tests/v010/fixtures/cfour_2_1_mp2_density_reload/provenance.json",
           "tests/v010/test_base_integration.py",
           "tests/v010/test_cfour_local_acceptance.py",
@@ -24209,6 +24298,7 @@
           "tests/v010/test_matrix_external_route.py",
           "tests/v010/test_ml_gas_environment.py",
           "tests/v010/test_orca_scf_continuation.py",
+          "tests/v010/test_release.py",
           "topos/base_integration.py",
           "topos/capabilities.py",
           "topos/cfour_gradient.py",
@@ -24219,6 +24309,7 @@
           "topos/ml.py",
           "topos/ml_training.py",
           "topos/orca_scf_continuation.py",
+          "topos/release.py",
           "topos/workflow.py"
         ],
         "missing_acceptance_tests": [
@@ -24272,7 +24363,18 @@
           "tests/v010/test_orca_scf_continuation.py::test_incomplete_or_changed_native_profile_never_continues",
           "tests/v010/test_orca_scf_continuation.py::test_native_continuation_cannot_change_the_scientific_input",
           "tests/v010/test_orca_scf_continuation.py::test_native_continuation_without_own_orbital_marker_cannot_be_accepted",
-          "tests/v010/test_orca_scf_continuation.py::test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline"
+          "tests/v010/test_orca_scf_continuation.py::test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline",
+          "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+          "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+          "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+          "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+          "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+          "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+          "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+          "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+          "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+          "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
         ],
         "skipped_acceptance_tests": [],
         "executed_passing_acceptance_tests": [],
@@ -24472,7 +24574,8 @@
     "The separate current student-source regression receipt TOPOS_COMPLETION_VALIDATION.json retains 2850 outcomes: 2808 passed, 42 explicit skipped cases, zero failures/errors. Its source inventory and JUnit are independently bound; it does not replace historical ef750ea receipts or clear licensed/native/GPU/hosted/all-row/reference conditions.",
     "The fresh NIST main-isotopologue trans-formic-acid comparison is a five-atom monomer diagnostic. It reports equilibrium and ground-state quantities, actual native masses, uncertainty and numeric errors separately. No arbitrary accuracy pass or formal scientific_reference_campaign, noncovalent-complex or matrix clearance is assigned.",
     "The current-source additive candidate preserves all upstream GUI/intake/student-kit assessments and all prior physical conditions. New route, SCF-continuation, explicit-gas, GPU/RSS and CFOUR bindings require a new source-matched unfiltered whole suite; all twenty scientific-reference dispositions remain an outside-source review draft until exact cases, independent tolerances and source/ledger scope are frozen before measurement.",
-    "The genuine CFOUR2.1 memory/reload/indexed-gradient regression binds the current testfile, implementation and provenance, with TOPOS_CFOUR_NATIVE_MEMORY.md as supporting documentation. The unchanged total BASE memory limit and original method/core/basis/SCF/gradient controls remain required. One-evaluation owned native output does not establish a matrix row, optimization, independent accuracy or release pass."
+    "The genuine CFOUR2.1 memory/reload/indexed-gradient regression binds the current testfile, implementation and provenance, with TOPOS_CFOUR_NATIVE_MEMORY.md as supporting documentation. The unchanged total BASE memory limit and original method/core/basis/SCF/gradient controls remain required. One-evaluation owned native output does not establish a matrix row, optimization, independent accuracy or release pass.",
+    "The current GRD/ZMAT scientific-fixture packaging repair is hash-bound to release inventory/build/MANIFEST and named tests. A source-matched whole suite and package checks remain pending; all prior native/scientific/hosted/GPU/matrix conditions and receipts are preserved."
   ],
   "historical_source_change_review": {
     "schema": "topos-srs-source-diff-review/1",
@@ -27044,6 +27147,358 @@
               "previous_sha256": null,
               "current_sha256": "b4304ae5cbb1c2e70d575b8655835bc2cd526c1d2080122fa67e97b7df188f32"
             }
+          ],
+          "previous_status": "verification-pending"
+        }
+      }
+    },
+    {
+      "schema_version": "current-native-fixture-packaging-ledger-rebind/1",
+      "previous_applied_ledger": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\CoChem-TOPOS-current\\.docs\\TOPOS_SRS_ACCEPTANCE.json",
+        "sha256": "d3a91526e21e8e954683a437023b7e28539f32f15cb3c22ee3828edaafccaa4d"
+      },
+      "scope": "Current GRD/ZMAT scientific fixture membership in source_inventory/release_files/MANIFEST and exact regression source; no test/native success or physical clearance assigned.",
+      "requirements_changed": {
+        "TOPOS-010-019": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-020": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-021": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-022": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-023": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-024": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-025": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-026": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-027": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-028": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-029": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-030": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-031": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-032": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-033": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-034": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-035": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-036": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            }
+          ],
+          "implementation_additions": [],
+          "named_test_additions": [],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-048": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            },
+            {
+              "path": "scripts/build_release.py",
+              "previous_sha256": null,
+              "current_sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+            },
+            {
+              "path": "MANIFEST.in",
+              "previous_sha256": null,
+              "current_sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
+            },
+            {
+              "path": "tests/v010/test_release.py",
+              "previous_sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+              "current_sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c"
+            }
+          ],
+          "implementation_additions": [
+            "scripts/build_release.py",
+            "MANIFEST.in"
+          ],
+          "named_test_additions": [
+            "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-049": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            },
+            {
+              "path": "scripts/build_release.py",
+              "previous_sha256": null,
+              "current_sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+            },
+            {
+              "path": "MANIFEST.in",
+              "previous_sha256": null,
+              "current_sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
+            },
+            {
+              "path": "tests/v010/test_release.py",
+              "previous_sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+              "current_sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c"
+            }
+          ],
+          "implementation_additions": [
+            "scripts/build_release.py",
+            "MANIFEST.in"
+          ],
+          "named_test_additions": [
+            "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
+          ],
+          "previous_status": "verification-pending"
+        },
+        "TOPOS-010-050": {
+          "file_hashes": [
+            {
+              "path": "topos/release.py",
+              "previous_sha256": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+              "current_sha256": "d3b319b13ffc1bab2a59f512dbef3af01d3e81dc476a6b2f66d3a5bac07cdf41"
+            },
+            {
+              "path": "scripts/build_release.py",
+              "previous_sha256": null,
+              "current_sha256": "e4348235c751f5d4c3dcbeb65bdba2efb36b10010739dd732f0e56ac8277a14f"
+            },
+            {
+              "path": "MANIFEST.in",
+              "previous_sha256": null,
+              "current_sha256": "b2589bcaeef59f60bc53e64875ff6fb8aef0bcf5c95b4dc4d20ddd8cca5f570a"
+            },
+            {
+              "path": "tests/v010/test_release.py",
+              "previous_sha256": "3b16e4fb426a7a8f12c66f64106a163c6fd1957153c522059d857e3c9576781e",
+              "current_sha256": "81ecfe8ab67f9ac72d3d732589139974bdfd59e9228adfcb0f3b317ac6b0db5c"
+            }
+          ],
+          "implementation_additions": [
+            "scripts/build_release.py",
+            "MANIFEST.in"
+          ],
+          "named_test_additions": [
+            "tests/v010/test_release.py::test_all_retained_indices_survive_actual_source_staging_and_manifest_rules",
+            "tests/v010/test_release.py::test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_built_source_archive_must_keep_each_indexed_member_once_and_unchanged",
+            "tests/v010/test_release.py::test_claimed_campaign_passes_require_reverified_plans_and_actual_runs",
+            "tests/v010/test_release.py::test_empty_objects_cannot_satisfy_any_mandatory_release_evidence",
+            "tests/v010/test_release.py::test_indexed_source_evidence_cannot_be_omitted_rebound_or_corrupted",
+            "tests/v010/test_release.py::test_installed_cli_exposes_acceptance_commands_without_starting_a_calculation",
+            "tests/v010/test_release.py::test_native_fixture_mutation_invalidates_source_receipt",
+            "tests/v010/test_release.py::test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps",
+            "tests/v010/test_release.py::test_scoped_evidence_text_formats_keep_origin_archives_outside_sources",
+            "tests/v010/test_release.py::test_tracked_native_fixtures_survive_candidate_staging_and_source_archive"
           ],
           "previous_status": "verification-pending"
         }

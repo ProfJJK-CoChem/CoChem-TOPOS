@@ -74,9 +74,10 @@ def test_native_provisioning_patch_is_distributed_and_binds_source_identity(tmp_
     assert "recursive-include .docs *.md *.json *.patch *.xml" in (ROOT / "MANIFEST.in").read_text()
 
 
-def test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt(tmp_path):
+@pytest.mark.parametrize("filename", ["carbon12-dboc.out", "GRD", "ZMAT"])
+def test_authentic_out_fixture_ships_and_mutation_invalidates_source_receipt(tmp_path, filename):
     module = script("build_release")
-    fixture = tmp_path / "tests/v010/fixtures/cfour_corrections/carbon12-dboc.out"
+    fixture = tmp_path / "tests/v010/fixtures/cfour_corrections" / filename
     fixture.parent.mkdir(parents=True)
     fixture.write_text("inert parser fixture identity example\n")
     assert fixture in module.release_files(tmp_path)

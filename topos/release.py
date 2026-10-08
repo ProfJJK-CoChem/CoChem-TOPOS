@@ -36,7 +36,8 @@ def source_inventory(root: Path) -> dict[str, str]:
         files.update((root / folder).rglob("*.py"))
     files.update((root / "topos" / "data").glob("*.json"))
     files.update(path for path in (root / "tests").rglob("*")
-                 if path.suffix in {".json", ".txt", ".stdout", ".stderr", ".out", ".hess", ".engrad", ".inp"})
+                 if path.suffix in {".json", ".txt", ".stdout", ".stderr", ".out", ".hess", ".engrad", ".inp"}
+                 or path.name in {"GRD", "ZMAT"})
     files.update((root / ".github" / "workflows").glob("*.yml"))
     files.update((root / ".docs" / "patches").rglob("*.patch"))
     if any(path.is_symlink() for path in files):
