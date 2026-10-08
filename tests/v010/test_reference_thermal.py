@@ -215,7 +215,7 @@ def test_actual_licensed_orca_ordinary_thermal_reference_import(tmp_path):
     backend = "base" if os.environ.get("TOPOS_REQUIRE_BASE") == "1" else "development"
     workflow = Workflow(tmp_path, config=SystemConfig(executables={"orca": binary}, execution_backend=backend))
     record = workflow.run(RunRequest(
-        molecule=water(), engine="orca", method="r2SCAN-3c", engine_version="6.1.1", profile_id="orca-mapping-v4.1",
+        molecule=water(), engine="orca", method="r2SCAN-3c", engine_version="6.1.1", profile_id="orca-mapping-v4.2",
         purpose="thermochemistry", budget_seconds=1200., memory_mb=2048, threads=1,
         thermochemistry_options={"symmetry_number": 2}))
     assert record.status == "completed", record.metadata.get("termination_reason")

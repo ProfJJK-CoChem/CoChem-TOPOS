@@ -89,7 +89,7 @@ def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path, monkeypat
         runtime = BaseRuntime()
         binary = runtime.resolve_executable('orca', binary)
         process_runner = runtime.run_process
-    method = MethodSpec(engine='orca', method='r2SCAN-3c', profile_id='orca-mapping-v4.1')
+    method = MethodSpec(engine='orca', method='r2SCAN-3c', profile_id='orca-mapping-v4.2')
     resources = ResourceLimits(budget_seconds=180, memory_mb=2048)
     optimized = run_engine(water(), method, resources, tmp_path / 'optimize', executable=binary,
                            process_runner=process_runner)
