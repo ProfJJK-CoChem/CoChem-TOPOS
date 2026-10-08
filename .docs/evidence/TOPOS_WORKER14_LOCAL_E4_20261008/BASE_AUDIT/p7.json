@@ -1,0 +1,77 @@
+{
+  "phase_id": "cochem_setup_phase_7",
+  "status": "PASSED",
+  "scheduler_detected": "LOCAL_STANDALONE",
+  "timestamp_utc": "2026-10-07T23:55:17.566033+00:00",
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p7.json",
+  "topology": {
+    "scheduler": "LOCAL_STANDALONE",
+    "job_id": null,
+    "num_nodes": 1,
+    "node_list": [
+      "361c03bd419d"
+    ],
+    "tasks_per_node": [
+      1
+    ],
+    "total_tasks": 1,
+    "cpus_per_task": 5,
+    "cpus_on_node": 5,
+    "is_heterogeneous": false
+  },
+  "memory": {
+    "mem_per_node_mb": null,
+    "mem_per_cpu_mb": null,
+    "cgroup_limit_bytes": 34359738368,
+    "physical_ram_bytes": 35743784960,
+    "effective_usable_memory_mb": 32768.0,
+    "source": "CGROUP"
+  },
+  "scratch": {
+    "scratch_directory": "/home/agent/CoChem_Artifacts/Scratch",
+    "is_accessible": true,
+    "is_writable": true,
+    "free_disk_space_gb": 4.569,
+    "source_variable": "FALLBACK"
+  },
+  "affinity": {
+    "omp_num_threads": 5,
+    "mkl_num_threads": 5,
+    "openblas_num_threads": 5,
+    "blis_num_threads": 5,
+    "omp_places": "cores",
+    "omp_proc_bind": "close",
+    "kmp_affinity": "granularity=fine,compact,1,0",
+    "kmp_blocktime": 0,
+    "environment_variables": {
+      "OMP_NUM_THREADS": "5",
+      "MKL_NUM_THREADS": "5",
+      "OPENBLAS_NUM_THREADS": "5",
+      "BLIS_NUM_THREADS": "5",
+      "OMP_PLACES": "cores",
+      "OMP_PROC_BIND": "close",
+      "KMP_AFFINITY": "granularity=fine,compact,1,0",
+      "KMP_BLOCKTIME": "0"
+    }
+  },
+  "injected_env_vars": {
+    "OMP_NUM_THREADS": "5",
+    "MKL_NUM_THREADS": "5",
+    "OPENBLAS_NUM_THREADS": "5",
+    "BLIS_NUM_THREADS": "5",
+    "OMP_PLACES": "cores",
+    "OMP_PROC_BIND": "close",
+    "KMP_AFFINITY": "granularity=fine,compact,1,0",
+    "KMP_BLOCKTIME": "0",
+    "COCHEM_SCRATCH_DIR": "/home/agent/CoChem_Artifacts/Scratch",
+    "COCHEM_HPC_SCHEDULER": "LOCAL_STANDALONE",
+    "COCHEM_NUM_NODES": "1",
+    "COCHEM_TOTAL_TASKS": "1",
+    "COCHEM_CPUS_PER_TASK": "5",
+    "COCHEM_CPUS_ON_NODE": "5",
+    "COCHEM_MEMORY_PER_NODE_MB": "32768.0",
+    "TMPDIR": "/home/agent/CoChem_Artifacts/Scratch"
+  },
+  "warnings": [],
+  "errors": []
+}

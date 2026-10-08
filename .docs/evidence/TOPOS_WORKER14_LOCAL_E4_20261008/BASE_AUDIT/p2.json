@@ -1,0 +1,49 @@
+{
+  "phase_id": "PHASE_2_HARDWARE_RESOURCE_GATEKEEPER",
+  "status": "DEGRADED",
+  "timestamp_utc": "2026-10-07T23:54:53.790954+00:00",
+  "memory": {
+    "total_bytes": 35743784960,
+    "available_bytes": 33915482112,
+    "swap_total_bytes": 0,
+    "swap_free_bytes": 0,
+    "cgroup_memory_limit_bytes": 34359738368,
+    "cgroup_swap_limit_bytes": null,
+    "is_cgroup_constrained": true,
+    "effective_memory_bytes": 34359738368
+  },
+  "cpu": {
+    "physical_cores": 5,
+    "logical_cores": 5,
+    "frequency_mhz": 2596.144,
+    "cgroup_cpu_quota_us": 400000,
+    "cgroup_cpu_period_us": 100000,
+    "cgroup_effective_cpus": 4.0,
+    "cpu_affinity_count": 5,
+    "architecture": "x86_64"
+  },
+  "gpu": {
+    "available": false,
+    "vendor_summary": {},
+    "devices": [],
+    "cuda_available": false,
+    "rocm_available": false,
+    "oneapi_available": false,
+    "degraded_fallback": true
+  },
+  "precision": {
+    "float32_epsilon": 1.1920928955078125e-7,
+    "float64_epsilon": 2.220446049250313e-16,
+    "subnormal_supported": true,
+    "smallest_subnormal_f64": 5e-324,
+    "smallest_normal_f64": 2.2250738585072014e-308,
+    "subnormal_arithmetic_valid": true,
+    "precision_intact": true,
+    "precision_message": "Float Precision: Intact"
+  },
+  "warnings": [
+    "No hardware GPU accelerator detected or accessible; falling back to CPU execution mode."
+  ],
+  "errors": [],
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p2.json"
+}
