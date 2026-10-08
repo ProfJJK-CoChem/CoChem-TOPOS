@@ -9,41 +9,67 @@ complete the remaining physical campaigns.
 The original catalog has 140 rows: 44 belong to TOPOS and 96 to TORQ. The matrix
 explicitly omits **T3C-10s and T3C-1min**; these are preserved as unavailable
 source protocol entries. Both month-tier routes have conditional implementations.
-Native CFOUR execution still needs verification.
+Current-source TOPOS CFOUR execution still needs verification; BASE has separately verified native providers.
 
-## Current completion work — 8 October 2026
+## Current completion work — 7 October 2026, America/Chicago
 
-The executable source at `3c28253` adds full CFOUR runtime-seal authorization,
-pre/post native-input integrity, component-recovery checks, and parsing of the
-genuine inline and two-line native invocation formats. Its focused parser,
-runtime and distribution checks passed; it has not yet completed current-source
-native CFOUR acceptance. See the
-[CFOUR compatibility boundary](TOPOS_CFOUR_BASE_COMPATIBILITY.md).
+Evidence below was retained on 8 October 2026 UTC. The reviewed executable
+source is `2082d04dccf593a9186238ac5a9a73253b5c4d5e`; it is an interim source
+milestone, with final SRS, installation and scientific acceptance still pending.
 
-The SPECIAL-basis counterpoise reader now recognizes the actual 2.1 asterisk
-framing and the retained historical dashed format. Its 62 parser regressions
-passed, including ambiguous/missing input and native-control rejection. This
-transport repair establishes no successful native counterpoise calculation.
-The remaining `T3C-1h` gap is electric-field-gradient tensor handling: the archived
-row explicitly requires EFGs as well as dipoles. An energy/dipole result cannot
-certify that entire row while its EFG handling is incomplete.
+CFOUR runtime authorization, newline-only native controls, framed control-table
+parsing, mandatory `qcengine==0.51.0`/`qcelemental==0.51.2` preflight and controlled
+scientific exports are implemented. Native GENBAS/ECPDATA and scratch assets are
+excluded from scientific bundles; their separately controlled identities remain
+bound to receipts. Original native failures remain preserved.
 
-The reviewed BASE foundation `14202e1` combines the scientific integration
-`0a8392b` with BASE 1.0.1 `main` (`c3b20e1`). Its exact merged tree passed 299
-focused checks with zero skips and was pushed to the integration branch; the
-original six generated metadata files were preserved. TOPOS now requires exactly
-BASE 1.0.1 and its workflow defaults identify that reviewed foundation. The final
-installer catalog revision must be supplied as an immutable dispatch input after
-the TOPOS wheel is frozen. Stock version numbers do not establish compatibility
-with TOPOS's complete runtime requirements.
+T3C-1h now acquires the genuine correlated CCSD(T) dipole and indexed EFG, checks
+completed lambda/density/property ordering, preserves raw tensor/frame evidence,
+and reparses immutable files before recovery. Explicit isotope, signed nuclear Q,
+spin and independent source declarations support conditional Cartesian or rigid
+inertial χ. Source-reported uncertainty is preserved without inventing k=1
+standard errors. The expanded focused regression at this source passed
+**561 tests, with one explicit optional-Psi4 skip** and zero failures/errors;
+this is not a final whole-suite or native calculation receipt.
 
-The isotope handoff retains raw XYZ bytes and requires indexed nuclear labels
-to agree with the explicit TOPOS request. Its integrated package/handoff subset
-passed 102 tests with zero skips, including a real BASE/xTB handoff against the
-existing historical registry. This is focused source-change evidence, not a new
-final-source whole suite or mandatory installation. The typed installer remains
-under review. Final source, worker, setup, installation and native receipts must
-use the same reviewed source and actual installation.
+[Native CFOUR run 37717679093](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37717679093)
+produced actual CCSD(T) energy and correlated dipole/EFG with successful native
+programs, but its TOPOS component failed because `qcengine` was missing. Its
+original outcome and scientific archive remain unchanged. Offline parsing repairs
+do not relabel that job as completed TOPOS acceptance. Its three-atom water
+control does not satisfy the matrix's target-complex domain.
+
+The independently reviewed empirical operator profile is now implemented. It
+requires the exact packaged inventory/xprops identity, complete fresh BASE
+pre/post authorization, and checked raw correlated density/property receipts.
+The direct evidence is RHF operator conformance; applying that same-build
+operator to the separately attributed CCSD(T) density is explicitly an inference.
+With explicit indexed nuclear inputs and all requested frames, the computational
+full-row path is reachable. Caller-only unit/sign declarations remain conditional.
+No new native full-row, correlated accuracy or release acceptance follows from
+this implementation. See the [EFG policy](TOPOS_CFOUR_EFG_POLICY.md).
+
+The reviewed BASE foundation `14202e182e1fa4f99258ed32a8ae9ba8c1c565ad`
+combines the scientific integration with BASE 1.0.1. Its exact tree passed 299
+focused checks with zero skips; the six original generated metadata files were
+preserved. TOPOS requires exactly BASE 1.0.1, and workflow defaults identify this
+foundation. Package version strings alone do not establish runtime compatibility.
+
+The raw-XYZ isotope handoff now verifies atom order, coordinates, explicit nuclear
+labels and the typed TOPOS request without rewriting original evidence. Its
+focused 102-test subset passed with zero skips, including genuine BASE/xTB
+handoff. Final installation must still repeat the actual source-bound ecosystem
+checks.
+
+The outside 21-file mandatory BASE installer/broker/surface/export proposal
+passed 207 source/transport checks with zero skips. Five separately run installed
+checks also passed, but their borrowed dependency environment failed `pip check`
+against old TOPOS metadata. The separately reviewed 22-file revision adds a
+complete source-content anchor and rejects unexpected bootstrap imports before
+loading source code; actual artifact binding and shared integration remain pending. These
+results do not establish a fresh final BASE/TOPOS/TORQ installation, catalog,
+reproducible kit, or release. The final installer catalog must bind the actual
+frozen TOPOS wheel and setup helper before those gates can be assessed.
 
 ## Verified source milestones
 
@@ -127,11 +153,51 @@ span was 212.200704 seconds. No repeat gradient was executed. These results
 support a more stringent SCF investigation, not a passed diagnostic,
 current-source acceptance or a repair of the separate R2 reference failure.
 
+The subsequent [mode-0 plus TolE diagnostic 37713499250](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37713499250)
+passed its separately controlled scientific conditions. `ConvCheckMode 0` and
+`TolE 1e-10` retained the original Hamiltonian, grids, physical stopping guards,
+two CPU workers, 2048 MB and shared 900-second native budget. Independent checks
+verified all five optimizer criteria, a stationary fresh gradient, exact native
+pose, optimizer/gradient energy consistency and repeated cold density convergence.
+The energy gap was `5.583004e-9` hartree; cold repeated RMS density change was
+`1.7473e-10`, below the unchanged `5e-9` guard. The ordinary production profile
+`orca-mapping-v4.2` was explicitly adopted at `0d901f75a37c6e0921bf70572d57df30e45972c7`;
+the strict VPT2 reference remains a distinct protocol. Legacy profiles/caches are
+not silently relabeled. This narrow water calibration does not complete R2,
+all matrix rows, independent reference accuracy or current-source release gates.
+
+## Hosted scheduling and product profile
+
+[TOPOS CI 37723914727](https://github.com/ProfJJK-CoChem/CoChem-TOPOS/actions/runs/37723914727)
+at `b71908d` and [BASE CI 37723351559](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37723351559)
+at `e6955f8`
+were rejected before runner assignment: runner ID zero, no executed steps.
+GitHub reported: “The job was not started because recent account payments have
+failed or your spending limit needs to be increased. Please check the 'Billing &
+plans' section in your settings”. No test or native calculation ran in these
+jobs. This account scheduling failure does not negate the earlier verified
+ORCA/CFOUR provider availability.
+
+The reviewed ORCA acceptance controller was published at
+`518c948dcfdd5c9b48576d7846332f218159c8ee`, bound to interim TOPOS `3bb003f`,
+BASE `14202e1` and TORQ `79fbb11`. **No dispatch or native attempt occurred**;
+dispatch remains held while hosted jobs are blocked. It must be rebound and
+reviewed if used to accept a later source.
+
+The downloadable product's generic protected hosted worker supports xTB/CREST/
+ORCA installations only, with requests capped at four hours, four cores and
+12 GiB. CFOUR, Psi4, ABCluster, ML/GPU and TOPOS-only matrix routes are not
+provisioned by that generic worker. The separately protected BASE diagnostic
+providers establish their own provider availability; they do not expand this
+product deployment profile. All 42 compiled recipes are subject to their local
+BASE-authorized engine/domain requirements and separate authentic acceptance.
+
 ## Remaining release conditions
 
 Release requires the final source's full regression and installation evidence,
 complete native ORCA acceptance including all named licensed tests, physical GPU
-and CFOUR execution, all 42 BASE-authorized matrix rows, and deployed hosted
+and CFOUR execution, all 42 BASE-authorized matrix rows in their explicitly reviewed isolated-gas
+5–10-atom noncovalent-complex cases with at least two declared fragments, and deployed hosted
 completion/expiry/cancellation/retrieval acceptance. The protected controller's
 bootstrap and canonical-request corrections are prepared separately.
 
