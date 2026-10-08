@@ -91,7 +91,7 @@ def accept(wheelhouse: Path, registry: Path, output: Path, *, constraints: Path 
             "import topos; from topos.base_provider import metadata; "
             "assert metadata()['integration_contract']=='cochem.module-handoff/1'; "
             "assert Path(d.__file__).is_relative_to(Path(__import__('sys').prefix)); "
-            "assert m.version('CoChem-BASE')=='1.0.0' and m.version('CoChem-TORQ')=='0.1.0'"
+            "assert m.version('CoChem-BASE')=='1.0.1' and m.version('CoChem-TORQ')=='0.1.0'"
         )
         for number, order in enumerate((("cochem-base", "cochem-torq"), ("cochem-torq", "cochem-base")), start=1):
             for name in order:

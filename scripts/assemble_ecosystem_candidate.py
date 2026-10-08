@@ -26,8 +26,8 @@ sys.path.insert(0, str(SCRIPT_ROOT))
 from build_release import DEFAULT_EPOCH, normalize_archive  # noqa: E402
 from setup_ecosystem import verified_release_wheels  # noqa: E402
 
-PROJECTS = {"base": "1.0.0", "torq": "0.1.0"}
-PACKAGE_VERSIONS = {"cochem-base": "1.0.0", "cochem-topos": "0.1.0", "cochem-torq": "0.1.0"}
+PROJECTS = {"base": "1.0.1", "torq": "0.1.0"}
+PACKAGE_VERSIONS = {"cochem-base": "1.0.1", "cochem-topos": "0.1.0", "cochem-torq": "0.1.0"}
 MODEL_SUFFIXES = {".pt", ".pth", ".safetensors", ".onnx", ".ckpt", ".gguf"}
 
 
@@ -314,7 +314,7 @@ def verify_inputs(candidate: Path, wheelhouse: Path, installation: Path) -> dict
 
 INSTALL_README = """# CoChem TOPOS 0.1.0 unsigned installation candidate
 
-This complete package contains BASE 1.0.0, TOPOS 0.1.0 and TORQ 0.1.0,
+This complete package contains BASE 1.0.1, TOPOS 0.1.0 and TORQ 0.1.0,
 matching source archives, wheels, an isolated ML worker and actual installation
 evidence. It is unsigned and unpublished. Read `evidence/release-gate.json` for
 scientific acceptance status and remaining blockers; building this kit does not
@@ -333,7 +333,7 @@ sha256sum --check SHA256SUMS
 mkdir source
 for archive in sources/*.tar.gz; do tar -xzf "$archive" -C source; done
 python source/cochem_topos-0.1.0/scripts/setup_ecosystem.py \\
-  --base-root source/cochem_base-1.0.0 \\
+  --base-root source/cochem_base-1.0.1 \\
   --torq-root source/cochem_torq-0.1.0 \\
   --wheelhouse wheels \\
   --artifacts /absolute/path/outside/sources/CoChem-0.1.0-runtime
