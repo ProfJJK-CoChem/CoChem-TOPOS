@@ -41,19 +41,41 @@ class NuclearDataSource(Contract):
 
 
 class NuclearQuadrupoleMoment(Contract):
-    """Signed spectroscopic Q (area, not e*area) with standard uncertainty."""
+    """Signed spectroscopic Q with an explicit sourced uncertainty interpretation.
+
+    A publication's reported error is not automatically a k=1 standard
+    uncertainty. The two branches remain distinct throughout conversion.
+    """
 
     atom_id: str = Field(min_length=1)
     symbol: str = Field(min_length=1)
     mass_number: int = Field(ge=1, strict=True)
     nuclear_spin_twice: int = Field(ge=2, strict=True)
     signed_q_millibarn: float = Field(strict=True)
-    q_standard_uncertainty_millibarn: float = Field(ge=0, strict=True)
+    q_standard_uncertainty_millibarn: float | None = Field(default=None, ge=0, strict=True)
+    q_reported_uncertainty_millibarn: float | None = Field(default=None, ge=0, strict=True)
+    q_reported_uncertainty_policy: str | None = Field(default=None, min_length=8)
     q_convention: Literal["spectroscopic-signed-area"] = "spectroscopic-signed-area"
-    uncertainty_convention: Literal["standard-uncertainty-k1"] = "standard-uncertainty-k1"
+    uncertainty_convention: Literal["standard-uncertainty-k1", "reported-source-uncertainty"] = "standard-uncertainty-k1"
     spin_source: NuclearDataSource
     q_source: NuclearDataSource
     q_uncertainty_source: NuclearDataSource
+
+    @model_validator(mode="after")
+    def explicit_uncertainty_interpretation(self):
+        if self.uncertainty_convention == "standard-uncertainty-k1":
+            if self.q_standard_uncertainty_millibarn is None:
+                raise ValueError("A k=1 standard nuclear uncertainty must be supplied explicitly")
+            if self.q_reported_uncertainty_millibarn is not None or self.q_reported_uncertainty_policy is not None:
+                raise ValueError("Standard and reported nuclear uncertainty declarations cannot be mixed")
+        else:
+            if self.q_reported_uncertainty_millibarn is None:
+                raise ValueError("A reported nuclear uncertainty must be supplied explicitly")
+            if self.q_standard_uncertainty_millibarn is not None:
+                raise ValueError("Reported nuclear uncertainty cannot be relabeled as a k=1 standard uncertainty")
+            if self.q_reported_uncertainty_policy is None or not self.q_reported_uncertainty_policy.strip():
+                raise ValueError("Reported nuclear uncertainty requires the source's explicit interpretation or policy")
+        return self
 
 
 class CfourEfgConventionDeclaration(Contract):
@@ -217,9 +239,12 @@ def nuclear_quadrupole_couplings(molecule: Molecule, tensors_atomic_units: Any,
         factor = MATRIX_QUADRUPOLE_FACTOR
         coupling = factor * nucleus.signed_q_millibarn * tensor
         principal = principal_efg(tensor, bound)
-        # All component uncertainties from Q share the same random scalar. Store
-        # the signed sensitivity, not independent uncorrelated error bars.
+        # Store the signed Q sensitivity. Only an explicitly declared k=1
+        # uncertainty supports standard component errors; a reported source
+        # error supplies no inferred distribution, coverage factor or interval.
         sensitivity = factor * tensor
+        standard_uncertainty = (np.abs(sensitivity) * nucleus.q_standard_uncertainty_millibarn
+                                if nucleus.q_standard_uncertainty_millibarn is not None else None)
         results.append({"atom_id": nucleus.atom_id, "atom_index": index,
                         "nuclear_data": nucleus.model_dump(mode="json"),
                         "coupling_tensor_khz": coupling.tolist(),
@@ -227,8 +252,12 @@ def nuclear_quadrupole_couplings(molecule: Molecule, tensors_atomic_units: Any,
                             principal["principal_values_atomic_units"])).tolist(),
                         "efg_principal_axes": principal,
                         "q_sensitivity_khz_per_millibarn": sensitivity.tolist(),
-                        "q_only_component_standard_uncertainty_khz": (np.abs(sensitivity) *
-                            nucleus.q_standard_uncertainty_millibarn).tolist(),
+                        "q_only_component_standard_uncertainty_khz": (
+                            standard_uncertainty.tolist() if standard_uncertainty is not None else None),
+                        "q_uncertainty_propagation": (
+                            "Declared k=1 Q-only standard uncertainty; tensor components share the same scalar Q"
+                            if standard_uncertainty is not None else
+                            "Source-reported nuclear uncertainty retained without inferred coverage, distribution or standard error bars"),
                         "efg_printing_component_absolute_bound_khz": (abs(factor *
                             nucleus.signed_q_millibarn) * bound).tolist()})
     return {"conversion_factor": MATRIX_QUADRUPOLE_FACTOR,
@@ -239,7 +268,8 @@ def nuclear_quadrupole_couplings(molecule: Molecule, tensors_atomic_units: Any,
             "nuclear_data_independently_verified": False,
             "full_uncertainty_available": False,
             "limitations": ["Nuclear citations and signed values are explicit caller declarations, not independently verified here",
-                            "Q-only standard uncertainty is fully correlated across tensor components",
+                            "Where explicitly supplied, Q-only k=1 standard uncertainty is fully correlated across tensor components",
+                            "Source-reported nuclear uncertainty is retained verbatim; no standard error bars or statistical coverage are inferred",
                             "EFG printing bounds exclude electronic-structure, basis, vibrational and legacy-factor error",
                             "EFG printing bounds exclude uncertainty of inferred coordinate rotations and isotope/geometry inertia axes",
                             "Fixed-geometry electronic tensor; no vibrational averaging or geometry optimization claim"]}
@@ -283,7 +313,7 @@ def inertial_quadrupole_couplings(molecule: Molecule, cartesian_couplings: dict[
     if np.linalg.det(axes) < 0:
         axes[:, -1] *= -1
     outputs = []
-    for item in cartesian_couplings["couplings"]:
+    for item, target in zip(cartesian_couplings["couplings"], targets, strict=True):
         tensor = np.asarray(item["coupling_tensor_khz"], dtype=float)
         bounds = np.asarray(item["efg_printing_component_absolute_bound_khz"], dtype=float)
         sensitivity = np.asarray(item["q_sensitivity_khz_per_millibarn"], dtype=float)
@@ -294,7 +324,11 @@ def inertial_quadrupole_couplings(molecule: Molecule, cartesian_couplings: dict[
             "chi_aa_bb_cc_khz": np.diag(transformed).tolist() if resolved else None,
             "q_sensitivity_abc_khz_per_millibarn": transformed_sensitivity.tolist() if resolved else None,
             "q_only_component_standard_uncertainty_abc_khz": (np.abs(transformed_sensitivity) *
-                item["nuclear_data"]["q_standard_uncertainty_millibarn"]).tolist() if resolved else None,
+                target.q_standard_uncertainty_millibarn).tolist()
+                if resolved and target.q_standard_uncertainty_millibarn is not None else None,
+            "q_uncertainty_convention": target.uncertainty_convention,
+            "q_reported_uncertainty_millibarn": target.q_reported_uncertainty_millibarn,
+            "q_reported_uncertainty_policy": target.q_reported_uncertainty_policy,
             "efg_printing_component_absolute_bound_abc_khz": (np.abs(axes).T @ bounds @
                 np.abs(axes)).tolist() if resolved else None})
     return {"frame": "fixed-geometry rigid inertial axes a,b,c ordered by increasing moments",
@@ -317,7 +351,7 @@ def first_order_quadrupole_output(molecule: Molecule, efg: dict[str, Any],
     validate_quadrupole_targets(molecule, nuclei)
     couplings, reasons = None, []
     if not nuclei:
-        reasons.append("Explicit indexed isotope, signed nuclear Q, spin, standard uncertainty and independent citations are required for chi")
+        reasons.append("Explicit indexed isotope, signed nuclear Q, spin, sourced uncertainty interpretation and independent citations are required for chi")
     if efg.get("native_convention_declaration") is None:
         reasons.append("The native EFG unit/sign convention is unresolved")
     elif nuclei:
