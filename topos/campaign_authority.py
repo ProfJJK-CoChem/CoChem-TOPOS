@@ -223,6 +223,26 @@ def base_authority_evidence(record: dict[str, Any], store: RunStore,
                 controlled_dependencies={name: {"path": item.get("path"), "sha256": item.get("sha256"),
                     "size_bytes": item.get("bytes")} for name, item in
                     native.get("runtime_metadata", {}).get("basis", {}).items() if isinstance(item, dict)})
+            protocol_data = metadata.get("requested_protocol", {})
+            if protocol_data.get("operation") == "first-order-properties":
+                from .cfour_efg import verify_cfour_property_recovery
+                from .cfour_operator import property_operator_authority
+                from .models import Molecule
+
+                paths = [confined_file(snapshot, artifact["path"]) for artifact in attempt["artifacts"]]
+                molecule = Molecule.model_validate(metadata.get("input_molecule"))
+                observation = metadata["native_result"]["metadata"]["native_result"]
+                verify_cfour_property_recovery(snapshot, paths, molecule, protocol_data, observation, retained_authority)
+                runtime = native.get("runtime_metadata", {})
+                helper = runtime.get("helpers", {}).get("xprops", {})
+                expected_property = {"schema": "topos-cfour-property-runtime/1", "runtime_authority": retained_authority,
+                    "mode": runtime.get("mode"), "native_version": runtime.get("version"),
+                    "runtime_inventory_sha256": runtime.get("runtime_inventory_sha256"),
+                    "xprops": {key: helper.get(key) for key in ("path", "sha256", "bytes")}}
+                operator = property_operator_authority(snapshot, paths, retained_authority, molecule, protocol_data,
+                    current_property_runtime=expected_property)
+                cfour_proof["first_order_raw_scientific_evidence_reparsed"] = True
+                cfour_proof["efg_operator_evidence"] = operator.metadata() if operator is not None else None
         if observed != native["hash"]:
             raise IntegrityError("Observed native executable identity differs from its retained BASE audit")
         proofs.append({"attempt_id": attempt["attempt_id"], "registry_sha256": digest,

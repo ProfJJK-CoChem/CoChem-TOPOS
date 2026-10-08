@@ -167,6 +167,6 @@ directories. Neither this policy nor a successful storage regression establishes
 EFG or full-matrix scientific acceptance.
 
 For T3C-1h correlated EFG acquisition, explicit signed nuclear-Q inputs,
-conditional Cartesian/inertial chi conversion and unresolved independent native
-unit/sign authority, see [the CFOUR EFG policy](TOPOS_CFOUR_EFG_POLICY.md).
+Cartesian/inertial chi conversion, exact-build empirical operator admission and
+conditional fallbacks, see [the CFOUR EFG policy](TOPOS_CFOUR_EFG_POLICY.md).
 Dipole-only or caller-declared-convention results cannot complete that row.

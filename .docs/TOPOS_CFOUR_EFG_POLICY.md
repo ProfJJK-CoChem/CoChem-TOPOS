@@ -1,4 +1,4 @@
-# CFOUR T3C-1h: correlated EFG acquisition and conditional nuclear conversion
+# CFOUR T3C-1h: correlated EFG acquisition and sourced nuclear conversion
 
 T3C-1h requires fixed-geometry native **CCSD(T)/cc-pVTZ**, `PROPS=FIRST_ORDER`,
 correlated dipole components and **EFG → χ**. `PVTZ` remains the reviewed native
@@ -64,7 +64,7 @@ rotation from coordinate printing/alignment, requested geometry and isotope
 inertial axes is not propagated. These conditional component bounds are not a
 complete Cartesian-frame or inertial-frame physical uncertainty bound.
 
-## Unresolved independent native units and sign
+## Native units/sign and independently checked operator admission
 
 The genuine output prints “Electric field gradient” without an EFG atomic-unit
 or physical sign label. An atomic field-gradient unit is known independently
@@ -96,16 +96,68 @@ within their own print precision. Maximum discrepancy is
 4.13268937568×10⁻⁶ kHz, below the 5.03359995782×10⁻⁶ kHz combined native
 print bound. The physical Q uncertainty is separate and does not excuse a
 numerical conversion mismatch. This establishes **internal legacy conversion
-consistency**, while physical native sign/unit authority remains unverified.
+consistency**; it does not independently establish physical native sign/units.
 It supplies no automatic isotope assignment or default nuclear input.
 
 The pinned open PySCF property implementation explicitly constructs the total
 potential-Hessian tensor from nuclear minus electronic contributions and uses
 eQV/h with atomic EFG units [7]. This corroborates the general convention and
-conversion used by the conditional mathematics. It does not establish CFOUR's
-native operator convention; no PySCF calculation was performed.
+conversion used by the mathematics. The source alone does not establish
+CFOUR's native convention.
 
-Accordingly raw acquisition reports `native-unlabeled-EFG-components` and
+A separately executed public **PySCF 2.14.0 RHF/cc-pVTZ** calculation used the
+retained native fifteen-decimal-bohr MOL coordinates and independently sourced
+public basis [8]. Its RHF energy agrees within 2.70×10⁻¹³ Eh, all 58 orbital
+energies within 1.89×10⁻¹⁰ Eh, and all 27 SCF EFG components within
+3.12×10⁻⁹ atomic units. The prospective EFG limit was 10⁻⁷ au and was not
+adjusted after measurement. No fitted rotation, sign, scale or atom permutation
+was applied. Sign reversal, ×1000/×0.001 scale changes, and omission of either
+nuclear or electronic contributions reject. Independent review re-evaluated
+the public integral kernel on the retained converged density and checked every
+installed wheel member and retained source/proof hash.
+
+This is **direct empirical RHF operator conformance**, distinct from numerical
+CCSD(T) accuracy. The original same successfully completed xprops invocation
+contains separate SCF and correlated tables. Applying the same exact-build
+traceless nuclear-minus-electronic operator convention to the explicitly
+attributed CCSD(T) density is an **inference**, recorded as such in every
+admitted operator/χ result. It is not an independent correlated-density
+benchmark, arbitrary-method validation, full campaign or release certificate.
+
+The compiled profile requires both stable identities:
+
+- Approved complete packaged inventory SHA-256
+  `e9a59cfcaeed3df210d8276b7d3055aed68ba082b2dbc31e826b8eafebd4e286`.
+- Actual xprops SHA-256
+  `53d4040eedbc7616cf62732b49c2e2ef14aa157d1122b6d029a87afb1c7cf72b`,
+  exactly 113368 bytes.
+
+Protocol admission is currently CFOUR 2.1 **CCSD(T) FIRST_ORDER**, explicitly
+all electrons correlated, spherical cc-pVTZ/PVTZ, neutral closed-shell vacuum.
+The empirical profile concerns the same-build operator convention; it supplies
+no accuracy estimate for other molecular geometries or nuclei. Other native
+builds, versions, bases, core treatments, charge/spin or environment choices
+retain acquisition and the conditional fallback until separately reviewed.
+
+BASE independently re-verifies the actual installed complete runtime and
+extracts the property fingerprint before and after FIRST_ORDER execution.
+The recorded complete runtime seal includes path-dependent launcher, helpers,
+basis and environment bindings; stable inventory/xprops hashes do not replace
+that seal. Raw process receipts bind both fingerprints to the complete
+authority and exact input/stdout/stderr hashes. A protocol version or caller
+flag cannot select this profile. Recovery freshly parses the correlated
+density, every tensor/frame/token/rounding field, and the adjacent native
+receipt. The internal immutable context binds this complete parsed acquisition;
+a copied JSON assertion cannot authorize χ. Offline campaign verification also
+compares the fingerprint against the retained audited Stage0 metadata.
+
+Historical R4 receipts **lack this new property context**. Their raw data and
+failed hosted status remain unchanged and conditional even though separately
+inspected Registry metadata identifies the calibrated binary. No historical
+receipt is rewritten or upgraded.
+
+Without admitted exact-build raw receipt context, acquisition reports
+`native-unlabeled-EFG-components` and
 `native_unit_sign_independently_verified=false`. An optional typed
 `external_protocol.efg_convention` requires exact CFOUR 2.1, the explicitly
 declared atomic unit, traceless-electrostatic-potential-Hessian and total contribution
@@ -113,8 +165,10 @@ conventions, an independent citation/value locator, reviewer, timezone-aware
 past timestamp, and nonblank scientific reason. This **caller declaration is
 not independently verified authority**. It permits only a labeled conditional
 numerical conversion for human review. It cannot promote T3C-1h to full-row or
-release acceptance. A separately reviewed independent native-convention source
-is still required before compiling a positive scientific-authority rule.
+release acceptance. Admitted new raw receipts report atomic EFG units,
+`native_unit_sign_independently_verified=true`, and the full compiled empirical
+profile with its explicit correlated-operator inference boundary. Nuclear data
+and correlated accuracy remain separate.
 
 ## Explicit nuclear inputs and axes
 
@@ -175,6 +229,18 @@ record stays **partial, human-review, full_matrix_row_completed=false**,
 including when conditional χ values can be calculated. Native dipole and EFG
 quantities are stored separately; the EFG quantity remains human-review.
 
+The computational full-row path is reachable only when a new verified native
+component has the admitted operator receipt, exact CCSD(T) density/dipole/EFG,
+explicit indexed isotope/spin/signed-Q/citations/uncertainty interpretation,
+and every requested tensor frame (including all explicit isotope masses for
+rigid-inertial output). Missing Q leaves χ null; missing operator context or
+caller-only convention leaves the row partial. `full_matrix_row_completed`
+reports **computational coverage**, while nuclear citations remain explicit
+caller declarations and χ remains human-review. It does not certify measured
+accuracy, independent nuclear-data adoption, global native campaign acceptance
+or release readiness. The original diagnostic and mathematical/transport tests
+do not establish current native full-row completion.
+
 ## Sources
 
 1. Archived `topos/data/method_matrix_v4.py`, T3C-1h, original source lines
@@ -210,6 +276,20 @@ quantities are stored separately; the EFG quantity remains human-review.
    Lines 90–93/160–169 define its nuclear-minus-electronic potential-Hessian
    convention; lines 133/141–154 give atomic-unit labeling and eQV/h conversion.
    This is general open implementation evidence, not native CFOUR authority.
+8. Independently executed PySCF 2.14.0 RHF operator diagnostic, retained as
+   `pyscf-cfour-scf-efg-20261008`, producer `FINAL_RECEIPT.json` SHA-256
+   `761ec90e63a2a3ee125ff238d97823872e8a7ef8f16eee87dc16c5116e45536d`.
+   Independent empirical review SHA-256
+   `b56d554d4054eb35e5401e719b060735fd1d913f6c47e4e69f698f423993eda6`;
+   independent native inventory/complete-seal metadata review SHA-256
+   `ac822f283e040d370065f4a1083571175e6bdd5aa8e89c68544c575f32b35969`.
+   The compiled evidence identifiers are retained in `topos/cfour_operator.py`.
+   The raw native target is the original artifact from [2]. The empirical target
+   is its SCF-density block, never the distinct CCSD(T) EFG file. Public basis
+   span and every printed native entry agree; unprinted native GENBAS columns
+   are not claimed bytewise verified. This source admits only the explicitly
+   scoped empirical operator convention; it supplies no current native full-row
+   or correlated accuracy acceptance.
 
 [2]: https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37717679093
 [3]: https://github.com/RagnarB83/ash-documentation/blob/1230964f43ebe62fa894527794d9b85b39ecbf96/docs/CFour-interface.rst
