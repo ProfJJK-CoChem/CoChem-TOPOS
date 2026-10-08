@@ -1,0 +1,99 @@
+﻿2026-10-07T22:56:20.7609246Z ##[group]Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+2026-10-07T22:56:20.7610326Z with:
+2026-10-07T22:56:20.7610800Z   persist-credentials: false
+2026-10-07T22:56:20.7611360Z   repository: ProfJJK-CoChem/CoChem-TOPOS
+2026-10-07T22:56:20.7615155Z   token: ***
+2026-10-07T22:56:20.7615608Z   ssh-strict: true
+2026-10-07T22:56:20.7616055Z   ssh-user: git
+2026-10-07T22:56:20.7616487Z   clean: true
+2026-10-07T22:56:20.7616950Z   sparse-checkout-cone-mode: true
+2026-10-07T22:56:20.7617697Z   fetch-depth: 1
+2026-10-07T22:56:20.7618158Z   fetch-tags: false
+2026-10-07T22:56:20.7618618Z   show-progress: true
+2026-10-07T22:56:20.7619073Z   lfs: false
+2026-10-07T22:56:20.7619500Z   submodules: false
+2026-10-07T22:56:20.7619957Z   set-safe-directory: true
+2026-10-07T22:56:20.7620810Z env:
+2026-10-07T22:56:20.7621286Z   TOPOS_REQUIRE_REAL_ENGINES: 1
+2026-10-07T22:56:20.7621869Z   TOPOS_EXECUTION_BACKEND: development
+2026-10-07T22:56:20.7622425Z   OMP_NUM_THREADS: 1
+2026-10-07T22:56:20.7622893Z   OPENBLAS_NUM_THREADS: 1
+2026-10-07T22:56:20.7623401Z ##[endgroup]
+2026-10-07T22:56:20.9750682Z Syncing repository: ProfJJK-CoChem/CoChem-TOPOS
+2026-10-07T22:56:20.9752668Z ##[group]Getting Git version info
+2026-10-07T22:56:20.9753910Z Working directory is '/home/runner/work/CoChem-TOPOS/CoChem-TOPOS'
+2026-10-07T22:56:20.9755035Z [command]/usr/bin/git version
+2026-10-07T22:56:20.9755554Z git version 2.55.0
+2026-10-07T22:56:20.9757899Z ##[endgroup]
+2026-10-07T22:56:20.9762886Z Temporarily overriding HOME='/home/runner/work/_temp/b80bffe0-dc53-4bc1-b049-15b79e66882b' before making global git config changes
+2026-10-07T22:56:20.9764834Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T22:56:20.9766839Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/CoChem-TOPOS/CoChem-TOPOS
+2026-10-07T22:56:20.9770441Z Deleting the contents of '/home/runner/work/CoChem-TOPOS/CoChem-TOPOS'
+2026-10-07T22:56:20.9772535Z ##[group]Initializing the repository
+2026-10-07T22:56:20.9773801Z [command]/usr/bin/git init /home/runner/work/CoChem-TOPOS/CoChem-TOPOS
+2026-10-07T22:56:20.9775526Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T22:56:20.9777188Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T22:56:20.9779221Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T22:56:20.9780531Z hint: call:
+2026-10-07T22:56:20.9781257Z hint:
+2026-10-07T22:56:20.9782149Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T22:56:20.9783227Z hint:
+2026-10-07T22:56:20.9784233Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T22:56:20.9785875Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T22:56:20.9787159Z hint:
+2026-10-07T22:56:20.9788178Z hint: 	git branch -m <name>
+2026-10-07T22:56:20.9789182Z hint:
+2026-10-07T22:56:20.9790278Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T22:56:20.9792084Z Initialized empty Git repository in /home/runner/work/CoChem-TOPOS/CoChem-TOPOS/.git/
+2026-10-07T22:56:20.9795157Z [command]/usr/bin/git remote add origin https://github.com/ProfJJK-CoChem/CoChem-TOPOS
+2026-10-07T22:56:20.9798512Z ##[endgroup]
+2026-10-07T22:56:20.9799868Z ##[group]Disabling automatic garbage collection
+2026-10-07T22:56:20.9801020Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T22:56:20.9803471Z ##[endgroup]
+2026-10-07T22:56:20.9804640Z ##[group]Setting up auth
+2026-10-07T22:56:20.9805849Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T22:56:20.9809954Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T22:56:21.0059594Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T22:56:21.0066195Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T22:56:21.0375288Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T22:56:21.0380427Z ##[endgroup]
+2026-10-07T22:56:21.0382536Z ##[group]Fetching the repository
+2026-10-07T22:56:21.0387103Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c4e63f8449dc503c0bf2cae91283630e8bd5894f:refs/remotes/pull/1/merge
+2026-10-07T22:56:21.6676359Z From https://github.com/ProfJJK-CoChem/CoChem-TOPOS
+2026-10-07T22:56:21.6711602Z  * [new ref]         c4e63f8449dc503c0bf2cae91283630e8bd5894f -> pull/1/merge
+2026-10-07T22:56:21.6715829Z ##[endgroup]
+2026-10-07T22:56:21.6717991Z ##[group]Determining the checkout info
+2026-10-07T22:56:21.6720096Z ##[endgroup]
+2026-10-07T22:56:21.6721404Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T22:56:21.6755700Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T22:56:21.6791772Z ##[group]Checking out the ref
+2026-10-07T22:56:21.6796389Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2026-10-07T22:56:21.7992138Z Note: switching to 'refs/remotes/pull/1/merge'.
+2026-10-07T22:56:21.7995349Z 
+2026-10-07T22:56:21.8004854Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T22:56:21.8019730Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T22:56:21.8028755Z state without impacting any branches by switching back to a branch.
+2026-10-07T22:56:21.8043092Z 
+2026-10-07T22:56:21.8044055Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T22:56:21.8046870Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T22:56:21.8048425Z 
+2026-10-07T22:56:21.8049097Z   git switch -c <new-branch-name>
+2026-10-07T22:56:21.8049726Z 
+2026-10-07T22:56:21.8050107Z Or undo this operation with:
+2026-10-07T22:56:21.8050623Z 
+2026-10-07T22:56:21.8051154Z   git switch -
+2026-10-07T22:56:21.8051991Z 
+2026-10-07T22:56:21.8052833Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T22:56:21.8053846Z 
+2026-10-07T22:56:21.8055194Z HEAD is now at c4e63f8 Merge 48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2 into 6a01b0f2adb7cff02edda6e339facf3d6f93904d
+2026-10-07T22:56:21.8060284Z ##[endgroup]
+2026-10-07T22:56:21.8117159Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T22:56:21.8145592Z c4e63f8449dc503c0bf2cae91283630e8bd5894f
+2026-10-07T22:56:21.8170430Z ##[group]Removing auth
+2026-10-07T22:56:21.8174771Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T22:56:21.8222407Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T22:56:21.8462908Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T22:56:21.8490215Z http.https://github.com/.extraheader
+2026-10-07T22:56:21.8502025Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T22:56:21.8544716Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T22:56:21.9089833Z ##[endgroup]

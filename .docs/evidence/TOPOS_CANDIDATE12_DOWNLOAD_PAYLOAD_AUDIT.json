@@ -1,0 +1,45 @@
+{
+  "schema_version": "topos-download-payload-audit/0.1.0",
+  "status": "passed",
+  "candidate": "12",
+  "archives": [
+    {
+      "path": "ml-worker/cochem_topos_ml_worker-0.1.0-py3-none-any.whl",
+      "sha256": "7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71",
+      "file_count": 90
+    },
+    {
+      "path": "sources/cochem_base-1.0.0-705b9d54370d.tar.gz",
+      "sha256": "717ce1e3b3d61ee826820c173adf8481299ca1577a6fbbd066ab4317d1a39bbd",
+      "file_count": 2066
+    },
+    {
+      "path": "sources/cochem_topos-0.1.0.tar.gz",
+      "sha256": "6094b42d45fb42489dac9cca3acd9146ec971ba7bf6ac286fbbbaa82f6c0054b",
+      "file_count": 415
+    },
+    {
+      "path": "sources/cochem_torq-0.1.0-79fbb111125e.tar.gz",
+      "sha256": "7a21ebc0762ec744db441996e0ee81807673a34c5a51939107225552fbf73996",
+      "file_count": 327
+    },
+    {
+      "path": "wheels/cochem_base-1.0.0-py3-none-any.whl",
+      "sha256": "c21f595824ec62da8f70d1aa25fb812297f8cd8cc85e59190e88f0992b63e7e6",
+      "file_count": 540
+    },
+    {
+      "path": "wheels/cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b",
+      "file_count": 91
+    },
+    {
+      "path": "wheels/cochem_torq-0.1.0-py3-none-any.whl",
+      "sha256": "d5e7ec3f8e1ae8cef85ca7aefe995219d3523e4e1330e465915a3159816fe617",
+      "file_count": 82
+    }
+  ],
+  "engine_binaries_included": false,
+  "model_weights_included": false,
+  "forbidden_payloads": []
+}

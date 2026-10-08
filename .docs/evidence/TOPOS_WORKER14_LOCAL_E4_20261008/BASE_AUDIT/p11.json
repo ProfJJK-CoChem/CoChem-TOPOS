@@ -1,0 +1,178 @@
+{
+  "phase_id": "cochem_setup_phase_11",
+  "status": "PASSED",
+  "timestamp_utc": "2026-10-07T23:55:25.475001+00:00",
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p11.json",
+  "phase_2_findings": {
+    "loaded_from": "/workspace/.cochem-base-runtime/Registry/p2.json",
+    "status": "DEGRADED",
+    "total_physical_ram_bytes": 35743784960,
+    "effective_memory_bytes": 34359738368,
+    "physical_cores": 5,
+    "logical_cores": 5,
+    "is_cgroup_constrained": true,
+    "gpu_available": false
+  },
+  "host_memory": {
+    "total_ram_bytes": 35743784960,
+    "available_ram_bytes": 33793359872,
+    "free_ram_bytes": 5922680832,
+    "swap_total_bytes": 0,
+    "swap_free_bytes": 0,
+    "effective_system_ram_bytes": 35743784960,
+    "hpc_scheduler_detected": null,
+    "hpc_job_memory_limit_bytes": null,
+    "bounded_total_ram_bytes": 34359738368,
+    "bounded_total_ram_mb": 32768.0,
+    "bounded_total_ram_gb": 32.0
+  },
+  "cgroup_profile": {
+    "cgroup_version": "V2",
+    "memory_limit_bytes": 34359738368,
+    "memory_max_bytes": 34359738368,
+    "memory_high_bytes": null,
+    "memory_current_bytes": 29149298688,
+    "swap_limit_bytes": null,
+    "is_cgroup_constrained": true,
+    "cgroup_path": "/sys/fs/cgroup/memory.max"
+  },
+  "numa_profile": {
+    "numa_nodes_count": 1,
+    "numa_nodes": [
+      {
+        "node_id": 0,
+        "total_ram_mb": 34087.93,
+        "free_ram_mb": 5650.03,
+        "cpu_core_ids": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "is_local": true
+      }
+    ],
+    "numa_balance_status": "BALANCED",
+    "tier_1_local_ram_mb": 34087.93,
+    "tier_2_remote_ram_mb": 0.0,
+    "tier_3_swap_mb": 0.0,
+    "is_numa_aware": false
+  },
+  "oom_shield": {
+    "total_physical_cores": 4,
+    "active_job_cores": 4,
+    "bounded_total_ram_mb": 32768.0,
+    "os_jupyter_reserve_mb": 4915,
+    "reserve_ratio": 0.15,
+    "allocatable_ram_mb": 27853,
+    "allocatable_ram_gb": 27.2,
+    "baseline_80pct_maxcore_mb": 6553,
+    "active_core_maxcore_mb": 6963,
+    "memory_gain_vs_baseline_pct": 6.3,
+    "shield_active": true
+  },
+  "engine_budgets": {
+    "ORCA": {
+      "engine": "ORCA",
+      "primary_directive_name": "%maxcore",
+      "directive_value_formatted": "%maxcore 6963",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27852,
+      "env_var_name": "ORCA_MAXCORE",
+      "env_var_value": "6963",
+      "notes": "Calculated for 4 active core(s) with flat OS buffer"
+    },
+    "PYSCF": {
+      "engine": "PYSCF",
+      "primary_directive_name": "max_memory",
+      "directive_value_formatted": "mol.max_memory = 27853",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "PYSCF_MAX_MEMORY",
+      "env_var_value": "27853",
+      "notes": "Global process memory ceiling for lib/pyscf integral caches"
+    },
+    "XTB": {
+      "engine": "XTB",
+      "primary_directive_name": "--memory",
+      "directive_value_formatted": "--memory 27853m",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "XTB_MAX_MEMORY",
+      "env_var_value": "27853",
+      "notes": "Extended Tight Binding total calculation memory envelope"
+    },
+    "GAUSSIAN": {
+      "engine": "GAUSSIAN",
+      "primary_directive_name": "%mem",
+      "directive_value_formatted": "%mem=27853MB",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "GAUSS_MEMDEF",
+      "env_var_value": "29205987328",
+      "notes": "Gaussian %memLink0 directive and GAUSS_MEMDEF byte ceiling"
+    },
+    "CFOUR": {
+      "engine": "CFOUR",
+      "primary_directive_name": "MEMORY_SIZE",
+      "directive_value_formatted": "MEMORY_SIZE = 3650748416",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "CFOUR_MEMORY_SIZE",
+      "env_var_value": "3650748416",
+      "notes": "Coupled-Cluster integral memory array in 64-bit float words"
+    },
+    "MACE_TORCH": {
+      "engine": "MACE_TORCH",
+      "primary_directive_name": "COCHEM_MACE_HOST_RAM_MB",
+      "directive_value_formatted": "Host VRAM Offload Buffer: 27853 MB",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "COCHEM_MACE_HOST_RAM_MB",
+      "env_var_value": "27853",
+      "notes": "Allocatable host system memory for GPU tensor dataset buffering"
+    },
+    "OPENMPI": {
+      "engine": "OPENMPI",
+      "primary_directive_name": "OMPI_MCA_btl_vader_single_copy_mechanism",
+      "directive_value_formatted": "OMPI_MCA_btl_vader_single_copy_mechanism = none",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "OMPI_MCA_btl_vader_single_copy_mechanism",
+      "env_var_value": "none",
+      "notes": "Bypasses kernel CMA traps across isolated memory namespaces"
+    },
+    "GENERIC": {
+      "engine": "GENERIC",
+      "primary_directive_name": "COCHEM_MAXCORE_MB",
+      "directive_value_formatted": "COCHEM_MAXCORE_MB=6963",
+      "allocated_per_core_mb": 6963,
+      "allocated_total_job_mb": 27853,
+      "env_var_name": "COCHEM_MAXCORE_MB",
+      "env_var_value": "6963",
+      "notes": "Standard CoChem per-core memory envelope for custom solvers"
+    }
+  },
+  "injected_env_vars": {
+    "ORCA_MAXCORE": "6963",
+    "PYSCF_MAX_MEMORY": "27853",
+    "XTB_MAX_MEMORY": "27853",
+    "GAUSS_MEMDEF": "29205987328",
+    "CFOUR_MEMORY_SIZE": "3650748416",
+    "COCHEM_MACE_HOST_RAM_MB": "27853",
+    "OMPI_MCA_btl_vader_single_copy_mechanism": "none",
+    "COCHEM_MAXCORE_MB": "6963",
+    "COCHEM_ALLOCATABLE_RAM_MB": "27853",
+    "COCHEM_ALLOCATABLE_RAM_GB": "27.2",
+    "COCHEM_SAFETY_BUFFER_MB": "4915",
+    "COCHEM_ACTIVE_CORES": "4",
+    "COCHEM_TOTAL_RAM_MB": "32768",
+    "COCHEM_OOM_SHIELD_STATUS": "ACTIVE"
+  },
+  "warnings": [
+    "Phase 2 audit findings loaded from /workspace/.cochem-base-runtime/Registry/p2.json (Status: DEGRADED)",
+    "Execution memory actively bounded by Linux cgroups (V2) to 32.0 GB"
+  ],
+  "errors": []
+}

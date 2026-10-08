@@ -1,0 +1,19 @@
+{
+  "scope": "Independent pre-run source and workflow-only ancestry binding; physical calculation outcomes pending",
+  "github_run_id": "37685531027",
+  "github_run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37685531027",
+  "topos_commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+  "torq_commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+  "base_scientific_source": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "workflow_commit": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+  "only_changed_base_path": ".github/workflows/orca_acceptance.yml",
+  "base_source_tree_unchanged": true,
+  "native_scripts_sha256": {
+    "scripts/accept_orca_extended.py": "af093d26be5b68a909728564b25d09a7f5ef8f297972109417f745190f7b9339",
+    "scripts/accept_orca_pytest.py": "5549b424ec0b1dbfe3c1f84c155f89883905bc6f131d66a10f8174843aededf2",
+    "scripts/probe_orca_pickett.py": "578847a7a6c04ce036735a13d90842937c9b87a7244dbab2189fc1967f5c3591",
+    "scripts/orca_f12_acceptance_case.py": "863850158ff538bebc96d4f99618053f5b47e98563077bf35f363eb4f135901b",
+    "scripts/orca_r2_acceptance_case.py": "8c0a68c648605e073a3beb745cc6ec09575b5a4d5b3809cf50ff41fe5464159c"
+  },
+  "dispatch_receipt_sha256": "816304617a6b48de5604764580ec07b33a7e27e91b3e5800f5d75fde50dd737d"
+}

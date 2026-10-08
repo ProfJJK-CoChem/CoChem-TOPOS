@@ -1,0 +1,128 @@
+{
+  "schema_version": "topos-portable-evidence-index/0.1.0",
+  "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "scope": "Exact original receipt copies for the candidate10 noneditable mandatory ecosystem installation, mathematical ASE I/O, actual TORQ import, complete tracked-fixture source archive, worker07 CPU inference and BASE ABCluster execution, and all eleven BASE verification phases. No licensed ORCA, native CFOUR, physical GPU or complete scientific release certification is claimed. Original absolute paths remain unchanged; this index supplies portable locations for copied receipts. Raw calculations not copied here remain at their original recorded paths and are not implied to be portable by this index.",
+  "controller_wheel_sha256": "ac5f1705cb967cce3e938e0c6a18de092f8d190e58b4dfa625a6e2114a00876f",
+  "worker_wheel_sha256": "acf225d4b50283ceaefebaf16f5b61fe1fcf10ceaabb68ead3b9f3f1fcbafe44",
+  "files": [
+    {
+      "path": "TOPOS_CANDIDATE10_CLEAN_INSTALL.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/clean-install.json",
+      "sha256": "9a76a85f4a5780b1ac8ec4b5b63d9c2134623a8dcec4ffbef6615a6db65ac483",
+      "bytes": 6261,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_INSTALLED_ACCEPTANCE.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/acceptance/installed-acceptance.json",
+      "sha256": "e728b18c010b0096b50a8290fda7f9a1b5efbd5736180cd8fe36733096ca3943",
+      "bytes": 130145,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_ASE_IO.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/acceptance/ase-io/ase-io-receipt.json",
+      "sha256": "1197a13499abb935ed9cdf759f5a426ad6b4afd562c5207d5ace7d20a40bad6a",
+      "bytes": 1639,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_ASE_SCRIPT_PROVENANCE.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/acceptance/ase-io/script-provenance.json",
+      "sha256": "7867c5c1a45fdf125b30611d3366f4173ff85afdade2a45e9f88601b2c463bfb",
+      "bytes": 434,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_TORQ_CONSUMPTION.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/acceptance/torq-import/receipt.json",
+      "sha256": "80b85af22a2812a5a88bfb513bfa33e5b2c3154f27c5de1e7d8c9094c68149c5",
+      "bytes": 669,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_TORQ_HANDOFF.json",
+      "original_path": "/workspace/.cochem-setup/topos-clean-wheel-10/acceptance/torq-handoff.json",
+      "sha256": "57d2116f23a61239925f24e6436a245fc66c1a36145b79907de66e388777dca2",
+      "bytes": 69064,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_DISTRIBUTION.json",
+      "original_path": "/workspace/.cochem-setup/topos-release-candidate-10/distribution-manifest.json",
+      "sha256": "667cef131f25d98c120a3bc1b08a14fd82b54bf904fd4e32de0495b4aa7e3121",
+      "bytes": 74113,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_SOURCE_COMMIT.json",
+      "original_path": "/workspace/.cochem-setup/topos-release-candidate-10/source-commit.json",
+      "sha256": "90dbcc0968ca00ebf2d283f9746c33349b5f5a711b2e6261ec21f6bd50fde357",
+      "bytes": 24430,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_FIXTURE_ARCHIVE.json",
+      "original_path": "/workspace/.cochem-setup/topos-release-candidate-10/native-fixture-archive.json",
+      "sha256": "228411adcebc038a72f5f18848deb3a0ac0ca74e555288e4bd81730a1126611d",
+      "bytes": 5101,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_CANDIDATE10_COMPANION_BUILDS.json",
+      "original_path": "/workspace/.cochem-setup/topos-final-companions-10/companion-reproducibility.json",
+      "sha256": "07cbeda327a19108008d0e3d3499957c713e9e31efc8f1a814b3ca526078062d",
+      "bytes": 729,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_DISTRIBUTION.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/worker-distribution-manifest.json",
+      "sha256": "e35343a36f302950167ac2119701c209ab1acc04140c4dc17abcf0a50087ed4e",
+      "bytes": 9286,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_MACE_CPU.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/mace-native/base-acceptance.json",
+      "sha256": "afc4148c9697f5d01b76915dc1a22f97f930ab7db931b7fd14dca5b8dad59417",
+      "bytes": 8792,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_AIMNET_CPU.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/aimnet-native/base-acceptance.json",
+      "sha256": "cb5111a007b27c32f4a416ed79abe96d6d0848d632b96094ba43fa4a07bde537",
+      "bytes": 9274,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_MACE_PERSISTENT_CPU.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/mace-persistent-native/acceptance.json",
+      "sha256": "0659d6aaea7dc75c575dbd0484bbc3ddee26d73c76925062cf26489d9aa1929e",
+      "bytes": 2321,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_ABCLUSTER_BASE.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/abcluster-native/acceptance.json",
+      "sha256": "f47ebbe4c16be3e542b4cbc921e1504ff8e6246761419655fb2aebdd5cc65444",
+      "bytes": 35791,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_REFRESH.json",
+      "original_path": "/workspace/.cochem-setup/topos-ml-worker-07/refresh-completion.json",
+      "sha256": "02a2b196605187d8d9907c4d4e96880c5707e64cd9de743f0222c826704823c9",
+      "bytes": 671,
+      "copy": "exact-original-bytes"
+    },
+    {
+      "path": "TOPOS_WORKER07_ALL_ELEVEN.json",
+      "original_path": "/workspace/.cochem-setup/refresh-20261007T182726876546794/all-eleven.json",
+      "sha256": "f3f49d904f2d9437299bbf96f2f1b29463bf66d02c83ed73ea8b8950432b06ca",
+      "bytes": 55566,
+      "copy": "exact-original-bytes"
+    }
+  ]
+}

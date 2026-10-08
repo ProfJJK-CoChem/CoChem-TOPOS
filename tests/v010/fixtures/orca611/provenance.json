@@ -1,0 +1,11 @@
+{
+  "scope": "Unmodified native ORCA6.1.1 HF-3c water single-point output; parser regression only, no local licensed execution",
+  "github_repository": "ProfJJK-CoChem/CoChem-BASE",
+  "github_run_id": "37638685260",
+  "github_run_attempt": "1",
+  "base_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "topos_commit": "581dc1dc0707742d5fb1f621193cfc041f901841",
+  "files": {
+    "hf3c-water-native.stdout": "15295d567689c737c6e769e163081bd7d68892d37cd1f43ca0bbd3ec003722b0"
+  }
+}

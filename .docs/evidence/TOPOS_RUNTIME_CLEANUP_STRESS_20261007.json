@@ -1,0 +1,400 @@
+{
+  "schema_version": "topos-owned-process-cleanup-stress/0.1.0",
+  "completed_at": "2026-10-07T21:02:03.308518+00:00",
+  "parallel_workers": 4,
+  "executions": 48,
+  "all_quiescent_on_return": true,
+  "elapsed_seconds": 10.834792468012893,
+  "maximum_invocation_elapsed_seconds": 1.2535815709998133,
+  "source_hashes": {
+    "topos/runtime.py": "7d848af18f096ad6d19607bac7d964112545def2a1714368e4184fa130bce294",
+    "tests/v010/test_runtime_group_cleanup.py": "1cff44c0b720c318535e8a2e9c3650eb9e0f74fab8cf2a974d3262965bd8f906"
+  },
+  "root": "/workspace/.cochem-setup/topos-owned-cleanup-stress-0mj3m17b",
+  "results": [
+    {
+      "index": 0,
+      "case": "original-owned-child",
+      "child_pid": 601596,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6783932290127268,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 1,
+      "case": "term-resistant-child",
+      "child_pid": 601595,
+      "status": "timed-out",
+      "elapsed_seconds": 1.0650593510072213,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 2,
+      "case": "parent-exit-child",
+      "child_pid": 601594,
+      "status": "completed",
+      "elapsed_seconds": 0.8589695569971809,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 3,
+      "case": "original-owned-child",
+      "child_pid": 601597,
+      "status": "timed-out",
+      "elapsed_seconds": 0.7816889370005811,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 4,
+      "case": "term-resistant-child",
+      "child_pid": 601600,
+      "status": "timed-out",
+      "elapsed_seconds": 0.9881025979993865,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 5,
+      "case": "parent-exit-child",
+      "child_pid": 601602,
+      "status": "completed",
+      "elapsed_seconds": 1.0624694750003982,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 6,
+      "case": "original-owned-child",
+      "child_pid": 601603,
+      "status": "timed-out",
+      "elapsed_seconds": 0.5834132859890815,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 7,
+      "case": "term-resistant-child",
+      "child_pid": 601605,
+      "status": "timed-out",
+      "elapsed_seconds": 1.077126177988248,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 8,
+      "case": "parent-exit-child",
+      "child_pid": 601607,
+      "status": "completed",
+      "elapsed_seconds": 0.8911352060094941,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 9,
+      "case": "original-owned-child",
+      "child_pid": 601609,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6648026520124404,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 10,
+      "case": "term-resistant-child",
+      "child_pid": 601611,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1479190670070238,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 11,
+      "case": "parent-exit-child",
+      "child_pid": 601613,
+      "status": "completed",
+      "elapsed_seconds": 0.9049225990020204,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 12,
+      "case": "original-owned-child",
+      "child_pid": 601616,
+      "status": "timed-out",
+      "elapsed_seconds": 0.7223859550140332,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 13,
+      "case": "term-resistant-child",
+      "child_pid": 601617,
+      "status": "timed-out",
+      "elapsed_seconds": 1.01217134000035,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 14,
+      "case": "parent-exit-child",
+      "child_pid": 601621,
+      "status": "completed",
+      "elapsed_seconds": 0.8154595429950859,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 15,
+      "case": "original-owned-child",
+      "child_pid": 601622,
+      "status": "timed-out",
+      "elapsed_seconds": 0.5583545889967354,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 16,
+      "case": "term-resistant-child",
+      "child_pid": 601623,
+      "status": "timed-out",
+      "elapsed_seconds": 1.0107823319995077,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 17,
+      "case": "parent-exit-child",
+      "child_pid": 601625,
+      "status": "completed",
+      "elapsed_seconds": 0.7958691610110691,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 18,
+      "case": "original-owned-child",
+      "child_pid": 601627,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6145636650035158,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 19,
+      "case": "term-resistant-child",
+      "child_pid": 601629,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1742748069955269,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 20,
+      "case": "parent-exit-child",
+      "child_pid": 601646,
+      "status": "completed",
+      "elapsed_seconds": 0.9147302839992335,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 21,
+      "case": "original-owned-child",
+      "child_pid": 601647,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6589079550030874,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 22,
+      "case": "term-resistant-child",
+      "child_pid": 601649,
+      "status": "timed-out",
+      "elapsed_seconds": 1.018259266988025,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 23,
+      "case": "parent-exit-child",
+      "child_pid": 601651,
+      "status": "completed",
+      "elapsed_seconds": 0.9604580520099262,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 24,
+      "case": "original-owned-child",
+      "child_pid": 601655,
+      "status": "timed-out",
+      "elapsed_seconds": 0.5659848289942602,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 25,
+      "case": "term-resistant-child",
+      "child_pid": 601654,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1084829780011205,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 26,
+      "case": "parent-exit-child",
+      "child_pid": 601657,
+      "status": "completed",
+      "elapsed_seconds": 0.8032435859931866,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 27,
+      "case": "original-owned-child",
+      "child_pid": 601659,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6041079400019953,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 28,
+      "case": "term-resistant-child",
+      "child_pid": 601661,
+      "status": "timed-out",
+      "elapsed_seconds": 1.0871145280107157,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 29,
+      "case": "parent-exit-child",
+      "child_pid": 601664,
+      "status": "completed",
+      "elapsed_seconds": 0.7887651719938731,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 30,
+      "case": "original-owned-child",
+      "child_pid": 601666,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6677721240121173,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 31,
+      "case": "term-resistant-child",
+      "child_pid": 601667,
+      "status": "timed-out",
+      "elapsed_seconds": 0.9711686910013668,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 32,
+      "case": "parent-exit-child",
+      "child_pid": 601670,
+      "status": "completed",
+      "elapsed_seconds": 0.7496169449877925,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 33,
+      "case": "original-owned-child",
+      "child_pid": 601672,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6388150470011169,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 34,
+      "case": "term-resistant-child",
+      "child_pid": 601673,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1457330220000586,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 35,
+      "case": "parent-exit-child",
+      "child_pid": 601675,
+      "status": "completed",
+      "elapsed_seconds": 0.9843589910014998,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 36,
+      "case": "original-owned-child",
+      "child_pid": 601678,
+      "status": "timed-out",
+      "elapsed_seconds": 0.7262927919946378,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 37,
+      "case": "term-resistant-child",
+      "child_pid": 601679,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1219391750055365,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 38,
+      "case": "parent-exit-child",
+      "child_pid": 601681,
+      "status": "completed",
+      "elapsed_seconds": 0.9586200819903752,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 39,
+      "case": "original-owned-child",
+      "child_pid": 601684,
+      "status": "timed-out",
+      "elapsed_seconds": 0.765436846006196,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 40,
+      "case": "term-resistant-child",
+      "child_pid": 601685,
+      "status": "timed-out",
+      "elapsed_seconds": 1.2535815709998133,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 41,
+      "case": "parent-exit-child",
+      "child_pid": 601687,
+      "status": "completed",
+      "elapsed_seconds": 0.8851888240023982,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 42,
+      "case": "original-owned-child",
+      "child_pid": 601690,
+      "status": "timed-out",
+      "elapsed_seconds": 0.7035183870029869,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 43,
+      "case": "term-resistant-child",
+      "child_pid": 601691,
+      "status": "timed-out",
+      "elapsed_seconds": 1.1032517999992706,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 44,
+      "case": "parent-exit-child",
+      "child_pid": 601694,
+      "status": "completed",
+      "elapsed_seconds": 0.82404291399871,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 45,
+      "case": "original-owned-child",
+      "child_pid": 601696,
+      "status": "timed-out",
+      "elapsed_seconds": 0.6194722469954286,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 46,
+      "case": "term-resistant-child",
+      "child_pid": 601697,
+      "status": "timed-out",
+      "elapsed_seconds": 1.104345257001114,
+      "child_quiescent_on_return": true
+    },
+    {
+      "index": 47,
+      "case": "parent-exit-child",
+      "child_pid": 601699,
+      "status": "completed",
+      "elapsed_seconds": 0.7602032449940452,
+      "child_quiescent_on_return": true
+    }
+  ]
+}

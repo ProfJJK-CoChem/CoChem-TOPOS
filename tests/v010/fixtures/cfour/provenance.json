@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "fixture": "mp2-native-first-evaluation.stdout",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/opt-rhf-mp2/output.ref",
+      "source_sha256": "bd5edc236d61afdf4dbda646ef41c799d89b5e962477516a34010861531e2ca8",
+      "excerpt_sha256": "175749947fce21ec9d235175c8568d8c7ce0330d89e896ffa7ab6d0ab96f1bab",
+      "selection": "first native xjoda evaluation through the end of native xvdint; unmodified numerical output excerpt",
+      "scope": "Historical CFOUR 1.2 native output maintained by Psi4; NOT execution in this environment."
+    },
+    {
+      "fixture": "ccsd_t-native-first-evaluation.stdout",
+      "url": "https://raw.githubusercontent.com/psi4/psi4/23be3de4b1f6cd70e337b98a2a200008cf350274/tests/cfour/opt-rhf-ccsd_t_/output.ref",
+      "source_sha256": "f017daa5a65263a70566211f92287e8a82e82634a11f1e7b6485873e12882689",
+      "excerpt_sha256": "b4e0ec58621b1795cbbfdb80635c1b7da0c912611d86f393687298612b659d2a",
+      "selection": "first native xjoda evaluation through the end of native xvdint; unmodified numerical output excerpt",
+      "scope": "Historical CFOUR 1.2 native output maintained by Psi4; NOT execution in this environment."
+    }
+  ]
+}

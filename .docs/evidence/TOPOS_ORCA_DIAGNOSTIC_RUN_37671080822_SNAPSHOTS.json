@@ -1,0 +1,136 @@
+{
+  "status": "passed",
+  "reader_storage_source_matches": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "snapshots": [
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/counterpoise-native",
+      "snapshot_id": "80950e55eb017e2cca908cc576ce6131f81b9394c65f1033d6749c9eb36528ec",
+      "record_sha256": "516762f9a69678d10c700eae4b79fb16307ca050daea05ed0023d284f64ed022"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_031505d7b344429bac0481c6762f264c",
+      "snapshot_id": "2cc5a1b3163a7696f656b593167ff8ee50d00ee5f9825d9773b21643d078b1a2",
+      "record_sha256": "3216e6aad331943c0d4b98cc3f990fafcc86856e87b774d0cffca93b818944eb"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_04d4badadffd40f68fe0b88485e324c2",
+      "snapshot_id": "a439b2ffc1c9d4c41d09839672340c1cab25cdabe403390ecbeae68012ba0bec",
+      "record_sha256": "1d6011c61ee20cbafde2367835c6951ee69c24d313dd60520db33a3e0dc4f82d"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0eb834bc1e9345c2b6ee456de56d4213",
+      "snapshot_id": "c68df2d98946b6441b1b4b97565d173de2cf31a880d98d3dd130ba63f9fba646",
+      "record_sha256": "d5763656001c879a51a81b009966257504222c6d4a4d8c98b2bb177eb165b96a"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_0ff32f5fede2453cbaaa1795f8cc4a55",
+      "snapshot_id": "b1afc02a28b8b4154c8180765ded63e3d87aab99ca4fdf034abab2328b9ceef3",
+      "record_sha256": "e770a2f4cedf5ac258c36dedc4e82571eb8ce3c00cb8fd8563f54bbed1b11f0a"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_1185fee68daf47bb84190125b416d134",
+      "snapshot_id": "fa5f51a1583d2423a8b2587bdfa4e968b23cc45873223114985af6ce6b3118e8",
+      "record_sha256": "c1b34d5ff0a07380634c1ea412490e6a3ba962b341e99f9fdd468c71d1e6c4c2"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_2a4e535a3035489883ba1eda6bedf962",
+      "snapshot_id": "340e9c96868e8a3b8eecd79dbad50c5437b6efe7c9991fedb40023fa3988053e",
+      "record_sha256": "b6d52b64b3b2ef21e34ad71351f3a7f395c726b4b6c30a54186b2801ae9dee7d"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_2c607e46a37d4dccb0f524ddeee94bca",
+      "snapshot_id": "eaa5dc7ae4a9e9e76b7b01af40394e54129ccd6d7065ec11dfba55062f493f78",
+      "record_sha256": "48cd046cc1cc021d766b07dae1d8635193af887f1a10cc63e6aa1bd941c63df5"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_3af3e05bd0274424bbc41c06235b31bd",
+      "snapshot_id": "6f6f6b780edc5ab3a0c8183c9b5808c4c5575cd3fc585a7368506d733c23f193",
+      "record_sha256": "0e12971006ba4dbe3a1d2d3a6295e6c85a24927fb391d0f53dc9183c68080866"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_3e504276dbe14de6ac80f4bf89fa988c",
+      "snapshot_id": "b500c6d128263b75ba4e615e98af45050fe889f67882bc5546279e338435a111",
+      "record_sha256": "0593d8d629f680759416805eef07717d44cc63bbd7d9803688f871b804d5993e"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_3f2299e654aa4fca998ec5043fd27067",
+      "snapshot_id": "709dcdfdbdcf821e6e6bd0f58e6d84fe1d6b177778767dca0ffbd778ed55bcb6",
+      "record_sha256": "17fa9e348034bc4db184974718604e77a24eadb8f1960351c1ffa3853df389d4"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_68044ccb54ad4bb6b8f67bbfc5ff7a30",
+      "snapshot_id": "955c02e7147264202d1ea8bcb7b7fbd24d6cd54e3e1081b4b38a1d28abd4019b",
+      "record_sha256": "b3eb46f372d954c56007fd5ea03e2d1eb1b51e3a527ded434c520b87476c5f86"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_683936c7228a4b55b078d651b2b46832",
+      "snapshot_id": "9da1150fa230ebcbf782eb9d7c470bcbd225cae78dba57699382bb5418ced38e",
+      "record_sha256": "1dd5895664494c33af755642d513e3cc9fa8f6500884aaccc97280528d3e3a33"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_76eb396d18e7413b8678196d6f92f1ea",
+      "snapshot_id": "505910395aa9acf66f7a9333d97adfcef3aa741fba92636051df7d5be22433d5",
+      "record_sha256": "b4c4be5d4e91fd823db700b378fcdf21fd877b958702dc10b9989585b38f45ce"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_8205ae17093b4f53b8737c1ade122181",
+      "snapshot_id": "84c308e23ce02de56dba68527548cc02ef395df00047ad405c19f75245bdf81a",
+      "record_sha256": "2d62c449b8a6455d68b28302c45672cf7fce0f1aab67481969d62603b7b2b224"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_88e14ca19d014f86962b06261c3ed98b",
+      "snapshot_id": "12733dd8ec7e84dad5384c28e7f8c993a1407b36f218de0e3f576bae87291b6d",
+      "record_sha256": "1ec947ac44b0fad3d2bca3e7bbc39a7c1e4ad454a52688c2dfee96893c881b37"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_98db4291ac1b4c5381626264f3d08796",
+      "snapshot_id": "7576242b0c40fb1ca6beba1ea914375b91a815637082f3646b730ae99043be09",
+      "record_sha256": "e0197e9802b07f1ec3830f858814831f1d30191cf934048f478d685f6e7239b8"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_9f425fdfbb90464d8e53ce47c0f46225",
+      "snapshot_id": "1042a40e05c07f346d2ba87b5f8dffa3260aa055c6f9a79ccdf16d453d9e7261",
+      "record_sha256": "15a8e31c64e7c39f7520f744059f5302f0d99fe45da2c0465157d0da3e2b8feb"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_a8774d36d0fb4dd6bbc993d6ad5a737f",
+      "snapshot_id": "2c921c536c92a4b38d3729175330c613c168ab352991406ce0af79b172ef2741",
+      "record_sha256": "82e8c5299feaa3c8b5f611b5b4d76835001faffe1f66bdcb7ae9c03371c681ba"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_b1625eb7d64c42b090fa904dc58a789e",
+      "snapshot_id": "2df8b6af252fd72a2c8db0d8cc823b4cb0eaeca33cde52cfab08100515df1366",
+      "record_sha256": "97805021cea9892e24ced28389823582362691ab0292e4cfc162b3b2c8a56d8d"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_c5852554b69f40f897ea3e6d25a480fa",
+      "snapshot_id": "5f5396eac948565ff435e1cd93b1222b2014ae82c395c4865bacc5a8a24a015f",
+      "record_sha256": "161ab5e50266e15c9c2ed29375a9a2b931f16307f1c5a56496178fb9f5d08875"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_cc66e53ea3cd493f9708915023dcc3a5",
+      "snapshot_id": "7a71c981e601a9d57e37cd8a441e149e2da105339af375da9f6c5ff75cc43d90",
+      "record_sha256": "320dbd32c9679d5647e45315197f13da0383fa78d4bd3f448e95c80e4367366c"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_e376fc7b98284b918cbc9ab54614163a",
+      "snapshot_id": "feae8c27012ef3c1e9870a174b73f6e5c830dff79c482494ebc0e8d16172ab4a",
+      "record_sha256": "21fa50e0479b113d4de2d5ba650d423c0453956814e35fe79b7fa25906b4d8bb"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_e60107e2d3f84fa4937be6648f1b858d",
+      "snapshot_id": "f7e7de168e119823b2032df442b677ea15092cd09f407080d5c716e56d5f3591",
+      "record_sha256": "7ca8d933d90dbf146a2028e04a607985fd323f99abf0f9d1a48265c74493589c"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_e979f1cee8de42a4aee9c53cbfcd7d61",
+      "snapshot_id": "660e505adba8756c8e3444f47419d7d6353e8312a6ea1218e23640d025fe2deb",
+      "record_sha256": "58a79e20fa5b570fabc415cb1313db5ee2c9cbb59b8ca318c2f1162e0114d3fe"
+    },
+    {
+      "path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/runs/run_fd9f27b90dc94f658b4f11de56f3e3c7",
+      "snapshot_id": "2f59c6b4f7002371f3d7d48fd06ddcb3fa9f89874d31590d5dbce99984155f97",
+      "record_sha256": "7f41965d2308781994ee9b1777573ada534a2c06818f742303ff01ec5682d34f"
+    }
+  ]
+}

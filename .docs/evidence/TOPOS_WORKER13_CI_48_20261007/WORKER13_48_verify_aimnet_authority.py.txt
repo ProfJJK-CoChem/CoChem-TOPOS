@@ -1,0 +1,68 @@
+"""Run the actual previously characterized 75-frame committee through BASE."""
+from __future__ import annotations
+
+import argparse
+import json
+import time
+from pathlib import Path
+
+import numpy as np
+
+from topos.base_integration import BaseRuntime
+from topos.ml import MLRunner, ModelManifest
+from topos.models import Molecule, ResourceLimits
+from topos.storage import atomic_json, file_digest
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--registry", required=True, type=Path)
+    parser.add_argument("--evidence", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    args = parser.parse_args()
+    if args.output.exists():
+        raise ValueError("Preserve prior evidence; choose a new output directory")
+    raw = json.loads(args.evidence.read_text())
+    request = raw["request"]
+    manifest = ModelManifest.model_validate(request["manifest"])
+    assert manifest.backend == "aimnet2" and len(manifest.members) == 4
+    resources = ResourceLimits.model_validate({**request["resources"], "budget_seconds": 300., "device": "cpu"})
+    runtime = BaseRuntime(args.registry)
+    molecules = [Molecule.model_validate(m) for m in request["molecules"]]
+    started = time.monotonic()
+    results = MLRunner(manifest, runtime).evaluate_frames(molecules, args.output, resources)
+    assert len(results) == len(molecules) == 75 and all(result.status == "completed" for result in results)
+    energies, gradients = [], []
+    for result, reference in zip(results, raw["result"]["frames"], strict=True):
+        prediction = result.metadata["predictions"]
+        assert result.metadata["execution_kind"] == "real" and result.metadata["device"] == "cpu"
+        assert prediction["committee"]["members"] == 4
+        energies.append(float(np.max(np.abs(np.asarray(prediction["member_energies_hartree"]) - reference["member_energies_hartree"]))))
+        gradients.append(float(np.max(np.abs(np.asarray(prediction["member_gradients_hartree_per_bohr"]) - reference["member_gradients_hartree_per_bohr"]))))
+    assert max(energies) < 1e-6 and max(gradients) < 1e-5, "BASE transport disagrees with the prior genuine same-model CPU predictions"
+    authority = json.loads((args.output / "ml-authority.json").read_text())
+    assert authority["engine"] == "aimnet2" and authority["gpu_index"] is None
+    assert authority["observed"]["worker_distribution"]
+    assert authority["observed"]["packages"]["aimnet"] == "0.2.0"
+    assert "mace-torch" not in authority["observed"]["packages"]
+    receipt = {"schema_version": "topos-aimnet-base-acceptance/1", "status": "passed",
+               "scope": "Actual 75-frame four-member AIMNet CPU inference through strict BASE authority and exact-source installed worker; no GPU or DFT-accuracy claim",
+               "elapsed_seconds": time.monotonic()-started, "frames": len(results),
+               "committee_members": 4, "model_sha256": [member.sha256 for member in manifest.members],
+               "prior_genuine_direct_evidence": str(args.evidence), "prior_evidence_sha256": file_digest(args.evidence),
+               "maximum_member_energy_transport_difference_hartree": max(energies),
+               "maximum_member_gradient_transport_difference_hartree_per_bohr": max(gradients),
+               "authority_sha256": file_digest(args.output / "ml-authority.json"),
+               "registry_sha256": file_digest(args.registry),
+               "worker_source_sha256": authority["observed"]["source_sha256"],
+               "first_frame_energy_hartree": results[0].energy_hartree,
+               "first_frame_committee": results[0].metadata["predictions"]["committee"],
+               "native_versions": results[0].metadata["versions"],
+               "device": "cpu", "verification_script_sha256": file_digest(Path(__file__))}
+    atomic_json(args.output / "base-acceptance.json", receipt)
+    print(json.dumps({"status": "passed", "frames": len(results), "members": 4,
+                      "elapsed_seconds": receipt["elapsed_seconds"]}))
+
+
+if __name__ == "__main__":
+    main()

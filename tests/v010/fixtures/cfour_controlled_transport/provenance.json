@@ -1,0 +1,10 @@
+{
+  "scope": "Unchanged real runtime receipt from failed CFOUR calculation; dependency excerpt from real retained registry. Native transport only, never scientific success. No licensed basis bytes.",
+  "source_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37713885742",
+  "artifact_sha256": "835e61c3f86bb7ea999879249de19a6395e15386fb9e830d994cd88c1d70748f",
+  "runtime_receipt_member": "topos-cfour-property-evidence/run/attempts/attempt_095a1203ff22460482e4b9493d012af5/evaluation-00000/engine-cfour-runtime.json",
+  "runtime_receipt_sha256": "42e7fc545c90315382888da05bd58ea0690178d1e5caf462ed33089d32fcff1c",
+  "registry_member": "cochem-artifacts/Registry/cochem_system_config.json",
+  "registry_sha256": "58c03b0d053beee32721eb9b9859390dd437e400e8f4fbf1d801948b42be9648",
+  "registry_basis_excerpt_sha256": "f56d7bfc48b7d9ea912dda817b16b14c71577b11bb13a1cd130dad02af5286df"
+}

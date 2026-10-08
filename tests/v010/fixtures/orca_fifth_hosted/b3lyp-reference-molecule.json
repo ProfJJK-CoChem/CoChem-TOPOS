@@ -1,0 +1,43 @@
+{
+  "atom_ids": [
+    "atom-0",
+    "atom-1",
+    "atom-2"
+  ],
+  "bonds": [],
+  "charge": 0,
+  "coordinate_units": "angstrom",
+  "coordinates": [
+    [
+      0.00084243263187,
+      0.00135611544803,
+      0.0
+    ],
+    [
+      0.96178289289969,
+      -0.00230560764715,
+      0.0
+    ],
+    [
+      -0.24262532553155,
+      0.93094949219912,
+      0.0
+    ]
+  ],
+  "environment": {},
+  "fragment_states": [],
+  "fragments": [],
+  "isotopes": [
+    null,
+    null,
+    null
+  ],
+  "multiplicity": 1,
+  "name": null,
+  "stereochemistry": {},
+  "symbols": [
+    "O",
+    "H",
+    "H"
+  ]
+}

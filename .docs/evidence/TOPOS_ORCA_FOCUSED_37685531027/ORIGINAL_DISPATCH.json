@@ -1,0 +1,25 @@
+{
+  "submitted_at": "2026-10-07T20:54:15.083002+00:00",
+  "scope": "Four actual native repair cases plus named licensed pytest; separate SCF Pickett diagnostics; no baseline or full release claim",
+  "topos_commit": "73b3fb87386cfc1d572455454b9ebf43af978e04",
+  "torq_commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+  "base_scientific_source": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+  "workflow_commit": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+  "branch": "codex/topos-native-repair-probes",
+  "cases": [
+    "native-vpt2",
+    "DLPNO-counterpoise",
+    "F12-composite",
+    "R2-composite"
+  ],
+  "state": "submitted",
+  "dispatch_returncode": 0,
+  "run": {
+    "conclusion": "",
+    "createdAt": "2026-10-07T20:54:17Z",
+    "databaseId": 37685531027,
+    "headSha": "391eab61019bfbcd27a26e9469ab042d01d7c040",
+    "status": "queued",
+    "url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37685531027"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "topos-native-parser-fixtures/1",
+  "run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822",
+  "source_revision": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "scope": "Unchanged genuine hosted ORCA 6.1.1 outputs for parsing only. Their original attempts were partial; these fixtures do not establish independently verified final-gradient success. No local ORCA execution.",
+  "sources": [
+    {
+      "file": "r2scan-refinement-1.stdout",
+      "source_path": "runs/run_0eb834bc1e9345c2b6ee456de56d4213/attempts/attempt_631cc1b86f5f4f61bb9a454447b770bc/optimization-refinement-1/engine.stdout",
+      "sha256": "be8ea356cec4b3fbda9b62815dfab464f7382eb928b1fe619a1adbe1363bd99d",
+      "size_bytes": 83378
+    },
+    {
+      "file": "wb97xv-refinement-1.stdout",
+      "source_path": "runs/run_1185fee68daf47bb84190125b416d134/attempts/attempt_7aad08507efd4fa899c32dc99b6f830f/optimization-refinement-1/engine.stdout",
+      "sha256": "15255deae01218bb92fa53456972414f4c1ab9a0d35104bb70f57770f23a05fd",
+      "size_bytes": 88851
+    }
+  ]
+}

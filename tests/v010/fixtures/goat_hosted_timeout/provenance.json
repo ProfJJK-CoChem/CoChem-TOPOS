@@ -1,0 +1,37 @@
+{
+  "source_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37638685260",
+  "artifact_id": 11492408563,
+  "scope": "Authentic ORCA6.1.1 hosted timeout, not a successful calculation or synthetic native output",
+  "source_stdout_sha256": "5237bc6844f95eb54d754ed75f3092f4ede65a7a6c603a8e31c494c1baf40ed4",
+  "excerpt_sha256": "fddca9b2f5d0aa489023f3494a07778133b1b5f01332f63dccab38e0eed60270",
+  "selection": "Unmodified goat.stdout bytes from Global parameters through native EOF",
+  "process_selection": "diagnostics.process object from the actual acceptance-native-result.json",
+  "source_result_sha256": "2a4de55179ed90c2f186b82bd4e02c8c606cd401258e388029ec122e4af9d611",
+  "process_fixture_sha256": "84669055db14b0c8364e82a17199fcaa412eb5362221287d61424062d2c84f31",
+  "workers_first_global_iteration": [
+    {
+      "name": "goat.goat.0.0.out",
+      "sha256": "27bd66da72e3a9f29489c0da4181116be553d69846651a0ec05a653588624558",
+      "scf_converged_count": 232,
+      "cartesian_gradient_count": 232
+    },
+    {
+      "name": "goat.goat.0.1.out",
+      "sha256": "1c3723215582e0b628e245093c1a14cf1bf7c53e0224f3135ab491b0bac59f55",
+      "scf_converged_count": 249,
+      "cartesian_gradient_count": 249
+    },
+    {
+      "name": "goat.goat.0.2.out",
+      "sha256": "8dc962097e23fd1e371469f3a2a1e1ea75cc3954a322b5929ea2e27def790647",
+      "scf_converged_count": 250,
+      "cartesian_gradient_count": 250
+    },
+    {
+      "name": "goat.goat.0.3.out",
+      "sha256": "7071f1775070b50b2e85d4aedbe0ea81a435920b7b8f036a25cd8cfdfff0aa14",
+      "scf_converged_count": 274,
+      "cartesian_gradient_count": 274
+    }
+  ]
+}

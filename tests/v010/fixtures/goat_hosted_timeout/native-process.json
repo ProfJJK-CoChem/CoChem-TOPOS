@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+    "goat.inp"
+  ],
+  "elapsed_seconds": 1199.832376999,
+  "peak_rss_mb": 505.86328125,
+  "reason": "attempt wall-clock budget exhausted",
+  "returncode": -124,
+  "status": "timed-out",
+  "stderr_path": "/home/runner/work/_temp/topos-orca-evidence/goat-native/goat.stderr",
+  "stdout_path": "/home/runner/work/_temp/topos-orca-evidence/goat-native/goat.stdout"
+}

@@ -1,0 +1,697 @@
+{
+  "schema_version": "topos-candidate12-verification/0.1.0",
+  "status": "passed",
+  "source_commit": "053c827638b3481c5c3d645856b69d50c47b387f",
+  "source_file_count": 228,
+  "source_commit_sha256": "2a098c67ce9b8dc99d9a39c8c61336e03e25751d9bbd0fd7ad492608f661f054",
+  "distribution_manifest_sha256": "c7947e98db6ff508e914ad8c0ec1ce0cf6cce73eb9b0418aa5c24c0a5af81940",
+  "reproducible_artifacts": [
+    {
+      "name": "cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b",
+      "bytes": 505092
+    },
+    {
+      "name": "cochem_topos-0.1.0.tar.gz",
+      "sha256": "6094b42d45fb42489dac9cca3acd9146ec971ba7bf6ac286fbbbaa82f6c0054b",
+      "bytes": 2463986
+    }
+  ],
+  "fixtures": {
+    "count": 39,
+    "all_payloads_match": true,
+    "receipt_sha256": "14f93465d709e89a36c65f8a268f5bf4b15fd519e0955cd16170428f23c1958e"
+  },
+  "worker": {
+    "source_count": 84,
+    "wheel": {
+      "name": "cochem_topos_ml_worker-0.1.0-py3-none-any.whl",
+      "sha256": "7c5471d12c37d8912403bccfb7cafeea03d03a797ad27cc8d20aad07ad990b71",
+      "bytes": 503345
+    },
+    "same_controller_sources": true
+  },
+  "mandatory_wheels": {
+    "cochem-base": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_base-1.0.0-py3-none-any.whl",
+      "sha256": "c21f595824ec62da8f70d1aa25fb812297f8cd8cc85e59190e88f0992b63e7e6"
+    },
+    "cochem-topos": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_topos-0.1.0-py3-none-any.whl",
+      "sha256": "66957b7780560c795119439d53ed010f15ff950571f4b6c940086dbe44e7be6b"
+    },
+    "cochem-torq": {
+      "path": "/workspace/.cochem-setup/topos-final-wheelhouse-12/cochem_torq-0.1.0-py3-none-any.whl",
+      "sha256": "d5e7ec3f8e1ae8cef85ca7aefe995219d3523e4e1330e465915a3159816fe617"
+    }
+  },
+  "companion_reproducibility_sha256": "07cbeda327a19108008d0e3d3499957c713e9e31efc8f1a814b3ca526078062d",
+  "clean_installation": {
+    "status": "passed",
+    "receipt": "/workspace/.cochem-setup/topos-clean-wheel-12/clean-install.json",
+    "sha256": "e1f1ceb9234814077d0bac66a7cd9c47c62bab9708be3e621a268b1ecd0b1098",
+    "ownership_reinstall_orders": 2,
+    "package_file_collisions": [],
+    "step_count": 8
+  },
+  "installed_acceptance": {
+    "status": "passed",
+    "receipt": "/workspace/.cochem-setup/topos-clean-wheel-12/acceptance/installed-acceptance.json",
+    "sha256": "9ce039fe59b271777110f29ad7c2ceac855f6eaa8ea462c210b72e2b8b3122d3",
+    "editable": false,
+    "check_count": 7,
+    "browser": {
+      "status": "passed",
+      "source": "/workspace/.cochem-setup/topos-clean-wheel-12/venv/lib/python3.12/site-packages/topos/streamlit_app.py",
+      "selectboxes": 14,
+      "buttons": 2,
+      "scope": "real installed Streamlit application render; native computation checked separately"
+    },
+    "native_run": {
+      "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+      "status": "completed",
+      "execution_kind": "real",
+      "engine_version": "6.7.1",
+      "energy_hartree": -5.070544054679
+    },
+    "torq_handoff": {
+      "status": "passed",
+      "computation_performed": false,
+      "receipt": {
+        "consumed_at": "2026-10-07T19:39:15.237314+00:00",
+        "consumer": {
+          "name": "CoChem-TORQ",
+          "version": "0.1.0"
+        },
+        "ensemble_schema": "topos-ensemble/0.1.0",
+        "ensemble_sha256": "0e7366d9be214dc096ededeae5b4ae4d8c69766eecf5438b73a1aa5f88cad400",
+        "handoff_sha256": "888f0c4954db720894f33aabcdd3a6e16af92fa5392fa59e1443e5a3073256b8",
+        "members": [
+          {
+            "geometry_sha256": "d640e3f24c834df96d7548f22febeca62814ab07f8bda2f577dca32c24ea2399",
+            "member_id": "candidate_2f2fae3de5664e5eaf699a176387fb06"
+          }
+        ],
+        "receipt_sha256": "eebb290df08749c6d3facef71db9a788113df002d35d15161376d537dedd3be3",
+        "run_id": "run_6173c4ba0f7345a796f6280ae6e85d19",
+        "schema_version": "topos-torq-consumption/0.1.0",
+        "status": "consumed"
+      },
+      "consumer_source_sha256": "fe7fb0c45d35c0190b42c948b790df4f92c447ab52b6185686b096426c293ca8"
+    },
+    "registry_sha256": "8760cbe00b62af6f0d5336caa95bbda7328e5db8ff2e0c39129cc5dba9b0aa7d"
+  },
+  "registry_stable_before_and_after": true,
+  "ase_io": {
+    "status": "passed",
+    "receipt": "/workspace/.cochem-setup/topos-clean-wheel-12/acceptance/ase-io/ase-io-receipt.json",
+    "sha256": "63a193c803d237b7f0ca86658f6b9ff075a788da5babfadd75c8e131d993488d",
+    "installed": {
+      "ase": "3.29.0",
+      "cochem-topos": "0.1.0",
+      "CoChem-BASE": "1.0.0",
+      "CoChem-TORQ": "0.1.0"
+    },
+    "checks": [
+      "ASE extended-XYZ energy/force units and coordinates round trip",
+      "Distinct replay/reference configurations accepted",
+      "Atom-reordered reference leakage rejected"
+    ],
+    "torch_imported": false,
+    "native_calculation_performed": false
+  },
+  "matrix_support": {
+    "catalog_revision": "method-matrix-v4-2026-08-09",
+    "catalog_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+    "catalog_rows": 140,
+    "topos_owned_rows": 44,
+    "topos_track_gaps": [
+      "T3C-10s",
+      "T3C-1min"
+    ],
+    "unavailable_by_design": [
+      {
+        "row_id": "T3C-10s",
+        "disposition": "unavailable-by-design",
+        "source_path": "wiki/Method_Matrix.md",
+        "source_lines": [
+          36,
+          3034
+        ],
+        "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d"
+      },
+      {
+        "row_id": "T3C-1min",
+        "disposition": "unavailable-by-design",
+        "source_path": "wiki/Method_Matrix.md",
+        "source_lines": [
+          36,
+          3035
+        ],
+        "source_excerpt": "CFOUR has no 10 s or 1 min entry",
+        "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d"
+      }
+    ],
+    "unresolved_track_gaps": [],
+    "compiled_complete_recipes": [
+      "T1-10s",
+      "T1-12h",
+      "T1-1d",
+      "T1-1h",
+      "T1-1min",
+      "T1-1mo",
+      "T1-1w",
+      "T1-30min",
+      "T1-3d",
+      "T1-3h",
+      "T2-10s",
+      "T2-1h",
+      "T2-1min",
+      "T2-30min",
+      "T3C-12h",
+      "T3C-1d",
+      "T3C-1h",
+      "T3C-1mo",
+      "T3C-1w",
+      "T3C-30min",
+      "T3C-3d",
+      "T3C-3h",
+      "T3O-10s",
+      "T3O-12h",
+      "T3O-1d",
+      "T3O-1h",
+      "T3O-1min",
+      "T3O-1mo",
+      "T3O-1w",
+      "T3O-30min",
+      "T3O-3d",
+      "T3O-3h",
+      "T5-10s",
+      "T5-12h",
+      "T5-1d",
+      "T5-1h",
+      "T5-1min",
+      "T5-1mo",
+      "T5-1w",
+      "T5-30min",
+      "T5-3d",
+      "T5-3h"
+    ],
+    "compiled_recipe_count": 42,
+    "implemented_partial_branches": [
+      "T3C-1mo",
+      "T3O-1mo"
+    ],
+    "source_conflict_rows": [
+      "T3O-1d",
+      "T4O-30min",
+      "T5-30min",
+      "T5-3h"
+    ],
+    "reviewed_scientific_revisions": {
+      "r2-b3lyp-d4-vpt2-transfer-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "r2-b3lyp-d4-vpt2-transfer-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-3h",
+          "kind": "r2-dft-vpt2-transfer",
+          "title": "R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed B3LYP-D4 VPT2 correction transfer",
+          "reference_method": "B3LYP",
+          "reference_dispersion": "D4",
+          "delivers": [
+            "frozen-monomer QZ geometry and counterpoise interaction energy",
+            "approximate ground-state rotational constants from a separate B3LYP-D4 VPT2 correction with matched axes and masses",
+            "both geometry identities and explicit transferability limits"
+          ],
+          "replaces": "Nonstationary frozen-monomer VPT2 and the unavailable native wB97X-V analytic-Hessian reference",
+          "decision_basis": "User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback.",
+          "sources": [
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html"
+          ],
+          "differences": [
+            "wB97M-V/def2-QZVPP target geometry remains constrained to explicit high-level monomer shapes",
+            "Ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO counterpoise has no F12 Hamiltonian or CABS",
+            "Independently fully relaxed B3LYP-D4/def2-TZVPP replaces wB97X-V only in the explicitly selected DFT VPT2 reference; this is a different functional and dispersion treatment",
+            "Native wB97X-V/VV10 analytic Hessians are unsupported in ORCA 6.1 and never silently replaced",
+            "B0_approx=B_R2+(B0_DFT-Be_DFT) uses common attested native masses and compatible principal axes",
+            "Same-basin transferability and functional error are uncalibrated; no source benchmark or experimental accuracy claim"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/dispersioncorrections.html"
+        ],
+        "user_decision": "User authorized named ORCA alternatives with documented differences, then selected a separately optimized DFT VPT2 reference and approximate transferred rotational correction on 2026-10-07. This explicitly selected B3LYP-D4 variant implements that choice without automatic fallback."
+      },
+      "r2-separate-dft-vpt2-transfer-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "r2-separate-dft-vpt2-transfer-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-3h",
+          "kind": "r2-dft-vpt2-transfer",
+          "title": "R2 frozen-monomer QZ geometry and ordinary DLPNO CP with separately relaxed DFT VPT2 correction transfer",
+          "reference_method": "wB97X-V",
+          "reference_dispersion": null,
+          "native_capability_blocker": "ORCA 6.1 excludes VV10/nonlocal dispersion from analytic Hessians; native VPT2 requires analytic Hessians. The wB97X-V VPT2 reference is unavailable. Select an explicitly named different reference protocol; no automatic functional substitution.",
+          "delivers": [
+            "frozen-monomer QZ geometry and counterpoise interaction energy",
+            "approximate ground-state rotational constants from axis- and mass-matched separate DFT VPT2 correction",
+            "both geometry identities, all raw stages and explicit transferability limits"
+          ],
+          "replaces": "Full-dimensional VPT2 at a nonstationary frozen-monomer R2 geometry and ambiguous F12 energy label",
+          "decision_basis": "User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite",
+          "sources": [
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html",
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+          ],
+          "differences": [
+            "wB97M-V/def2-QZVPP geometry remains constrained to explicit high-level monomer shapes",
+            "Counterpoise uses ordinary frozen-core DLPNO-CCSD(T1)/cc-pVDZ-F12 TightPNO; orbital F12 basis name does not select an F12 Hamiltonian or CABS",
+            "Independent fully relaxed strict wB97X-V/def2-TZVPP reference feeds native VPT2; unsupported native derivative capability fails explicitly with no B3LYP substitution",
+            "B0_approx=B_R2+(B0_DFT-Be_DFT) only after explicit atom/mass/axis and semirigid-domain checks",
+            "Both geometry identities retained; same-basin transferability remains an explicit approximation, with no experimental accuracy or numerical uncertainty claim"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyproperties/vpt2.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/frequencies.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+        ],
+        "user_decision": "User explicitly selected a separately optimized DFT VPT2 reference and transferred rotational correction on 2026-10-07; the result is an approximate composite"
+      },
+      "cfour-relaxed-counterpoise-geometry-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-relaxed-counterpoise-geometry-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1w",
+          "kind": "cfour-counterpoise-geometry",
+          "title": "CFOUR raw and relaxed-counterpoise CBS/CV/full-triples/full-quadruples geometry bracket",
+          "delivers": [
+            "separate raw and CP composite geometries and rigid-rotor constants",
+            "native component energies and checked numerical derivative evidence"
+          ],
+          "replaces": "Unspecified native driver, component bases and raw/CP bracket implementation",
+          "decision_basis": "Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention",
+          "sources": [
+            "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py",
+            "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py"
+          ],
+          "differences": [
+            "Every one of eight components is independently optimized on both E_AB and E_AB+sum(E_i_own-E_i_ghost)",
+            "Actual CFOUR 2.1 native energies with checked h/h2 numerical derivatives; no native analytic correlated CP-gradient claim",
+            "Closed-shell gas-phase H-Ne domain; conventional H/He=0 and Li-Ne=1 occupied core per physical nucleus",
+            "Separate raw/CP sensitivity bracket, no default midpoint, statistical uncertainty, verified composite minimum or transferred benchmark"
+          ]
+        },
+        "sources": [
+          "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/runner.py",
+          "https://github.com/MolSSI/QCEngine/blob/v0.51.0/qcengine/programs/cfour/harvester.py"
+        ],
+        "user_decision": "Explicit CFOUR implementation of the source's permitted higher-composite family, with supplied component bases and restricted conventional core convention"
+      },
+      "cfour-observed-default-mass-small-correction-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-observed-default-mass-small-correction-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3C-1mo",
+          "kind": "observed-mass-month-geometry",
+          "title": "CFOUR higher composite with HF X2C/DBOC small corrections and native-observed default-mass rigid rotors",
+          "delivers": [
+            "explicit small-correction composite geometry",
+            "Product A equilibrium rigid-rotor constants from observed native atomic masses",
+            "complete per-evaluation native mass observations and print-precision intervals"
+          ],
+          "replaces": "Unspecified scalar/DBOC basis choices and previously withheld default-mass rotor deliverable",
+          "decision_basis": "Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred",
+          "sources": [
+            "wiki/Method_Matrix.md:3043",
+            "wiki/Method_Matrix.md:3057",
+            "wiki/Method_Matrix.md:3109",
+            "https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out"
+          ],
+          "differences": [
+            "Explicit same-basis all-electron HF X2C1E minus nonrelativistic and HF+DBOC minus HF coordinate increments",
+            "Every actual CFOUR 2.1 DBOC-enabled evaluation must report the same complete mapped native atomic-mass vector and print precision with retained raw evidence",
+            "The final rotor uses these observed atomic masses; internal DBOC nuclear masses are neither substituted nor claimed numerically known",
+            "H/C/N/O/F only, no explicit isotope requests; no generic isotope-campaign or most-abundant mass-table substitution",
+            "Composite geometry and Be are Product A outputs, not B0, a common-potential stationary point, a verified minimum or transferred benchmark accuracy"
+          ]
+        },
+        "sources": [
+          "wiki/Method_Matrix.md:3043",
+          "wiki/Method_Matrix.md:3057",
+          "wiki/Method_Matrix.md:3109",
+          "https://github.com/zorkzou/UniMoVib/blob/d354fd6f6b6e9bb79f34ea11928c62c6b2b6c2dc/test/CFour/h2o-nosymm/h2o-c1.out"
+        ],
+        "user_decision": "Complete the requested T3C-1mo Product A calculation for a verified native-default isotopologue; arbitrary isotope campaigns belong to separately specified T4C products and are not inferred"
+      },
+      "cfour-native-default-mass-corrected-geometry-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "cfour-native-default-mass-corrected-geometry-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3C-1mo",
+          "kind": "conditional-month-geometry",
+          "title": "CFOUR higher composite plus explicit HF X2C and native-default HF DBOC geometry increments",
+          "delivers": [
+            "conditional corrected geometry and native component evidence",
+            "no mass-bound rotor constants or full archived row completion"
+          ],
+          "replaces": "Unspecified scalar/DBOC model choices; isotope-consistent rotor deliverable remains incomplete",
+          "decision_basis": "Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution",
+          "sources": [
+            "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc",
+            "https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py"
+          ],
+          "differences": [
+            "Explicit same-basis HF X2C1E minus nonrelativistic geometry increment",
+            "Explicit same-basis HF+native-default-DBOC minus HF geometry increment",
+            "Only H/C/N/O/F with no explicit isotope; this compatibility variant intentionally does not publish observed-mass rotors",
+            "All rotor constants withheld; not completion of the full archived month row"
+          ]
+        },
+        "sources": [
+          "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/src/read_options.cc",
+          "https://github.com/RagnarB83/ash/blob/f43c421f3bca48e3740bab7a10acb5a2676246a0/ash/interfaces/interface_CFour.py"
+        ],
+        "user_decision": "Explicit conditional implementation within the requested full SRS work; limited native-default geometry scope, not a claim of an authorized isotope-mass substitution"
+      },
+      "orca-f12d-composite-interaction-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-composite-interaction-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T5-3h",
+          "kind": "composite-interaction",
+          "title": "ORCA F12D/RI plus split MP2-F12 CBS and same-basis MP2 core-valence interaction",
+          "delivers": [
+            "explicit composite frozen-inc interaction energy",
+            "all native component energies and HF/CABS/correlation partitions"
+          ],
+          "base": "fc-CCSD(T)-F12D/RI/jun-cc-pVTZ",
+          "cbs": "matched fc-MP2-F12 jun-cc-pVTZ/jun-cc-pVQZ; separate HF+CABS exponential and F12 correlation inverse-power extrapolation",
+          "core_valence": "MP2(all electron)-MP2(frozen core), both cc-pwCVTZ",
+          "replaces": "junChS-F12b composite stated as an ORCA calculation",
+          "differences": [
+            "Explicit ORCA F12D/RI approximation, not CCSD(T)-F12b or a published junChS-F12b benchmark recipe",
+            "All CABS, fitting sets, SCF/core choices and extrapolation exponents are explicit",
+            "HF+CABS singles and F12 correlation are extrapolated separately",
+            "Frozen-inc interaction energy; no counterpoise, binding-energy or three-hour guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      },
+      "orca-f12d-numerical-geometry-dz-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-numerical-geometry-dz-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1d",
+          "title": "ORCA canonical fc-CCSD(T)-F12D/RI double-zeta numerical geometry",
+          "delivers": [
+            "numerically stationary geometry and electronic energy",
+            "rigid-rotor constants at the stationary geometry",
+            "gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee"
+          ],
+          "orbital_basis": "cc-pVDZ-F12",
+          "cabs": "cc-pVDZ-F12-CABS",
+          "auxiliary_c": "cc-pVDZ/C",
+          "replaces": "Conflicting MPQC/ORCA/F12 numerical-geometry specification",
+          "differences": [
+            "Canonical F12D/RI, not MPQC or local DLPNO",
+            "Explicit frozen core and conventional RHF integrals",
+            "TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient",
+            "Finite double-zeta model; no CBS, reference-accuracy or nominal one-day guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      },
+      "orca-f12d-numerical-geometry-tz-v1": {
+        "revision": "topos-matrix-reviewed-0.1.0-2026-10-07",
+        "sha256": "870fc2b3b2f2dbf0c849b93d7703d40471a97318ef9465af29c5b1eab16eaa07",
+        "variant": "orca-f12d-numerical-geometry-tz-v1",
+        "archived_revision": "method-matrix-v4-2026-08-09",
+        "archived_source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+        "definition": {
+          "row_id": "T3O-1mo",
+          "title": "ORCA canonical fc-CCSD(T)-F12D/RI triple-zeta numerical geometry",
+          "delivers": [
+            "numerically stationary geometry and electronic energy",
+            "rigid-rotor constants at the stationary geometry",
+            "gradient and h/h2 sensitivity; no verified equilibrium minimum or accuracy guarantee"
+          ],
+          "orbital_basis": "cc-pVTZ-F12",
+          "cabs": "cc-pVTZ-F12-CABS",
+          "auxiliary_c": "cc-pVTZ/C",
+          "replaces": "Molpro F12 optimized-reference-geometry requirement",
+          "differences": [
+            "ORCA canonical F12D/RI, not Molpro F12a/F12b",
+            "Explicit frozen core and conventional RHF integrals",
+            "TOPOS numerical h/h2 energy derivatives, not a native analytic F12 gradient",
+            "Finite triple-zeta model; no reference-accuracy or nominal one-month guarantee"
+          ]
+        },
+        "sources": [
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html",
+          "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+        ],
+        "user_decision": "User explicitly authorized named ORCA alternatives and documented scientific differences"
+      }
+    },
+    "revision_scope": "Original v4 rows remain archived verbatim. Compiled revised rows require their explicit separately hashed reviewed variant; source benchmark claims are not transferred.",
+    "conditional_recipe_resolutions": {
+      "T1-3h": {
+        "source_literal": "ORCA Freq (native analytic Hessian)",
+        "implemented_derivative": "native ORCA analytic Hessian with separate real reference-gradient stationarity evidence",
+        "optional_explicit_resolution": "physical-central-gradient-hessian-v1 uses central differences of actual analytic gradients",
+        "source_attribution_limit": "Native CREST --screen disables origin tracking; only input counts/exact input overlap and combined-union final provenance are established"
+      },
+      "T3O-12h": {
+        "required_explicit_resolution": "junchs-same-basis-core-valence-v1",
+        "source_conflict": "source definitions differ for the MP2 core-valence subtraction",
+        "implemented_variant": "ae minus fc at the same cc-pwCVTZ basis; full independent internal-coordinate chart required"
+      },
+      "T3O-3d": {
+        "required_explicit_resolution": "autoci-conventional-transformation-v1",
+        "source_conflict": "MDCI AO-direct options cannot be transplanted to AUTOCI",
+        "implemented_variant": "canonical AUTOCI analytic gradients and native integral transformation; no AO-direct claim"
+      },
+      "T3O-1d": {
+        "required_explicit_resolution": "orca-f12d-numerical-geometry-dz-v1",
+        "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVDZ-F12/CABS/cc-pVDZ/C; checked numerical energy derivatives and explicit stationarity controls"
+      },
+      "T3O-1mo": {
+        "required_explicit_resolution": "orca-f12d-numerical-geometry-tz-v1",
+        "implemented_variant": "canonical frozen-core ORCA F12D/RI with exact cc-pVTZ-F12/CABS/cc-pVTZ/C; checked numerical energy derivatives, not Molpro F12b",
+        "compatibility_branch": "orca-f12-reference-singlepoint-v1 remains explicitly energy-only and does not complete the revised geometry protocol"
+      },
+      "T5-12h": {
+        "required_input": "complete correlated_protocol with exact correlation fitting basis and core convention",
+        "implemented_variant": "plain DLPNO-CCSD(T1) with cc-pVDZ-F12 orbital basis and native !LED; not an F12 Hamiltonian"
+      },
+      "T5-1d": {
+        "required_input": "complete DLPNO protocol; identical reference/settings except consecutive TCutPNO6/7",
+        "implemented_variant": "HF + correlation6 + 1.5*(correlation7-correlation6), then frozen fragment subtraction"
+      },
+      "T5-3d": {
+        "required_input": "explicit RI correlation fitting basis omitted by the source row",
+        "implemented_variant": "canonical CCSD(T)-F12D/RI with cc-pVTZ-F12 and its CABS; never relabeled F12b"
+      },
+      "T5-3h": {
+        "required_explicit_resolution": "orca-f12d-composite-interaction-v1",
+        "implemented_variant": "five exact ORCA protocols per frozen complex/fragment: F12D/RI base, separate HF+CABS exponential and F12-correlation inverse-power CBS, same-basis MP2 ae-fc correction",
+        "scientific_difference": "Explicit reviewed ORCA approximation; not archived junChS-F12b or its A14 benchmark"
+      },
+      "T5-30min": {
+        "required_explicit_resolution": "native-composite-rawinteraction-v1",
+        "implemented_variant": "native r2SCAN-3c frozen interaction including built-in gCP; no separate CP/half-CP claim"
+      },
+      "T5-1w": {
+        "required_input": "energy_composite with explicit consecutive CBS bases, HF exponential coefficient, correlation power, core-valence and full-triples bases",
+        "implemented_variant": "eight genuine native CFOUR components per complex/fragment; no named HEAT/Wn recipe or benchmark-accuracy transfer"
+      },
+      "T3C geometry rows": {
+        "required_explicit_resolution": "cfour-topos-cartesian-optimizer-v1",
+        "implemented_variant": "TOPOS Cartesian L-BFGS-B using actual CFOUR analytic gradients; not the source's native internal-coordinate optimizer"
+      },
+      "T3C-1w": {
+        "required_input": "higher_geometry with explicit consecutive CBS bases, geometry exponent, CV/full-triples/full-quadruples bases and independent coordinate chart",
+        "implemented_variant": "seven optimizations use native analytic derivatives; the full-quadruples optimization uses checked h/h2 central differences of genuine CFOUR 2.1 NCC CCSDTQ energies",
+        "derivative_limit": "No native CCSDTQ analytic-gradient claim; same torsional-basin membership remains an explicit unverified assumption"
+      },
+      "T3O-1w": {
+        "required_explicit_resolution": "cfour-relaxed-counterpoise-geometry-v1",
+        "required_input": "cfour_counterpoise with every native basis/core/chart/numerical derivative choice",
+        "implemented_variant": "sixteen component optimizations: eight raw and eight relaxed CP total surfaces; separate parameter-wise composite geometry bracket",
+        "validation_limit": "Strict conditional CFOUR 2.1 ghost/core/native output contract; live correlated ghost acceptance remains pending, no benchmark or verified composite minimum claim"
+      },
+      "T3O-3h": {
+        "required_explicit_resolution": "r2-b3lyp-d4-vpt2-transfer-v1",
+        "implemented_variant": "frozen QZ target plus ordinary DLPNO CP; independently relaxed strict B3LYP-D4/TZVPP native VPT2 reference and explicit axis/mass matched correction transfer",
+        "validation_limit": "Approximate composite with explicitly changed reference functional; archived wB97X-V/VV10 native VPT2 remains unsupported, no automatic fallback or experimental accuracy claim"
+      },
+      "T3C-1mo": {
+        "required_explicit_resolution": "cfour-observed-default-mass-small-correction-v1",
+        "implemented_variant": "higher composite plus paired HF X2C/native-default HF DBOC increments and Product A rotors using raw-bound observed native atomic masses",
+        "completion_limit": "Every actual DBOC-enabled evaluation must attest the same complete mass vector and print precision; H/C/N/O/F with no explicit isotope requests, no B0 or generic isotope campaign",
+        "compatibility_branch": "cfour-native-default-mass-corrected-geometry-v1 remains geometry-only and does not complete Product A"
+      },
+      "T1-30min": {
+        "required_input": "explicit AIMNet2 checkpoint manifest and concurrent ML/ORCA resource allocation",
+        "implemented_variant": "native GOAT-EXPLORE ExtOpt followed by actual common r2SCAN-3c refinement and Stage-A native CREGEN; ML energies remain raw enumeration observations"
+      },
+      "T1-1w": {
+        "required_input": "100\u2013500 provenance-verified DFT configurations, group-disjoint data partitions, explicit GPU training/model/allocation, and hash-verified CREST 3.0.2+topos-generic-paths-v1",
+        "implemented_variant": "float64 MACE fine-tuning and held-out evaluation; both native GOAT and patched CREST use the identical trained checkpoint; real common r2SCAN-3c refinement and native Stage-A CREGEN",
+        "validation_limit": "Native reduced-profile CREST/MACE interface passed; no actual GPU training, combined native GOAT/ML or full default compound-campaign acceptance is claimed"
+      },
+      "T1-1d": {
+        "required_input": "identical explicit seed geometries at 298.15 K",
+        "implemented_variant": "both native stopping criteria plus abs(GOAT Sconf-CREST Sconf)<0.1; excludes CREST total entropy and delta-RRHO"
+      },
+      "T1-1mo": {
+        "required_input": "at least three distinct seeds and an exact coupled-cluster energy protocol",
+        "implemented_variant": "native GOAT-DIVERSITY and CREST-v4, actual common GFN2 refinement, native CREGEN and DLPNO reranking; no exhaustive-sampling proof"
+      },
+      "T5-1min": {
+        "required_input": "independent float64 committee and explicit ml_no_energy_culling=True",
+        "implemented_variant": "frozen interaction and paired committee disagreement; retains all structures, no pruning without a separate G4 audit"
+      }
+    },
+    "additional_adapter_recipes": [],
+    "torq_owned_rows": 96,
+    "validation_scope": "Catalog/compiled orchestration coverage only. Each execution must verify its real engines and scientific outputs."
+  },
+  "release_gate": {
+    "status": "blocked",
+    "blocker_count": 23,
+    "blockers": [
+      "Regression: 9 current source files lack matching tested hashes",
+      "Regression testcase coverage: supplemental pytest source identity is missing or differs from the release",
+      "Regression receipt explicitly lacks full SRS/matrix acceptance",
+      "SRS acceptance: exact current document and complete requirement inventory required",
+      "SRS acceptance: TOPOS-010-011 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-012 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-013 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-014 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-015 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-016 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-017 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-020 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-021 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-022 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-029 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-030 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-031 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-033 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-034 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-041 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-049 is not verified with retained evidence",
+      "hosted ORCA acceptance: current evidence file is missing",
+      "extended hosted ORCA acceptance: current evidence file is missing"
+    ],
+    "receipt": "/workspace/.cochem-setup/topos-release-candidate-12/release-gate.json",
+    "sha256": "903f0f9cf547ac033621dfed27a5295badf060f10f42296c87b1d92334d82c47"
+  },
+  "download": {
+    "path": "/workspace/.cochem-setup/topos-download-12/cochem-topos-0.1.0-unsigned-candidate.zip",
+    "sha256": "90192bded09ab9da8cf360433be078d241b0785d7f3af705daaeaa9a5fef52d3",
+    "bytes": 17450112,
+    "verified_payload_checksums": 143
+  },
+  "commands": [
+    {
+      "name": "ase-io",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "/workspace/.cochem-setup/accept_installed_ase_io.py",
+        "--output",
+        "/workspace/.cochem-setup/topos-clean-wheel-12/acceptance/ase-io"
+      ],
+      "returncode": 0,
+      "log": "/workspace/.cochem-setup/topos-release-candidate-12/ase-io.log",
+      "log_sha256": "ed94a6507caddd1bb6c0d384e314094be2b45af22563f76619cb0eb5434cab3e"
+    },
+    {
+      "name": "release-gate",
+      "command": [
+        "/workspace/.cochem-setup/topos-clean-wheel-12/venv/bin/python",
+        "-I",
+        "-m",
+        "topos.release",
+        "gate",
+        "--source-root",
+        "/workspace/CoChem-TOPOS",
+        "--validation",
+        "/workspace/CoChem-TOPOS/.docs/TOPOS_COMPLETION_VALIDATION.json",
+        "--srs-acceptance",
+        "/workspace/CoChem-TOPOS/.docs/TOPOS_SRS_ACCEPTANCE.json",
+        "--distribution-manifest",
+        "/workspace/.cochem-setup/topos-release-candidate-12/distribution-manifest.json",
+        "--installation",
+        "/workspace/.cochem-setup/topos-clean-wheel-12/acceptance/installed-acceptance.json",
+        "--output",
+        "/workspace/.cochem-setup/topos-release-candidate-12/release-gate.json"
+      ],
+      "returncode": 3,
+      "log": "/workspace/.cochem-setup/topos-release-candidate-12/release-gate.log",
+      "log_sha256": "ce77a7a5e6f212703a361e22f1f799b31bc900868363aa22c67faca1a88ee7fa"
+    },
+    {
+      "name": "download-assembly",
+      "command": [
+        "/workspace/.cochem-setup/release-build-env/bin/python",
+        "/workspace/.cochem-setup/assemble_topos_candidate.py",
+        "--candidate",
+        "/workspace/.cochem-setup/topos-release-candidate-12",
+        "--wheelhouse",
+        "/workspace/.cochem-setup/topos-final-wheelhouse-12",
+        "--installation",
+        "/workspace/.cochem-setup/topos-clean-wheel-12",
+        "--output",
+        "/workspace/.cochem-setup/topos-download-12",
+        "--base-pin",
+        "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+        "--torq-pin",
+        "79fbb111125e50627a1a2c129888a45496f368d4",
+        "--companion-reproducibility",
+        "/workspace/.cochem-setup/topos-final-companions-12/companion-reproducibility.json"
+      ],
+      "returncode": 0,
+      "log": "/workspace/.cochem-setup/topos-release-candidate-12/download-assembly.log",
+      "log_sha256": "25824e4cc1c58291604508f8055f00fba6355b5c991559a46aa93ccd8ee08115"
+    }
+  ],
+  "published": false,
+  "release_certified": false
+}

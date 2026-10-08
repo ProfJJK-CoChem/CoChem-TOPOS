@@ -1,0 +1,71 @@
+"""Actual audited rigidmol sampling, xTB refinement, and durable replay."""
+import json
+import subprocess
+import time
+from pathlib import Path
+
+from topos.base_integration import BaseRuntime
+from topos.config import SystemConfig
+from topos.models import RunRequest
+from topos.release import source_inventory
+from topos.storage import RunStore, atomic_json, digest_json, file_digest
+from topos.workflow import Workflow
+
+root = Path('/workspace/CoChem-TOPOS')
+output = Path('/workspace/.cochem-setup/topos-ml-worker-13/abcluster-native')
+prior = Path('/workspace/.cochem-setup/abcluster-base-acceptance/run_77a261b00cc94209a28d817838f016')
+# Keep the explicit historical run identifier rather than searching for a result.
+prior = prior.with_name('run_77a261b00cc94209a28d81783887f016')
+registry = Path('/workspace/.cochem-base-runtime/Registry/cochem_system_config.json')
+if output.exists():
+    raise ValueError('Use a new evidence directory')
+before = source_inventory(root)
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+assert head == '48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2'
+prior_store = RunStore(prior)
+prior_snapshot = prior_store.verify()
+request = RunRequest.model_validate(prior_store.load()['request'])
+assert request.search_algorithm == 'abcluster' and request.engine == 'xtb'
+assert request.method == 'GFN2-xTB' and request.n_candidates == 2
+runtime = BaseRuntime(registry)
+registry_hash = file_digest(registry)
+resolved = {name: runtime.resolve_executable(name) for name in ('abcluster', 'xtb')}
+workflow = Workflow(output, config=SystemConfig(execution_backend='base', base_registry_path=registry))
+started = time.monotonic()
+record = workflow.run(request)
+assert record.status == 'completed', (record.status, record.metadata.get('termination_reason'))
+plans = record.metadata['sample_plan']
+raw_frames = record.attempts[0].metadata['raw_ensemble']
+assert len(plans) == 1 + min(request.n_candidates, len(raw_frames))
+assert len(record.attempts) == 1 + len(plans)
+assert plans[0]['source'] == 'INITIAL_SEED'
+assert all(p['source'] == 'ABCLUSTER' for p in plans[1:])
+assert len(record.candidates) == len(plans)
+assert [(a.engine, a.engine_version) for a in record.attempts] == [('abcluster', '3.4')] + [('xtb', '6.7.1')]*len(plans)
+assert all(a.status == 'completed' and a.metadata.get('execution_kind') == 'real' for a in record.attempts)
+store = RunStore(record.metadata['run_dir'])
+snapshot = store.verify()
+pointer_hash = file_digest(store.current)
+replay = workflow.resume(store.run_dir)
+assert replay.model_dump(mode='json') == record.model_dump(mode='json')
+assert file_digest(store.current) == pointer_hash
+assert source_inventory(root) == before and file_digest(registry) == registry_hash
+receipt = {
+    'schema_version': 'topos-base-abcluster-acceptance/1', 'status': 'passed',
+    'scope': 'Actual rigidmol Ne2 sampling followed by independent GFN2-xTB refinement of the input and every selected native frame and completed-record replay; no exhaustive search, accuracy benchmark, GPU or full matrix-row claim',
+    'source_commit': head, 'source_inventory': before, 'sources_unchanged': True,
+    'verification_script_sha256': file_digest(Path(__file__)),
+    'registry_sha256': registry_hash, 'base': runtime.provenance(),
+    'executables': {name: {'path': path, 'sha256': file_digest(Path(path))} for name, path in resolved.items()},
+    'prior_request_run': str(prior), 'prior_snapshot_id': prior_snapshot['snapshot_id'],
+    'request_sha256': digest_json(request.model_dump(mode='json')),
+    'run_id': record.run_id, 'run_directory': str(store.run_dir), 'snapshot_id': snapshot['snapshot_id'],
+    'record_sha256': snapshot['record_sha256'], 'recovery_verified': True,
+    'attempts': [{'attempt_id': a.attempt_id, 'engine': a.engine, 'version': a.engine_version,
+                  'method': a.method, 'status': a.status, 'artifacts': [x.model_dump(mode='json') for x in a.artifacts]}
+                 for a in record.attempts],
+    'elapsed_seconds': time.monotonic() - started,
+}
+atomic_json(output / 'acceptance.json', receipt)
+print(json.dumps({'status': 'passed', 'attempts': len(record.attempts), 'run_id': record.run_id,
+                  'elapsed_seconds': receipt['elapsed_seconds']}))

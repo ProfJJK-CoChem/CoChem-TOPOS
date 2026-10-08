@@ -1,0 +1,62 @@
+{
+  "files": {
+    "negative-mode2-cold.stdout": {
+      "actual_run_id": 37708503109,
+      "original_scientific_zip_sha256": "444db8f47a2885190f6b9b18ae2261f1b646e3a59321db0278a4c0cfb6d612b2",
+      "sha256": "5cc12e2fd9ae5d6a0412c90d07a731eac5b692298fb6a75951a60f1a505767cd",
+      "size_bytes": 54788,
+      "source_relative": "scf-mode0-investigation-20261008/retained-run-37708503109/11520932942/topos-cosx-probe-evidence/native/control-tightscf-mode2/optimization/final-gradient/engine.stdout",
+      "source_unchanged": true
+    },
+    "negative-old-mode0-cold.stdout": {
+      "actual_run_id": 37708503109,
+      "original_scientific_zip_sha256": "444db8f47a2885190f6b9b18ae2261f1b646e3a59321db0278a4c0cfb6d612b2",
+      "sha256": "03c3bc578a2dd8fa0c9c316f08f25ae273f8c00cf98467d57441255dff9048c6",
+      "size_bytes": 55493,
+      "source_relative": "scf-mode0-investigation-20261008/retained-run-37708503109/11520932942/topos-cosx-probe-evidence/native/intervention-tightscf-mode0/optimization/final-gradient/engine.stdout",
+      "source_unchanged": true
+    },
+    "positive-cold.stdout": {
+      "actual_run_id": 37713499250,
+      "original_scientific_zip_sha256": "d430386c14d25b8da0757d84147e5e029e2298b08f24caf898553c7b9edd84c0",
+      "sha256": "2451c3dd99c40bdb234f27d490a8f2897fd1350203d4226aa58288459bc89923",
+      "size_bytes": 56090,
+      "source_relative": "scf-mode0-tole-investigation-20261008/retained-run-37713499250/11523506413/topos-cosx-probe-evidence/native/intervention-mode0-tole-1e-10/optimization/final-gradient/engine.stdout",
+      "source_unchanged": true
+    },
+    "positive-optimization.stdout": {
+      "actual_run_id": 37713499250,
+      "original_scientific_zip_sha256": "d430386c14d25b8da0757d84147e5e029e2298b08f24caf898553c7b9edd84c0",
+      "sha256": "812e22fce312198ea7a063e2bca2486076466412d71113bc9132dfeed9045a05",
+      "size_bytes": 234641,
+      "source_relative": "scf-mode0-tole-investigation-20261008/retained-run-37713499250/11523506413/topos-cosx-probe-evidence/native/intervention-mode0-tole-1e-10/optimization/engine.stdout",
+      "source_unchanged": true
+    },
+    "predeclared-intervention-gradient.inp": {
+      "purpose": "exact approved render preview; not an invented native result",
+      "sha256": "5d8361a6df83d046b344d9ee085d647961fe706e5acc616b7656cf3d82558195",
+      "size_bytes": 195,
+      "source_relative": "scf-mode0-tole-investigation-20261008/deck-previews/predeclared-intervention-gradient.inp"
+    },
+    "predeclared-intervention-optimize.inp": {
+      "purpose": "exact approved render preview; not an invented native result",
+      "sha256": "e97c1cc8e001dd3cdecc4d3c68928f6766cdfa0238ad254456b695417c03d14d",
+      "size_bytes": 335,
+      "source_relative": "scf-mode0-tole-investigation-20261008/deck-previews/predeclared-intervention-optimize.inp"
+    },
+    "predeclared-original-gradient.inp": {
+      "purpose": "exact approved render preview; not an invented native result",
+      "sha256": "8f72a6bffc73a677a44526cecf8b310972ffefae625b5da024c36cd426e81427",
+      "size_bytes": 155,
+      "source_relative": "scf-mode0-tole-investigation-20261008/deck-previews/predeclared-original-gradient.inp"
+    },
+    "predeclared-original-optimize.inp": {
+      "purpose": "exact approved render preview; not an invented native result",
+      "sha256": "f85fb152cb054136179bde05f34d92aa4c24581beb88ad6ea7ffd5ee7fa0a183",
+      "size_bytes": 295,
+      "source_relative": "scf-mode0-tole-investigation-20261008/deck-previews/predeclared-original-optimize.inp"
+    }
+  },
+  "schema": "genuine-orca61-scf-regression-provenance/1",
+  "scope": "Unedited historical scientific stdout and approved input previews; no fixture is proof of current native execution, full matrix or scientific reference accuracy"
+}

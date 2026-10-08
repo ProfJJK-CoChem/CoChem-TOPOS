@@ -1,0 +1,13 @@
+include README.md LICENSE pyproject.toml setup.py requirements.txt CITATION.cff
+recursive-include topos *.py *.json
+recursive-include scripts *.py *.txt
+recursive-include examples *.json *.xyz
+recursive-include tests *.py *.txt *.json *.stdout *.out *.hess *.engrad *.inp *.stderr
+recursive-include .docs *.md *.json *.patch *.xml
+recursive-include .docs/evidence *.txt *.inp *.log *.stdout *.stderr *.out *.hess *.engrad *.xyz
+recursive-include wiki *.md
+recursive-include .github/workflows *.yml
+recursive-exclude * __pycache__ *.py[cod]
+prune build
+prune dist
+prune frontend

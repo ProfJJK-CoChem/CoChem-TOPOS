@@ -1,0 +1,28 @@
+----- AuxJ basis set information -----
+Your calculation utilizes the auxiliary basis: def2/J
+   H-Rn: F. Weigend, Phys. Chem. Chem. Phys. 8, 1057 (2006).
+   Fr-Lr: K. Eichkorn, F. Weigend, O. Treutler, R. Ahlrichs; Theor. Chem. Acc. 97, 119 (1997).
+
+! -----------------------------------
+!  AUXILIARY BASIS SET IN INPUT FORMAT
+! -----------------------------------
+
+$DATA
+HELIUM
+ S 3 
+   1     50.67205800000     0.06510070000
+   2     12.61822600000     0.21030930000
+   3      3.89951710000     0.37914360000
+ S 1 
+   1      1.40884650000     0.29380410000
+ S 1 
+   1      0.53939700000     0.06616060000
+ P 2 
+   1      4.00000000000     1.00000000000
+   2      1.00000000000     1.00000000000
+ D 1 
+   1      4.00000000000     1.00000000000
+$END
+
+
+

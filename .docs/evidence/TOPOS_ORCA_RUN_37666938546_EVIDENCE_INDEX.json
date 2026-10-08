@@ -1,0 +1,76 @@
+{
+  "schema_version": "topos-native-retention-index/0.1.0",
+  "github_run_id": "37666938546",
+  "source_commits": {
+    "base": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "topos": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+    "torq": "79fbb111125e50627a1a2c129888a45496f368d4"
+  },
+  "overall_status": "failed",
+  "receipt_bytes_unchanged": true,
+  "source_matched_current_head": false,
+  "original_archive": {
+    "all_retained_bytes_match_original_zip": true,
+    "archive_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-original-artifact.zip",
+    "archive_sha256": "72ebf75b7832088d4aa803eec3f29ce36ac1deb54ce62e18e37fed2e7c181d19",
+    "archive_size_bytes": 467713075,
+    "artifact_id": 11509101361,
+    "artifact_name": "topos-orca-acceptance-37666938546-1",
+    "github_digest": "sha256:72ebf75b7832088d4aa803eec3f29ce36ac1deb54ce62e18e37fed2e7c181d19",
+    "github_digest_verified": true,
+    "member_count": 11393,
+    "run_id": "37666938546"
+  },
+  "verified_snapshots": 30,
+  "receipts": [
+    {
+      "path": "TOPOS_ORCA_BASELINE_RUN_37666938546.json",
+      "sha256": "0f086072b113affdb53a5e10efb3cd4333bf8384d1190fc8002b98d8df10edf0",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-evidence/acceptance.json",
+      "bytes": 92806
+    },
+    {
+      "path": "TOPOS_ORCA_EXTENDED_RUN_37666938546.json",
+      "sha256": "3dc06556e57310ae51b75d20df911501f9e936601870babe2841e81e75d1877a",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-extended/acceptance.json",
+      "bytes": 44701
+    },
+    {
+      "path": "TOPOS_ORCA_PYTEST_RUN_37666938546.json",
+      "sha256": "92d5d9c35e6b2048215dbac8be6bc76c1b962c8d3949bf1865b6e04d953723e1",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-evidence/pytest-receipt.json",
+      "bytes": 27187
+    },
+    {
+      "path": "TOPOS_ORCA_PYTEST_RUN_37666938546.xml",
+      "sha256": "04212b60ef17a308faf4439811afadbfafa355e48619b77879e635ac34dafc4d",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-topos-artifact/topos-orca-evidence/native-pytest.xml",
+      "bytes": 8183
+    },
+    {
+      "path": "TOPOS_ORCA_RUN_37666938546_SUMMARY.json",
+      "sha256": "bf7be572adf8b094fee6a222e9cbb56085d1f349c5d808ab35c5a96999487c40",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-native-summary-independent.json",
+      "bytes": 13880
+    },
+    {
+      "path": "TOPOS_ORCA_RUN_37666938546_FAILURE_DIAGNOSIS.json",
+      "sha256": "c678ccf69e80d8972cf98e84be9cc8ca107d24151e8e6ae1c183f7367e3bbe5d",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-failure-diagnosis.json",
+      "bytes": 6030
+    },
+    {
+      "path": "TOPOS_ORCA_RUN_37666938546_VPT2_DIAGNOSIS.json",
+      "sha256": "dfd70a2ffab69528ac1f82ecdb8e8561223215e1c97f734d6b59b9bde1ccfd0d",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-vpt2-progress-diagnosis.json",
+      "bytes": 5712
+    },
+    {
+      "path": "TOPOS_ORCA_RUN_37666938546_HOSTED_STATUS.json",
+      "sha256": "2ae6542aae08f76863fdab980837be75ec762960f9294ea20e6d112b1d1362c9",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/seventh-hosted-status.json",
+      "bytes": 5689
+    }
+  ],
+  "scope": "Historical genuine native failures and component passes; current source certification remains pending"
+}

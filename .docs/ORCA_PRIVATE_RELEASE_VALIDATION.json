@@ -1,0 +1,35 @@
+{
+  "schema_version": "topos-private-release-validation/0.1.0",
+  "recorded_at": "2026-10-07T03:02:58.702395+00:00",
+  "git_head": "6a01b0f2adb7cff02edda6e339facf3d6f93904d",
+  "working_tree_dirty": true,
+  "python": "3.12.14",
+  "validation_scope": "Local private GitHub Release installer and hosted-worker infrastructure tests; no real GitHub download, licensed archive, or ORCA execution.",
+  "pytest": {
+    "tests": 132,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 1.795,
+    "junit_sha256": "b4676938ecb803f55522321a81465ed8f25a02405668a41d33dff45ff4aa4202",
+    "junit_path": "/workspace/.cochem-setup/orca-private-release-tests.xml",
+    "log_path": "/workspace/.cochem-setup/orca-private-release-tests.log"
+  },
+  "checks": {
+    "ruff": "passed for installer, worker, and their tests",
+    "actionlint": "v1.7.7 passed for orca_hosted.yml; optional shellcheck integration disabled",
+    "git_diff_check": "passed"
+  },
+  "private_release_download_live_tested": false,
+  "licensed_archive_compatibility_tested": false,
+  "orca_live_execution_tested": false,
+  "github_hosted_execution_tested": false,
+  "source_files": {
+    "scripts/install_orca.py": "e12298ba9454ebe82112ceaa0c50bb6cd58c2c45f7792706596255dd71ebb813",
+    "tests/v010/test_orca_install.py": "7879ba4198b7cc385a00660bf5ac33551dfa4f68815ed5393fcb0d1a1f9ca84d",
+    "topos/actions/hosted_worker.py": "b92ea6a90a92bfc3bf7660ca770bcb0d4c318c243769e8d11704e358207d100e",
+    "tests/v010/test_hosted_worker.py": "9cbc426211e7f0bdce99634b95effbe292280bd3fe5299effd663eea846d0449",
+    ".github/workflows/orca_hosted.yml": "92ce6e53a5c077f31ac60d13efd300c85d3b68d3059bda8cce86bd31446b6cb7",
+    "examples/orca-water-energy.json": "5d7e0e954291acdc6e3a1e6f6e8e835547820744c4bb465ebe16037ca8453119"
+  }
+}

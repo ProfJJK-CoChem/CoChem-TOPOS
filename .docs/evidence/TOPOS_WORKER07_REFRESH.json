@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "registry_sha256": "f323a32410024e6e432d2f674311af9cbe2fe3db4f3ba29ee81fcde6577dd738",
+  "registry_stable": true,
+  "all_eleven_receipt": "/workspace/.cochem-setup/refresh-20261007T182726876546794/all-eleven.json",
+  "worker_wheel_sha256": "acf225d4b50283ceaefebaf16f5b61fe1fcf10ceaabb68ead3b9f3f1fcbafe44",
+  "native_scope": [
+    "21 MACE CPU frames",
+    "75 four-member AIMNet CPU frames",
+    "3 persistent MACE callbacks",
+    "one native ABCluster sampling plus two xTB refinements and durable replay"
+  ],
+  "physical_gpu_verified": false,
+  "local_orca_installed": false
+}

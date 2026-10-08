@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "fixture": "ne-x2c.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/Ne/x2c-unc/2z/ccsd.txt",
+      "sha256": "9c4ff77c6bb6894171fae26ff7fcc3deaf896a435e97a60cf88f3717cc413e32",
+      "scope": "Unmodified historical public CFOUR2.00beta native output; not current-environment or public2.1 execution; carbon13 run failed."
+    },
+    {
+      "fixture": "carbon13-failed.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/C/DBOC/aug-cc-pCVDZ-NR/CFOUR_13C.txt",
+      "sha256": "f3c1a1c6d36e5ba2b12b0635691231c1e7a295a203d414007908e74fdc855d4b",
+      "scope": "Unmodified historical public CFOUR2.00beta native output; not current-environment or public2.1 execution; carbon13 run failed."
+    },
+    {
+      "fixture": "carbon12-dboc.out",
+      "url": "https://raw.githubusercontent.com/HPQC-LABS/AI_ENERGIES/3098f558135589f5acf52474428ba020a561d58d/C/DBOC/aug-cc-pCVDZ-NR/CFOUR.txt",
+      "sha256": "36769a2b979f080c9121be0ee2b4b68cc9f5109a52f127d93d8aa9ebaf6241b7",
+      "scope": "Unmodified historical public CFOUR2.00beta CCSD/UHF atomic default-mass output; not current2.1/HF molecular execution."
+    }
+  ]
+}

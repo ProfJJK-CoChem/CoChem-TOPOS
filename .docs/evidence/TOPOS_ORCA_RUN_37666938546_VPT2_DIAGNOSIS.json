@@ -1,0 +1,126 @@
+{
+  "archive_verification": "seventh-original-artifact-verification.json",
+  "cases": {
+    "extended": {
+      "displaced_derivative_outputs_found": [],
+      "files": {
+        "anharmonic.inp": {
+          "path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.inp",
+          "sha256": "5e87569de23cf1c6bfd370f93b1bb1f80295644a79b4cfccd0059335bc70569d",
+          "size_bytes": 389
+        },
+        "anharmonic.stderr": {
+          "path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stderr",
+          "sha256": "da4722628c538e0b0cd856697a95596b88eef3e496296daf7cea85dc72951537",
+          "size_bytes": 65
+        },
+        "anharmonic.stdout": {
+          "path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/anharmonic.stdout",
+          "sha256": "7d2886ad5dd3899a29989627bb02a13431e98574b64995f91099262423de8b33",
+          "size_bytes": 37063
+        },
+        "pickett.txt": {
+          "path": "topos-orca-extended/native-vpt2/native/vpt2-ddc6d9f80a854de59d3e4c3bf4268f5b/pickett.txt",
+          "sha256": "b7cf1bddb05a37ae5b86368067a470a2e4ab4b82fb8d968d76de5f66eadd3707",
+          "size_bytes": 1314
+        }
+      },
+      "last_lines": [
+        "Dipole components along the rotational axes: ",
+        "x,y,z [a.u.] :    -0.000000     0.764343    -0.000000 ",
+        "x,y,z [Debye]:    -0.000001     1.942805    -0.000000 ",
+        "",
+        " ",
+        "writing data to file in Pickett format ... ",
+        "",
+        "ORCA finished by error termination in PROPERTIES",
+        "Calling Command: mpirun -np 2  /home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_prop_mpi anharmonic.propinp.tmp anharmonic 1 anharmonic ",
+        "[file orca_tools/qcmsg.cpp, line 394]: ",
+        "  .... aborting the run",
+        ""
+      ],
+      "markers": [
+        {
+          "line": 528,
+          "text": "               *           SCF CONVERGED AFTER  15 CYCLES          *"
+        },
+        {
+          "line": 598,
+          "text": "Finished LeanSCF after   4.4 sec"
+        },
+        {
+          "line": 707,
+          "text": "writing data to file in Pickett format ... "
+        },
+        {
+          "line": 709,
+          "text": "ORCA finished by error termination in PROPERTIES"
+        },
+        {
+          "line": 710,
+          "text": "Calling Command: mpirun -np 2  /home/runner/work/_temp/cochem-orca-install/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_prop_mpi anharmonic.propinp.tmp anharmonic 1 anharmonic "
+        }
+      ],
+      "normal_termination_present": false,
+      "note": "Both jobs reach identical Pickett output after initial SCF/property stage; no completed VPT2 transition table or derivative displacement progress retained."
+    },
+    "licensed_pytest": {
+      "displaced_derivative_outputs_found": [],
+      "files": {
+        "anharmonic.inp": {
+          "path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.inp",
+          "sha256": "284204cd1d0cc7f62fc5e0e004a1abbd0d5277a0b32681f5d30e84011efb3eaf",
+          "size_bytes": 390
+        },
+        "anharmonic.stderr": {
+          "path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "anharmonic.stdout": {
+          "path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/anharmonic.stdout",
+          "sha256": "c68c125b3ce92c6e5681a0ba5b7107bbce55a0038495ef43e284743e0f4861cf",
+          "size_bytes": 36814
+        },
+        "pickett.txt": {
+          "path": "topos-orca-evidence/native-pytest-work/test_authentic_orca_vpt2_water0/native-vpt2/vpt2-ff350e6d855f4b01af7364242077f6f5/pickett.txt",
+          "sha256": "13ee36c9e5f99f703e46a6a3ec0ad51b19fcbf00a22409ede605ce827c00da45",
+          "size_bytes": 1314
+        }
+      },
+      "last_lines": [
+        "Rotational spectrum ",
+        "--------------------",
+        " ",
+        "Rotational constants in cm-1:            27.453379            14.409890             9.449816 ",
+        "Rotational constants in MHz :        823031.596550        431997.642819        283298.347578 ",
+        "",
+        "Dipole components along the rotational axes: ",
+        "x,y,z [a.u.] :    -0.000000     0.764343    -0.000000 ",
+        "x,y,z [Debye]:    -0.000001     1.942805    -0.000000 ",
+        "",
+        " ",
+        "writing data to file in Pickett format ... "
+      ],
+      "markers": [
+        {
+          "line": 528,
+          "text": "               *           SCF CONVERGED AFTER  15 CYCLES          *"
+        },
+        {
+          "line": 598,
+          "text": "Finished LeanSCF after   4.5 sec"
+        },
+        {
+          "line": 707,
+          "text": "writing data to file in Pickett format ... "
+        }
+      ],
+      "normal_termination_present": false,
+      "note": "Both jobs reach identical Pickett output after initial SCF/property stage; no completed VPT2 transition table or derivative displacement progress retained."
+    }
+  },
+  "classification": "Observed stall or native MPI property-output failure before VPT2 derivative progress; exact root cause not yet proven. Elapsed deadline alone does not support computational cost estimate.",
+  "github_run_id": "37666938546",
+  "source_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864"
+}

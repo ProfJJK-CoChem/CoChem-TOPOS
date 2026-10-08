@@ -1,0 +1,321 @@
+{
+  "phase_id": "PHASE_3_ENGINE_DISCOVERY_INTEGRITY",
+  "status": "DEGRADED",
+  "timestamp_utc": "2026-10-07T23:54:53.792978+00:00",
+  "engines": {
+    "orca": {
+      "name": "orca",
+      "track": "ORCA",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'orca' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "mpirun": {
+      "name": "mpirun",
+      "track": "ORCA",
+      "path": "/usr/bin/mpirun.openmpi",
+      "version": "5.0.7",
+      "sha256_hash": "96ab74bcbe60c8b6a750cd3b726ce6b2360991bcbc2a16635525a1979fc252ff",
+      "file_size_bytes": 208848,
+      "is_available": true,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "mpiexec": {
+      "name": "mpiexec",
+      "track": "ORCA",
+      "path": "/usr/bin/mpirun.openmpi",
+      "version": "5.0.7",
+      "sha256_hash": "96ab74bcbe60c8b6a750cd3b726ce6b2360991bcbc2a16635525a1979fc252ff",
+      "file_size_bytes": 208848,
+      "is_available": true,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "orca_2mkl": {
+      "name": "orca_2mkl",
+      "track": "ORCA",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'orca_2mkl' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "orca_vpt2_prep": {
+      "name": "orca_vpt2_prep",
+      "track": "ORCA",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'orca_vpt2_prep' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "xcfour": {
+      "name": "xcfour",
+      "track": "CFOUR",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'xcfour' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "c4init": {
+      "name": "c4init",
+      "track": "CFOUR",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'c4init' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "c4cleanup": {
+      "name": "c4cleanup",
+      "track": "CFOUR",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'c4cleanup' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "xtb": {
+      "name": "xtb",
+      "track": "XTB_CREST",
+      "path": "/workspace/.cochem-base-runtime/free-engines/xtb/xtb-dist/bin/xtb",
+      "version": "6.7.1",
+      "sha256_hash": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+      "file_size_bytes": 63253248,
+      "is_available": true,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "crest": {
+      "name": "crest",
+      "track": "XTB_CREST",
+      "path": "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/crest",
+      "version": "3.0.2+topos-generic-paths-v1",
+      "sha256_hash": "a2834f036e793ae674c823d1cb673a2625b1644db5239cfed8eaa9f6fcc65adc",
+      "file_size_bytes": 20276496,
+      "is_available": true,
+      "native_components": {
+        "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/installation.json": "02a800b9cd1b7fdc861115c49a4e63f4e5bfd7fcefd67f4620c9abd80f8430ee",
+        "/workspace/.tools/crest-3.0.2-generic-paths-v1-reviewed/source.patch": "9f22e2d9e0cd9b6aa8a6d41a0c32b6271d659c62498f888f0d5d889cc09aa8b9",
+        "/usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0": "6456b504ac347bd50c419667440b691f6966ad8aff5309d2f06c977fe2f9debe",
+        "/usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.1": "7efae004d2cafae3d37c7690bbf3c1ad9e4cd01db01c125755d2db74f7a565b1",
+        "/usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.1": "2b3fdbf8e9daa85ce62e449b9738cad4c8b50ba220342f51501c9ade19670895",
+        "/usr/lib/x86_64-linux-gnu/libgfortran.so.5.0.0": "d1c716d10039872bb5481b921d2142577c7873cad4d8d9f09028231aa7e42127",
+        "/usr/lib/x86_64-linux-gnu/libm.so.6": "6d567d53e895273ca14a1f9dc164fc6c8d39aed2f60aa46a733c2784228915f3",
+        "/usr/lib/x86_64-linux-gnu/libmvec.so.1": "cd2f99df70ed0fa44f79bd6322396180d19eaa1fb527b1b6e2aec9cdfc034d9d",
+        "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": "30c61ab012a4241bed033725a09b61f5fdd3bb7df95ee852d0b096520524c7af",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6": "fa430b8f298f817a266046af84a77533185ad6fc4406c7d3787b5a0a0c207826",
+        "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": "438c546d8e8cc48496bf3a95f753051afd9db66a629a74e31a9ded71586b56e0"
+      },
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "abcluster": {
+      "name": "abcluster",
+      "track": "GENERAL",
+      "path": "/workspace/.tools/abcluster-3.4/abcluster-Release/rigidmol",
+      "version": "3.4",
+      "sha256_hash": "d535d2c3c1cef2e7ca33e0f11c16b102fc1405bcc8336840edb87b7fab777307",
+      "file_size_bytes": 1072776,
+      "is_available": true,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "gxtb": {
+      "name": "gxtb",
+      "track": "XTB_CREST",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'gxtb' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "mopac": {
+      "name": "mopac",
+      "track": "GENERAL",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'mopac' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "qe": {
+      "name": "qe",
+      "track": "GENERAL",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'qe' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "psi4": {
+      "name": "psi4",
+      "track": "GENERAL",
+      "path": "/workspace/.cochem-setup/psi4-runtime/bin/psi4",
+      "version": "1.10.2",
+      "sha256_hash": "1e546f5f39fb6b040dd0c292773c07e9f4eb53a5924e688ef06494fd4cc47b81",
+      "file_size_bytes": 17963,
+      "is_available": true,
+      "native_components": {
+        "/workspace/.cochem-setup/psi4-runtime/lib/python3.12/site-packages/psi4/core.cpython-312-x86_64-linux-gnu.so": "3904ced56bb50dae40173422806b8360036667dc7db8b641c857a16c7188e1a8",
+        "/workspace/.cochem-setup/psi4-runtime/bin/python3.12": "f0151c0dcbe58788c33839b344b231250cc35f3767ac3a488cf07b48ba56fcf1"
+      },
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": null,
+      "status": "FOUND_VALID"
+    },
+    "apptainer": {
+      "name": "apptainer",
+      "track": "GENERAL",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'apptainer' not found across standard or configured search tiers",
+      "status": "MISSING"
+    },
+    "singularity": {
+      "name": "singularity",
+      "track": "GENERAL",
+      "path": null,
+      "version": null,
+      "sha256_hash": null,
+      "file_size_bytes": null,
+      "is_available": false,
+      "native_components": {},
+      "is_container": false,
+      "container_flags": [],
+      "error_detail": "Binary 'singularity' not found across standard or configured search tiers",
+      "status": "MISSING"
+    }
+  },
+  "tracks": {
+    "ORCA": {
+      "track": "ORCA",
+      "total_scanned": 5,
+      "available_count": 2,
+      "missing_count": 3,
+      "is_track_ready": false
+    },
+    "CFOUR": {
+      "track": "CFOUR",
+      "total_scanned": 3,
+      "available_count": 0,
+      "missing_count": 3,
+      "is_track_ready": false
+    },
+    "XTB_CREST": {
+      "track": "XTB_CREST",
+      "total_scanned": 3,
+      "available_count": 2,
+      "missing_count": 1,
+      "is_track_ready": false
+    },
+    "PYSCF_GPU": {
+      "track": "PYSCF_GPU",
+      "total_scanned": 0,
+      "available_count": 0,
+      "missing_count": 0,
+      "is_track_ready": false
+    },
+    "CONTAINER_SIF": {
+      "track": "CONTAINER_SIF",
+      "total_scanned": 0,
+      "available_count": 0,
+      "missing_count": 0,
+      "is_track_ready": false
+    },
+    "GENERAL": {
+      "track": "GENERAL",
+      "total_scanned": 6,
+      "available_count": 2,
+      "missing_count": 4,
+      "is_track_ready": false
+    }
+  },
+  "container": {
+    "runtime_name": null,
+    "runtime_path": null,
+    "runtime_version": null,
+    "airgap_flags_valid": true,
+    "discovered_sifs": []
+  },
+  "fingerprint": {
+    "composite_hash": "34ffaba03ce6b8778713b64d4e1a710371ff68c645790b0bd3f32116ec78da8a",
+    "component_count": 6,
+    "provenance": "[D] Deterministic Composite System Hash"
+  },
+  "warnings": [
+    "ORCA binary not found in local paths; ORCA calculations are unavailable until an audited backend is configured."
+  ],
+  "errors": [],
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p3.json"
+}

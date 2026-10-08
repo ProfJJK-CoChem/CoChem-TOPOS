@@ -1,0 +1,60 @@
+{
+  "schema_version": "topos-independent-ordinary-ci-job-source-proof/0.1.0",
+  "run_id": "37699227832",
+  "repository": "ProfJJK-CoChem/CoChem-TOPOS",
+  "milestone_label": "48f2a05 ordinary CI; historical if later source changes",
+  "head_sha": "48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2",
+  "actual_git_tree": "18e4de0261704b714966449b9100a3e99cd4fa49",
+  "original_verification_sha256": "6d3bf0d583ec3b7e22a08fee691cf073aedf09229c98dbd3f0cee4d1cd768ee0",
+  "original_logs_zip_sha256": "3ce4e71acdf1b97ce3c95a1007a487c735fef247ad30ef9159960d680d1eba6a",
+  "jobs": [
+    {
+      "python": "3.11",
+      "job_id": 113058557717,
+      "job_conclusion": "success",
+      "source_commit": "48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2",
+      "actual_merge_checkout": "c4e63f8449dc503c0bf2cae91283630e8bd5894f",
+      "actual_git_tree": "18e4de0261704b714966449b9100a3e99cd4fa49",
+      "identical_source_tree": true,
+      "original_log_member": "verify (3.11)/2_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+      "checkout_log_sha256": "7147c1ad8eb5bdbe3bba1a8931eee33a7e9de7fcf20e65c05c819ba356587dc1",
+      "companion_checkouts": [
+        {
+          "commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+          "original_log_member": "verify (3.11)/4_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+          "log_sha256": "3d152ffb3bcb478c4d1a102cc42cfc545986610143af7384dddb38c19df111c3"
+        },
+        {
+          "commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+          "original_log_member": "verify (3.11)/5_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+          "log_sha256": "c23a6e181a08dafa4ae72d7d8a6b3376114f00116a9d38fbf6c7d008f84d2b9e"
+        }
+      ]
+    },
+    {
+      "python": "3.12",
+      "job_id": 113058558213,
+      "job_conclusion": "success",
+      "source_commit": "48f2a05c7fa1dc087af6faf2b77cbaf4102f55a2",
+      "actual_merge_checkout": "c4e63f8449dc503c0bf2cae91283630e8bd5894f",
+      "actual_git_tree": "18e4de0261704b714966449b9100a3e99cd4fa49",
+      "identical_source_tree": true,
+      "original_log_member": "verify (3.12)/2_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+      "checkout_log_sha256": "e95e151765585870ac2e88257f6e22d5c876f46cfc2e029040b1ad67aabeb0c0",
+      "companion_checkouts": [
+        {
+          "commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+          "original_log_member": "verify (3.12)/4_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+          "log_sha256": "ff821787a8ef43366c16c6fd6da271918adce7891a4066b3300c90a2acd71c4f"
+        },
+        {
+          "commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+          "original_log_member": "verify (3.12)/5_Run actions_checkout@11bd71901bbe5b1630ceea73d27597364c9af683.txt",
+          "log_sha256": "14559518edd5ac4da93c279357796078a2395b9a4c73a021d829587277ea0b15"
+        }
+      ]
+    }
+  ],
+  "release_certified": false,
+  "scope": "Each actual CI job checkout and companion commit derived from unchanged original GitHub logs; same-tree ordinary-CI evidence only, no native-license, GPU or scientific-reference certification."
+}

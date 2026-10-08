@@ -1,0 +1,122 @@
+{
+  "status": "verified",
+  "base_registry_status": "DEGRADED_OPERATIONAL",
+  "phases": [
+    {
+      "phase_number": 1,
+      "status": "PASSED",
+      "sha256": "aa23de311b6638192cec0a60557990645033fdf5cce6e2161008b810b28d8770"
+    },
+    {
+      "phase_number": 2,
+      "status": "DEGRADED",
+      "sha256": "db4e27e7a4c796274c6929eeeae9661f0c944d617a96cd9bcbbd509d22921798"
+    },
+    {
+      "phase_number": 3,
+      "status": "PASSED",
+      "sha256": "d95235a7bd7d3a6ff6febb445f51674aeee8dd345093ca512993410dbec70617"
+    },
+    {
+      "phase_number": 4,
+      "status": "PASSED",
+      "sha256": "6d5e502208bfea2c0e7fb04c57048479113fd4036dde82bac66f2cfdff3d5b7d"
+    },
+    {
+      "phase_number": 5,
+      "status": "PASSED",
+      "sha256": "bf9920579b257732d01da3c7d45df96513e6a945b79190bd42f929dc320d5ad6"
+    },
+    {
+      "phase_number": 6,
+      "status": "PASSED",
+      "sha256": "5e1fc0342a9712900b0ef56131527a9b21b210d7886684f4a809b3e2f18a3cdd"
+    },
+    {
+      "phase_number": 7,
+      "status": "PASSED",
+      "sha256": "349abf8ecd8524463a7801b8bba8b51f4dcc5cf203ccadc6441a4e168d2f193b"
+    },
+    {
+      "phase_number": 8,
+      "status": "PASSED",
+      "sha256": "c768a42270c9ad043f81c1ccfa2969cb7135a65b9eeef37b52baca70a3d4abfa"
+    },
+    {
+      "phase_number": 9,
+      "status": "DEGRADED",
+      "sha256": "8ddce71b7610fe0639e978b0742181bbb4d519d8653cb949c83f648ffabac76a"
+    },
+    {
+      "phase_number": 10,
+      "status": "DEGRADED",
+      "sha256": "d725cc025509f40db3b98de51209eb414e13b7df9157477e0ffdc957af19f658"
+    },
+    {
+      "phase_number": 11,
+      "status": "PASSED",
+      "sha256": "ac8d66a43e309df5ecb2dbb9982a4b36a8ea59ecb34a86513f5a32e71c998ad9"
+    }
+  ],
+  "selected_repositories": [
+    "CoChem-BASE",
+    "CoChem-TOPOS",
+    "CoChem-TORQ"
+  ],
+  "manifest_sha256": "2b2eb10b630d5b8faaf962d631a56ac593eabf7f63d9d671f5fdf3b7de88f15b",
+  "runtime": {
+    "backend": "cochem-base",
+    "ecosystem": {
+      "available": true,
+      "components": {
+        "CoChem-BASE": {
+          "available": true,
+          "kind": "explicit-source",
+          "path": "/home/runner/work/CoChem-BASE/CoChem-BASE/src"
+        },
+        "CoChem-TOPOS": {
+          "available": true,
+          "kind": "explicit-source",
+          "path": "/home/runner/work/_temp/cochem-sources/topos"
+        },
+        "CoChem-TORQ": {
+          "available": true,
+          "kind": "installed",
+          "version": "0.1.0",
+          "path": "/home/runner/work/CoChem-BASE/CoChem-BASE/src/cochem_torq/__init__.py",
+          "installed": true,
+          "distribution_path": "/home/runner/work/_temp/cochem-sources/torq",
+          "import_path": "/home/runner/work/CoChem-BASE/CoChem-BASE/src/cochem_torq/__init__.py",
+          "import_shadowed": true,
+          "consumer_ready": false
+        }
+      },
+      "problems": []
+    },
+    "registry_path": "/home/runner/work/_temp/cochem-artifacts/Registry/cochem_system_config.json",
+    "registry_sha256": "715e0ae887e868fa9f593db06528823a4babdd138a2d03a06c089959cfc9561a",
+    "registry_checksum": "38c3fa51f81fac13b0ddfb289f990474b55a2a8cfd5a32dc26d369a2bd17b2a8"
+  },
+  "engines": {
+    "xtb": {
+      "executable": "/home/runner/work/_temp/cochem-artifacts/free-engines/xtb/xtb-dist/bin/xtb",
+      "version": "6.7.1",
+      "sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+      "probe": "--version",
+      "execution_kind": "real-version-probe"
+    },
+    "crest": {
+      "executable": "/home/runner/work/_temp/cochem-artifacts/tools/crest/crest",
+      "version": "3.0.2",
+      "sha256": "201db7940796c4af3652245ba7c8e1a4234767f4e19223772fbd83098d5f2142",
+      "probe": "--version",
+      "execution_kind": "real-version-probe"
+    }
+  },
+  "distributions": {
+    "CoChem-BASE": "1.0.0",
+    "cochem-topos": "0.1.0",
+    "CoChem-TORQ": "0.1.0"
+  },
+  "torq_consumer_readiness": "not certified by installation; TORQ remains a separate implementation workstream"
+}

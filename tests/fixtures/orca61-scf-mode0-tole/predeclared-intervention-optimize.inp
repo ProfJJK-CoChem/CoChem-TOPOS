@@ -1,0 +1,22 @@
+! wB97X-V TightSCF DEFGRID3 def2-TZVPP RIJCOSX def2/J Opt
+%pal nprocs 2 end
+%maxcore 768
+%geom
+  EnforceStrictConvergence true
+  MaxIter 200
+  TolE 1e-7
+  TolMaxG 1e-5
+  TolRMSG 3e-6
+  TolRMSD 5e-5
+  TolMaxD 1e-4
+  InHess Lindh
+end
+%scf
+  ConvCheckMode 0
+  TolE 1e-10
+end
+* xyz 0 1
+O 0.12 -0.1 0.08
+H 1.15 0.13 0.2
+H -0.2 0.95 -0.12
+*

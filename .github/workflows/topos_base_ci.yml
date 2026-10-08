@@ -1,0 +1,113 @@
+name: TOPOS mandatory CoChem package acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_commit:
+        description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
+        required: true
+        type: string
+        default: 14202e182e1fa4f99258ed32a8ae9ba8c1c565ad
+  push:
+    branches: [main]
+    paths:
+      - 'topos/**'
+      - 'tests/v010/test_base_integration.py'
+      - 'tests/v010/test_base_provider.py'
+      - 'tests/v010/test_remote_dispatch.py'
+      - '.github/workflows/topos_base_ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: topos-base-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  mandatory-ecosystem:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      BASE_COMMIT: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
+      TOPOS_REQUIRE_BASE: '1'
+      TOPOS_REQUIRE_REAL_ENGINES: '1'
+      TOPOS_EXECUTION_BACKEND: base
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      QT_QPA_PLATFORM: offscreen
+      COCHEM_HEADLESS: '1'
+      COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Validate the exact BASE source commit
+        shell: bash
+        run: |
+          if [[ ! "$BASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'BASE source must be an exact lowercase 40-character Git commit.' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-BASE
+          ref: ${{ env.BASE_COMMIT }}
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/base
+          persist-credentials: false
+      - name: Verify the checked-out BASE source identity
+        shell: bash
+        run: |
+          actual_base_commit="$(git -C .cochem-dependencies/base rev-parse HEAD)"
+          test "$actual_base_commit" = "$BASE_COMMIT"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: ProfJJK-CoChem/CoChem-TORQ
+          ref: 4f323800227dbde00ffb082bd6d9e44d851e1c7a
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
+          path: .cochem-dependencies/torq
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Prepare mandatory package roots and genuine engines
+        run: |
+          echo "COCHEM_ARTIFACT_DIR=$RUNNER_TEMP/cochem-artifacts" >> "$GITHUB_ENV"
+          echo "COCHEM_CONFIG=$RUNNER_TEMP/cochem-artifacts/Registry/cochem_system_config.json" >> "$GITHUB_ENV"
+          echo "COCHEM_BASE_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/base" >> "$GITHUB_ENV"
+          echo "COCHEM_TORQ_ROOT=$GITHUB_WORKSPACE/.cochem-dependencies/torq" >> "$GITHUB_ENV"
+          python scripts/install_xtb.py "$RUNNER_TEMP/topos-xtb"
+          python scripts/install_crest.py "$RUNNER_TEMP/topos-crest"
+          echo "TOPOS_XTB_EXECUTABLE=$RUNNER_TEMP/topos-xtb/xtb" >> "$GITHUB_ENV"
+          echo "COCHEM_XTB_BIN=$RUNNER_TEMP/topos-xtb/xtb" >> "$GITHUB_ENV"
+          echo "COCHEM_CREST_BIN=$RUNNER_TEMP/topos-crest/crest" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/topos-xtb" >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP/topos-crest" >> "$GITHUB_PATH"
+      - name: Provision all mandatory packages and refresh all eleven setup phases
+        run: |
+          python scripts/setup_ecosystem.py \
+            --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
+            --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
+            --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
+      - name: Install the pinned external-output parser protocol
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m pip install 'qcengine==0.51.0' 'qcelemental==0.51.2'
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m pip check
+      - name: Require real BASE authority, broker, and scientific execution
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" -m pytest \
+            tests/v010/test_base_integration.py tests/v010/test_base_provider.py \
+            tests/v010/test_remote_dispatch.py tests/v010/test_compute_worker.py \
+            --junitxml="$RUNNER_TEMP/topos-base-acceptance.xml" -q
+      - name: Retain acceptance and measured registry evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: topos-base-acceptance-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/topos-base-acceptance.xml
+            ${{ runner.temp }}/cochem-artifacts/Registry/*.json
+          if-no-files-found: error
+          retention-days: 14

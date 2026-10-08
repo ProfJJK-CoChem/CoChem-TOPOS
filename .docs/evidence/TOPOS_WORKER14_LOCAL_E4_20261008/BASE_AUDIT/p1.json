@@ -1,0 +1,58 @@
+{
+  "phase_id": "PHASE_1_ENVIRONMENT_GATEKEEPER",
+  "status": "PASSED",
+  "timestamp_utc": "2026-10-07T23:54:53.784142+00:00",
+  "os_profile": {
+    "system": "Linux",
+    "release": "6.18.44",
+    "version": "#1 SMP Sat Sep 26 20:02:31 UTC 2026",
+    "machine": "x86_64",
+    "is_wsl": false,
+    "is_windows": false,
+    "is_posix": true
+  },
+  "filesystem": {
+    "target_path": "/workspace/CoChem-BASE",
+    "mount_point": "/",
+    "fs_type": "overlay",
+    "is_9p_mount": false,
+    "is_posix_compliant": true
+  },
+  "toolchains": {
+    "gcc": {
+      "name": "gcc",
+      "path": "/usr/bin/x86_64-linux-gnu-gcc-14",
+      "version": "Available (output suppressed)",
+      "is_available": true,
+      "error_detail": null
+    },
+    "make": {
+      "name": "make",
+      "path": "/usr/bin/make",
+      "version": "Available (output suppressed)",
+      "is_available": true,
+      "error_detail": null
+    },
+    "git": {
+      "name": "git",
+      "path": "/usr/local/bin/git",
+      "version": "Available (output suppressed)",
+      "is_available": true,
+      "error_detail": null
+    }
+  },
+  "kernel_limits": {
+    "vm_max_map_count": 65530,
+    "stack_limit_bytes": 67108864,
+    "stack_unlimited": false,
+    "degraded_mode": false,
+    "recommended_flags": [
+      "sysctl -w vm.max_map_count=262144"
+    ]
+  },
+  "warnings": [
+    "vm.max_map_count is 65530 (recommended >= 262144)."
+  ],
+  "errors": [],
+  "artifact_path": "/workspace/.cochem-base-runtime/Registry/p1.json"
+}

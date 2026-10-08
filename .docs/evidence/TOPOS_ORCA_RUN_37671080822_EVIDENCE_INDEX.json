@@ -1,0 +1,126 @@
+{
+  "schema_version": "topos-hosted-evidence-index/0.1.0",
+  "repository": "ProfJJK-CoChem/CoChem-BASE",
+  "run_id": "37671080822",
+  "run_attempt": "1",
+  "run_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822",
+  "workflow_commit": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+  "topos_commit": "65af1e05ce505cac5911b1bfe8f985a26dd87864",
+  "torq_commit": "79fbb111125e50627a1a2c129888a45496f368d4",
+  "scope": "diagnostic: unchanged all-five TOPOS baseline only; not full scientific or release acceptance",
+  "status": "failed",
+  "baseline_only": true,
+  "base_source": {
+    "parent_commit": "705b9d54370d5089da286a02b7a1c4afdcbafec1",
+    "diagnostic_commit": "0e52a9b4ef9b0f5c977b516c79e7b6c04dfea23b",
+    "changed_files": [
+      ".github/workflows/orca_acceptance.yml"
+    ],
+    "tree_identity": {
+      "src": {
+        "parent_tree": "3155e3c5ec9f05e32eabf8d4e791e1f9f7912842",
+        "diagnostic_tree": "3155e3c5ec9f05e32eabf8d4e791e1f9f7912842",
+        "identical": true
+      },
+      "scripts": {
+        "parent_tree": "e396e21d84749a56126a7fcdd657c5972728edc8",
+        "diagnostic_tree": "e396e21d84749a56126a7fcdd657c5972728edc8",
+        "identical": true
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "TOPOS_ORCA_BASELINE_RUN_37671080822.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-topos-artifact/topos-orca-evidence/acceptance.json",
+      "sha256": "d1f217470894b602ee3f3dbc6c6bc590b286a76bc1ed8f93d0b8e0dedaaf7ef7",
+      "bytes": 92807,
+      "copy": "exact-original-bytes",
+      "role": "original native acceptance"
+    },
+    {
+      "path": "TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SUMMARY.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-summary.json",
+      "sha256": "481d64baaf39bdb79d02be323f87417cd63af6a6fc10a737c2531f50fb5867a7",
+      "bytes": 15270,
+      "copy": "exact-original-bytes",
+      "role": "source-verified diagnostic summary"
+    },
+    {
+      "path": "TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SNAPSHOTS.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-snapshots-verified.json",
+      "sha256": "a80a9d0bb780e8f17375b6ba3bbe385c94313b82e15743d56b9537a045cdd4d1",
+      "bytes": 9229,
+      "copy": "exact-original-bytes",
+      "role": "verified snapshot audit"
+    },
+    {
+      "path": "TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_DISPATCH.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-dispatch.json",
+      "sha256": "087f87726059fb624af8a0de170c9f9e04026fb0fd24f363a3383f14d79ce5a3",
+      "bytes": 769,
+      "copy": "exact-original-bytes",
+      "role": "original dispatch provenance"
+    },
+    {
+      "path": "TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_SOURCE.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-source.json",
+      "sha256": "a32538bd35997e6c025db051bf116a4ce63b7086f83d9ab49c47cb9eb4a32d0c",
+      "bytes": 642,
+      "copy": "exact-original-bytes",
+      "role": "workflow-only diagnostic source provenance"
+    },
+    {
+      "path": "TOPOS_ORCA_DIAGNOSTIC_RUN_37671080822_HOSTED_STATUS.json",
+      "original_path": "/workspace/.cochem-setup/base-topos-proposal/baseline-diagnostic-hosted-status.json",
+      "sha256": "c34923ed940a76e0f56b12b90ef77f9c6124e2bba1082b96c0462fb1830dd05e",
+      "bytes": 5689,
+      "copy": "exact-original-bytes",
+      "role": "completed hosted job status"
+    }
+  ],
+  "baseline": {
+    "passed": 2,
+    "failed": 3,
+    "cases": {
+      "counterpoise": {
+        "status": "passed",
+        "elapsed_seconds": 10.500927933000185
+      },
+      "goat-refinement": {
+        "status": "failed",
+        "reason": "Requested calculation did not complete: failed",
+        "elapsed_seconds": 18.38941558800002
+      },
+      "hf3c-energy-gradient": {
+        "status": "passed",
+        "elapsed_seconds": 45.4181410770002
+      },
+      "r2scan3c-optimization-thermochemistry": {
+        "status": "failed",
+        "reason": "Requested calculation did not complete: Frequency reference optimization did not complete",
+        "elapsed_seconds": 18.897340028000144
+      },
+      "wb97xv-optimization": {
+        "status": "failed",
+        "reason": "Requested calculation did not complete: failed",
+        "elapsed_seconds": 70.26087677100008
+      }
+    }
+  },
+  "diagnosis": "Initial native optimization uses early-stop exceptions despite failed declared criteria; each refinement terminates in its first cycle with four YES rows but no Energy change row, so strict five-criterion convergence remains unestablished.",
+  "verification": {
+    "source_inventory_verified": true,
+    "acceptance_script_sha256_verified": "6310f2cf8a1851b0976116cc29936eb4dba930605199d311e4d827f8e279d5c8",
+    "snapshot_count": 26,
+    "snapshot_audit_status": "passed"
+  },
+  "extended_acceptance": "not run in this baseline-only diagnostic",
+  "licensed_pytest": "not run in this baseline-only diagnostic",
+  "limitations": [
+    "Original receipts and diagnostic audits are retained byte-for-byte; their absolute paths remain historical provenance. Relative files entries resolve from this index.",
+    "The diagnostic tests TOPOS 65af1e0; later strict-convergence and one-cycle energy-difference changes have no hosted validation from this run.",
+    "Two passing baseline cases do not establish complete baseline, extended, licensed-pytest, matrix or release acceptance.",
+    "Full native calculation artifacts remain in the retained diagnostic download and hosted run; this index retains their receipt and audit evidence, not the full artifact tree."
+  ]
+}

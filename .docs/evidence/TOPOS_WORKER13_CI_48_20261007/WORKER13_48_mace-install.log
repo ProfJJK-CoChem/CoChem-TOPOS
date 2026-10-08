@@ -1,0 +1,8 @@
+Processing /workspace/.cochem-setup/topos-ml-worker-13/cochem_topos_ml_worker-0.1.0-py3-none-any.whl
+Installing collected packages: cochem-topos-ml-worker
+  Attempting uninstall: cochem-topos-ml-worker
+    Found existing installation: cochem-topos-ml-worker 0.1.0
+    Uninstalling cochem-topos-ml-worker-0.1.0:
+      Successfully uninstalled cochem-topos-ml-worker-0.1.0
+Successfully installed cochem-topos-ml-worker-0.1.0
+{"status": "installed", "version": "0.1.0", "prefix": "/workspace/.cochem-base-runtime/Silos/cochem_mace_silo"}
