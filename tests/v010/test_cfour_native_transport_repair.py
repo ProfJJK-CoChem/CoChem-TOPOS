@@ -50,11 +50,12 @@ def test_actual_failed_fixture_and_unchanged_requested_physics():
     assert '--executable xjoda finished with status   256' in raw
     with pytest.raises(EngineParseError):
         _native_completion(raw, protocol())
-    # Only separator/terminal-blank-line bytes change; every physical option,
-    # coordinate and resource value is retained from the actual failed input.
+    # Separator/terminal blank-line repair preserves every physical option and
+    # coordinate. The separate static/BLAS reservation reduces native workspace
+    # inside the same unchanged total process memory upper bound.
     original = (FIXTURE/'native-ZMAT.inp').read_text()
     repaired = cfour_input(water(), protocol(), RESOURCES)
-    assert repaired == original.replace(',\n', '\n') + '\n'
+    assert repaired == original.replace(',\n', '\n').replace('MEMORY_SIZE=201326592', 'MEMORY_SIZE=150994944') + '\n'
     assert controls(repaired)['PROPS'] == 'FIRST_ORDER'
 
 

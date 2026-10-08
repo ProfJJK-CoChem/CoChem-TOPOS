@@ -7,7 +7,6 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       hosted_acceptance_run_id:
         description: Completed TOPOS ORCA acceptance run with GOAT and counterpoise evidence
         required: false
@@ -48,7 +47,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      BASE_COMMIT: ${{ inputs.base_commit || vars.COCHEM_BASE_COMMIT }}
       COCHEM_HEADLESS: '1'
       QT_QPA_PLATFORM: offscreen
       COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
@@ -62,6 +61,10 @@ jobs:
       - name: Validate the exact BASE source commit
         shell: bash
         run: |
+          if [[ -z "$BASE_COMMIT" ]]; then
+            echo 'Set base_commit to the reviewed BASE commit, or configure repository variable COCHEM_BASE_COMMIT.' >&2
+            exit 1
+          fi
           if [[ ! "$BASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo 'BASE source must be an exact lowercase 40-character Git commit.' >&2
             exit 1

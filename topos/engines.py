@@ -762,6 +762,26 @@ def _run_engine_once(
                 from .orca_numerical_profiles import observe_scf_numerical_profile
 
                 evidence = observe_scf_numerical_profile(raw)
+                if evidence["passed"] is not True:
+                    from .orca_scf_continuation import continue_ordinary_scf
+
+                    continued = continue_ordinary_scf(command, folder, resources, process, raw,
+                        operation=operation, deadline=start + resources.budget_seconds,
+                        cancel_event=cancel_event, execute_process=execute_process)
+                    if continued is not None:
+                        process, raw, stderr, binding = continued
+                        result.diagnostics["scf_continuation"] = binding
+                        result.diagnostics["process"] = process.to_dict()
+                        result.status = process.status
+                        if process.status != "completed":
+                            result.diagnostics["reason"] = process.reason
+                            return result
+                        if (_engine_version(raw, "orca") != result.engine_version
+                                or "ORCA TERMINATED NORMALLY" not in raw
+                                or "SCF CONVERGED AFTER" not in raw
+                                or re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I)):
+                            raise EngineParseError("Native SCF continuation version/termination/convergence is invalid")
+                        evidence = observe_scf_numerical_profile(raw)
                 result.diagnostics["scf_numerical_profile"] = evidence
                 if evidence["passed"] is not True:
                     raise EngineParseError("Explicit ORCA numerical profile not achieved: " + "; ".join(evidence["failures"]))

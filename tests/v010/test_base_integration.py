@@ -585,3 +585,83 @@ def test_cfour_cannot_override_environment_after_base_authorization(runtime, tmp
                                      ResourceLimits(), authority, engine='cfour',
                                      environment={'COCHEM_CFOUR_LD_LIBRARY_PATH': '/unaudited/library'})
     assert (tmp_path / 'forbidden-environment/engine.stdout').read_bytes() == b''
+
+
+def test_actual_native_cpu_memory_failure_preserves_address_space_limit(runtime, tmp_path, monkeypatch):
+    """A real allocation fails under the existing CPU AS ceiling."""
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0")
+    command = [str(Path(sys.executable).absolute()), "-I", "-c",
+               "import resource; print(resource.getrlimit(resource.RLIMIT_AS)[0],flush=True); "
+               "value=bytearray(256*1024*1024)"]
+    result = runtime.run_process(command, tmp_path / "cpu-memory", ResourceLimits(memory_mb=128, budget_seconds=15))
+    assert result.status == "failed" and result.returncode != 0
+    assert str(128 * 1024**2).encode() in Path(result.stdout_path).read_bytes()
+    assert b"MemoryError" in Path(result.stderr_path).read_bytes()
+
+
+def test_gpu_launcher_rejects_an_allocation_without_actual_engine_authority(runtime, tmp_path):
+    authorization = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path, cores=1, maxcore_mb=64)
+    with pytest.raises(BaseIntegrationError, match="audited GPU allocation"):
+        runtime._execute_authorized([authorization.executable, "-c", "print(42)"], tmp_path / "unaudited-gpu",
+                                    ResourceLimits(memory_mb=128, device="gpu"), authorization,
+                                    engine="mace", cuda_visible_devices="0", gpu_memory_mb=64)
+    assert not (tmp_path / "unaudited-gpu").exists()
+
+
+@pytest.mark.integration
+def test_actual_audited_cuda_tensor_preserves_rss_and_gpu_allocator_limits(tmp_path):
+    """Real CUDA infrastructure check; no model or scientific acceptance fixture."""
+    interpreter = os.environ.get("TOPOS_MACE_PYTHON")
+    registry = os.environ.get("COCHEM_CONFIG")
+    if not interpreter or not registry:
+        pytest.skip("Explicit CUDA silo and actual GPU Stage 0 authority required")
+    runtime = BaseRuntime(registry, require_torq=False)
+    if not (runtime.registry.engines.get("mace") and runtime.registry.engines["mace"].gpu_support):
+        pytest.skip("Current audited MACE silo has no GPU support")
+    resources = ResourceLimits(threads=2, memory_mb=4096, budget_seconds=60, device="gpu")
+    authorization = runtime._authorize("mace", registry_path=runtime.registry_path,
+                                       executable=interpreter, cores=2, maxcore_mb=1536)
+    code = """import json,os,pathlib,torch
+torch.set_num_threads(2)
+torch.use_deterministic_algorithms(True)
+assert torch.cuda.is_available() and torch.cuda.device_count()==1
+torch.cuda.set_per_process_memory_fraction(8192/(torch.cuda.get_device_properties(0).total_memory/1024**2),device=0)
+x=torch.tensor([[1.,2.],[3.,4.]],device='cuda:0',dtype=torch.float64,requires_grad=True)
+y=(x@x).sum();y.backward();torch.cuda.synchronize()
+status=pathlib.Path('/proc/self/status').read_text()
+print(json.dumps({'device':str(x.device),'gradient':x.grad.cpu().tolist(),
+ 'result':y.item(),'workspace':os.environ.get('CUBLAS_WORKSPACE_CONFIG'),
+ 'vms_kib':int(next(line.split()[1] for line in status.splitlines() if line.startswith('VmSize:')))}))
+"""
+    result = runtime._execute_authorized([interpreter, "-I", "-c", code], tmp_path / "cuda-memory",
+                                        resources, authorization, engine="mace",
+                                        cuda_visible_devices="0", gpu_memory_mb=8192)
+    assert result.status == "completed", result
+    observed = json.loads(Path(result.stdout_path).read_text())
+    assert observed["device"] == "cuda:0" and observed["gradient"] == [[7, 11], [9, 13]]
+    assert observed["result"] == 54 and observed["workspace"] == ":4096:8"
+    assert observed["vms_kib"] > resources.memory_mb * 1024
+    assert result.peak_rss_mb <= resources.memory_mb
+
+
+@pytest.mark.integration
+def test_actual_gpu_mode_rss_ceiling_kills_and_reaps_large_cpu_allocation(tmp_path):
+    """AS relaxation must retain actual process-tree resident-memory containment."""
+    interpreter, registry = os.environ.get("TOPOS_MACE_PYTHON"), os.environ.get("COCHEM_CONFIG")
+    if not interpreter or not registry:
+        pytest.skip("Explicit CUDA silo and actual GPU Stage 0 authority required")
+    runtime = BaseRuntime(registry, require_torq=False)
+    if not (runtime.registry.engines.get("mace") and runtime.registry.engines["mace"].gpu_support):
+        pytest.skip("Current audited MACE silo has no GPU support")
+    resources = ResourceLimits(threads=1, memory_mb=128, budget_seconds=30, device="gpu")
+    authorization = runtime._authorize("mace", registry_path=runtime.registry_path,
+                                       executable=interpreter, cores=1, maxcore_mb=96)
+    code = "import os,time; print(os.getpid(),flush=True); value=bytearray(256*1024*1024); time.sleep(10)"
+    result = runtime._execute_authorized([interpreter, "-I", "-c", code], tmp_path / "gpu-mode-rss",
+                                        resources, authorization, engine="mace",
+                                        cuda_visible_devices="0", gpu_memory_mb=8192)
+    assert result.status == "failed" and result.reason == "aggregate process-tree memory limit exceeded"
+    assert result.peak_rss_mb > resources.memory_mb
+    import psutil
+
+    assert not psutil.pid_exists(int(Path(result.stdout_path).read_text().strip()))

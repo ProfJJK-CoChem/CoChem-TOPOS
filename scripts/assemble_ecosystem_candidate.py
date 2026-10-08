@@ -101,7 +101,10 @@ def git_source(root: Path, pin: str, prefix: str) -> bytes:
     actual = subprocess.check_output(["git", "-C", str(root), "rev-parse", pin + "^{commit}"], text=True).strip()
     if actual != pin:
         raise ValueError("Git source commit differs from the requested companion pin")
-    return subprocess.check_output(["git", "-C", str(root), "archive", "--format=tar.gz", "--prefix=" + prefix + "/", pin])
+    # Git archive applies text conversion settings too. The downloaded source
+    # must preserve the reviewed Linux bytes regardless of Windows Git defaults.
+    return subprocess.check_output(["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+                                    "-C", str(root), "archive", "--format=tar.gz", "--prefix=" + prefix + "/", pin])
 
 
 def write_checksums(folder: Path, paths: list[Path]) -> None:

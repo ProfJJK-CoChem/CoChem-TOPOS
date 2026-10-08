@@ -105,8 +105,20 @@ reviewed source revisions using the commands below. The download should contain:
 - The TOPOS wheel, source archive, `distribution-manifest.json` and `SHA256SUMS`.
 - A wheelhouse containing the exact three mandatory distributions and its own
   `SHA256SUMS`.
+- Matching BASE, TOPOS and TORQ source archives, plus the separately installed ML
+  worker wheel and its source manifest.
 - Installed-package and scientific validation receipts, plus the separate release
   gate report. A successful archive build alone is insufficient.
+
+For **Prepare and verify unsigned TOPOS release candidate**, supply the reviewed
+full lowercase 40-character BASE commit in the required `base_commit` dispatch
+input. Automation may instead configure repository variable `COCHEM_BASE_COMMIT`.
+The workflow fails before companion checkout when neither is set or the value is
+not an immutable commit. There is no historical foundation or moving-branch
+default. Select the BASE revision whose installed catalog binds this exact TOPOS
+commit, wheel and setup helper; retain that selection in the companion build
+manifest. The BASE catalog is finalized after TOPOS is frozen, so a fixed reverse
+pin in TOPOS would create a circular revision dependency.
 
 Do not let a public package index choose similarly named CoChem dependencies.
 The installer passes the reviewed BASE, TOPOS and TORQ wheel paths explicitly.

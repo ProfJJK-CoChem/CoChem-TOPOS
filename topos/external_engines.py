@@ -25,7 +25,10 @@ from .cfour_artifacts import finalize_artifacts, native_text
 from .cfour_controls import native_control_value
 from .cfour_dependencies import require_cfour_parsers
 from .cfour_efg import parse_cfour_efg
+from .cfour_gradient import parse_cfour_2_1_gradient
+from .cfour_memory import cfour_memory_plan
 from .cfour_properties import CfourEfgConventionDeclaration
+from .cfour_scf import validate_cfour_scf
 from .engines import EngineParseError, EngineResult, _number, artifact_inventory
 from .fragments import split_fragments
 from .models import Contract, Molecule, ResourceLimits
@@ -125,7 +128,7 @@ def cfour_input(molecule: Molecule, protocol: ExternalProtocol, resources: Resou
                f"FROZEN_CORE={'ON' if protocol.frozen_core else 'OFF'}",
                f"SCF_CONV={protocol.scf_convergence}", f"CC_CONV={protocol.cc_convergence}",
                f"LINEQ_CONV={protocol.cc_convergence}", "MEM_UNIT=INTEGERWORDS",
-               f"MEMORY_SIZE={int(resources.memory_mb * 1024**2 * .75 / 8)}"]
+               f"MEMORY_SIZE={cfour_memory_plan(resources)['native_integer_words']}"]
     if protocol.method in {"CCSDT", "CCSDTQ"}:
         options.append("CC_PROG=" + ("NCC" if protocol.method == "CCSDTQ" else "ECC"))
     options.append("PROPS=FIRST_ORDER" if properties else f"DERIV_LEVEL={'FIRST' if gradient else 'ZERO'}")
@@ -248,8 +251,8 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
             raise EngineParseError("Higher coupled-cluster calculation lacks the requested native solver and STANDARD integrals")
         if protocol.method == "CCSDTQ" and "xncc" not in _native_invocations(raw):
             raise EngineParseError("Full quadruples require the built-in NCC solver; an external MRCC result cannot impersonate it")
-    if len(re.findall(r"SCF has converged\.", raw)) != 1:
-        raise EngineParseError("Expected one CFOUR Cartesian evaluation, not concatenated jobs/optimization cycles")
+    scf_validation = validate_cfour_scf(raw, engine_version=observed_version,
+        method=protocol.method, operation=protocol.operation, scf_convergence=protocol.scf_convergence)
     qcvars, native, stdout_gradient, _, _, error = harvest_outfile_pass(raw)
     if error or native is None or list(native.symbols) != molecule.symbols:
         raise EngineParseError("CFOUR output lacks the exact indexed atom inventory")
@@ -276,12 +279,14 @@ def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
         gradient = np.asarray(grd_gradient) @ grd_rotation
         if gradient.shape != (len(molecule.symbols), 3) or not np.all(np.isfinite(gradient)):
             raise EngineParseError("Native gradient shape/values are invalid")
+        if stdout_gradient is None and observed_version == "2.1":
+            stdout_gradient = parse_cfour_2_1_gradient(raw, list(native.symbols))
         if stdout_gradient is None or not np.allclose(np.asarray(stdout_gradient) @ rotation, gradient, atol=6e-8, rtol=0):
             raise EngineParseError("Native GRD and stdout gradients do not describe the same indexed result")
     observation = {"energy_hartree": energy, "reference_energy_hartree": reference,
                    "total_correlation_energy_hartree": energy - reference,
                    "gradient_hartree_per_bohr": gradient.tolist() if gradient is not None else None,
-                   "engine_version": observed_version,
+                   "engine_version": observed_version, "scf_validation": scf_validation,
                    "frame_alignment": "indexed proper rotation only; no atom permutation or reflection",
                    "parser": {"qcengine": "0.51.0", "qcelemental": "0.51.2"}}
     if protocol.operation == "first-order-properties":
@@ -404,6 +409,7 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
         _physical_input(molecule, resources)
         if protocol.engine == "cfour":
             require_cfour_parsers()
+            result.metadata["native_memory"] = cfour_memory_plan(resources)
         if protocol.engine == "cfour" and protocol.operation == "first-order-properties" and (
                 protocol.engine_version != "2.1" or protocol.method != "CCSD(T)"):
             raise ValueError("The positively supported FIRST_ORDER property parser requires exact CFOUR 2.1 CCSD(T)")

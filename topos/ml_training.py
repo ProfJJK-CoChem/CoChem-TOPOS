@@ -356,7 +356,8 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
     initial = Molecule.model_validate(attempt.metadata.get("input_molecule"))
     if molecule.model_dump(exclude={"coordinates", "name"}) != initial.model_dump(exclude={"coordinates", "name"}):
         raise IntegrityError("DFT reference changed molecular identity")
-    if molecule.charge != 0 or molecule.multiplicity != 1 or molecule.environment:
+    if (molecule.charge != 0 or molecule.multiplicity != 1
+            or molecule.environment not in ({}, {"phase": "gas"})):
         raise ValueError("This MACE molecular fine-tuning adapter requires neutral closed-shell gas-phase data")
     operation = attempt.metadata.get("operation", attempt.metadata.get("native_result", {}).get("operation"))
     if operation not in {"gradient", "optimize"}:

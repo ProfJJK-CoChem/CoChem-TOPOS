@@ -90,7 +90,7 @@ class ModelManifest(Contract):
             raise ValueError("Element outside declared model domain")
         if molecule.charge not in self.supported_charges or molecule.multiplicity not in self.supported_multiplicities:
             raise ValueError("Charge or spin outside declared model domain")
-        if molecule.environment:
+        if molecule.environment not in ({}, {"phase": "gas"}):
             raise ValueError("ML adapter has no validated solvent, periodic or embedding protocol")
         coordinates = np.asarray(molecule.coordinates)
         distances = np.linalg.norm(coordinates[:, None] - coordinates[None, :], axis=2)

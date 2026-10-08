@@ -4,9 +4,11 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import io
+import os
 import subprocess
 import sys
 import tarfile
+import textwrap
 import tomllib
 import zipfile
 from pathlib import Path
@@ -250,6 +252,8 @@ def test_companions_are_really_twice_built_from_pinned_git_trees(tmp_path):
                         "commit", "-qm", "inert build fixture"], check=True)
         pins[project] = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
         roots[project] = root
+        # Actual archive bytes must not inherit this Windows conversion policy.
+        subprocess.run(["git", "-C", str(root), "config", "core.autocrlf", "true"], check=True)
         (root / f"fixture_{project}.py").write_text("VALUE = 'uncommitted-change'\n")
     output = tmp_path / "companions"
     manifest = kit.prepare_companions(roots, pins, output)
@@ -266,13 +270,26 @@ def test_workflow_retains_complete_three_source_download():
     assert "assemble_ecosystem_candidate.py companions" in workflow
     assert "assemble_ecosystem_candidate.py assemble" in workflow
     assert "${{ runner.temp }}/ecosystem-download/" in workflow
-    assert "35f97a1b7a6a294f381b4a30780c5b3a766b537d" in workflow
+    assert "inputs.base_commit || vars.COCHEM_BASE_COMMIT" in workflow
     assert "base_commit:" in workflow and "ref: ${{ env.BASE_COMMIT }}" in workflow
     assert '--base-pin "$BASE_COMMIT"' in workflow
     torq_commit = "4f323800227dbde00ffb082bd6d9e44d851e1c7a"
     assert f"ref: {torq_commit}" in workflow
     assert f"--torq-pin {torq_commit}" in workflow
     assert "--output \"$RUNNER_TEMP/topos-candidate/release-gate.json\"" in workflow
+
+
+@pytest.mark.parametrize("pin,expected", [("", 1), ("main", 1), ("A" * 40, 1),
+                                           ("a" * 39, 1), ("a" * 40, 0)])
+def test_workflow_requires_an_explicit_immutable_base_source_before_checkout(pin, expected):
+    workflow = (ROOT / ".github/workflows/topos_release.yml").read_text()
+    validation = workflow.split("- name: Validate the exact BASE source commit", 1)[1]
+    validation = validation.split("- uses:", 1)[0].split("run: |", 1)[1]
+    result = subprocess.run(["bash", "-c", textwrap.dedent(validation)],
+                            env={**os.environ, "BASE_COMMIT": pin}, capture_output=True, text=True)
+    assert result.returncode == expected, result.stderr
+    if not pin:
+        assert "base_commit" in result.stderr and "COCHEM_BASE_COMMIT" in result.stderr
 
 
 @pytest.mark.parametrize("old_version", ["1.0.0", "1.0.2"])

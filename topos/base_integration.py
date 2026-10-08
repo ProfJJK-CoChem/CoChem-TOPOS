@@ -504,7 +504,8 @@ print(json.dumps(result,sort_keys=True))
         probe_command = [command[0], "-I", "-c", probe_code, json.dumps(contract, sort_keys=True)]
         probe = self._execute_authorized(probe_command, folder, remaining(), authority, engine=engine,
                                          cancel_event=cancel_event, log_prefix=log_prefix + "-authority",
-                                         output_limit_mb=4, cuda_visible_devices=str(gpu_index) if gpu_index is not None else None)
+                                         output_limit_mb=4, cuda_visible_devices=str(gpu_index) if gpu_index is not None else None,
+                                         gpu_memory_mb=gpu_memory_mb)
         if probe.status != "completed":
             if probe.status in {"cancelled", "timed-out"}:
                 return probe
@@ -520,7 +521,7 @@ print(json.dumps(result,sort_keys=True))
         result = self._execute_authorized(command, folder, remaining(), authority, engine=engine,
                                           cancel_event=cancel_event, log_prefix=log_prefix, output_limit_mb=output_limit_mb,
                                           cuda_visible_devices=str(gpu_index) if gpu_index is not None else None,
-                                          isolated_python=True)
+                                          isolated_python=True, gpu_memory_mb=gpu_memory_mb)
         if file_digest(request_path) != request_sha256 or any(file_digest(Path(p)) != h for p, h in model_files.items()):
             raise BaseIntegrationError("The immutable ML request or model members changed during execution")
         if file_digest(Path(observed["worker_path"])) != worker_sha256 or file_digest(self.registry_path) != binding["registry_sha256"]:
@@ -741,10 +742,22 @@ print(json.dumps(result,sort_keys=True))
         environment: dict[str, str] | None = None, output_limit_mb: int = 256,
         threads_per_process: int | None = None,
         cuda_visible_devices: str | None = None, isolated_python: bool = False,
+        gpu_memory_mb: int | None = None,
     ) -> ProcessResult:
         """Private common broker path after engine or distribution authority succeeds."""
         from .runtime import ProcessResult
 
+        gpu_launch = resources.device == "gpu"
+        if gpu_launch:
+            record = self.registry.engines.get(engine)
+            if (engine not in {"mace", "aimnet2"} or authorization.engine != engine
+                    or not record or not record.gpu_support or cuda_visible_devices is None
+                    or not re.fullmatch(r"\d+", cuda_visible_devices)):
+                raise BaseIntegrationError("Native GPU launch requires an explicit audited GPU allocation")
+            self.validate_resources(resources, engine=engine, gpu_index=int(cuda_visible_devices),
+                                    gpu_memory_mb=gpu_memory_mb)
+        elif gpu_memory_mb is not None:
+            raise BaseIntegrationError("CPU launch cannot carry a GPU allocation")
         folder = Path(workdir).resolve()
         folder.mkdir(parents=True, exist_ok=True)
         stdout, stderr = folder / f"{log_prefix}.stdout", folder / f"{log_prefix}.stderr"
@@ -815,6 +828,10 @@ print(json.dumps(result,sort_keys=True))
             })
         if cuda_visible_devices is not None:
             supplied["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
+        if gpu_launch:
+            # The worker requires deterministic CUDA algorithms. CuBLAS reads
+            # this fixed workspace policy before its first matrix operation.
+            supplied["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
         if isolated_python:
             supplied.update(PYTHONSAFEPATH="1", PYTHONNOUSERSITE="1")
         if engine == "orca":
@@ -886,7 +903,8 @@ print(json.dumps(result,sort_keys=True))
 
         watcher = Thread(target=monitor, name="topos-base-budget", daemon=True)
         watcher.start()
-        launcher = [sys.executable, str(Path(__file__).resolve()), "--native-exec",
+        launcher_mode = "--native-exec-gpu" if gpu_launch else "--native-exec"
+        launcher = [sys.executable, str(Path(__file__).resolve()), launcher_mode,
                     str(resources.memory_mb), str(output_limit_mb), str(stdout), str(stderr), *command]
         try:
             result = broker.execute(launcher, cwd=folder, timeout_seconds=resources.budget_seconds)
@@ -932,7 +950,11 @@ def _native_exec() -> None:
     import resource
 
     memory, limit = int(sys.argv[2]) * 1024**2, int(sys.argv[3]) * 1024**2
-    resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+    # CUDA reserves virtual address space far beyond its resident host RAM.
+    # GPU launches retain the aggregate process-tree RSS watcher and the worker's
+    # explicit GPU allocator ceiling; CPU launches retain their original AS cap.
+    if sys.argv[1] != "--native-exec-gpu":
+        resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
     resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     for descriptor, path in ((1, sys.argv[4]), (2, sys.argv[5])):
@@ -945,6 +967,6 @@ def _native_exec() -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 7 or sys.argv[1] != "--native-exec":
+    if len(sys.argv) < 7 or sys.argv[1] not in {"--native-exec", "--native-exec-gpu"}:
         raise SystemExit("Private TOPOS native launcher: invalid arguments")
     _native_exec()
