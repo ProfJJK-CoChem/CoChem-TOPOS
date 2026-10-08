@@ -12,7 +12,6 @@ import re
 import shutil
 import time
 from collections import Counter
-from importlib.metadata import version
 from pathlib import Path
 from threading import Event
 from typing import Any, Callable, Literal
@@ -22,6 +21,8 @@ from pydantic import Field, model_validator
 
 from .base_integration import BaseRuntime
 from .cfour_artifacts import finalize_artifacts, native_text
+from .cfour_controls import native_control_value
+from .cfour_dependencies import require_cfour_parsers
 from .engines import EngineParseError, EngineResult, _number, artifact_inventory
 from .fragments import split_fragments
 from .models import Contract, Molecule, ResourceLimits
@@ -210,16 +211,11 @@ def _native_completion(raw: str, protocol: ExternalProtocol) -> str:
 def parse_cfour_output(raw: str, molecule: Molecule, protocol: ExternalProtocol,
                        *, grd: str | None = None, dipol: str | None = None) -> dict[str, Any]:
     """Interpret one actual Cartesian evaluation, never an earlier optimization step."""
-    if version("qcengine") != "0.51.0" or version("qcelemental") != "0.51.2":
-        raise EngineParseError("CFOUR harvesting requires the pinned external-engine parser versions")
-    from qcengine.programs.cfour.harvester import harvest_GRD, harvest_outfile_pass
+    harvest_GRD, harvest_outfile_pass = require_cfour_parsers()
 
     observed_version = _native_completion(raw, protocol)
     def control(name: str) -> str:
-        matches = re.findall(r"(?m)^\s*" + name + r"\s+\w+\s+(\S+)", raw)
-        if len(matches) != 1:
-            raise EngineParseError(f"CFOUR output does not establish one native {name} setting")
-        return matches[0]
+        return native_control_value(raw, name)
 
     native_basis = control("BASIS")
     if native_basis.lower() != protocol.orbital_basis.lower():
@@ -390,6 +386,8 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
     try:
         protocol = ExternalProtocol.model_validate(protocol.model_dump())
         _physical_input(molecule, resources)
+        if protocol.engine == "cfour":
+            require_cfour_parsers()
         if protocol.engine in {"molpro", "mpqc"}:
             raise ValueError("Molpro F12 requires a verified explicit F12 variant/gradient protocol; the MPQC source row conflicts with its ORCA track. Neither is an executable recipe yet")
         if folder.exists() and any(folder.iterdir()):
@@ -454,6 +452,7 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                        if protocol.operation == "optimize" else molecule)
             key = digest_json(current.coordinates)
             if key not in evaluated:
+                require_cfour_parsers()
                 evaluation = folder / f"evaluation-{len(evaluated):05d}"
                 evaluation.mkdir()
                 shutil.copyfile(genbas, evaluation / "GENBAS")

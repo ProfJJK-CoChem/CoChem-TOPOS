@@ -19,6 +19,8 @@ import numpy as np
 
 from .base_integration import BaseRuntime
 from .cfour_artifacts import finalize_artifacts, native_text
+from .cfour_controls import native_control_value
+from .cfour_dependencies import require_cfour_parsers
 from .composites import _geometry_parameters, _increment, _wrap_degrees
 from .engines import EngineParseError, EngineResult
 from .external_engines import (
@@ -68,8 +70,7 @@ def scalar_controls(raw: str, relativistic: Literal["OFF", "X2C1E"]) -> dict[str
     """Parse actual native echoed settings; these checks alone certify no energy."""
     controls = {}
     for label, wanted in (("RELATIVIST(?:IC)?", relativistic), ("CONTRACTION", "UNCONTRACTED"), ("DBOC", "OFF")):
-        values = re.findall(r"(?m)^\s*" + label + r"\s+\w+\s+(\S+)", raw)
-        if values != [wanted]:
+        if native_control_value(raw, label) != wanted:
             raise EngineParseError(f"Scalar correction requires one native {label}={wanted} setting")
         controls[label] = wanted
     if re.search(r"SIGSEGV|segmentation fault|forrtl:\s*severe|fatal error", raw, re.I):
@@ -102,6 +103,7 @@ def run_scalar_relativistic(molecule: Molecule, protocol: ScalarRelativisticProt
                   "sources": SOURCES, "requested_protocol": protocol.model_dump(mode="json")})
     try:
         protocol = ScalarRelativisticProtocol.model_validate(protocol.model_dump())
+        require_cfour_parsers()
         _physical_input(molecule, resources)
         if folder.is_symlink():
             raise IntegrityError("Scalar correction work directory cannot be a symlink")

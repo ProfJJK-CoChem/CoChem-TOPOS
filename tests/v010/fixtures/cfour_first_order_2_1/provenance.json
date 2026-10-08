@@ -1,0 +1,96 @@
+{
+  "scope": "Unchanged genuine native2.1 CCSD(T)/PVTZ FIRST_ORDER output; hosted TOPOS component failed missing qcengine, never relabeled successful campaign or full row",
+  "source_run": "https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37717679093",
+  "attempt": 1,
+  "artifact_id": 11524806124,
+  "zip_sha256": "8bc69a26f4be4e132fcdd2ac28fba09dd4217d7e210df5e3cd1efe64bae913eb",
+  "api_digest_verified": true,
+  "controller_commit": "1676ae8fb0cc92b383a48c9438c1c263692b135c",
+  "topos_commit": "663a97bb435b48b322a4d85cd591412986323687",
+  "base_commit": "14202e182e1fa4f99258ed32a8ae9ba8c1c565ad",
+  "original_directory": "run/attempts/attempt_c3ae19b2308c4dbfbf95ffa97836006c/evaluation-00000",
+  "molecule": {
+    "atom_ids": [
+      "atom-0",
+      "atom-1",
+      "atom-2"
+    ],
+    "bonds": [],
+    "charge": 0,
+    "coordinate_units": "angstrom",
+    "coordinates": [
+      [
+        0.3,
+        -0.2,
+        0.4
+      ],
+      [
+        1.1633408740484075,
+        -0.5337215443356982,
+        0.6547007382076628
+      ],
+      [
+        0.4362693824140611,
+        0.741400748956536,
+        0.266976373224289
+      ]
+    ],
+    "environment": {},
+    "fragment_states": [],
+    "fragments": [],
+    "isotopes": [
+      null,
+      null,
+      null
+    ],
+    "multiplicity": 1,
+    "name": null,
+    "stereochemistry": {},
+    "symbols": [
+      "O",
+      "H",
+      "H"
+    ]
+  },
+  "requested_protocol": {
+    "auxiliary_sapt_basis": null,
+    "auxiliary_scf_basis": null,
+    "cc_convergence": 10,
+    "engine": "cfour",
+    "engine_version": "2.1",
+    "frozen_core": false,
+    "genbas_path": "/home/runner/work/_temp/cochem-cfour-install/basis/GENBAS",
+    "genbas_sha256": "6ae208af57916c3271985d1f9002f7dff52046af2c634fec436533af4c2d3caa",
+    "gradient_max_hartree_per_bohr": 1e-05,
+    "gradient_rms_hartree_per_bohr": 3e-06,
+    "max_iterations": 200,
+    "method": "CCSD(T)",
+    "operation": "first-order-properties",
+    "orbital_basis": "PVTZ",
+    "reference": "RHF",
+    "sapt_natural_orbitals": false,
+    "scf_convergence": 10
+  },
+  "files": {
+    "output.stdout": {
+      "original_name": "engine.stdout",
+      "sha256": "ab0eb467db3af527b8c77a7f26d2a7e2004eaf2516737a74a52ec048add32586",
+      "size_bytes": 74540
+    },
+    "native-ZMAT.inp": {
+      "original_name": "ZMAT",
+      "sha256": "13bf47ac8be96bfaadda6c6da75cb3ae6a4de23a79c22823f16cd06684eb0467",
+      "size_bytes": 450
+    },
+    "DIPOL.out": {
+      "original_name": "DIPOL",
+      "sha256": "4f9326f65f8de0203952ce52453d03e67dd46315b2055751293bde1c48aa87e2",
+      "size_bytes": 61
+    },
+    "EFG.out": {
+      "original_name": "EFG",
+      "sha256": "7e8d0a50fb73d55e5e32725e27a19ef0a62b6af96dc523c0fe86f09b6c78f401",
+      "size_bytes": 549
+    }
+  }
+}
