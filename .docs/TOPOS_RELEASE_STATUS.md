@@ -6,8 +6,12 @@ downloads and BASE's separately staged private native Actions route. The current
 unfiltered [source regression](evidence/TOPOS_STUDENT_VALIDATION_20261008.json)
 passed **2,808 tests**, with **42 explicit availability skips** and no failures or
 errors. Its source remained unchanged. Fresh installed-kit and live hosted
-receipts accompany the separate downloadable candidate; regression alone does
-not establish those deployment or scientific results.
+qualification require actual receipts matching the final candidate's sources
+and artifact bytes. The initial final-kit installation stopped at BASE Phase 6:
+observed free space was 0.373 GiB, below its unchanged 1.0 GiB guard. Its failure
+is retained. The candidate's matching clean-install receipt reports whether a
+subsequent attempt completed. The current private student Actions pilot has not
+run. Regression alone does not establish deployment or scientific acceptance.
 
 TOPOS exposes all **42 available TOPOS method-matrix recipe entry points**
 and has historical mandatory BASE/TOPOS/TORQ installation evidence. Full SRS acceptance and
@@ -54,17 +58,18 @@ route selection, input rejection, exact frame/export binding, structure display,
 verified download and continuation behavior. These contract tests do not assert
 native ORCA/CFOUR or GPU scientific acceptance.
 
-BASE's dedicated private `topos_calculation.yml` pathway is being integrated with
+BASE's dedicated private `topos_calculation.yml` pathway is implemented with
 separate kit and licensed-engine staging receipts and a source-bound native
-receiver. This current integration is not yet a published or successfully tested
-student deployment in this status document. The final source identities, full
-regression, candidate artifacts, clean installation and actual private hosted
-lifecycle evidence must be attached after the source is frozen and exercised.
+receiver. Its current private student pilot has not run. Final source identities,
+full regression, candidate artifacts, clean installation and actual private
+hosted lifecycle evidence must identify the exact exercised deployment; a coded
+submission path does not establish its successful execution.
 
-The historical 50-requirement acceptance ledger remains an evidence ledger for
-its original assessment until rebound to those genuine final results. Current
-code coverage is not permission to overwrite its physical conditions or mark
-unexecuted scientific campaigns verified.
+The current 50-requirement acceptance ledger records **22 verified requirements,
+28 requirements awaiting physical acceptance and zero listed coding gaps**. It
+retains historical assessments and receipt scopes separately from its current
+source-bound regression. Code coverage is not permission to overwrite physical
+conditions or mark unexecuted scientific campaigns verified.
 
 ## Historical component milestones — preserved original scope
 
@@ -154,10 +159,10 @@ candidate still needs exact current-source artifact and clean-install evidence.
 The implemented source rejects consistently checksummed unsuccessful
 Stage 0 phases. Each new source candidate still needs its own complete regression
 and installation checks. The existing
-[50-requirement ledger](TOPOS_SRS_ACCEPTANCE.json) still retains the older
-`053c827` assessment; it must be rebound to the final tested source before it can
-supply current-source acceptance. Its historical statuses are not a new release
-claim.
+[50-requirement ledger](TOPOS_SRS_ACCEPTANCE.json) preserves the older `053c827`
+assessment as historical provenance and separately binds the current source
+regression. Its 22 verified and 28 physically pending clauses do not establish
+full scientific release certification.
 
 ## Historical native ORCA/CFOUR evidence
 

@@ -214,8 +214,11 @@ infrastructure, separate from TOPOS's production BASE route.
 
 The [handoff/export specification](.docs/TOPOS_TORQ_HANDOFF.md) defines the schemas
 and validation boundaries. A TOPOS handoff does not mean TORQ consumed it, and a
-consumer receipt does not prove a downstream calculation. The current legacy
-TORQ loader does not yet implement this versioned contract.
+consumer receipt does not prove a downstream calculation. The mandatory
+compatible-core TORQ importer implements this versioned contract and records
+`imported-awaiting-calculation`, with `computation_performed=false`. The newer
+TORQ student calculator runs in a separately reviewed environment; its solver
+execution and scientific acceptance require their own evidence.
 
 Bundles retain explicit raw-artifact membership, failed/excluded observations,
 units, methods, seeds, matrix/profile choices, parser/software versions, review,
