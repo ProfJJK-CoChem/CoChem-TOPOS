@@ -57,7 +57,8 @@ def request_from_handoff(manifest_path: str | Path) -> tuple[RunRequest, dict[st
     # The immutable artifact retains its original labels and bytes. BASE 1.0.1
     # resolves elemental identity separately from explicit nuclear labels; no
     # isotope is inferred from XYZ's comment or silently dropped at this boundary.
-    lines = raw.splitlines()
+    parsing_text = raw.removeprefix("\ufeff")
+    lines = parsing_text.splitlines()
     try:
         count = int(lines[0].strip()) if len(lines) >= 2 else 0
     except ValueError as error:
@@ -65,7 +66,7 @@ def request_from_handoff(manifest_path: str | Path) -> tuple[RunRequest, dict[st
     if (count < 1 or len(lines) < count + 2 or any(line.strip() for line in lines[count + 2:])
             or any(len(line.split()) != 4 for line in lines[2:count + 2])):
         raise ValueError("BASE XYZ must contain exactly one complete counted frame")
-    identity = parse_geometry_identity(raw)
+    identity = parse_geometry_identity(parsing_text)
     for index, number in enumerate(identity.mass_numbers):
         if number is not None and (index >= len(request.molecule.isotopes)
                                    or request.molecule.isotopes[index] != number):

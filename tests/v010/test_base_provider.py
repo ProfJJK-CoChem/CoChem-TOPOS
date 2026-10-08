@@ -22,14 +22,14 @@ def base_api():
     return prepare_module_handoff
 
 
-def prepare(tmp_path, *, operation="energy", request=None):
+def prepare(tmp_path, *, operation="energy", request=None, bom=False):
     producer = base_api()
     molecule = Molecule(symbols=["O", "H", "H"],
                         coordinates=[[0, 0, 0], [.9572, 0, 0], [-.23999, .9273, 0]])
     payload = request or RunRequest(molecule=molecule, purpose="energy", n_candidates=1,
                                    budget_seconds=30).model_dump(mode="json")
     source = tmp_path / "source.xyz"
-    source.write_text("3\nOriginal BASE input\nO 0 0 0\nH .9572 0 0\nH -.23999 .9273 0\n")
+    source.write_text(("\ufeff" if bom else "") + "3\nOriginal BASE input\nO 0 0 0\nH .9572 0 0\nH -.23999 .9273 0\n")
     target = tmp_path / "handoff"
     producer("topos", source, target, operation=operation, options={"topos_request": payload})
     return target / "handoff.json"
@@ -59,6 +59,18 @@ def test_real_base_handoff_preserves_explicit_request_and_original_artifact(tmp_
     assert provenance["manifest_file_sha256"] == file_digest(manifest)
     assert provenance["artifact_sha256"] == file_digest(manifest.parent / "artifact.xyz")
     assert provenance["producer_scientific_execution_performed"] is False
+
+
+def test_windows_bom_is_parsed_without_changing_original_artifact_or_hash(tmp_path):
+    manifest = prepare(tmp_path, bom=True)
+    artifact = manifest.parent / "artifact.xyz"
+    before = artifact.read_bytes()
+    assert before.startswith(b"\xef\xbb\xbf")
+    request, provenance = request_from_handoff(manifest)
+    assert request.molecule.symbols == ["O", "H", "H"]
+    assert provenance["artifact_sha256"] == file_digest(artifact)
+    assert provenance["artifact_xyz"].startswith("\ufeff3")
+    assert artifact.read_bytes() == before
 
 
 def test_base_handoff_tampering_does_not_launch_a_consumer(tmp_path):
