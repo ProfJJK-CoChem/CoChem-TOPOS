@@ -17,6 +17,7 @@ import numpy as np
 from .engines import _engine_version, _number, _orca_input, parse_orca_engrad, parse_xtb_gradient
 from .models import MethodSpec, Molecule, ResourceLimits, RunRecord
 from .native_hessian import orca_frequency_input, parse_orca_hessian
+from .orca_numerical_profiles import verify_numerical_profile_receipt
 from .review import validate_scientific_candidate
 from .science import (
     BOHR_ANGSTROM,
@@ -151,6 +152,7 @@ def _native_gradient(attempt: dict, molecule: Molecule, method: MethodSpec, snap
         literals = re.findall(r"TOTAL ENERGY\s+(" + _FLOAT + r")\s+Eh", raw)
         tolerance = 2e-9
     elif method.engine == "orca":
+        verify_numerical_profile_receipt(method.profile_id, metadata, attempt["diagnostics"], raw)
         _require(engine_version == "6.1.1", "Native ORCA derivatives require the exact supported engine version")
         resources = ResourceLimits.model_validate(metadata["resources"])
         input_path, input_entry = _artifact(snapshot, inventory, "job.inp")

@@ -106,7 +106,7 @@ def acceptance_request(resources: ResourceLimits, monomer: Molecule, native_sour
         r2_counterpoise=cp, r2_vpt2=R2VPT2Options(semirigid_modes=True, displacement=.05,
             transfer={"semirigid_same_basin": True}))
     return RunRequest(molecule=molecule, purpose="matrix", engine="orca", method="wB97M-V",
-        basis="def2-QZVPP", auxiliary_basis="def2/J", engine_version="6.1.1", profile_id="orca-mapping-v4.1",
+        basis="def2-QZVPP", auxiliary_basis="def2/J", engine_version="6.1.1", profile_id="orca-mapping-v4.2",
         matrix_row_id="T3O-3h", matrix_revision=MATRIX_REVISION, matrix_inputs=inputs.model_dump(mode="json"),
         budget_seconds=resources.budget_seconds, threads=resources.threads, memory_mb=resources.memory_mb,
         device=resources.device, n_candidates=1, include_queue_in_budget=True,

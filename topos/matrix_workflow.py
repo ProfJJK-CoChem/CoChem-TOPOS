@@ -334,7 +334,7 @@ def _child_request(parent: RunRequest, molecule: Molecule, *, engine: str, metho
         molecule=molecule.model_dump(mode="json"), engine=engine, method=method,
         engine_version={"xtb": "6.7.1", "orca": "6.1.1"}[engine], purpose=purpose, basis=basis,
         auxiliary_basis="def2/J" if method in {"wB97X-V", "wB97M-V"} else None, dispersion=None, solvent=None,
-        profile_id="xtb-vtight-v1" if engine == "xtb" else "orca-mapping-v4.1",
+        profile_id="xtb-vtight-v1" if engine == "xtb" else "orca-mapping-v4.2",
         matrix_row_id=None, matrix_revision="topos-0.1.0-supported-profile-v1",
         budget_seconds=remaining, constraints=constraints or {}, search_algorithm="crest" if sampler else "jiggle-quench",
         device="cpu",
@@ -831,7 +831,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         if getattr(request, "per_geometry_budget_seconds", None) is not None:
             cp_deadline = min(deadline, time.monotonic() + request.per_geometry_budget_seconds)
         method = MethodSpec(engine="orca", method="wB97M-V", purpose="energy", basis="def2-TZVPP",
-                            auxiliary_basis="def2/J", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+                            auxiliary_basis="def2/J", profile_id="orca-mapping-v4.2", engine_version="6.1.1")
         exports = state.setdefault("counterpoise_exports", {})
         try:
             orca = runtime.resolve_executable("orca", workflow.config.executables.get("orca"))
@@ -949,7 +949,7 @@ def _execute_matrix(workflow: Any, record: RunRecord, store: RunStore, deadline:
         seeds = [request.molecule] if row_id == "T1-1min" else inputs.leading_isomers
         method = MethodSpec(engine="xtb" if row_id == "T1-1min" else "orca",
                             method="GFN2-xTB" if row_id == "T1-1min" else "r2SCAN-3c",
-                            profile_id="xtb-vtight-v1" if row_id == "T1-1min" else "orca-mapping-v4.1",
+                            profile_id="xtb-vtight-v1" if row_id == "T1-1min" else "orca-mapping-v4.2",
                             engine_version="6.7.1" if row_id == "T1-1min" else "6.1.1")
         for seed_index, molecule in enumerate(seeds):
             identity = digest_json({"molecule": molecule.model_dump(mode="json"),

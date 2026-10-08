@@ -33,6 +33,11 @@ from .engines import (
     run_engine,
 )
 from .models import MethodSpec, Molecule, ResourceLimits
+from .orca_numerical_profiles import (
+    numerical_profile_receipt,
+    observe_scf_numerical_profile,
+    verify_numerical_profile_receipt,
+)
 from .runtime import run_process
 from .science import BOHR_ANGSTROM, harmonic_analysis, validate_derivatives
 from .storage import IntegrityError, atomic_json, file_digest
@@ -214,6 +219,7 @@ def verify_orca_gradient_result(result: EngineResult, molecule: Molecule, method
                    != resources.model_dump(exclude={'budget_seconds'})):
             raise IntegrityError('native gradient cache differs from its requested molecule/method/operation/executable/resources')
         folder, raw = _raw_process(result, root, executable, 'job.inp', 'engine')
+        verify_numerical_profile_receipt(method.profile_id, md, result.diagnostics, raw)
         if _raw_artifact(result, folder / 'job.inp', root).read_text() != _orca_input(molecule, method, resources, 'gradient'):
             raise IntegrityError('native gradient input differs from its exact requested compiled deck')
         version_folder, _ = _raw_process(result, root, executable, 'version.inp', 'version', key='version_probe_process')
@@ -271,6 +277,7 @@ def verify_orca_hessian_result(result: EngineResult, molecule: Molecule, method:
         energy, gradient = verify_orca_gradient_result(derivative, molecule, method, resources, root,
                                                        executable=executable, executable_sha256=executable_sha256)
         folder, raw = _raw_process(result, root, executable, 'frequency.inp', 'frequency')
+        verify_numerical_profile_receipt(method.profile_id, md, result.diagnostics, raw)
         if _raw_artifact(result, folder / 'frequency.inp', root).read_text() != orca_frequency_input(
                 molecule, method, resources, check_cpu_affinity=False):
             raise IntegrityError('native Hessian cache input differs from its exact compiled analytic Freq deck')
@@ -308,6 +315,11 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
                                     "requested_method": method.model_dump(mode="json"),
                                     "derivative_kind": "native-analytic-SCF-Hessian",
                                     "analytic_restart_policy": "reuse completed hashed stages; restart interrupted Freq in fresh scratch"})
+    profile_receipt = numerical_profile_receipt(method.profile_id)
+    if profile_receipt is not None:
+        result.metadata["numerical_profile"] = profile_receipt
+        result.metadata["profile_id"] = method.profile_id
+
     def stopped() -> bool:
         return _derivative_stopped(result, resources, started, cancel_event, 'native Hessian')
 
@@ -415,6 +427,11 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
         if (_engine_version(raw, "orca") != ORCA_VERSION or "ORCA TERMINATED NORMALLY" not in raw
                 or "SCF NOT CONVERGED" in raw or not energies):
             raise EngineParseError("native analytic frequency completion/energy unverified")
+        if profile_receipt is not None:
+            evidence = observe_scf_numerical_profile(raw)
+            result.diagnostics["scf_numerical_profile"] = evidence
+            if evidence["passed"] is not True:
+                raise EngineParseError("Explicit ORCA Hessian numerical profile not achieved: " + "; ".join(evidence["failures"]))
         if abs(_number(energies[-1]) - reference.energy_hartree) > 1e-7:
             raise EngineParseError("native frequency and reference gradient energies disagree")
         parsed = parse_orca_hessian(native / "frequency.hess", molecule)

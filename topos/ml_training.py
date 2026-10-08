@@ -31,6 +31,10 @@ from .engines import (
 from .ml import BOHR_ANGSTROM, HARTREE_EV, MLRunner, ModelManifest, molecule_system_identity
 from .models import Artifact, Attempt, Contract, MethodSpec, Molecule, ResourceLimits, RunRecord
 from .orca_geometry_evidence import convergence_evidence
+from .orca_numerical_profiles import (
+    require_achieved_scf_numerical_profile,
+    verify_numerical_profile_receipt,
+)
 from .storage import IntegrityError, RunStore, atomic_json, confined_file, digest_json, file_digest
 
 MACE_VERSION = "0.3.16"
@@ -255,6 +259,7 @@ def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: 
         if files["job.inp"].read_text() != _orca_input(initial, method, allocation, "optimize"):
             raise IntegrityError("DFT refinement native input changed its recorded method or geometry")
         stdout, optimizer_energy = _dft_output_energy(files["engine.stdout"])
+        verify_numerical_profile_receipt(method.profile_id, native.metadata, native.diagnostics, stdout)
         tolerance = 1e-10 if method.profile_id == "orca-vpt2-reference-v1" else 1e-7
         criteria, energy_evidence = convergence_evidence(stdout, energy_tolerance=tolerance)
         if ("THE OPTIMIZATION HAS CONVERGED" not in stdout or len(criteria) != 5
@@ -282,6 +287,7 @@ def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: 
                         output, method, ResourceLimits.model_validate(contract["resources"]), "gradient")):
                 raise IntegrityError("DFT refinement restart gradient changed its bound native evidence")
             _, native_energy = _dft_output_energy(gradient_files["engine.stdout"])
+            require_achieved_scf_numerical_profile(method.profile_id, gradient_files["engine.stdout"].read_text())
             derivative_energy, gradient = parse_orca_engrad(gradient_files["job.engrad"], output)
             if (abs(derivative_energy - native_energy) > 2e-7 or abs(native_energy - optimizer_energy) > 2e-7
                     or contract.get("energy_hartree") != native_energy
@@ -370,6 +376,7 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
     if deck != _orca_input(stage_initial, method, resources, operation):
         raise IntegrityError("DFT native input differs from the recorded typed Hamiltonian and geometry")
     stdout, optimizer_energy = _dft_output_energy(native_file("engine.stdout"))
+    verify_numerical_profile_receipt(method.profile_id, attempt.metadata, attempt.diagnostics, stdout)
     retained.update({(Path(selected_stage or "") / name).as_posix(): native_file(name)
                      for name in ("job.inp", "engine.stdout")})
     if operation == "optimize":
@@ -391,6 +398,7 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
         if final_files["job.inp"].read_text() != _orca_input(molecule, method, final_resources, "gradient"):
             raise IntegrityError("Final DFT gradient input differs from its exact optimized geometry and Hamiltonian")
         _, final_energy = _dft_output_energy(final_files["engine.stdout"])
+        require_achieved_scf_numerical_profile(method.profile_id, final_files["engine.stdout"].read_text())
         energy, gradient = parse_orca_engrad(final_files["job.engrad"], molecule)
         if (abs(energy - final_energy) > 2e-7 or abs(energy - optimizer_energy) > 2e-7
                 or stage.get("energy_hartree") != final_energy

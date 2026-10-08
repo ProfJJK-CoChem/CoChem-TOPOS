@@ -281,7 +281,8 @@ def _method_problem(method: MethodSpec, resources: ResourceLimits, operation: st
                 return "3c composite uses its native basis; separate basis override is invalid"
         elif method.basis not in ORCA_BASES:
             return "explicit supported orbital basis required for noncomposite ORCA method"
-        if method.profile_id not in {"orca-mapping-v4.1", "orca-vpt2-reference-v1"}:
+        from .orca_numerical_profiles import SUPPORTED_PROFILES
+        if method.profile_id not in SUPPORTED_PROFILES:
             return "ORCA requires an explicit supported convergence profile; conflicting profiles not guessed"
     else:
         return f"engine {method.engine!r} has no validated local adapter"
@@ -336,6 +337,10 @@ def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimit
                     raise ValueError("External ORCA basis filenames must be the fixed staged names")
                 lines.append(f'  {keyword} "{basis_files[kind]}"')
         lines.append("end")
+    from .orca_numerical_profiles import MAPPING_V42, SCF_BLOCK
+
+    if method.profile_id == MAPPING_V42:
+        lines.extend(SCF_BLOCK.rstrip().splitlines())
     charge, multiplicity = ghost_electronic_state or (molecule.charge, molecule.multiplicity)
     lines.append(f"* xyz {charge} {multiplicity}")
     ghosts = set(ghost_atom_indices or [])
@@ -511,6 +516,12 @@ def _run_engine_once(
                           operation=operation, metadata={"execution_kind": "not-executed",
                           "profile_id": method.profile_id, "requested_method": method.model_dump(),
                           "resources": resources.model_dump(), "precision": "float64"})
+    if method.engine == "orca":
+        from .orca_numerical_profiles import numerical_profile_receipt
+
+        profile_receipt = numerical_profile_receipt(method.profile_id)
+        if profile_receipt is not None:
+            result.metadata["numerical_profile"] = profile_receipt
     problem = _method_problem(method, resources, operation)
     if problem:
         result.diagnostics["reason"] = problem
@@ -747,6 +758,13 @@ def _run_engine_once(
                 raise EngineParseError("ORCA electronic convergence marker absent")
             if re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I):
                 raise EngineParseError("ORCA SCF failed to converge")
+            if profile_receipt is not None:
+                from .orca_numerical_profiles import observe_scf_numerical_profile
+
+                evidence = observe_scf_numerical_profile(raw)
+                result.diagnostics["scf_numerical_profile"] = evidence
+                if evidence["passed"] is not True:
+                    raise EngineParseError("Explicit ORCA numerical profile not achieved: " + "; ".join(evidence["failures"]))
             matches = re.findall(r"FINAL SINGLE POINT ENERGY\s+(" + _FLOAT + ")", raw)
             if not matches:
                 raise EngineParseError("ORCA total energy absent")

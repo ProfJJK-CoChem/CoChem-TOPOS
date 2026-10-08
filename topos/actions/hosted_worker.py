@@ -194,7 +194,7 @@ def validate_smoke_request(raw: bytes) -> RunRequest:
         raise WorkerError("invalid-request", "The reviewed file is not a valid finite TOPOS request") from exc
     expected = {
         "engine": "orca", "engine_version": EXPECTED_VERSION, "method": "HF-3c", "purpose": "energy",
-        "profile_id": "orca-mapping-v4.1", "matrix_revision": "topos-0.1.0-supported-profile-v1",
+        "profile_id": "orca-mapping-v4.2", "matrix_revision": "topos-0.1.0-supported-profile-v1",
         "calculation_environment": "local", "device": "cpu", "threads": 1, "n_candidates": 1,
         "search_algorithm": "jiggle-quench",
     }

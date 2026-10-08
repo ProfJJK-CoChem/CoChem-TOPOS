@@ -11,7 +11,7 @@
   "engine_version": "6.1.1",
   "method": "HF-3c",
   "purpose": "energy",
-  "profile_id": "orca-mapping-v4.1",
+  "profile_id": "orca-mapping-v4.2",
   "matrix_revision": "topos-0.1.0-supported-profile-v1",
   "calculation_environment": "local",
   "presentation_environment": "github-actions",

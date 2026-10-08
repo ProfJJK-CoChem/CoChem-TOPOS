@@ -15,6 +15,7 @@ from .counterpoise import CP_SCHEMA, counterpoise_plan
 from .engines import EngineResult, _engine_version, _orca_input
 from .method_matrix import MATRIX_REVISION, resolve_row, resolved_recipe
 from .models import MethodSpec, Molecule, ResourceLimits, RunRecord
+from .orca_numerical_profiles import verify_numerical_profile_receipt
 from .science import counterpoise_interaction, geometry_digest
 from .storage import IntegrityError, RunStore, artifact_inventory, confined_file, digest_json
 
@@ -52,7 +53,7 @@ def _method(case, actual):
                  "The current reviewed row no longer defines ordinary counterpoise")
         expected = MethodSpec(engine=steps[0].engine, method=steps[0].method, basis=steps[0].basis,
                               auxiliary_basis="def2/J", purpose="energy", engine_version="6.1.1",
-                              profile_id="orca-mapping-v4.1")
+                              profile_id=steps[0].profile_id)
     else:
         _require(case.request.purpose == "energy", "A standalone CP reference requires a fixed-energy declaration")
         expected = case.request.method_spec
@@ -197,6 +198,7 @@ def _extract(case, record, store):
         mapped = {original: _member(originals[original], local_inventory, snapshot) for original in sorted(needed)}
         stdout_member, stdout = mapped[stdout_original]
         raw = stdout.read_text(errors="replace")
+        verify_numerical_profile_receipt(method.profile_id, result.metadata, result.diagnostics, raw)
         match = re.findall(r"FINAL SINGLE POINT ENERGY\s+([-+]?\d+(?:\.\d*)?(?:[EeDd][-+]?\d+)?)", raw)
         _require(_engine_version(raw, "orca") == "6.1.1" and "ORCA TERMINATED NORMALLY" in raw
                  and "SCF CONVERGED AFTER" in raw and not re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I)

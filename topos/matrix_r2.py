@@ -106,11 +106,12 @@ def execute_r2_geometry(workflow, record, store, inputs, child, deadline, cancel
     identity = [derivative.engine_version, derivative.metadata.get('executable_sha256')]
     if (derivative.engine != 'orca' or derivative.method != 'wB97M-V' or derivative.status != 'completed'
             or derivative.converged is not True or derivative.metadata.get('execution_kind') != 'real'
-            or derivative.validation_status != 'validated-for-protocol' or not all(identity)):
+            or derivative.validation_status != 'validated-for-protocol' or not all(identity)
+            or derivative.metadata.get('requested_method', {}).get('profile_id') != 'orca-mapping-v4.2'):
         raise IntegrityError('R2 accepted native QZ derivative lacks real validated engine identity')
     payload = {'molecule':candidate.molecule.model_dump(mode='json'), 'candidate_id':candidate.candidate_id,
         'child_run_id':completed.run_id, 'accepted_derivative_attempt_id':attempt.metadata.get('accepted_derivative_attempt_id'),
-        'method':'wB97M-V', 'basis':'def2-QZVPP', 'auxiliary_basis':'def2/J', 'profile':'orca-mapping-v4.1',
+        'method':'wB97M-V', 'basis':'def2-QZVPP', 'auxiliary_basis':'def2/J', 'profile':derivative.metadata['requested_method']['profile_id'],
         'engine_identity':identity,
         'equilibrium_rotational_constants_mhz':[v*1000 if v is not None else None for v in rotational_constants(candidate.molecule)['constants_ghz']],
         'frozen_monomer_references':[r.model_dump(mode='json') for r in references],

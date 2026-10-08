@@ -148,7 +148,7 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
             elif case == "DLPNO-counterpoise":
                 details = correlated_cp_case(runtime, folder, remaining())
             elif case in {"native-hessian", "native-vpt2"}:
-                method = (MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.1")
+                method = (MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.2")
                           if case == "native-hessian" else MethodSpec(engine="orca", method="B3LYP", basis="def2-TZVPP",
                               auxiliary_basis="def2/J", dispersion="D4", profile_id="orca-vpt2-reference-v1"))
                 optimized = retain(run_engine(molecule, method, remaining(), folder / "optimization", executable=binary,
