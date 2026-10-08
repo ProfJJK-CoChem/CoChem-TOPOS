@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
@@ -29,8 +29,8 @@ from .storage import (
     safe_relative,
 )
 
-PLAN_SCHEMA = "topos-reviewed-matrix-campaign-plan/0.1.0"
-REPORT_SCHEMA = "topos-reviewed-matrix-campaign-report/0.1.0"
+PLAN_SCHEMA = "topos-reviewed-matrix-campaign-plan/0.2.0"
+REPORT_SCHEMA = "topos-reviewed-matrix-campaign-report/0.2.0"
 CONDITION = "reviewed_matrix_campaign"
 SHA = r"[a-f0-9]{64}"
 SCOPE = ("One completed, current-source, predeclared full-row calculation per available TOPOS row; "
@@ -80,6 +80,59 @@ def _compile(request: RunRequest, hardware: HardwareSpec) -> tuple[dict[str, Any
     return _recipe(plan.model_dump(mode="json")), digest_json(inputs.model_dump(mode="json"))
 
 
+SOURCE_TARGET_DOMAIN = "isolated gas-phase 5–10 atom van der Waals complexes; see row limits"
+SOURCE_TARGET_ENVIRONMENT = {"phase": "gas"}
+
+
+class CaseDomainDeclaration(Contract):
+    """Reviewed declared applicability, not automatic chemical classification."""
+
+    chemistry_domain: str = Field(min_length=1)
+    physical_environment: Literal["isolated-gas-phase"]
+    system_class: Literal["noncovalent-complex"]
+    fragment_partition: list[list[int]] = Field(min_length=2)
+    molecule_sha256: str = Field(pattern=SHA)
+    request_environment_sha256: str = Field(pattern=SHA)
+    source_row_limits: str
+    reviewed_variant_differences: list[str]
+    reviewer: str = Field(min_length=1)
+    reviewed_at: str
+    applicability_rationale: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def timestamp(self):
+        utc_timestamp(self.reviewed_at)
+        if not self.reviewer.strip() or not self.applicability_rationale.strip():
+            raise ValueError("Domain reviewer and applicability rationale must be nonblank")
+        return self
+
+
+def _source_domain_definition(request: RunRequest, recipe: dict[str, Any],
+                              domain: CaseDomainDeclaration) -> None:
+    row = recipe["row"]
+    # Current source has this explicit scope. A changed/overridden source scope
+    # requires a reviewed contract revision; never guess new atom thresholds.
+    if row["chemical_domain"] != SOURCE_TARGET_DOMAIN or domain.chemistry_domain != row["chemical_domain"]:
+        raise ValueError("Release case must bind the exact reviewed source-domain descriptor")
+    molecule = request.molecule
+    if not 5 <= len(molecule.symbols) <= 10:
+        raise ValueError("Source-domain release cases require 5–10 explicitly mapped atoms")
+    if molecule.environment != SOURCE_TARGET_ENVIRONMENT:
+        raise ValueError("Release case typed environment must explicitly declare isolated gas phase")
+    if (domain.molecule_sha256 != digest_json(molecule.model_dump(mode="json"))
+            or domain.request_environment_sha256 != digest_json(molecule.environment)):
+        raise ValueError("Domain declaration differs from its exact typed molecular/environment identity")
+    if len(molecule.fragments) < 2 or domain.fragment_partition != molecule.fragments:
+        raise ValueError("Release case needs the exact indexed noncovalent fragment partition")
+    owner = {atom: number for number, fragment in enumerate(molecule.fragments) for atom in fragment}
+    if any(owner[bond.atom1] != owner[bond.atom2] for bond in molecule.bonds):
+        raise ValueError("A declared interfragment bond is incompatible with the noncovalent target declaration")
+    revision = recipe.get("reviewed_revision")
+    differences = revision["definition"].get("differences", []) if revision else []
+    if domain.source_row_limits != row["limitations"] or domain.reviewed_variant_differences != differences:
+        raise ValueError("Review must preserve source-specific limits and exact reviewed scientific differences")
+
+
 class CampaignCase(Contract):
     row_id: str
     request: RunRequest
@@ -90,6 +143,9 @@ class CampaignCase(Contract):
     inputs_sha256: str = Field(pattern=SHA)
     recipe: dict[str, Any]
     recipe_sha256: str = Field(pattern=SHA)
+    coverage_scope: Literal["diagnostic-control", "source-domain-release"] = "diagnostic-control"
+    domain_declaration: CaseDomainDeclaration | None = None
+    domain_declaration_sha256: str | None = Field(default=None, pattern=SHA)
 
     @model_validator(mode="after")
     def bound_definition(self):
@@ -99,6 +155,15 @@ class CampaignCase(Contract):
                 or digest_json(self.recipe) != self.recipe_sha256
                 or self.recipe.get("row", {}).get("row_id") != self.row_id):
             raise ValueError("Campaign case hashes do not bind its exact typed scientific definition")
+        if self.coverage_scope == "diagnostic-control":
+            if self.domain_declaration is not None or self.domain_declaration_sha256 is not None:
+                raise ValueError("Diagnostic controls cannot attach source-domain release claims")
+        else:
+            if self.domain_declaration is None:
+                raise ValueError("Release coverage requires a predeclared source-domain review")
+            if digest_json(self.domain_declaration.model_dump(mode="json")) != self.domain_declaration_sha256:
+                raise ValueError("Domain declaration checksum differs from its reviewed scope")
+            _source_domain_definition(self.request, self.recipe, self.domain_declaration)
         return self
 
 
@@ -119,6 +184,10 @@ class CampaignPlan(Contract):
         rows = [case.row_id for case in self.cases]
         if len(rows) != len(set(rows)) or not set(rows) <= set(self.available_rows):
             raise ValueError("Declare at most one exact case for each available TOPOS row")
+        for case in self.cases:
+            if (case.domain_declaration is not None
+                    and utc_timestamp(case.domain_declaration.reviewed_at) > utc_timestamp(self.declared_at)):
+                raise ValueError("Domain review must precede the frozen case declaration")
         if self.schema_version != PLAN_SCHEMA or self.condition != CONDITION or self.scope != SCOPE:
             raise ValueError("Unknown matrix campaign plan contract")
         return self
@@ -140,11 +209,16 @@ def create_plan(source_root: Path, definitions: list[dict[str, Any]] | None = No
                                  fingerprint="predeclared-campaign-allocation; runtime hardware verified separately")
         hardware = HardwareSpec.model_validate(hardware_data)
         recipe, inputs_digest = _compile(request, hardware)
+        coverage_scope = definition.get("coverage_scope", "diagnostic-control") if "request" in definition else "diagnostic-control"
+        domain_data = definition.get("domain_declaration") if "request" in definition else None
+        domain = CaseDomainDeclaration.model_validate(domain_data) if domain_data is not None else None
         cases.append(CampaignCase(row_id=recipe["row"]["row_id"], request=request, hardware=hardware,
                                   request_sha256=digest_json(request.model_dump(mode="json")),
                                   molecule_sha256=digest_json(request.molecule.model_dump(mode="json")),
                                   resources_sha256=digest_json(request.resources.model_dump(mode="json")),
-                                  inputs_sha256=inputs_digest, recipe=recipe, recipe_sha256=digest_json(recipe)))
+                                  inputs_sha256=inputs_digest, recipe=recipe, recipe_sha256=digest_json(recipe),
+                                  coverage_scope=coverage_scope, domain_declaration=domain,
+                                  domain_declaration_sha256=digest_json(domain.model_dump(mode="json")) if domain else None))
     return CampaignPlan(declared_at=utc_now(), source_sha256=source_inventory(source_root),
                         available_rows=support["compiled_complete_recipes"],
                         unavailable_by_design=support["unavailable_by_design"],
@@ -308,9 +382,16 @@ def _assess_run(case: CampaignCase, store: RunStore, plan: CampaignPlan, bundle_
         release_eligible, reason = True, None
     except (ValueError, KeyError, TypeError) as exc:
         authority, release_eligible, reason = None, False, str(exc)
+    if case.coverage_scope != "source-domain-release":
+        release_eligible = False
+        domain_reason = "Diagnostic control is outside the predeclared source-domain release coverage"
+        reason = domain_reason + ("; " + reason if reason else "")
     return {"run_path": store.run_dir.relative_to(bundle_root).as_posix(), "run_id": record["run_id"], "snapshot_id": manifest["snapshot_id"],
             "record_sha256": manifest["record_sha256"], "verified_snapshot_history": history,
             "native_attempts": native, "release_eligible": release_eligible,
+            "coverage_scope": case.coverage_scope,
+            "domain_declaration_sha256": case.domain_declaration_sha256,
+            "source_domain_declaration_verified": case.coverage_scope == "source-domain-release",
             "base_authority": authority, "release_blocker": reason}
 
 
