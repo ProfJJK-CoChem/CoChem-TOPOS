@@ -161,6 +161,25 @@ def _cfour_authorization_identity(authorization: Any, engine_record: dict) -> di
             "identity_scope": "BASE authorization verifies complete CFOUR runtime against Stage 0"}
 
 
+def _cfour_controlled_dependencies(engine_record: dict, native_inputs: dict) -> dict:
+    """Retain audited dependency identities, never the licensed basis payloads."""
+    metadata = engine_record.get('runtime_metadata') if isinstance(engine_record, dict) else None
+    basis = metadata.get('basis') if isinstance(metadata, dict) else None
+    if not isinstance(basis, dict) or not isinstance(native_inputs, dict):
+        raise BaseIntegrationError('CFOUR requires audited GENBAS/ECPDATA dependency identities')
+    result = {}
+    for name in ('GENBAS', 'ECPDATA'):
+        item = basis.get(name, {})
+        if (not isinstance(item, dict) or not Path(str(item.get('path', ''))).is_absolute()
+                or not re.fullmatch(r'[0-9a-f]{64}', str(item.get('sha256', '')))
+                or type(item.get('bytes')) is not int or item['bytes'] < 1):
+            raise BaseIntegrationError('CFOUR requires audited GENBAS/ECPDATA dependency identities')
+        result[name] = {'path': item['path'], 'sha256': item['sha256'], 'size_bytes': item['bytes']}
+    if native_inputs.get('GENBAS') != result['GENBAS']['sha256']:
+        raise BaseIntegrationError('Staged CFOUR GENBAS differs from its audited native runtime dependency')
+    return result
+
+
 def _orca_deck_allocation(command: list[str], workdir: str | Path, resources: ResourceLimits) -> int:
     """Authorize the actual confined TOPOS deck, including cheap serial probes."""
     if len(command) != 2:
@@ -752,7 +771,8 @@ print(json.dumps(result,sort_keys=True))
                 raise BaseIntegrationError("CFOUR requires confined regular native ZMAT and GENBAS inputs")
             native_inputs = {name: file_digest(path) for name, path in input_paths.items()}
             process_binding = {"command": command, "workdir": str(folder), "native_inputs_sha256": native_inputs,
-                               "stdout_name": stdout.name, "stderr_name": stderr.name}
+                               "stdout_name": stdout.name, "stderr_name": stderr.name,
+                               "controlled_runtime_dependencies": _cfour_controlled_dependencies(cfour_record, native_inputs)}
             atomic_json(folder / (log_prefix + "-cfour-runtime.json"), {
                 "schema": "topos-cfour-runtime-integrity/1", "status": "pending-native-completion",
                 "runtime_before": cfour_runtime, **process_binding,

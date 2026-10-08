@@ -4,9 +4,10 @@ from __future__ import annotations
 import math
 import re
 import time
+from collections.abc import Callable
 from pathlib import Path
 from threading import Event
-from typing import Any, Callable
+from typing import Any
 
 from .engines import EngineResult
 from .models import Artifact, Attempt, Molecule, Quantity, RunRecord, utc_now
@@ -17,11 +18,120 @@ from .storage import (
     confined_file,
     digest_json,
     file_digest,
+    json_bytes,
     read_json,
+    safe_relative,
 )
 
 
-def verify_cfour_runtime_receipts(artifacts, root: Path, authority: dict, *, original_artifacts=None):
+def _cfour_evidence_policy(files, original_map, policy, policy_sha256, controlled_basis,
+                           protocol_basis_sha256, controlled_dependencies):
+    """Bind a scientific inventory to separately controlled licensed assets."""
+    policy_entries = [(name, entry) for name, entry in files.items()
+                      if Path(name).name == "cfour-evidence-policy.json"
+                      or entry[1].get("role") == "cfour-evidence-policy"]
+    if policy is None and policy_sha256 is None and not policy_entries:
+        return None
+    from .cfour_artifacts import PORTABLE_NAMES
+
+    if not isinstance(policy, dict) or len(policy_entries) != 1:
+        raise IntegrityError("CFOUR scientific evidence requires one embedded and retained policy")
+    policy_name, (policy_file, policy_artifact) = policy_entries[0]
+    if (Path(policy_name).name != "cfour-evidence-policy.json"
+            or policy_artifact.get("role") != "cfour-evidence-policy"
+            or policy_artifact["sha256"] != policy_sha256
+            or policy_file.read_bytes() != json_bytes(policy) + b"\n"
+            or policy.get("schema") != "topos-cfour-scientific-evidence/1"
+            or policy.get("native_rerun_self_contained") is not False
+            or policy.get("licensed_assets_included") is not False):
+        raise IntegrityError("CFOUR scientific evidence policy is changed or overstates portability")
+    source = Path(str(policy.get("source_directory", "")))
+    if (not source.is_absolute() or source.as_posix() != policy.get("source_directory")
+            or ".." in source.parts):
+        raise IntegrityError("CFOUR policy lacks its exact original component directory")
+    basis = policy.get("controlled_basis_library")
+    if (not isinstance(basis, dict) or not isinstance(controlled_basis, dict)
+            or not re.fullmatch(r"[a-f0-9]{64}", str(protocol_basis_sha256 or ""))
+            or basis.get("sha256") != protocol_basis_sha256
+            or any(basis.get(key) != controlled_basis.get(key) for key in ("path", "sha256"))
+            or not Path(str(basis.get("path", ""))).is_absolute()):
+        raise IntegrityError("CFOUR omitted GENBAS differs from its requested and controlled basis identity")
+    dependencies = policy.get("controlled_runtime_dependencies", {})
+    if not isinstance(dependencies, dict) or set(dependencies) != {"GENBAS", "ECPDATA"}:
+        raise IntegrityError("CFOUR controlled runtime dependency inventory is invalid")
+    for name, dependency in dependencies.items():
+        if (not isinstance(dependency, dict) or not Path(str(dependency.get("path", ""))).is_absolute()
+                or not re.fullmatch(r"[a-f0-9]{64}", str(dependency.get("sha256", "")))
+                or type(dependency.get("size_bytes")) is not int or dependency["size_bytes"] < 0):
+            raise IntegrityError("CFOUR controlled runtime dependency identity is invalid")
+        if name == "GENBAS" and any(dependency.get(key) != basis.get(key) for key in ("path", "sha256")):
+            raise IntegrityError("CFOUR controlled GENBAS identities disagree")
+        if controlled_dependencies is not None:
+            independent = controlled_dependencies.get(name) if isinstance(controlled_dependencies, dict) else None
+            if not isinstance(independent, dict) or any(independent.get(key) != dependency[key]
+                                                       for key in ("path", "sha256", "size_bytes")):
+                raise IntegrityError("CFOUR controlled dependency differs from the retained audited registry")
+    retained, omitted, links = policy.get("retained_files"), policy.get("omitted_files"), policy.get("omitted_links")
+    if not isinstance(retained, dict) or not isinstance(omitted, list) or not isinstance(links, list):
+        raise IntegrityError("CFOUR scientific evidence policy inventory is invalid")
+    prefix, names, omitted_map = Path(policy_name).parent, set(), {}
+    licensed_hashes = {basis["sha256"], *(entry["sha256"] for entry in dependencies.values())}
+    for relative, entry in retained.items():
+        safe_relative(relative)
+        if (relative in names or Path(relative).name not in PORTABLE_NAMES
+                or not isinstance(entry, dict) or set(entry) != {"sha256", "size_bytes"}
+                or not re.fullmatch(r"[a-f0-9]{64}", str(entry.get("sha256", "")))
+                or entry["sha256"] in licensed_hashes
+                or type(entry.get("size_bytes")) is not int or entry["size_bytes"] < 0):
+            raise IntegrityError("CFOUR retained policy inventory is duplicated or includes controlled assets")
+        names.add(relative)
+        actual = files.get((prefix / relative).as_posix())
+        original = original_map.get(str(source / relative))
+        if (actual is None or original is None
+                or any(actual[1].get(key) != entry[key] or original.get(key) != entry[key]
+                       for key in ("sha256", "size_bytes"))):
+            raise IntegrityError("CFOUR retained policy files differ from their exact native inventory")
+    for entry in omitted:
+        if not isinstance(entry, dict):
+            raise IntegrityError("CFOUR omitted artifact inventory is invalid")
+        relative = safe_relative(entry.get("path"))
+        if (relative in names or entry.get("classification") not in {"licensed-basis", "native-scratch"}
+                or not re.fullmatch(r"[a-f0-9]{64}", str(entry.get("sha256", "")))
+                or type(entry.get("size_bytes")) is not int or entry["size_bytes"] < 0
+                or (prefix / relative).as_posix() in files or str(source / relative) in original_map
+                or (Path(relative).name in {"GENBAS", "ECPDATA"} or entry["sha256"] in licensed_hashes)
+                != (entry["classification"] == "licensed-basis")):
+            raise IntegrityError("CFOUR omitted artifact is duplicated, retained, or misclassified")
+        names.add(relative)
+        omitted_map[relative] = entry
+    for entry in links:
+        if not isinstance(entry, dict):
+            raise IntegrityError("CFOUR omitted link inventory is invalid")
+        relative = safe_relative(entry.get("path"))
+        if (relative in names or not isinstance(entry.get("link_text"), str)
+                or entry.get("disposition") != "not-followed-or-retained"
+                or Path(relative).name in {"ZMAT", "GENBAS", "protocol.json", "native-result.json", "engine.stdout",
+                                          "engine.stderr", "engine-cfour-runtime.json", "GRD", "DIPOL", "EFG", "FCMFINAL"}
+                or (prefix / relative).as_posix() in files or str(source / relative) in original_map):
+            raise IntegrityError("CFOUR omitted links contradict the retained scientific inventory")
+        names.add(relative)
+    expected = {(prefix / relative).as_posix() for relative in retained} | {policy_name}
+    extra = set(files) - expected
+    if any(name != (prefix / "matrix-component-result.json").as_posix()
+           or files[name][1].get("role") != "matrix-native-component-result" for name in extra):
+        raise IntegrityError("CFOUR scientific inventory contains files absent from its policy")
+    expected_originals = {str(source / relative) for relative in retained} | {str(source / "cfour-evidence-policy.json")}
+    if set(original_map) != expected_originals:
+        raise IntegrityError("CFOUR original scientific inventory differs from the complete policy")
+    original_policy = original_map[str(source / "cfour-evidence-policy.json")]
+    if original_policy.get("sha256") != policy_sha256 or original_policy.get("size_bytes") != policy_artifact["size_bytes"]:
+        raise IntegrityError("CFOUR policy lacks its original directory-bound artifact")
+    return {"source": source, "prefix": prefix, "omitted": omitted_map, "dependencies": dependencies}
+
+
+def verify_cfour_runtime_receipts(artifacts, root: Path, authority: dict, *, original_artifacts=None,
+                                 evidence_policy=None, evidence_policy_sha256=None, controlled_basis=None,
+                                 protocol_basis_sha256=None, controlled_dependencies=None):
     """Verify retained process authority offline; this is not a native science parser.
 
     The original artifact inventory keeps the launch directory binding when a
@@ -45,6 +155,8 @@ def verify_cfour_runtime_receipts(artifacts, root: Path, authority: dict, *, ori
         if relative in files or native.stat().st_size != artifact["size_bytes"] or file_digest(native) != artifact["sha256"]:
             raise IntegrityError("CFOUR runtime evidence is duplicated or changed")
         files[relative] = (native, artifact)
+    policy = _cfour_evidence_policy(files, original_map, evidence_policy, evidence_policy_sha256,
+                                    controlled_basis, protocol_basis_sha256, controlled_dependencies)
     outputs = [name for name in files if Path(name).name == "engine.stdout"]
     receipts = {name for name in files if Path(name).name == "engine-cfour-runtime.json"}
     expected_receipts = {(Path(name).parent / "engine-cfour-runtime.json").as_posix() for name in outputs}
@@ -65,12 +177,32 @@ def verify_cfour_runtime_receipts(artifacts, root: Path, authority: dict, *, ori
             raise IntegrityError("CFOUR process receipt contradicts its complete runtime or launch binding")
         expected = {**binding["native_inputs_sha256"], "engine.stdout": binding.get("stdout_sha256"),
                     "engine.stderr": binding.get("stderr_sha256"), "engine-cfour-runtime.json": file_digest(receipt_path)}
+        if (policy is not None
+                and binding.get("controlled_runtime_dependencies") != policy["dependencies"]):
+            raise IntegrityError("CFOUR process controlled dependencies differ from the evidence policy")
         for name, digest in expected.items():
+            if name == "GENBAS" and policy is not None:
+                try:
+                    relative = (original_directory / name).relative_to(policy["source"]).as_posix()
+                    expected_parent = policy["prefix"] / original_directory.relative_to(policy["source"])
+                except ValueError as exc:
+                    raise IntegrityError("CFOUR omitted GENBAS escapes its exact native component directory") from exc
+                omitted = policy["omitted"].get(relative)
+                if (expected_parent != parent or not isinstance(omitted, dict)
+                        or omitted["classification"] != "licensed-basis"
+                        or omitted["sha256"] != digest or digest != protocol_basis_sha256
+                        or digest != controlled_basis["sha256"]
+                        or "GENBAS" in policy["dependencies"]
+                        and omitted["size_bytes"] != policy["dependencies"]["GENBAS"]["size_bytes"]):
+                    raise IntegrityError("CFOUR receipt GENBAS lacks its exact controlled omission identity")
+                continue
             entry = files.get((parent / name).as_posix())
             original = original_map.get(str(original_directory / name))
             if entry is None or entry[1]["sha256"] != digest or original is None or original["sha256"] != digest:
                 raise IntegrityError("CFOUR runtime receipt is not bound to its exact native directory, inputs and output bytes")
     return {"runtime_seal_sha256": authority["runtime_seal_sha256"], "native_evaluations": len(outputs),
+            **({"native_rerun_self_contained": False, "licensed_assets_included": False,
+                "evidence_policy_sha256": evidence_policy_sha256} if policy is not None else {}),
             "scope": "Retained BASE process authority; native scientific validation is separate"}
 
 
@@ -164,7 +296,11 @@ def _verified_component(attempt, store, molecule, protocol_data, identity, cfour
         retained_authority = attempt.metadata.get("cfour_runtime_authority")
         if cfour_authority is not None and retained_authority != cfour_authority:
             raise IntegrityError("Cached CFOUR authority differs from the current campaign runtime")
-        verify_cfour_runtime_receipts(cached.artifacts, folder, retained_authority)
+        verify_cfour_runtime_receipts(cached.artifacts, folder, retained_authority,
+            evidence_policy=cached.metadata.get("cfour_evidence_policy"),
+            evidence_policy_sha256=cached.metadata.get("cfour_evidence_policy_sha256"),
+            controlled_basis=cached.metadata.get("basis_library"),
+            protocol_basis_sha256=protocol_data.get("genbas_sha256"))
     if (attempt.engine != cached.engine or attempt.method != cached.method
             or attempt.engine_version != cached.engine_version or attempt.command != cached.command):
         raise IntegrityError("Completed component identity differs from its native receipt")
@@ -349,7 +485,22 @@ def run_component(workflow: Any, record: RunRecord, store: RunStore, key: str, m
         # failed. Never follow links or accept evidence outside this attempt.
         roles = {a.path:a.role for a in attempt.artifacts}
         attempt.artifacts = []
-        if folder.is_dir():
+        if folder.is_dir() and engine == "cfour":
+            from .cfour_artifacts import finalize_artifacts
+
+            failed = EngineResult(status="failed", engine="cfour", method=method,
+                operation=protocol_data.get("operation", "energy"), diagnostics={"reason": str(exc)},
+                metadata={"requested_protocol": protocol_data,
+                          "basis_library": attempt.metadata.get("basis_library", {})})
+            finalize_artifacts(failed, folder)
+            for name in ("cfour_evidence_policy", "cfour_evidence_policy_sha256"):
+                if name in failed.metadata:
+                    attempt.metadata[name] = failed.metadata[name]
+            attempt.diagnostics.update({name: failed.diagnostics[name]
+                for name in ("artifact_error", "artifact_links") if name in failed.diagnostics})
+            attempt.artifacts = [artifact.model_copy(update={
+                "path": Path(artifact.path).relative_to(store.run_dir).as_posix()}) for artifact in failed.artifacts]
+        elif folder.is_dir():
             for path in sorted(folder.rglob("*")):
                 if path.is_file() and not path.is_symlink():
                     try:

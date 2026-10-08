@@ -1,0 +1,12 @@
+{
+  "ECPDATA": {
+    "bytes": 99652,
+    "path": "/home/runner/work/_temp/cochem-cfour-install/basis/ECPDATA",
+    "sha256": "8ee834eb3a83cf3eaf26813cefc1cf2fbf861455c03e10fd2c0dafae86475bcb"
+  },
+  "GENBAS": {
+    "bytes": 4705314,
+    "path": "/home/runner/work/_temp/cochem-cfour-install/basis/GENBAS",
+    "sha256": "6ae208af57916c3271985d1f9002f7dff52046af2c634fec436533af4c2d3caa"
+  }
+}

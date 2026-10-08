@@ -215,7 +215,14 @@ def base_authority_evidence(record: dict[str, Any], store: RunStore,
             if not isinstance(original_artifacts, list) or not original_artifacts:
                 raise IntegrityError("Retained CFOUR process lacks its original directory-bound native inventory")
             cfour_proof = verify_cfour_runtime_receipts(attempt["artifacts"], snapshot, retained_authority,
-                                                      original_artifacts=original_artifacts)
+                original_artifacts=original_artifacts,
+                evidence_policy=metadata.get("native_result", {}).get("metadata", {}).get("cfour_evidence_policy"),
+                evidence_policy_sha256=metadata.get("native_result", {}).get("metadata", {}).get("cfour_evidence_policy_sha256"),
+                controlled_basis=native.get("runtime_metadata", {}).get("basis", {}).get("GENBAS"),
+                protocol_basis_sha256=metadata.get("requested_protocol", {}).get("genbas_sha256"),
+                controlled_dependencies={name: {"path": item.get("path"), "sha256": item.get("sha256"),
+                    "size_bytes": item.get("bytes")} for name, item in
+                    native.get("runtime_metadata", {}).get("basis", {}).items() if isinstance(item, dict)})
         if observed != native["hash"]:
             raise IntegrityError("Observed native executable identity differs from its retained BASE audit")
         proofs.append({"attempt_id": attempt["attempt_id"], "registry_sha256": digest,

@@ -292,6 +292,9 @@ def stage_committed_run(run_dir: Path, evidence_root: Path, request_sha256: str)
         with source.lock:
             manifest = source.verify()
             record = source.load()
+            from topos.cfour_artifacts import validate_scientific_export_membership
+
+            scientific_membership = validate_scientific_export_membership(record, manifest)
             if digest_json(record["request"]) != request_sha256:
                 raise IntegrityError("Committed run does not match the reviewed request")
             snapshot_prefix = f"snapshots/{manifest['snapshot_id']}"
@@ -322,6 +325,7 @@ def stage_committed_run(run_dir: Path, evidence_root: Path, request_sha256: str)
             "validation_status": record["validation_status"],
             "snapshot_id": manifest["snapshot_id"], "record_sha256": manifest["record_sha256"],
             "relative_paths": ["run/" + value for value in relative_paths],
+            "scientific_export_membership": scientific_membership,
         }
     finally:
         if temporary.exists():
