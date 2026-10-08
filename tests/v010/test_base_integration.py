@@ -533,7 +533,12 @@ def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runti
     script.chmod(0o700)
     authority = SimpleNamespace(executable=str(script), binary_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),
                                 runtime_seal_sha256='a' * 64, cores=2, maxcore_mb=64, cpu_affinity=())
-    record = {'path': authority.executable, 'hash': authority.binary_sha256, 'runtime_seal_sha256': 'a' * 64}
+    marker = b'Bookkeeping input; never a scientific calculation\n'
+    dependencies = {name: {'path': str(tmp_path / 'controlled' / name),
+                          'sha256': hashlib.sha256(marker).hexdigest(), 'bytes': len(marker)}
+                    for name in ('GENBAS', 'ECPDATA')}
+    record = {'path': authority.executable, 'hash': authority.binary_sha256, 'runtime_seal_sha256': 'a' * 64,
+              'runtime_metadata': {'basis': dependencies}}
     monkeypatch.setattr(runtime, 'registry', SimpleNamespace(model_dump=lambda **kwargs: {'engines': {'cfour': record}}))
     calls = []
     original_environment = engine_environment.engine_runtime_environment
@@ -561,6 +566,9 @@ def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runti
     receipt = json.loads((folder / 'engine-cfour-runtime.json').read_text())
     assert receipt['status'] == ('verified' if post_change == 'none' else 'failed')
     assert receipt['command'] == [str(script)] and receipt['workdir'] == str(folder)
+    assert receipt['controlled_runtime_dependencies'] == {name: {
+        'path': entry['path'], 'sha256': entry['sha256'], 'size_bytes': entry['bytes']}
+        for name, entry in dependencies.items()}
     assert receipt['stdout_sha256'] == hashlib.sha256(Path(result.stdout_path).read_bytes()).hexdigest()
     if post_change == 'seal':
         assert 'sealed-runtime authorization' in result.reason

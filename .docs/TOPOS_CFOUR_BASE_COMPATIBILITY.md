@@ -84,8 +84,8 @@ secondary to the original native failure and invalidate unaccepted quantities;
 they cannot replace its status or reason. The current-source focused subset
 passed 210 tests, with one explicit unavailable-Psi4 skip. This establishes
 grammar, parsing, artifact and runtime contracts, not native EFG or matrix
-acceptance. Portable basis-dependency handling and the hosted export boundary
-remain under review before final installation and release acceptance.
+acceptance. These checks do not establish standalone portability of licensed runtime assets.
+The scientific evidence policy below defines their explicit omission boundary.
 
 Invocation parsing supports actual inline `--invoking executable xjoda` and
 two-line `--invoking executable--` followed by a native executable path.
@@ -126,3 +126,42 @@ GENBAS/ECPDATA and licensed executables must stay in the controlled runtime/cach
 Do not upload an unchecked entire TOPOS attempt tree: attempts contain retained
 basis bytes. Publish only permitted scientific outputs and integrity receipts,
 with licensed files handled through the approved protected distribution path.
+
+## Scientific evidence and controlled dependencies
+
+New CFOUR attempts retain only named native scientific inputs, outputs, property
+files and runtime receipts. The hash-bound `cfour-evidence-policy.json` records
+every retained file, omitted regular-file identity and untraversed link. GENBAS,
+ECPDATA, renamed copies matching their digests, and other native scratch are
+excluded from portable attempt artifacts and snapshots. They may remain in the
+controlled execution directory; never upload that directory recursively.
+
+Each new BASE broker receipt binds both GENBAS and ECPDATA to the independent
+Stage 0 registry path, SHA-256 and byte count. The staged GENBAS must match that
+audited identity before execution. Native-result reuse still reauthorizes the
+complete runtime seal and checks each retained process receipt, the original
+ZMAT/output bytes and the typed protocol basis digest. Omitted GENBAS identities
+replace the requirement to copy its licensed bytes. Portable campaign authority
+also checks the dependency identities against the retained audited registry.
+
+`stage_committed_run()` and local `export_bundle()` verify the committed snapshot
+and validate scientific export membership before copying. Reserved library basenames are rejected across
+the entire manifest, including top-level artifacts and records with no CFOUR
+attempt. For qualified CFOUR attempts, renamed controlled-library digests are
+also rejected globally. Old CFOUR snapshots lacking the policy cannot be hosted
+exported through this path. Their historical offline integrity checks remain
+available; the new policy is not retroactively attached to them. New scientific
+policies require both audited dependency identities and the matching binding in
+every process receipt; deleting that binding cannot select the legacy path.
+
+A scientific-only snapshot can be independently checked as stored evidence. It
+is **not a self-contained native rerun bundle**: native re-execution requires a
+separately authorized, unchanged CFOUR runtime and its basis libraries. Stored
+result integrity, runtime authority and scientific parser acceptance remain
+separate checks. A failed native calculation remains failed after export.
+
+The BASE hosted workflow must keep raw execution outside its upload roots and
+export only the verified current snapshot through this guard. Updating TOPOS
+alone does not repair a controller that recursively uploads arbitrary execution
+directories. Neither this policy nor a successful storage regression establishes
+EFG or full-matrix scientific acceptance.

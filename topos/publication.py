@@ -446,6 +446,9 @@ def export_bundle(
         with store.lock:
             record = store.load()
             snapshot = store.verify()
+            from .cfour_artifacts import validate_scientific_export_membership
+
+            validate_scientific_export_membership(record, snapshot)
             ensemble = get_ensemble_manifest(run_dir, digest=ensemble_sha256)
             decisions = list_decisions(run_dir)
             rows = _selected_rows(record, ensemble)

@@ -112,7 +112,7 @@ def test_native_scratch_links_are_recorded_without_reading_targets(tmp_path, mon
         diagnostics={'reason':'genuine native xjoda status 256; keyword value missing'})
     finalize_artifacts(result,folder)
     assert result.status == 'failed' and result.diagnostics['reason'].startswith('genuine native xjoda')
-    assert {Path(a.path).name for a in result.artifacts} == {'engine.stdout','engine.stderr'}
+    assert {Path(a.path).name for a in result.artifacts} == {'engine.stdout','engine.stderr','cfour-evidence-policy.json'}
     assert len(result.diagnostics['artifact_links']) == 3 and 'artifact_error' not in result.diagnostics
     assert all(item['disposition']=='not-followed-or-retained' for item in result.diagnostics['artifact_links'])
     with pytest.raises(EngineParseError,match='symlinks'):
@@ -130,7 +130,8 @@ def test_scientific_symlinks_fail_without_masking_primary_failure(tmp_path,name)
         diagnostics={'reason':'primary allocated budget exhausted'})
     finalize_artifacts(result,folder)
     assert result.status=='timed-out' and result.diagnostics['reason']=='primary allocated budget exhausted'
-    assert 'cannot be a symlink' in result.diagnostics['artifact_error'] and not result.artifacts
+    assert 'cannot be a symlink' in result.diagnostics['artifact_error']
+    assert [Path(a.path).name for a in result.artifacts] == ['cfour-evidence-policy.json']
     with pytest.raises(EngineParseError,match='confined regular text'):
         native_text(folder,name,required=True)
 
@@ -160,7 +161,7 @@ def test_collection_io_error_is_secondary_and_keeps_other_regular_evidence(tmp_p
     finalize_artifacts(result, tmp_path)
     assert result.status == 'failed' and result.diagnostics['reason'] == 'original solver failure'
     assert 'injected read failure' in result.diagnostics['artifact_error']
-    assert [Path(a.path).name for a in result.artifacts] == ['protocol.json']
+    assert [Path(a.path).name for a in result.artifacts] == ['cfour-evidence-policy.json', 'protocol.json']
 
 
 def test_symlinked_work_directory_is_never_walked(tmp_path):
