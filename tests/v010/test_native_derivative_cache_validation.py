@@ -13,7 +13,13 @@ import pytest
 
 from topos.engines import EngineResult
 from topos.models import MethodSpec, ResourceLimits
-from topos.native_hessian import verify_orca_gradient_result, verify_orca_hessian_result
+from topos.native_hessian import (
+    _analysis_matches,
+    parse_orca_hessian,
+    verify_orca_gradient_result,
+    verify_orca_hessian_result,
+)
+from topos.science import constants_provenance, harmonic_analysis
 from topos.storage import IntegrityError
 
 
@@ -65,8 +71,29 @@ def verify_gradient(evidence, result=None):
 
 def test_authentic_historical_derivatives_reparse_without_a_completed_cache_or_execution(historical_derivatives):
     evidence = historical_derivatives
-    analysis = verify_hessian(evidence)
+    historical = evidence[0]
     energy, gradient = verify_gradient(evidence)
+    if historical.metadata['analysis']['constants']['version'] == constants_provenance()['version']:
+        analysis = verify_hessian(evidence)
+    else:
+        # The authentic receipt retains its original SciPy profile. A different
+        # provider version must not become a reusable completed cache, even when
+        # its physical constants and independently reparsed quantities agree.
+        with pytest.raises(IntegrityError, match='cache analysis/converged'):
+            verify_hessian(evidence)
+        folder = Path(historical.diagnostics['process']['stdout_path']).parent
+        parsed = parse_orca_hessian(folder / 'frequency.hess', historical.molecule)
+        analysis = harmonic_analysis(historical.molecule, parsed['hessian_hartree_per_bohr2'],
+                                     gradient_hartree_per_bohr=gradient, gradient_threshold=1e-7)
+        stored = historical.metadata['analysis']
+        # Retain the validator's original 1e-12 numerical comparison and all
+        # categorical physical gates. Only the provider version is expected to
+        # differ, and that difference has already required cache rejection.
+        assert _analysis_matches({k: v for k, v in stored.items() if k != 'constants'},
+                                 {k: v for k, v in analysis.items() if k != 'constants'})
+        assert {k: v for k, v in stored['constants'].items() if k != 'version'} == {
+            k: v for k, v in analysis['constants'].items() if k != 'version'}
+        assert analysis['constants'] == constants_provenance()
     assert analysis['validity'] == 'harmonic-minimum-within-thresholds'
     assert analysis['stationary'] is True and len(analysis['frequencies_cm1']) == 3
     assert energy == evidence[0].energy_hartree
