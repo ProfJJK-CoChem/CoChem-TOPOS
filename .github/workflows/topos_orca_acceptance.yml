@@ -31,6 +31,9 @@ on:
         type: boolean
         default: true
     secrets:
+      asset_credential:
+        description: Explicitly mapped read credential for the approved private ORCA distribution
+        required: false
       COCHEM_SOURCE_READ_TOKEN:
         required: false
       BASE_SOURCE_READ_TOKEN:
@@ -66,13 +69,18 @@ jobs:
       - name: Require private licensed provisioning configuration
         shell: bash
         env:
+          EXECUTION_EVENT: ${{ github.event_name }}
           REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
           ASSET_CREDENTIAL_NAME: ${{ vars.COCHEM_ORCA_ASSET_CREDENTIAL }}
-          ASSET_CREDENTIAL: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}
+          ASSET_CREDENTIAL: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] || secrets.asset_credential }}
         run: |
+          if test "$EXECUTION_EVENT" != workflow_dispatch; then
+            echo 'Licensed acceptance requires a manual workflow dispatch.' >&2
+            exit 1
+          fi
           test "$REPOSITORY_PRIVATE" = true
           test "$ORCA_CLOUD_LICENSE_CONFIRMED" = true
-          if [[ ! "$ASSET_CREDENTIAL_NAME" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+          if [[ -n "$ASSET_CREDENTIAL_NAME" && ! "$ASSET_CREDENTIAL_NAME" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
             echo 'Configure COCHEM_ORCA_ASSET_CREDENTIAL in this private controller.' >&2
             exit 1
           fi
@@ -127,7 +135,7 @@ jobs:
       - name: Provision ORCA through the existing CoChem-BASE integration
         uses: ./.cochem-dependencies/base/.github/actions/setup-orca
         with:
-          asset-token: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}
+          asset-token: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] || secrets.asset_credential }}
       - name: Install all mandatory CoChem packages and audit all eleven setup phases
         run: |
           python scripts/setup_ecosystem.py \

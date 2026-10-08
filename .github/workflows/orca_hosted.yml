@@ -22,4 +22,6 @@ jobs:
       base_commit: ${{ inputs.base_commit || '14202e182e1fa4f99258ed32a8ae9ba8c1c565ad' }}
       include_goat: true
       include_counterpoise: true
-    secrets: inherit
+    secrets:
+      asset_credential: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] }}
+      COCHEM_SOURCE_READ_TOKEN: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN }}
