@@ -107,11 +107,21 @@ binary was installed or executed for this repair.
 ## Next genuine acceptance
 
 BASE's reviewed `cfour_acceptance.yml` provisions its approved private runtime
-through the existing `CFOUR_ASSET_READ_TOKEN` and runs BASE's bounded scientific
+through the secret selected by its private `COCHEM_CFOUR_ASSET_CREDENTIAL`
+variable and runs BASE's bounded scientific
 acceptance after fresh setup. The retained successful BASE calculations establish
 provider behavior for their stated protocols, not TOPOS higher-level acceptance. The reviewed
 `topos_compute.yml` does not yet provision CFOUR. Workflow source alone does not
 establish repository/environment protection settings.
+
+The public workflow uses `${{ secrets[vars.COCHEM_CFOUR_ASSET_CREDENTIAL] }}`;
+configure the actual secret identifier and its value only in the private
+controller. A student's personal private repository does not inherit
+organization secrets. An authorized student must configure a separate
+least-privilege read credential for the approved private CFOUR distribution
+repository. Repository privacy and package access do not expand the engine's
+license scope. Keep executable archives and GENBAS/ECPDATA out of committed
+source and scientific exports.
 
 A subsequent TOPOS acceptance workflow must use the actual configured private
 license path, a pinned compatible BASE revision, a fresh audited registry, and
