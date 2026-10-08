@@ -86,6 +86,11 @@ def finite_difference_hessian(
         "executable_sha256": file_digest(Path(binary)) if binary and evaluator is None else None,
         "evaluator": "caller-provided" if evaluator else "topos.engines.run_engine",
     }
+    from .orca_numerical_profiles import numerical_profile_receipt
+
+    profile_receipt = numerical_profile_receipt(method.profile_id) if method.engine == "orca" else None
+    if profile_receipt is not None:
+        protocol["numerical_profile"] = profile_receipt
     manifest_path = folder / "hessian-protocol.json"
     if manifest_path.exists():
         if json.loads(manifest_path.read_text()) != protocol:
@@ -141,6 +146,12 @@ def finite_difference_hessian(
                         or path.stat().st_size != artifact.size_bytes
                         or file_digest(path) != artifact.sha256):
                     raise IntegrityError("Hessian derivative raw artifact failed integrity verification")
+            if calculation.status == "completed" and profile_receipt is not None and evaluator is None:
+                from .native_hessian import verify_orca_gradient_result
+
+                verify_orca_gradient_result(calculation, geometry, raw_method, resources, evidence_root,
+                                            executable=str(Path(binary).resolve()),
+                                            executable_sha256=protocol["executable_sha256"])
             cached = calculation.status == "completed"
         if not cached:
             # Failed/interrupted scratch is retained, and a fresh directory is

@@ -23,7 +23,7 @@ from .data.reviewed_matrix_v010 import SOURCES as REVIEWED_SOURCES
 from .models import Contract
 
 MATRIX_REVISION = SOURCE_REVISION
-MAPPING_REVISION = "COCHEM-SPEC-TASK2-4-4-METHOD-MATRIX-MAPPING-2026/1.0.0"
+MAPPING_REVISION = "COCHEM-SPEC-TASK2-4-4-METHOD-MATRIX-MAPPING-2026/1.0.1"
 CATALOG_SCHEMA = "topos-method-matrix/1"
 TIERS = {"10s": 10, "1min": 60, "30min": 1800, "1h": 3600, "3h": 10800,
          "12h": 43200, "1d": 86400, "3d": 259200, "1w": 604800, "1mo": 2592000}
@@ -34,7 +34,7 @@ SCIENTIFIC_POLICIES = {
     "revisions": "The full table is v4; the mapping's v4.1 reference is retained independently.",
     "r2scan-composite": "Use native r2SCAN-3c (mTZVPP); no appended basis, D4, or gCP.",
     "vv10": "wB97X-V and wB97M-V already include VV10; never append D3/D4.",
-    "convergence": "Production ORCA optimization uses the named orca-mapping-v4.1 profile; "
+    "convergence": "Production ORCA optimization uses the named orca-mapping-v4.2 profile; "
                    "the conflicting chunk-3 profile is not silently merged.",
     "deduplication": "Source Stage A uses 0.100 kcal/mol; TOPOS conservative generation uses "
                      "0.05 kcal/mol, explicitly a stricter implementation profile. "
@@ -296,7 +296,7 @@ def _step(operation: str, engine: str, method: str | None = None, basis: str | N
         "external" if engine in {"mace", "matrix-recipe"} else "BASE",
         derivative=derivative, options=options,
         engine_version={"orca": "6.1.1", "xtb": "6.7.1", "crest": "3.0.2"}.get(engine),
-        profile_id="orca-mapping-v4.1" if engine == "orca" else
+        profile_id="orca-mapping-v4.2" if engine == "orca" else
         "xtb-vtight-v1" if engine == "xtb" and derivative == "gradient" else None,
         auxiliary_basis="def2/J" if engine == "orca" and method in {"wB97X-V", "wB97M-V"} else None,
     )
@@ -697,12 +697,12 @@ def plan_route(row_id: str, *, hardware: HardwareSpec, capabilities: list[Backen
 # their execution plan; a successful optimization must never certify a CP/VPT2 campaign.
 PRIMITIVE_BINDINGS = {
     "T3O-10s": ("xtb", "GFN2-xTB", "optimize", None, "xtb-vtight-v1"),
-    "T3O-1min": ("orca", "r2SCAN-3c", "optimize", None, "orca-mapping-v4.1"),
-    "T3O-30min": ("orca", "wB97X-V", "optimize", "def2-TZVPP", "orca-mapping-v4.1"),
-    "T3O-1h": ("orca", "wB97X-V", "optimize", "jun-cc-pVTZ", "orca-mapping-v4.1"),
+    "T3O-1min": ("orca", "r2SCAN-3c", "optimize", None, "orca-mapping-v4.2"),
+    "T3O-30min": ("orca", "wB97X-V", "optimize", "def2-TZVPP", "orca-mapping-v4.2"),
+    "T3O-1h": ("orca", "wB97X-V", "optimize", "jun-cc-pVTZ", "orca-mapping-v4.2"),
     "T8O-10s": ("xtb", "GFN2-xTB", "hessian", None, "xtb-vtight-v1"),
-    "T8O-30min": ("orca", "r2SCAN-3c", "hessian", None, "orca-mapping-v4.1"),
-    "T8O-1h": ("orca", "wB97X-V", "hessian", "def2-TZVPP", "orca-mapping-v4.1"),
+    "T8O-30min": ("orca", "r2SCAN-3c", "hessian", None, "orca-mapping-v4.2"),
+    "T8O-1h": ("orca", "wB97X-V", "hessian", "def2-TZVPP", "orca-mapping-v4.2"),
 }
 
 
@@ -773,6 +773,13 @@ class CalibrationKey(Contract):
             raise ValueError("Calibration constraint state requires a SHA-256 digest")
         if self.matrix_revision != MATRIX_REVISION:
             raise ValueError("Calibration matrix revision is not current")
+        from .orca_numerical_profiles import MAPPING_V42, numerical_profile_receipt
+
+        if self.profile_id == MAPPING_V42:
+            receipt = numerical_profile_receipt(self.profile_id)
+            if (self.engine != "orca" or self.engine_version != "6.1.1"
+                    or self.problem.get("numerical_profile_sha256") != receipt["definition_sha256"]):
+                raise ValueError("Runtime calibration must bind the exact versioned ORCA numerical profile")
         canonical_row_id(self.row_id)
         return self
 

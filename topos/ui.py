@@ -255,7 +255,9 @@ def render_streamlit() -> None:
                 method = st.selectbox("Method", capability_report()["engines"][engine]["methods"], disabled=purpose == "matrix")
                 device = st.selectbox("Calculation device", ["cpu", "cuda"])
                 basis = st.text_input("Basis (empty for native composite or not applicable)")
-            profile = st.selectbox("Convergence profile", list(capability_report()["profiles"]))
+            profile_options = [name for name, values in capability_report()["profiles"].items()
+                               if values["engine"] == engine]
+            profile = st.selectbox("Convergence profile", profile_options)
             matrix_row = st.text_input("Method matrix row (optional)",
                                        help="Use an exact row such as T3O-30min. The selected engine, method and purpose must satisfy its validated binding.")
             matrix_settings = {}

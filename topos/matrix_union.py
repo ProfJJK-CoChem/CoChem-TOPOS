@@ -302,7 +302,7 @@ def execute_union(workflow: Any, record: RunRecord, store: RunStore, inputs: Any
                 from .native_hessian import run_orca_hessian
 
                 spec = MethodSpec(engine="orca", method="r2SCAN-3c", purpose="frequency",
-                                  profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+                                  profile_id="orca-mapping-v4.2", engine_version="6.1.1")
                 native = run_component(workflow, record, store, f"union-native-hessian-{frame.source_index:05d}",
                                        optimized.molecule, spec, run_orca_hessian, deadline, cancel_event)
                 if native is None:

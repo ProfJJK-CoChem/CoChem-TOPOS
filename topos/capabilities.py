@@ -11,6 +11,7 @@ import psutil
 
 from .config import SystemConfig
 from .models import RunRequest
+from .orca_numerical_profiles import MAPPING_V42, numerical_profile_receipt
 
 PROFILE_REVISION = "topos-0.1.0-supported-profile-v1"
 PROFILES = {
@@ -18,6 +19,12 @@ PROFILES = {
     "xtb-tight-v1": {"engine": "xtb", "convergence": "native tight", "purpose": "screening"},
     "xtb-vtight-v1": {"engine": "xtb", "convergence": "native vtight", "purpose": "screening"},
     "xtb-extreme-v1": {"engine": "xtb", "convergence": "native extreme", "purpose": "stationary derivative reference"},
+    "orca-mapping-v4.2": {
+        "engine": "orca", "convergence": "TightSCF; explicit ConvCheckMode 0 and SCF TolE 1e-10",
+        "purpose": "refinement", "source": ".docs/TOPOS_SCF_V42_PROFILE_REVIEW.md",
+        "validation_scope": "genuine historical-source water consistency diagnostic; other routes require separate live acceptance",
+        "numerical_profile_sha256": numerical_profile_receipt(MAPPING_V42)["definition_sha256"],
+    },
     "orca-mapping-v4.1": {
         "engine": "orca",
         "convergence": "mapping-v4.1 explicit thresholds",

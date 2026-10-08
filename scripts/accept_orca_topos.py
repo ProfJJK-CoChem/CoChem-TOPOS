@@ -100,7 +100,7 @@ def _archive_native(folder: Path, molecule: Molecule, method: MethodSpec,
     """Seal direct GOAT/CP observations without declaring reviewable minima."""
     request = RunRequest(molecule=molecule, engine="orca", method=method.method, purpose="energy",
                          basis=method.basis, auxiliary_basis=method.auxiliary_basis,
-                         profile_id="orca-mapping-v4.1", engine_version="6.1.1", n_candidates=1)
+                         profile_id="orca-mapping-v4.2", engine_version="6.1.1", n_candidates=1)
     record = RunRecord(request=request, status=payload["status"],
                        validation_status=payload.get("validation_status", "validated-for-protocol" if payload["status"] == "completed" else "rejected"),
                        metadata={"run_dir": str(folder), "scope": "native acceptance observations; no conformer review inferred"})
@@ -183,7 +183,7 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
         def calculate(label: str, molecule: Molecule, method: str, purpose: str, *,
                       maximum: float = 300, **settings: Any) -> RunRecord:
             request = RunRequest(molecule=molecule, engine="orca", engine_version="6.1.1", method=method,
-                                 purpose=purpose, profile_id="orca-mapping-v4.1", n_candidates=1,
+                                 purpose=purpose, profile_id="orca-mapping-v4.2", n_candidates=1,
                                  budget_seconds=remaining(maximum), threads=threads, memory_mb=memory_mb,
                                  metadata={"acceptance_case": label}, **settings)
             record = workflow.run(request)
@@ -283,7 +283,7 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
                                 fragment_states=[{"atom_indices": [0], "charge": 0, "multiplicity": 1},
                                                  {"atom_indices": [1], "charge": 0, "multiplicity": 1}])
             method = MethodSpec(engine="orca", method="wB97M-V", basis="def2-TZVPP", auxiliary_basis="def2/J",
-                                profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+                                profile_id="orca-mapping-v4.2", engine_version="6.1.1")
             folder = output / "counterpoise-native"
             result = execute_counterpoise(molecule, method, resources.model_copy(update={"budget_seconds": remaining(900)}),
                                           folder, orbital_basis_file=exports["orbital"]["output_path"],
@@ -304,7 +304,7 @@ def run_acceptance(registry: Path, output: Path, *, threads: int = 2, memory_mb:
 
             # Native sampling currently uses natural isotope conventions.
             molecule = Molecule.model_validate({**water().model_dump(), "isotopes": [None, None, None]})
-            method = MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+            method = MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.2", engine_version="6.1.1")
             seed_run = calculate("goat-seed-r2scan3c-optimization", molecule, "r2SCAN-3c", "optimize", maximum=300)
             require(len(seed_run.candidates) == 1 and seed_run.candidates[0].status == "eligible",
                     "GOAT seed lacks a completed native same-method geometry optimization")

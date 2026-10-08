@@ -22,6 +22,10 @@ import numpy as np
 from pydantic import Field, field_validator, model_validator
 
 from .models import Contract, MethodSpec, Molecule, ResourceLimits, RunRecord, RunRequest, utc_now
+from .orca_numerical_profiles import (
+    require_achieved_scf_numerical_profile,
+    verify_numerical_profile_receipt,
+)
 from .release import source_inventory
 from .storage import IntegrityError, RunStore, atomic_json, confined_file, digest_json, file_digest
 
@@ -503,6 +507,7 @@ def _orca_optimization_proof(attempt, molecule: Molecule, snapshot: Path) -> tup
     if files['job.inp'].read_text() != _orca_input(stage_initial, method, resources, 'optimize'):
         raise IntegrityError('Native optimizer input differs from its exact typed method and geometry')
     stdout, optimizer_energy = _dft_output_energy(files['engine.stdout'])
+    verify_numerical_profile_receipt(method.profile_id, attempt.metadata, attempt.diagnostics, stdout)
     tolerance = 1e-10 if method.profile_id == 'orca-vpt2-reference-v1' else 1e-7
     criteria, energy_evidence = convergence_evidence(stdout, energy_tolerance=tolerance)
     if ('THE OPTIMIZATION HAS CONVERGED' not in stdout or len(criteria) != 5 or not all(criteria.values())
@@ -518,6 +523,7 @@ def _orca_optimization_proof(attempt, molecule: Molecule, snapshot: Path) -> tup
                 molecule, method, ResourceLimits.model_validate(final['resources']), 'gradient')):
         raise IntegrityError('Independent final gradient differs from its exact bound native input and bytes')
     _, final_energy = _dft_output_energy(gradient_files['engine.stdout'])
+    require_achieved_scf_numerical_profile(method.profile_id, gradient_files['engine.stdout'].read_text())
     energy, gradient = parse_orca_engrad(gradient_files['job.engrad'], molecule)
     if (abs(energy-final_energy) > 2e-7 or abs(energy-optimizer_energy) > 2e-7
             or final.get('energy_hartree') != final_energy
@@ -576,12 +582,13 @@ def _vpt2_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tupl
             raise IntegrityError('R2 target requires an immutable native Cartesian derivative')
         method = MethodSpec.model_validate(derivative.metadata['requested_method'])
         if (method.method != 'wB97M-V' or method.basis != 'def2-QZVPP' or method.auxiliary_basis != 'def2/J'
-                or method.profile_id != 'orca-mapping-v4.1' or method.solvent or method.dispersion or method.constraints):
+                or method.profile_id != 'orca-mapping-v4.2' or method.solvent or method.dispersion or method.constraints):
             raise IntegrityError('R2 target derivative differs from the reviewed exact QZ Hamiltonian')
         deck = confined_file(store.snapshot_path(), 'artifacts/' + inputs[0].path)
         if deck.read_text() != _orca_input(target, method, ResourceLimits.model_validate(derivative.metadata['resources']), 'gradient'):
             raise IntegrityError('R2 target raw derivative input differs from its quantum geometry and method')
         raw = confined_file(store.snapshot_path(), 'artifacts/' + outputs[0].path).read_text()
+        verify_numerical_profile_receipt(method.profile_id, derivative.metadata, derivative.diagnostics, raw)
         literals = re.findall(r'FINAL SINGLE POINT ENERGY\s+([-+0-9.EeDd]+)', raw)
         derivative_energy, _ = parse_orca_engrad(confined_file(store.snapshot_path(), 'artifacts/' + gradients[0].path), target)
         if (not literals or abs(_number(literals[-1])-derivative_energy) > 2e-7

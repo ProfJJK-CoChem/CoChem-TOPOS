@@ -19,6 +19,7 @@ from .chemistry import atomic_number
 from .engines import EngineResult, _engine_version, _orca_input, run_engine
 from .fragments import _matching_fragment, split_fragments
 from .models import MethodSpec, Molecule, ResourceLimits, utc_now
+from .orca_numerical_profiles import verify_numerical_profile_receipt
 from .science import counterpoise_interaction, geometry_digest
 from .storage import IntegrityError, atomic_json, digest_json, file_digest
 
@@ -71,6 +72,7 @@ def _validate_completed_leg(entry, job, basis, method, folder):
     if str(stdout.resolve()) not in inventory:
         raise IntegrityError("Counterpoise leg lacks a retained actual native output")
     raw = stdout.read_text(errors="replace")
+    verify_numerical_profile_receipt(method.profile_id, calculation.metadata, calculation.diagnostics, raw)
     match = re.findall(r"FINAL SINGLE POINT ENERGY\s+([-+]?\d+(?:\.\d*)?(?:[EeDd][-+]?\d+)?)", raw)
     if (_engine_version(raw, "orca") != "6.1.1" or "ORCA TERMINATED NORMALLY" not in raw
             or "SCF CONVERGED AFTER" not in raw or re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I)
