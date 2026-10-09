@@ -32,6 +32,59 @@ class BaseIntegrationError(RuntimeError):
     """Mandatory installation, registry authority, or broker is unavailable."""
 
 
+def _verified_torq_sidecar(path: str | Path) -> dict[str, Any]:
+    """Normalize invalid sidecars and BASE verification failures at the boundary."""
+    try:
+        return _read_verified_torq_sidecar(path)
+    except BaseIntegrationError:
+        raise
+    except (ImportError, ValueError, OSError, KeyError, TypeError, AttributeError, RuntimeError) as exc:
+        raise BaseIntegrationError("TORQ isolated installation failed verification: " + str(exc)) from exc
+
+
+def _read_verified_torq_sidecar(path: str | Path) -> dict[str, Any]:
+    """Verify TORQ's real separate installation without importing its namespaces.
+
+    TORQ currently distributes names also owned by BASE. Installing both wheels
+    into one interpreter can replace BASE's broker/context. BASE supplies this
+    receipt only after its own installation check; this receiver independently
+    rechecks the source, environment, wheel RECORDs and dependency consistency.
+    """
+    sidecar = Path(path).expanduser().resolve(strict=True)
+    if not sidecar.is_file() or sidecar.stat().st_size > 100_000:
+        raise BaseIntegrationError("TORQ sidecar must be a bounded regular JSON receipt")
+    raw = sidecar.read_bytes()
+    value = json.loads(raw)
+    required = {"schema_version", "module_id", "root", "spec", "installation_receipt_sha256"}
+    if (not isinstance(value, dict) or set(value) != required
+            or value["schema_version"] != "cochem.module-sidecar/1" or value["module_id"] != "torq"
+            or not isinstance(value["root"], str) or not value["root"].strip()
+            or not isinstance(value["spec"], dict)
+            or not isinstance(value["installation_receipt_sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", value["installation_receipt_sha256"])):
+        raise BaseIntegrationError("Invalid BASE-verified TORQ sidecar contract")
+    root = Path(value["root"]).expanduser().resolve(strict=True)
+    receipt_path = root / "torq" / "installation.json"
+    digest = hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+    if digest != value["installation_receipt_sha256"]:
+        raise BaseIntegrationError("TORQ installation receipt changed after BASE verification")
+    from scripts.manage_modules import verify_installation
+    receipt = verify_installation("torq", value["spec"], root)
+    if (receipt["distribution_metadata"]["name"].lower().replace("_", "-") != "cochem-torq"
+            or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != digest
+            or sidecar.read_bytes() != raw):
+        raise BaseIntegrationError("TORQ sidecar identity changed during verification")
+    return {"available": True, "kind": "verified-isolated-installation",
+            "installed": True, "version": receipt["distribution_metadata"]["version"],
+            "path": receipt["source_path"], "python_path": receipt["python_path"],
+            "repository": receipt["repository"], "revision": receipt["revision"],
+            "environment_sha256": receipt["environment_sha256"],
+            "installation_receipt_sha256": digest,
+            "sidecar_sha256": hashlib.sha256(raw).hexdigest(), "consumer_ready": False,
+            "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"}
+
+
+
 def _source_root(variable: str, project: str, package: str) -> Path | None:
     value = os.environ.get(variable)
     if not value:
@@ -78,6 +131,9 @@ def inspect_ecosystem(*, require_torq: bool = True) -> EcosystemStatus:
         if project == "CoChem-TORQ" and not require_torq:
             continue
         try:
+            if project == "CoChem-TORQ" and os.environ.get("COCHEM_TORQ_SIDECAR"):
+                components[project] = _verified_torq_sidecar(os.environ["COCHEM_TORQ_SIDECAR"])
+                continue
             source = _source_root(variable, project, package)
             if source is not None:
                 # Only BASE is imported by this adapter. TORQ discovery must not

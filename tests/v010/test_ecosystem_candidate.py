@@ -304,9 +304,9 @@ def test_unreviewed_base_version_cannot_join_exact_1_0_1_release_set(inputs, old
 
 
 def test_exact_base_foundation_version_matches_dependency_and_download_paths():
-    """One exact reviewed version controls requirements, wheel and source roots."""
+    """The standalone kit pins a reviewed BASE within managed compatibility."""
     dependencies = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["dependencies"]
-    assert "CoChem-BASE==1.0.1" in dependencies
+    assert "CoChem-BASE>=1.0.1,<2" in dependencies
     assert kit.PROJECTS["base"] == kit.PACKAGE_VERSIONS["cochem-base"] == "1.0.1"
     assert "BASE 1.0.1" in kit.INSTALL_README
     assert "--base-root source/cochem_base-1.0.1" in kit.INSTALL_README
