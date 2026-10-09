@@ -198,8 +198,10 @@ without its native proof, scale to the target, or widen a failed tolerance.
    requests, resources and current source/BASE authority. The catalogue has
    44 TOPOS rows (two intentionally unavailable), plus 96 TORQ rows. Existing
    cold/T9/GUI/installation/reference components are not full-42 case receipts.
-   The old declared serial budget upper bound was 166.82 days, not an ETA;
-   choose justified finite allocations prospectively and retain honest failures.
+   The sum of nominal source-tier budgets was 166.82 days, not an ETA or an
+   approved execution allocation. The prospective plan leaves all 42 finite
+   workflow budgets unset; choose justified allocations prospectively and retain
+   honest failures.
 9. Finish the approved private hosted ORCA route after resolving the outstanding
    licence/repository question. The baseline five and extended thirteen controls
    must match repository/run/attempt/commit; public skipped CI and local chemistry
