@@ -132,8 +132,8 @@ class DevelopmentNativeMLRuntime:
 
 @pytest.fixture
 def genuine_runtime():
-    python, request_path, crest = (os.environ.get(name) for name in
-                                   ("TOPOS_ML_TEST_PYTHON", "TOPOS_ML_TEST_REQUEST", "TOPOS_CREST_EXECUTABLE"))
+    python = os.environ.get("TOPOS_MACE_PYTHON") or os.environ.get("TOPOS_ML_TEST_PYTHON")
+    request_path, crest = os.environ.get("TOPOS_ML_TEST_REQUEST"), os.environ.get("TOPOS_CREST_EXECUTABLE")
     if not python or not request_path or not crest:
         pytest.skip("explicit genuine CREST/MACE interpreter and checkpoint request required")
     original = read_json(Path(request_path))

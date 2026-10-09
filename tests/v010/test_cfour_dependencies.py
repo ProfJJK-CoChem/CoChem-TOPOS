@@ -40,7 +40,9 @@ def test_standard_package_metadata_requires_pinned_parsers_for_every_installatio
     assert selected["qcengine"] == "==0.51.0"
     assert selected["qcelemental"] == "==0.51.2"
     assert set(metadata["optional-dependencies"]["external"]) == {"qcengine==0.51.0", "qcelemental==0.51.2"}
-    assert selected["CoChem-BASE"] == "==1.0.1" and selected["CoChem-TORQ"] == "==0.1.0"
+    assert selected["CoChem-BASE"] == "<2,>=1.0.1"
+    assert "CoChem-TORQ" not in selected
+    assert metadata["optional-dependencies"]["standalone-ecosystem"] == ["CoChem-TORQ==0.1.0"]
 
 
 def test_actual_source_setup_plan_needs_no_optional_external_selection(tmp_path):

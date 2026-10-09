@@ -251,7 +251,7 @@ def test_extopt_retains_actual_hash_and_rejects_changed_binary_on_blocked_loader
 
 def test_authentic_persistent_mace_extopt_callback_and_unit_conversion(tmp_path):
     """Actual model/socket/ORCA file bridge; explicitly not BASE/ORCA execution."""
-    python = os.environ.get('TOPOS_ML_TEST_PYTHON')
+    python = os.environ.get('TOPOS_MACE_PYTHON') or os.environ.get('TOPOS_ML_TEST_PYTHON')
     request_file = os.environ.get('TOPOS_ML_TEST_REQUEST')
     if not python or not request_file:
         pytest.skip('explicit genuine ML interpreter/checkpoint request required')
@@ -260,8 +260,7 @@ def test_authentic_persistent_mace_extopt_callback_and_unit_conversion(tmp_path)
 
     original = json.loads(Path(request_file).read_text())
     model = original['manifest']
-    if model['backend'] != 'mace':
-        pytest.skip('this actual inference acceptance targets supplied MACE checkpoint')
+    assert model['backend'] == 'mace', 'Supplied actual inference request must target MACE'
     molecule = Molecule.model_validate(original['molecules'][0])
     server = tmp_path / 'private-server'
     server.mkdir(mode=0o700)

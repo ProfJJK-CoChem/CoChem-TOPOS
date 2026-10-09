@@ -235,8 +235,11 @@ def test_official_cli_pins_multihead_gpu_local_replay_and_excludes_test_set(tmp_
 
 @pytest.mark.integration
 def test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol(tmp_path):
-    interpreter = Path(os.environ.get("TOPOS_MACE_PYTHON", "/workspace/.venvs/topos-ml/bin/python"))
+    configured_interpreter = os.environ.get("TOPOS_MACE_PYTHON")
+    interpreter = Path(configured_interpreter or "/workspace/.venvs/topos-ml/bin/python")
     if not interpreter.is_file():
+        if configured_interpreter:
+            pytest.fail("The explicitly configured pinned MACE interpreter is unavailable")
         pytest.skip("The actual pinned MACE parser is not installed")
     settings = options(tmp_path)
     command = compile_mace_training_command(str(interpreter), tmp_path / "foundation.model",
@@ -250,7 +253,7 @@ def test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol(tm
         "assert args.multiheads_finetuning and args.device == 'cuda' and args.test_file is None; "
         "print('official-parser-accepted')"
     )
-    process = subprocess.run([str(interpreter), "-c", script, json.dumps(command[3:])],
+    process = subprocess.run([str(interpreter), "-I", "-c", script, json.dumps(command[3:])],
                              capture_output=True, text=True, timeout=60, check=False)
     assert process.returncode == 0, process.stderr
     assert "official-parser-accepted" in process.stdout
