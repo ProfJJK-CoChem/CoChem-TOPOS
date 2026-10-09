@@ -1,0 +1,107 @@
+{
+  "schema_version": "cochem-topos-agent-handoff/1",
+  "recorded_at_utc": "2026-10-09T20:44:45.7115327Z",
+  "status": "incomplete-scientific-qualification",
+  "branch": "codex/workstation-qualification-20261008",
+  "pull_request": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/pull/3",
+  "head_scope": "Importer repairs plus handoff; focused offline proof only. Use git rev-parse HEAD for exact handoff commit.",
+  "sealed_pins": {
+    "topos": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+    "manager_base": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+    "science_base": "09059f052adbe5bb8208ec68a824bd45a0cab0dc",
+    "mandatory_torq": "4f323800227dbde00ffb082bd6d9e44d851e1c7a",
+    "modern_isolated_torq": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4"
+  },
+  "current_repairs": {
+    "focused_tests_passed": 42,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "ruff": "passed",
+    "full_current_source_regression": "pending",
+    "fresh_runtime": "pending",
+    "scientific_qualification": "pending"
+  },
+  "outstanding": {
+    "srs_verified": 22,
+    "srs_pending": 28,
+    "release_blockers_at_sealed_checkpoint": 33,
+    "true_dft_labels": "100 pending",
+    "independent_fits": "seeds17/43 pending",
+    "full_matrix": "42 available rows; plan not frozen",
+    "hosted_orca": "approved private repository/licence unanswered",
+    "grid_study": "prepared/unexecuted; executable supervision review pending"
+  },
+  "publication": "not published",
+  "release_certification": "not certified",
+  "workstation_receipts": {
+    "full-source-regression": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\full-topos-regression-v3-derived-v1\\validation.json",
+      "sha256": "6a978ec9233ba51b1ad936104eb3fd188c2db1bb7c165c3dc8323193618ed6f3",
+      "status": "passed; sealed c889 only"
+    },
+    "software-srs-ledger": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\srs-whole-execution-v1\\.docs\\ledger-execution.json",
+      "sha256": "895800ea24d689abe85fb40269b0b532e82ddbae0435b45e3c599ce186a9f395",
+      "status": "22 verified; 28 pending"
+    },
+    "student-installation": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\student-release-v5\\report.json",
+      "sha256": "d4d25db0d2aaf6369ea8d15bfa39830b813f06276ba739fd2fd7ed69891b8064",
+      "status": "passed; release blocked; sealed c889"
+    },
+    "unsigned-student-kit": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\student-release-v5\\kit\\cochem-topos-0.1.0-unsigned-candidate.zip",
+      "sha256": "0cdf5a2e2c632eedb7484729ceb03f05f6d9e8a569d3b98d511f599e9d8cc336",
+      "status": "unsigned/unpublished/uncertified"
+    },
+    "modern-providers": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\managed-providers-v3\\report.json",
+      "sha256": "0848cf67a1d99916bc10acd28b7482186ed4ced9a9312e168bd777b1e05c8e02",
+      "status": "installation passed; scientific execution not exercised"
+    },
+    "r2-cold": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\r2-reprobe-cold-v2\\evidence\\cold-v1\\diagnostic.json",
+      "sha256": "65083389eff0802b3d89e896306aed78eebeeab3d7e4d6013d16b148b042ad12",
+      "status": "passed diagnostic; not full R2"
+    },
+    "r2-full": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\r2-full-failed-v2\\evidence\\full-v1\\acceptance.json",
+      "sha256": "e4450b15e37c0d7ee83ff45c4eeca5a2dc9c602a6001f5d2deaae5d0e363b0e2",
+      "status": "failed independent strict gradient"
+    },
+    "r2-cartesian-retention": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\r2-cartesian-diagnostic-failed-v1\\manifest.json",
+      "sha256": "f30db9f572ad5a2efe883f9e203c9a574b769f29cbfb38bdb404f4be193eb84c",
+      "status": "failed; no optimizer production change"
+    },
+    "reference-v3-retention": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\reference-campaign-v3\\retention-manifest.json",
+      "sha256": "a0e5bd7966d37d3419829a94c0c2a3ab5235a013975e12d0731888e6eb2a658d",
+      "status": "terminal failure; original frozen c889 unchanged"
+    },
+    "t9-live": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\live-t9-v2\\report.json",
+      "sha256": "d6b7d880c369f21a271d936d3bc9fa897114faa393f36a4c40813da010383472",
+      "status": "passed fallback control; no accuracy benchmark"
+    },
+    "public-ci-verification": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\hosted-profile-ci-v7\\report.json",
+      "sha256": "8ed56bb0fa19565b200b7041e117a0f6ea6e23be6a2777b4c475c66445759208",
+      "status": "passed public profile; not licensed hosted ORCA"
+    },
+    "gui-observation": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\workstation-gui-v2\\observation.json",
+      "sha256": "53b250bfaeb7b131db85b14516a8e8befc553472da0e4119df51aac636e82e07",
+      "status": "request prepared; no calculation submission; observation server stopped"
+    },
+    "importer-diagnostic-reparse": {
+      "workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\diagnostics\\v4.json",
+      "sha256": "1d62f3307fa09fac9649f63d2065a900e2a2172c885673548ecaa052783cd534",
+      "status": "diagnostic only; CP numeric goal met, HF/formic gates failed"
+    }
+  },
+  "portable_bundle_manifest": "bundle-manifest.json",
+  "licensed_binaries_or_model_weights_copied": false,
+  "original_results_preserved": true
+}

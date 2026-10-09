@@ -1,0 +1,414 @@
+{
+  "schema": "reference-importer-review/1",
+  "original_native_topos_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+  "original_manager_base_commit": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+  "scope": "Uncommitted narrow offline importer repair; no engine execution, source-runtime rebuild, threshold/method/profile change, scientific qualification, frozen campaign mutation or ledger promotion.",
+  "changes": {
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/auxiliary-0.log.txt": {
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "bytes": 265
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/auxiliary-1.log.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/auxiliary-receipt.json": {
+      "sha256": "37c0645db5a3dfbb5a0c382a04a5214539dac9e25cd5639723b59a3ad896c87d",
+      "bytes": 4151
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/orbital-0.log.txt": {
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "bytes": 265
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/orbital-1.log.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/basis-export-evidence-87df33d35efb62e12488f08754a9f42f8f71281c61a57917589f9613e2add929/orbital-receipt.json": {
+      "sha256": "cfbcdd63c5ddabe5c0f42716c7526a492be708945bd97455c348aa6c4bb29817",
+      "bytes": 4143
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/auxiliary.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/engine.stdout": {
+      "sha256": "8ec1cf295d11185787e06d908760fc5af7d235a76d6e176e3b49622b00bd2610",
+      "bytes": 61254
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/job.inp": {
+      "sha256": "8a85821785a9de50caa50fb5b963841c3531c8ad17e55b2be30f504ce034c397",
+      "bytes": 399
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/orbital.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/version.inp": {
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "bytes": 72
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-0-attempt-0/version.stdout": {
+      "sha256": "ae94d57720c2ea877990973526f76bcc9d7dfc75813a8c60453b4ff2d54a0ae2",
+      "bytes": 40091
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/auxiliary.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/engine.stdout": {
+      "sha256": "7efdd62b03415bb22604ee3624a3eaf81942c9d95f0b48256e2c20701294faaa",
+      "bytes": 56849
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/initial-scf/initial-engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/initial-scf/initial-engine.stdout": {
+      "sha256": "21706dfcc6b02302e6420afcaccded76ac4681b3f7dd2af562d11a5aea500734",
+      "bytes": 58375
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/initial-scf/initial-job.inp": {
+      "sha256": "1aa0814691728011eeed7337a3e35c82f0f3647d7544e2594c54f5959a227691",
+      "bytes": 291
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/job.inp": {
+      "sha256": "1aa0814691728011eeed7337a3e35c82f0f3647d7544e2594c54f5959a227691",
+      "bytes": 291
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/orbital.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/scf-continuation.json": {
+      "sha256": "9a94013fb08273b674971fa9f510b7a1b7f33d65803c50e413cc5deb3a6bbf27",
+      "bytes": 5418
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/version.inp": {
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "bytes": 72
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-1-attempt-0/version.stdout": {
+      "sha256": "c302ed553111fbf69aba5c4d1e9a993149a0c0bff541e7748466c404c417fec8",
+      "bytes": 40090
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/auxiliary.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/engine.stdout": {
+      "sha256": "dda0f2350171add0991ec619fcd5a6eace71344a100a21eccaa53c6e4b182663",
+      "bytes": 63046
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/job.inp": {
+      "sha256": "146e2869765d9d20300a957bfc4e7b08cdd9b2b94934c9bf8e145d87203bc4f1",
+      "bytes": 402
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/orbital.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/version.inp": {
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "bytes": 72
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-2-attempt-0/version.stdout": {
+      "sha256": "b1173671c0df825925dc4c7e088e20feabab622f73795bfffad5d6ba1bd2a0b3",
+      "bytes": 40091
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/auxiliary.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/engine.stdout": {
+      "sha256": "cd7df2ca03418acba92f782b2966930eca8b4f7fa2b7dc520f41dac34455f0ac",
+      "bytes": 58203
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/job.inp": {
+      "sha256": "131de84e7e9cb8334497b6d392325cb8f3bc5e057eed86195bd6e8bbd440988a",
+      "bytes": 293
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/orbital.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/version.inp": {
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "bytes": 72
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-3-attempt-0/version.stdout": {
+      "sha256": "e6509c784e5b187c44ed4cdfb8ffd81f80ce54b6894c70d7c00bbd1f63d6a404",
+      "bytes": 40091
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/auxiliary.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/engine.stdout": {
+      "sha256": "1921cf3923ac7f7eacb75259a31ee37abf8cb942db607e707ce25e0702e4c11f",
+      "bytes": 59496
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/initial-scf/initial-engine.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/initial-scf/initial-engine.stdout": {
+      "sha256": "3d500b360eaf77eae3c524af0227d795a041a9b467f4ec686a5b812ff8e701e3",
+      "bytes": 60203
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/initial-scf/initial-job.inp": {
+      "sha256": "78b8e0c903e08534b741393d953e39d89d9d754a03f74b273f18972120b7d4c2",
+      "bytes": 402
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/job.inp": {
+      "sha256": "78b8e0c903e08534b741393d953e39d89d9d754a03f74b273f18972120b7d4c2",
+      "bytes": 402
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/orbital.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/scf-continuation.json": {
+      "sha256": "3005fffa571cfe23157650f358c81638366ace47525637b376b47f24b5b0e751",
+      "bytes": 5426
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/version.inp": {
+      "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+      "bytes": 72
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-calculation/leg-4-attempt-0/version.stdout": {
+      "sha256": "438afc38c5a475a04f701a778a030486a5954d116b1e6e8686de007cc3248acd",
+      "bytes": 40091
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/auxiliary_0ae8b7ea01e64fbaa8fab60cc2644e07/basis-export-receipt.json": {
+      "sha256": "37c0645db5a3dfbb5a0c382a04a5214539dac9e25cd5639723b59a3ad896c87d",
+      "bytes": 4151
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/auxiliary_0ae8b7ea01e64fbaa8fab60cc2644e07/basis-export.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/auxiliary_0ae8b7ea01e64fbaa8fab60cc2644e07/basis-export.stdout": {
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "bytes": 265
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/auxiliary_0ae8b7ea01e64fbaa8fab60cc2644e07/basis.bas.txt": {
+      "sha256": "0cf1eb8ecc6f45b4d442f110e82911f65c2b4744a46935612698130d04e8ebdd",
+      "bytes": 1860
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/orbital_513cfc41f70547e0a7686900ea7f4052/basis-export-receipt.json": {
+      "sha256": "cfbcdd63c5ddabe5c0f42716c7526a492be708945bd97455c348aa6c4bb29817",
+      "bytes": 4143
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/orbital_513cfc41f70547e0a7686900ea7f4052/basis-export.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/orbital_513cfc41f70547e0a7686900ea7f4052/basis-export.stdout": {
+      "sha256": "1fc353c2c8df76a9c5b9dd017a5767a4b18a4977240ed22631cda8e7e594309a",
+      "bytes": 265
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-exports/orbital_513cfc41f70547e0a7686900ea7f4052/basis.bas.txt": {
+      "sha256": "3c586765cd9b4ad2ec7449097432ec967a3d4ef5da71f70c070a389b19db8083",
+      "bytes": 1556
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/counterpoise-results/ae9b80afce7ab22ba7a6a49edf5c0b1c6cde9ebfc0e84a69773fd3ccdf7ef8b6.json": {
+      "sha256": "20d090058bd07c59e1c290fd163d0a31c1a99be1c369c2e4a036772febd38074",
+      "bytes": 152399
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/artifacts/request.json": {
+      "sha256": "3eeb66fd747988874ce364b703961801dfcb6933692f14eba070953795ffcb79",
+      "bytes": 2080
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/case.json": {
+      "sha256": "3d40e7d9deae3356bc44d672edba3843b3ce4888d87186b50984c5f56740cab3",
+      "bytes": 6401
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/provenance.json": {
+      "sha256": "dd29c164bc29b20ae315b8aec9373f979f962cacf4f6ac45aa7c49de17a2d414",
+      "bytes": 15330
+    },
+    "tests/v010/fixtures/orca_reference_matrix_cp/record.json": {
+      "sha256": "da5569e04111bbe4c61fd9c28a1c372f23136631bc614d18c7475db62a752c38",
+      "bytes": 201142
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stdout": {
+      "sha256": "4d3043c80f71348300a6c6c5d75e2a134b4577b240614f5ecbb8bb32b11df424",
+      "bytes": 574757
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stdout": {
+      "sha256": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+      "bytes": 52164
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.engrad": {
+      "sha256": "c2f8d0b9a58a30aa60b65d29babccecfceb1c4df97534493ceb7967e2b6678b8",
+      "bytes": 850
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.inp": {
+      "sha256": "cd13031aa9bb0e05a5b51aa4cc723f4cd7b1997420434f69d1ee3761fe098dc3",
+      "bytes": 431
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.engrad": {
+      "sha256": "ee77ba9a0e34014119a48037211d32351b3129f3b42bc05c86751833b0060229",
+      "bytes": 850
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.inp": {
+      "sha256": "b1ee4e854c01cc68c94a9d295b0431c812b8834f2410c82cd741071fdca3be9d",
+      "bytes": 403
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/artifacts/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.xyz.txt": {
+      "sha256": "a63d2ea2aea77921c78afbb3cd0d28e95442351d58ef0b866dc5ab799722a373",
+      "bytes": 502
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/case.json": {
+      "sha256": "050111d8d37929108088315ac45ad501b2eb0192312a4974c60d7c40a450ca3b",
+      "bytes": 6336
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/provenance.json": {
+      "sha256": "ecc3b5429b48393fd49417f2617e31a4a8e965323d1b554b3c4025e9d04ebda8",
+      "bytes": 2701
+    },
+    "tests/v010/fixtures/orca_reference_optimizer_stdout/record.json": {
+      "sha256": "a73e0abf5c1e13fa94871b1c5261a2572c5711e420670e4cafd259b86bbbe58a",
+      "bytes": 89197
+    },
+    "tests/v010/test_reference_matrix_cp.py": {
+      "sha256": "cab5424826752d88a8d490d4b1cb241aa1075e6742215b03bc4109e334349ff1",
+      "bytes": 6801
+    },
+    "tests/v010/test_reference_optimizer_stdout.py": {
+      "sha256": "06b4db40e10e94295281a3108e683ef2628219eb65af4268861f8773b71da1a9",
+      "bytes": 7430
+    },
+    "topos/reference_interaction.py": {
+      "sha256": "2fbdf7bf8e70f84a933b4d13ce8769ea63e9cdeaa1f5b9551ed6f7b5882e1225",
+      "bytes": 20342
+    },
+    "topos/scientific_references.py": {
+      "sha256": "0ec3f9be2b6844604835512d1e5e35131bacb6663ec7a1d837ccb623148ef910",
+      "bytes": 74816
+    }
+  },
+  "changed_python_files": 4,
+  "new_scientific_fixture_files": 77,
+  "fixture_source_inventory_and_release_files_closure": true,
+  "baseline_original_module_bodies_sha256": {
+    "scientific_references.py": "0a32a81878ff1ff90e10c1c2ffacf06534507a687a176bd2eab47bb738517637",
+    "reference_interaction.py": "8247f47dfd6ccf81bce9840b907f1753b69eddf24d1664335d6d7ee0e5c6bfaa"
+  },
+  "baseline_report_note": "The original module bodies above were executed for the baseline controls. The older report source_hashes field records the simultaneously present writable candidate files, not the substituted original bodies; both actual body identities are retained here explicitly.",
+  "proofs": {
+    "baseline-v1": {
+      "report.json": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/baseline-v1/report.json",
+        "sha256": "9f020bd9da96c45edb173723c7d85418be0211da7286a647a425c2e39f27f0be"
+      },
+      "pytest.xml": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/baseline-v1/pytest.xml",
+        "sha256": "42664b5930766daaff108edefe3724825e87bf306e389ef7502cabeb2a2bcb40"
+      }
+    },
+    "candidate-v1": {
+      "report.json": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v1/report.json",
+        "sha256": "b53fef93f39f61ee709ce39fc0504cbbb50108cef9b940a1624eaa1c3a4a1a58"
+      },
+      "pytest.xml": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v1/pytest.xml",
+        "sha256": "c6ba139a763bfab2b5590cea41fe5406ab7a023d06a172bb1b9212e432582637"
+      }
+    },
+    "candidate-v2": {
+      "report.json": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v2/report.json",
+        "sha256": "ca898ac53bf277bc53470f2750b72c795723b6755834c71be56ef85fdf7ec4d6"
+      },
+      "pytest.xml": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v2/pytest.xml",
+        "sha256": "16656bb7e3432eaff228d1ee9555f2dbae2899aa0796310a31308655858ae57d"
+      }
+    },
+    "candidate-v3": {
+      "report.json": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v3/report.json",
+        "sha256": "2f080b0f9df0b687820583ac40c8defdd63a724813758c574d1e479ec6259b45"
+      },
+      "pytest.xml": {
+        "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/checks/candidate-v3/pytest.xml",
+        "sha256": "dc8eaa37beb2d93a20fa2a5be7e606fe72ce9a05091632644e876bbd21a950bd"
+      }
+    }
+  },
+  "final_focused_outcomes": {
+    "passed": 42,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 33.04
+  },
+  "prior_controls_retained": "Original 2 positive failures; first candidate 36pass/5fail caused omitted exporter streams and incorrect negative-store setup, retained unchanged; corrected-layout v2 and packaged-layout v3 each42pass.",
+  "ruff_exit_code": 0,
+  "production_patch_sha256": "58a09c504d8d454e40d8ce65188c347e594951f097b33ae6d9a8719153144b8b",
+  "diagnostics": {
+    "v3": {
+      "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/diagnostics/v3.json",
+      "sha256": "ce292389074ae9b0cd0c7669a29f68301c67a7af91afd3cb398c7da7889886c9"
+    },
+    "v4": {
+      "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/evidence/reference-importer-proposal-v2/diagnostics/v4.json",
+      "sha256": "1d62f3307fa09fac9649f63d2065a900e2a2172c885673548ecaa052783cd534"
+    }
+  },
+  "original_raw_retention_manifest": {
+    "path": "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/outputs/completion-20261009/reference-campaign-v3/retention-manifest.json",
+    "sha256": "a0e5bd7966d37d3419829a94c0c2a3ab5235a013975e12d0731888e6eb2a658d"
+  },
+  "unchanged_acceptance_boundaries": [
+    "Optimizer/final-gradient thresholds and full native proof unchanged.",
+    "Only completed source/row/input-bound T5-1h matrix parent may remain human-review while its exact validated CP component is imported.",
+    "Standalone energy parent still requires validated-for-protocol.",
+    "Every native CP leg, basis/export/raw input/profile/energy and immutable receipt gate unchanged.",
+    "No completed B0/VPT2 result exists for the failed formic endpoint; Be is explicitly different.",
+    "No formal combined reference clearance: failed spectrum/rotor prerequisites and unconfirmed NIST source mass convention remain."
+  ]
+}

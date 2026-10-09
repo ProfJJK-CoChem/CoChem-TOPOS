@@ -1,0 +1,45 @@
+{
+  "scope": "Selected exact genuine HF/def2-TZVPP native optimizer and final-gradient bytes for zero-launch parser regression. Original record and case retained; incomplete fixture inventory is not an independently importable RunStore, qualification receipt or new scientific result.",
+  "source_topos_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+  "source_manager_base_commit": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+  "original_run": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c",
+  "original_snapshot_id": "e4c5184f759227f855b5dbc805ba84aed5d9a195984cf730a9fe4566dc602cc9",
+  "original_record_sha256": "31342dec2a2dbe76cc51053233a4af370aa7cdde042e604e2d138ce768420ba4",
+  "original_hdf5_sha256": "6afb53448b4e7b3c56eba6067ae8eac4ad6f774bda2c3f04452671cbcf5f17ad",
+  "frozen_plan_sha256": "2e814c312343e70f9859006fbc7824a5ef10f9a6759c2dae070cfc895fc08570",
+  "selected_exact_native_files": {
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stdout": {
+      "sha256": "4d3043c80f71348300a6c6c5d75e2a134b4577b240614f5ecbb8bb32b11df424",
+      "size_bytes": 574757
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stdout": {
+      "sha256": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+      "size_bytes": 52164
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.engrad": {
+      "sha256": "c2f8d0b9a58a30aa60b65d29babccecfceb1c4df97534493ceb7967e2b6678b8",
+      "size_bytes": 850
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.inp": {
+      "sha256": "cd13031aa9bb0e05a5b51aa4cc723f4cd7b1997420434f69d1ee3761fe098dc3",
+      "size_bytes": 431
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.engrad": {
+      "sha256": "ee77ba9a0e34014119a48037211d32351b3129f3b42bc05c86751833b0060229",
+      "size_bytes": 850
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.inp": {
+      "sha256": "b1ee4e854c01cc68c94a9d295b0431c812b8834f2410c82cd741071fdca3be9d",
+      "size_bytes": 403
+    },
+    "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.xyz": {
+      "sha256": "a63d2ea2aea77921c78afbb3cd0d28e95442351d58ef0b866dc5ab799722a373",
+      "size_bytes": 502,
+      "stored_path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.xyz.txt"
+    }
+  },
+  "fixture_json_sha256": {
+    "record.json": "a73e0abf5c1e13fa94871b1c5261a2572c5711e420670e4cafd259b86bbbe58a",
+    "case.json": "050111d8d37929108088315ac45ad501b2eb0192312a4974c60d7c40a450ca3b"
+  }
+}

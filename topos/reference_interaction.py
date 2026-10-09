@@ -134,8 +134,25 @@ def _extract(case, record, store):
     _require(case.observable == "cp_interaction_energy" and case.units == "hartree"
              and case.definition == CP_DEFINITION and case.geometry_role == "frozen-complex-geometry",
              "CP reference must declare the exact frozen electronic observable, never binding or thermal energy")
-    _require(record.request == case.request and record.status == "completed"
-             and record.validation_status == "validated-for-protocol", "CP reference lacks the exact completed declared request")
+    _require(record.request == case.request and record.status == "completed",
+             "CP reference lacks the exact completed declared request")
+    if case.request.purpose == "matrix":
+        from .matrix_workflow import _input_data
+
+        _require(case.request.matrix_row_id == "T5-1h" and case.request.matrix_revision == MATRIX_REVISION,
+                 "Ordinary CP references require the exact reviewed T5-1h matrix route")
+        row = resolve_row("T5-1h")
+        state = record.metadata.get("matrix_execution", {})
+        _require(isinstance(state, dict) and record.validation_status in {"human-review", "validated-for-protocol"}
+                 and state.get("row_id") == row.row_id and state.get("full_row_completed") is True
+                 and state.get("source_sha256") == row.source.sha256
+                 and state.get("inputs_sha256") == digest_json(_input_data(record.request).model_dump(mode="json"))
+                 and record.metadata.get("matrix_binding") == {
+                     "catalog_revision": MATRIX_REVISION, "row_id": row.row_id, "row": row.model_dump(mode="json")},
+                 "CP matrix parent lacks its exact completed full-row binding")
+    else:
+        _require(record.validation_status == "validated-for-protocol",
+                 "CP reference lacks the exact completed declared request")
     metadata = record.metadata.get("matrix_counterpoise")
     _require(isinstance(metadata, dict) and metadata.get("status") == "completed"
              and metadata.get("validation_status") == "validated-for-protocol", "Ordinary native five-leg counterpoise is absent")

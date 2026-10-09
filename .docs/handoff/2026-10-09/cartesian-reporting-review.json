@@ -1,0 +1,43 @@
+{
+  "Euclidean_rigid_motion_removed_diagnostic_max": 1.284953168715977e-07,
+  "Euclidean_rigid_motion_removed_diagnostic_rms": 4.6470716188956e-08,
+  "acceptance": "Full independent unprojected Cartesian criterion remains authoritative and failed; no projection or printed optimizer banner promotes this result",
+  "actual_cartesian_header": [
+    "Choice of coordinates    CoordSys .... Cartesian"
+  ],
+  "inference": "The native Cartesian gradient and native optimizer convergence norms are distinct. Agreement with a Euclidean rigid-motion diagnostic is descriptive and does not prove an internal ORCA code path or that ProjectTR was ignored.",
+  "native_engrad_sha256": "6b307f3aae6678e620a8e3a6300fe3adaebee90fabfb2c16c9e0cb457f3cc436",
+  "native_full_cartesian_max": 2.13433e-07,
+  "native_full_cartesian_rms": 6.601356670665003e-08,
+  "native_gradient_torque_angstrom_hartree_per_bohr": [
+    7.475548690162163e-10,
+    -1.5627084107010918e-09,
+    7.650495401316109e-07
+  ],
+  "native_gradient_translation_sum": [
+    -7.999999999995836e-12,
+    -3.0000000000034018e-12,
+    -9.999999999998931e-13
+  ],
+  "native_input_sha256": "76707e26ab3f2db1c4530beb6fd5b71dd17d047c971d4121da665495fa7803fc",
+  "native_printed_convergence_rows": {
+    "MAX gradient": {
+      "native_flag": "YES",
+      "threshold": 1e-07,
+      "value": 5.48e-08
+    },
+    "RMS gradient": {
+      "native_flag": "YES",
+      "threshold": 3e-08,
+      "value": 2.89e-08
+    }
+  },
+  "native_result_sha256": "defba37a120c0c22036978889fce466d8d880f3f9e9dbb9293e90113c9517dfc",
+  "native_stdout_sha256": "6a7fbbd277f5ccb0dd9c32df9a9d4d7da55e216c813ee73d5fd9bd0d28d21f30",
+  "primary_manual": "https://orca-manual.mpi-muelheim.mpg.de/contents/structurereactivity/optimizations.html",
+  "requested_ProjectTR_false_echo_present": true,
+  "rigid_motion_squared_norm_fraction": 0.5044444608746912,
+  "schema": "topos-r2-cartesian-native-reporting-review/1",
+  "separate_runtime_ProjectTR_confirmation_found": false,
+  "status": "read-only-diagnostic-failed"
+}

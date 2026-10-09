@@ -1,0 +1,89 @@
+{
+  "schema_version": "cochem-handoff-portable-bundle/1",
+  "files": {
+    "importer-review.json": {
+      "sha256": "22a3ff4acd9ade32b89f92b874bec19ca693a2475eeff31ab4e6258ccf21ce04",
+      "bytes": 24764,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\review.json"
+    },
+    "importer-notes.md": {
+      "sha256": "b91c9be4092e23dc7186a9634d7f8bfd1b68f3cfe8cee6c586358ee45e0a51b5",
+      "bytes": 4981,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\README.md"
+    },
+    "focused-report.json": {
+      "sha256": "2f080b0f9df0b687820583ac40c8defdd63a724813758c574d1e479ec6259b45",
+      "bytes": 1411,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\checks\\candidate-v3\\report.json"
+    },
+    "focused-pytest.xml": {
+      "sha256": "dc8eaa37beb2d93a20fa2a5be7e606fe72ce9a05091632644e876bbd21a950bd",
+      "bytes": 7215,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\checks\\candidate-v3\\pytest.xml"
+    },
+    "formic-rigid-motion-diagnostic.json": {
+      "sha256": "9866187da53e07c9822893de365cf308352b88743d1b650f5ac9bbfe5faeb407",
+      "bytes": 2191,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\reference-importer-proposal-v2\\diagnostics\\rigid-motion-projection.json"
+    },
+    "completion-audit.json": {
+      "sha256": "27a43fecc2742ad58ccb359854c64203562910c40f93c5162def6a26a65ed346",
+      "bytes": 19819,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\audit.json"
+    },
+    "prospective-matrix42-v1.json": {
+      "sha256": "5865a016d266f327c269810034c8a745f3d6f0d5ba58b2c80e93c7852061c6a4",
+      "bytes": 58316,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\prospective-matrix42-v1.json"
+    },
+    "qualification-forward-plan-v6.json": {
+      "sha256": "86ee212baca4fdefac6ad61363adf4b53a21e62d6bca3b8f93757ef120c96056",
+      "bytes": 12225,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\qualification-forward-plan-v6.json"
+    },
+    "cartesian-reporting-review.json": {
+      "sha256": "061daba646674c92d8575563e07ccc4883a894211a6f8f1136cf9b0b2d0d9d40",
+      "bytes": 2032,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-cartesian-reporting-review-v1.json"
+    },
+    "grid-study/proposal.json": {
+      "sha256": "c580622075f493b05345c747f127ab1dc0c9f8ea8968d615aa035e9319c58d45",
+      "bytes": 7777,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\proposal.json"
+    },
+    "grid-study/baseline-defgrid3.inp": {
+      "sha256": "1fab3561fce218d128d545120e16ae8d908452cd3790ce3a934af2014a9de937",
+      "bytes": 449,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\baseline-defgrid3.inp"
+    },
+    "grid-study/dense-cosx.inp": {
+      "sha256": "6f0d90388076e70be788adfc6f5ba9247df89a4f21bd6e4f0884c4f24fe3c750",
+      "bytes": 492,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\dense-cosx.inp"
+    },
+    "grid-study/dense-xc-cosx.inp": {
+      "sha256": "792f74b6dc6118c0c4dae6bf645683a899c60ef2f99c424f5aca6eba5c29f376",
+      "bytes": 521,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\dense-xc-cosx.inp"
+    },
+    "grid-study/method.json": {
+      "sha256": "e50a6c92b9bbcc8a0746c1eda7cf245f9ce35a7a853677138317d801006cfa16",
+      "bytes": 254,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\method.json"
+    },
+    "grid-study/starting-molecule.json": {
+      "sha256": "f23fa55837b7908365ebb64ea1854b7d040c7e0d7de9c3ff55fc7524e613b5aa",
+      "bytes": 1358,
+      "original_workstation_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\r2-fixed-original-grid-proposal-v1\\starting-molecule.json"
+    },
+    "evidence-index.json": {
+      "sha256": "9afe18080a4ba5a1829adaa3740b1e3646de4f91a347d62a4b05e515fb3e4347",
+      "bytes": 6665
+    },
+    "process-snapshot.json": {
+      "sha256": "a17ead3516309a2258d0b3c9a2d2c054f41251ce99b00398246338bc21ed90e0",
+      "bytes": 161
+    }
+  },
+  "scope": "Byte-identical selected evidence/preparation. No new calculations, qualification, licence approval or status promotions."
+}

@@ -1,0 +1,97 @@
+{
+  "atom_ids": [
+    "donor-0",
+    "donor-1",
+    "donor-2",
+    "acceptor-0",
+    "acceptor-1",
+    "acceptor-2"
+  ],
+  "bonds": [],
+  "charge": 0,
+  "coordinate_units": "angstrom",
+  "coordinates": [
+    [
+      0.1279112613563,
+      -0.03393376876939,
+      -7.61910928e-06
+    ],
+    [
+      1.07535297806588,
+      0.1670284231651,
+      -5.27391362e-06
+    ],
+    [
+      -0.30966738705561,
+      0.82039173261719,
+      5.23150304e-06
+    ],
+    [
+      3.01556332413216,
+      0.30833220932932,
+      3.39866526e-06
+    ],
+    [
+      3.35594204119077,
+      -0.16460931289894,
+      0.76512521228927
+    ],
+    [
+      3.35595114873859,
+      -0.16459827536269,
+      -0.76512118004311
+    ]
+  ],
+  "environment": {},
+  "fragment_states": [
+    {
+      "atom_indices": [
+        0,
+        1,
+        2
+      ],
+      "charge": 0,
+      "multiplicity": 1
+    },
+    {
+      "atom_indices": [
+        3,
+        4,
+        5
+      ],
+      "charge": 0,
+      "multiplicity": 1
+    }
+  ],
+  "fragments": [
+    [
+      0,
+      1,
+      2
+    ],
+    [
+      3,
+      4,
+      5
+    ]
+  ],
+  "isotopes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "multiplicity": 1,
+  "name": "R2 native acceptance hydrogen-bond water dimer",
+  "stereochemistry": {},
+  "symbols": [
+    "O",
+    "H",
+    "H",
+    "O",
+    "H",
+    "H"
+  ]
+}

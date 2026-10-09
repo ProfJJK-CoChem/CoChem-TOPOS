@@ -1,0 +1,12 @@
+{
+  "auxiliary_basis": null,
+  "basis": "def2-TZVPP",
+  "constraints": {},
+  "dispersion": "D4",
+  "engine": "orca",
+  "engine_version": "6.1.1",
+  "method": "B3LYP",
+  "profile_id": "orca-vpt2-reference-v1",
+  "purpose": "gradient",
+  "solvent": null
+}

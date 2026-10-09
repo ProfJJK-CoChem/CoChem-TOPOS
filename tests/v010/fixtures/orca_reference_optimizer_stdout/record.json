@@ -1,0 +1,2406 @@
+{
+  "artifacts": [
+    {
+      "media_type": null,
+      "path": "request.json",
+      "role": "request",
+      "sha256": "14159cb879850c0e8ae601ea68b0e8af8862dcec00bae93e0575ed34f32c2142",
+      "size_bytes": 2004
+    },
+    {
+      "media_type": null,
+      "path": "input.xyz",
+      "role": "input-geometry",
+      "sha256": "34fefc23098a4ad8633e591d1d81d921b97d6f127af7aef91a709f735e7e8c8f",
+      "size_bytes": 363
+    }
+  ],
+  "attempts": [
+    {
+      "artifacts": [
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stderr",
+          "role": "raw-output",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stdout",
+          "role": "raw-output",
+          "sha256": "4d3043c80f71348300a6c6c5d75e2a134b4577b240614f5ecbb8bb32b11df424",
+          "size_bytes": 574757
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stderr",
+          "role": "raw-output",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stdout",
+          "role": "raw-output",
+          "sha256": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+          "size_bytes": 52164
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/input.xyz",
+          "role": "engine-input",
+          "sha256": "0aec9b5c07438dbc9ca7f0d3940add37e4170868cc2a08a09db0e54c90228a27",
+          "size_bytes": 364
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.bibtex",
+          "role": "raw-output",
+          "sha256": "e758a502365e0706720fa3dc93c94e43ee2c604e3e8f753f7dff93437c13b13b",
+          "size_bytes": 1806
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.densities",
+          "role": "raw-output",
+          "sha256": "4702ffa2132d9c951fbd5e26d486696f2f47eee946087389173285fbac34a9c7",
+          "size_bytes": 222784
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.densitiesinfo",
+          "role": "raw-output",
+          "sha256": "6a2cbc061915d24db9f7e07241402aec793011cd0f1c19bf01b6e2b96fec4c71",
+          "size_bytes": 1838
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.engrad",
+          "role": "raw-output",
+          "sha256": "c2f8d0b9a58a30aa60b65d29babccecfceb1c4df97534493ceb7967e2b6678b8",
+          "size_bytes": 850
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.gbw",
+          "role": "raw-output",
+          "sha256": "1bbe7c6ec92478fb0a7a4aa03f935aefd63481fc1e378e69b8b2205d328acf6b",
+          "size_bytes": 1126964
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.inp",
+          "role": "engine-input",
+          "sha256": "cd13031aa9bb0e05a5b51aa4cc723f4cd7b1997420434f69d1ee3761fe098dc3",
+          "size_bytes": 431
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/job.property.txt",
+          "role": "raw-output",
+          "sha256": "d9b93ce07bbbc00314aa11a6dd7a79805b02c4ba1a0367327dedb2f38a9e54b5",
+          "size_bytes": 13399
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.bibtex",
+          "role": "raw-output",
+          "sha256": "e758a502365e0706720fa3dc93c94e43ee2c604e3e8f753f7dff93437c13b13b",
+          "size_bytes": 1806
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.densities",
+          "role": "raw-output",
+          "sha256": "2afaa5d7a6c89d364a04d41fee3a36fad1f74191ef3eefee384aee45727a61fb",
+          "size_bytes": 16
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.densitiesinfo",
+          "role": "raw-output",
+          "sha256": "a571454b622bbef963edd43779c9f8770f5f670b150ba7366388689e717ede2a",
+          "size_bytes": 1838
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.gbw",
+          "role": "raw-output",
+          "sha256": "55e8a5fdbb9d58a9903667008d7806ca7ffea244e67314ef1aac705ad3f5cb6e",
+          "size_bytes": 981852
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.inp",
+          "role": "engine-input",
+          "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+          "size_bytes": 72
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.property.txt",
+          "role": "raw-output",
+          "sha256": "0c8a87218c781eed6e1800f186f663393b70baff531dd0d33dccfd07fffded82",
+          "size_bytes": 6831
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.stderr",
+          "role": "raw-output",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.stdout",
+          "role": "raw-output",
+          "sha256": "9827099bcff2558e818cf6f63ed0573291a9c726ae63110870cd29b00cf7e94a",
+          "size_bytes": 40114
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/input.xyz",
+          "role": "engine-input",
+          "sha256": "946e2f35d2594a9edf06b45ea7657020bf42f23b234a55c939367143c1eedec5",
+          "size_bytes": 195
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.bibtex",
+          "role": "raw-output",
+          "sha256": "e758a502365e0706720fa3dc93c94e43ee2c604e3e8f753f7dff93437c13b13b",
+          "size_bytes": 1806
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.densities",
+          "role": "raw-output",
+          "sha256": "a9d12aff0fc861226c8bb5bd03407a3c076030c0f0e68fae86501dded1457252",
+          "size_bytes": 222784
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.densitiesinfo",
+          "role": "raw-output",
+          "sha256": "ad781fbf9a38e1fc07b9a47ba282e8a7b2fc5dce5a54294b19de48a985059df6",
+          "size_bytes": 1838
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.engrad",
+          "role": "raw-output",
+          "sha256": "ee77ba9a0e34014119a48037211d32351b3129f3b42bc05c86751833b0060229",
+          "size_bytes": 850
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.gbw",
+          "role": "raw-output",
+          "sha256": "660330b5d98aad02f44a9f53bc88e111355b019ab45ea63a70dcbfffa5471367",
+          "size_bytes": 1126964
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.inp",
+          "role": "engine-input",
+          "sha256": "b1ee4e854c01cc68c94a9d295b0431c812b8834f2410c82cd741071fdca3be9d",
+          "size_bytes": 403
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.opt",
+          "role": "raw-output",
+          "sha256": "30f7d53e11de008c448a7d72c0cf9891dcc046a254e0b3229741711f4802a32e",
+          "size_bytes": 4816
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.property.txt",
+          "role": "raw-output",
+          "sha256": "32a96191b76adcad59a195e0eba6ed71d8a1cc6437c7f01a40422db97aae8c7b",
+          "size_bytes": 101435
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job.xyz",
+          "role": "raw-output",
+          "sha256": "a63d2ea2aea77921c78afbb3cd0d28e95442351d58ef0b866dc5ab799722a373",
+          "size_bytes": 502
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/job_trj.xyz",
+          "role": "raw-output",
+          "sha256": "5f3a7cca6d9a773f74e117fcc8339afc710255fd84a48d647f4895c06181719f",
+          "size_bytes": 8350
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.bibtex",
+          "role": "raw-output",
+          "sha256": "e758a502365e0706720fa3dc93c94e43ee2c604e3e8f753f7dff93437c13b13b",
+          "size_bytes": 1806
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.densities",
+          "role": "raw-output",
+          "sha256": "2afaa5d7a6c89d364a04d41fee3a36fad1f74191ef3eefee384aee45727a61fb",
+          "size_bytes": 16
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.densitiesinfo",
+          "role": "raw-output",
+          "sha256": "6f5a139e150f80a0ebcd2a44795bc0500afe9911b750fb904d3e0db615cd6ad8",
+          "size_bytes": 1838
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.gbw",
+          "role": "raw-output",
+          "sha256": "55e8a5fdbb9d58a9903667008d7806ca7ffea244e67314ef1aac705ad3f5cb6e",
+          "size_bytes": 981852
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.inp",
+          "role": "engine-input",
+          "sha256": "dbef28ad65d98af8c52f85026688aafb6721d67ff31a06106db7513df63a6e0c",
+          "size_bytes": 72
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.property.txt",
+          "role": "raw-output",
+          "sha256": "baeb9c3e872ab963f955c58b4044c1452fada69cc8a3f7b0f750ebbb29a7a2c1",
+          "size_bytes": 6831
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.stderr",
+          "role": "raw-output",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        {
+          "media_type": null,
+          "path": "attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.stdout",
+          "role": "raw-output",
+          "sha256": "364396270f827de0acbf5443ce8c240085320d260d54d5e4b632c4f9d96739fa",
+          "size_bytes": 40100
+        }
+      ],
+      "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+      "command": [
+        "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+        "job.inp"
+      ],
+      "converged": true,
+      "diagnostics": {
+        "convergence": {
+          "energy_change": true,
+          "max_gradient": true,
+          "max_step": true,
+          "rms_gradient": true,
+          "rms_step": true
+        },
+        "final_gradient": {
+          "command": [
+            "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "job.inp"
+          ],
+          "diagnostics": {
+            "observed_probe_version": "6.1.1",
+            "process": {
+              "command": [
+                "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+                "job.inp"
+              ],
+              "elapsed_seconds": 4.495516871997097,
+              "peak_rss_mb": 267.55859375,
+              "reason": null,
+              "returncode": 0,
+              "status": "completed",
+              "stderr_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stderr",
+              "stdout_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/engine.stdout"
+            },
+            "version_probe_process": {
+              "command": [
+                "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+                "version.inp"
+              ],
+              "elapsed_seconds": 0.18743790699954843,
+              "peak_rss_mb": 152.11328125,
+              "reason": null,
+              "returncode": 0,
+              "status": "completed",
+              "stderr_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.stderr",
+              "stdout_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/final-gradient/version.stdout"
+            }
+          },
+          "elapsed_seconds": 4.762485628001741,
+          "status": "completed"
+        },
+        "independent_stationarity": {
+          "max_gradient_hartree_per_bohr": 2.702e-09,
+          "max_gradient_threshold": 1e-07,
+          "passed": true,
+          "rms_gradient_hartree_per_bohr": 1.1403494103904197e-09,
+          "rms_gradient_threshold": 3e-08,
+          "scope": "independent final EnGrad; no Hessian classification"
+        },
+        "native_optimizer_reported_converged": true,
+        "observed_probe_version": "6.1.1",
+        "process": {
+          "command": [
+            "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "job.inp"
+          ],
+          "elapsed_seconds": 82.19988777500112,
+          "peak_rss_mb": 272.9765625,
+          "reason": null,
+          "returncode": 0,
+          "status": "completed",
+          "stderr_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stderr",
+          "stdout_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/engine.stdout"
+        },
+        "version_probe_process": {
+          "command": [
+            "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "version.inp"
+          ],
+          "elapsed_seconds": 0.34246641399658984,
+          "peak_rss_mb": 149.6171875,
+          "reason": null,
+          "returncode": 0,
+          "status": "completed",
+          "stderr_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.stderr",
+          "stdout_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c/attempts/attempt_60ce1d40349c448e95ebc7bd0b4b37d6/version.stdout"
+        }
+      },
+      "engine": "orca",
+      "engine_version": "6.1.1",
+      "finished_at": "2026-10-09T15:53:27.608129+00:00",
+      "metadata": {
+        "adapter_validation": "conditional-not-live-validated",
+        "basis_support_receipts": [
+          {
+            "documented_elements": "H\u2013Rn",
+            "evidence_kind": "official manual preflight; native execution remains independently required",
+            "native_keyword": "def2-TZVPP",
+            "requested_elements": [
+              "H",
+              "O"
+            ],
+            "role": "orbital",
+            "source_html_sha256": "48750fa1c9dc25992c9e339648e52ef0f63423a7ad196e33b78609eb7143c4b6",
+            "source_table": "2.14",
+            "source_text_sha256": "38151794dc6c7a3fd94f67de94515ea189c2b3b013f06984fcb250329d6a91ea",
+            "source_url": "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html"
+          }
+        ],
+        "comparison_protocol": "8680cf417231a56cda8e728582bf9618f376384a57db0ab5ac1021ab0aec1319",
+        "convergence_scope": "geometry and electronic",
+        "dipole_cartesian_debye": [
+          0.06569327015442664,
+          -3.013274511500992,
+          2.0333971771784316e-08
+        ],
+        "dipole_provenance": {
+          "atomic_unit_debye": 2.5417464714730396,
+          "cartesian_atomic_units": [
+            0.025845721,
+            -1.185513404,
+            8e-09
+          ],
+          "cartesian_conversion_convention": "current scipy CODATA atomic unit of electric dipole",
+          "cartesian_debye": [
+            0.06569327015442664,
+            -3.013274511500992,
+            2.0333971771784316e-08
+          ],
+          "definition": "ORCA total electronic plus nuclear Cartesian dipole",
+          "engine": "orca",
+          "engine_native_cartesian_debye": [
+            0.065694601946358,
+            -3.0133355992603916,
+            2.0334384000000002e-08
+          ],
+          "engine_version": "6.1.1",
+          "geometry_digest": "2e3d45e1758c8c618818c37cb97913b1db9995c02b4a07af4ef80113b2ce3b15",
+          "method": "HF",
+          "origin": "engine input/output Cartesian origin; charged-molecule origin dependence retained",
+          "parser": "topos.engines/orca-dipole-v1",
+          "printed_atomic_unit_debye": 2.541798,
+          "printed_component_rounding_bound_debye": 1.2708732357365198e-09,
+          "printed_conversion_convention": "ORCA 6.1.1 native 2.541798 Debye/e a0",
+          "printed_magnitude_debye": 3.014051629,
+          "raw_output": "final-gradient/engine.stdout",
+          "raw_output_sha256": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+          "selection": "last advertised molecular dipole block, without fallback to earlier incomplete results",
+          "source": "ORCA final DIPOLE MOMENT block; explicit Magnitude (a.u.) and Magnitude (Debye) cross-check",
+          "units": "debye"
+        },
+        "elapsed_seconds": 87.4037766209949,
+        "energy_definition": "electronic potential energy; no thermochemical correction",
+        "executable": "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+        "executable_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea",
+        "execution_kind": "real",
+        "final_gradient_verification": {
+          "budget_scope": "remaining original attempt wall budget",
+          "command": [
+            "/home/ansac/.local/share/cochem-topos/workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca",
+            "job.inp"
+          ],
+          "directory": "final-gradient",
+          "energy_difference_hartree": 0.0,
+          "energy_hartree": -152.132799930134,
+          "engine": "orca",
+          "engine_version": "6.1.1",
+          "executable_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea",
+          "execution_kind": "real",
+          "input_molecule_sha256": "c107ca607db21a531e040118745ac238f1b7ed0bb7dc972ab4130405a8a2dc03",
+          "method": {
+            "auxiliary_basis": null,
+            "basis": "def2-TZVPP",
+            "constraints": {},
+            "dispersion": null,
+            "engine": "orca",
+            "engine_version": "6.1.1",
+            "method": "HF",
+            "profile_id": "orca-vpt2-reference-v1",
+            "purpose": "optimize",
+            "solvent": null
+          },
+          "native_files_sha256": {
+            "engine.stdout": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+            "job.engrad": "c2f8d0b9a58a30aa60b65d29babccecfceb1c4df97534493ceb7967e2b6678b8",
+            "job.inp": "cd13031aa9bb0e05a5b51aa4cc723f4cd7b1997420434f69d1ee3761fe098dc3"
+          },
+          "resources": {
+            "budget_seconds": 7117.301277498002,
+            "device": "cpu",
+            "memory_mb": 4096,
+            "threads": 2
+          }
+        },
+        "geometry_budget": {
+          "allocated_seconds": 7199.952420756999,
+          "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+          "elapsed_seconds": 87.42462539000553,
+          "requested_seconds": null,
+          "sample_index": 0,
+          "scope": "one complete geometry operation, including all constrained optimizer gradients",
+          "status": "completed"
+        },
+        "gradient_units": "hartree/bohr",
+        "input_molecule": {
+          "atom_ids": [
+            "nist-1",
+            "nist-2",
+            "nist-3",
+            "nist-4",
+            "nist-5",
+            "nist-6"
+          ],
+          "bonds": [],
+          "charge": 0,
+          "coordinate_units": "angstrom",
+          "coordinates": [
+            [
+              0.147625,
+              0.570129,
+              0.0
+            ],
+            [
+              0.004514,
+              1.505184,
+              0.0
+            ],
+            [
+              0.004514,
+              -1.415378,
+              0.0
+            ],
+            [
+              0.860388,
+              1.89121,
+              0.0
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              0.748572
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              -0.748572
+            ]
+          ],
+          "environment": {
+            "phase": "gas"
+          },
+          "fragment_states": [
+            {
+              "atom_indices": [
+                0,
+                1,
+                3
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            },
+            {
+              "atom_indices": [
+                2,
+                4,
+                5
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            }
+          ],
+          "fragments": [
+            [
+              0,
+              1,
+              3
+            ],
+            [
+              2,
+              4,
+              5
+            ]
+          ],
+          "isotopes": [
+            1,
+            16,
+            16,
+            1,
+            1,
+            1
+          ],
+          "multiplicity": 1,
+          "name": "NIST independent HF water dimer",
+          "stereochemistry": {},
+          "symbols": [
+            "H",
+            "O",
+            "O",
+            "H",
+            "H",
+            "H"
+          ]
+        },
+        "native_optimizer_policy": {
+          "manual": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html",
+          "name": "EnforceStrictConvergence",
+          "requested_value": true,
+          "scope": "native stopping policy; unchanged requested numerical tolerances"
+        },
+        "operation": "optimize",
+        "orbital_basis_resolution": {
+          "elements": [
+            "H",
+            "O"
+          ],
+          "mapping": "native-keyword",
+          "native_basis": "def2-TZVPP",
+          "orbital_space_changed": false,
+          "requested_basis": "def2-TZVPP",
+          "sources": [
+            "https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/basisset.html#correlation-consistent-basis-sets"
+          ]
+        },
+        "output_molecule": {
+          "atom_ids": [
+            "nist-1",
+            "nist-2",
+            "nist-3",
+            "nist-4",
+            "nist-5",
+            "nist-6"
+          ],
+          "bonds": [],
+          "charge": 0,
+          "coordinate_units": "angstrom",
+          "coordinates": [
+            [
+              0.04566864225167,
+              0.70751669997432,
+              -2.27617e-09
+            ],
+            [
+              0.05028635253021,
+              1.65143478023385,
+              -2.95062e-09
+            ],
+            [
+              -0.09560268883166,
+              -1.37771971152669,
+              -9.7723e-10
+            ],
+            [
+              0.95348435962444,
+              1.90912348711049,
+              4.78876e-09
+            ],
+            [
+              -0.50851783033609,
+              -1.75950112689704,
+              0.75397530646539
+            ],
+            [
+              -0.50851783523858,
+              -1.75950112889493,
+              -0.75397530505012
+            ]
+          ],
+          "environment": {
+            "phase": "gas"
+          },
+          "fragment_states": [
+            {
+              "atom_indices": [
+                0,
+                1,
+                3
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            },
+            {
+              "atom_indices": [
+                2,
+                4,
+                5
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            }
+          ],
+          "fragments": [
+            [
+              0,
+              1,
+              3
+            ],
+            [
+              2,
+              4,
+              5
+            ]
+          ],
+          "isotopes": [
+            1,
+            16,
+            16,
+            1,
+            1,
+            1
+          ],
+          "multiplicity": 1,
+          "name": "NIST independent HF water dimer",
+          "stereochemistry": {},
+          "symbols": [
+            "H",
+            "O",
+            "O",
+            "H",
+            "H",
+            "H"
+          ]
+        },
+        "precision": "float64",
+        "profile_id": "orca-vpt2-reference-v1",
+        "requested_method": {
+          "auxiliary_basis": null,
+          "basis": "def2-TZVPP",
+          "constraints": {},
+          "dispersion": null,
+          "engine": "orca",
+          "engine_version": "6.1.1",
+          "method": "HF",
+          "profile_id": "orca-vpt2-reference-v1",
+          "purpose": "optimize",
+          "solvent": null
+        },
+        "resources": {
+          "budget_seconds": 7199.938903276998,
+          "device": "cpu",
+          "memory_mb": 4096,
+          "threads": 2
+        },
+        "sample_index": 0,
+        "sampling_origin": {
+          "source": "INITIAL_SEED"
+        },
+        "seed": 0,
+        "stationary_point_classification": "unclassified; no frequency Hessian",
+        "version_probe": {
+          "basis": "STO-3G",
+          "execution_kind": "real-diagnostic",
+          "method": "HF",
+          "parallel_mpi_validated": false,
+          "purpose": "loader/version diagnostic",
+          "scientific_result_eligibility": false,
+          "system": "He atom; charge 0; multiplicity 1"
+        }
+      },
+      "method": "HF",
+      "parent_attempt_id": null,
+      "quantities": [
+        {
+          "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+          "definition": "electronic potential energy at recorded output geometry; no ZPE or thermal corrections",
+          "geometry_id": "candidate_ce3ba6b337ee4f4d940d49c47d8c6ddd",
+          "metadata": {},
+          "method": "HF",
+          "name": "electronic_energy",
+          "parser": "topos.engines/0.1.0",
+          "units": "hartree",
+          "validity": "validated-for-protocol",
+          "value": -152.132799930134
+        },
+        {
+          "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+          "definition": "dE/dx at the output geometry",
+          "geometry_id": "candidate_ce3ba6b337ee4f4d940d49c47d8c6ddd",
+          "metadata": {},
+          "method": "HF",
+          "name": "cartesian_gradient",
+          "parser": "topos.engines/0.1.0",
+          "units": "hartree/bohr",
+          "validity": "validated-for-protocol",
+          "value": [
+            [
+              -1.004e-09,
+              1.766e-09,
+              1.5e-11
+            ],
+            [
+              1.84e-09,
+              4.26e-10,
+              -1.3e-11
+            ],
+            [
+              2.702e-09,
+              -2.35e-10,
+              2.32e-10
+            ],
+            [
+              -8.09e-10,
+              2.9e-10,
+              6e-12
+            ],
+            [
+              -1.292e-09,
+              -1.054e-09,
+              6.76e-10
+            ],
+            [
+              -1.437e-09,
+              -1.193e-09,
+              -9.16e-10
+            ]
+          ]
+        }
+      ],
+      "run_id": "run_4dd92365f7954e3a8fe6978f3b4be52c",
+      "started_at": "2026-10-09T15:52:00.190025+00:00",
+      "status": "completed",
+      "validation_status": "validated-for-protocol"
+    }
+  ],
+  "candidates": [
+    {
+      "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+      "candidate_id": "candidate_ce3ba6b337ee4f4d940d49c47d8c6ddd",
+      "comparison_protocol": "8680cf417231a56cda8e728582bf9618f376384a57db0ab5ac1021ab0aec1319",
+      "degeneracy": 1.0,
+      "energy_hartree": -152.132799930134,
+      "gibbs_hartree": null,
+      "metadata": {
+        "calculation_completed": true,
+        "dipole": {
+          "axes_columns_in_cartesian": [
+            [
+              0.08607322431612463,
+              5.906068200712216e-08,
+              0.9962888135755729
+            ],
+            [
+              0.9962888135755744,
+              -4.57973912262755e-09,
+              -0.0860732243161245
+            ],
+            [
+              -5.208004737516025e-10,
+              0.999999999999998,
+              -5.923568971865154e-08
+            ]
+          ],
+          "axis_order": [
+            "a",
+            "b",
+            "c"
+          ],
+          "axis_sign_convention": "ordered atom-ID projection; right-handed frame",
+          "cartesian_debye": [
+            0.06569327015442664,
+            -3.013274511500992,
+            2.0333971771784316e-08
+          ],
+          "dark_branches": [
+            false,
+            true,
+            false
+          ],
+          "dark_threshold_debye": 0.1,
+          "degeneracy_relative_tolerance": 1e-07,
+          "degenerate_axes": [
+            false,
+            false,
+            false
+          ],
+          "dipole_method": "orca/HF",
+          "exclude_from_line_list": false,
+          "geometry_digest": "2e3d45e1758c8c618818c37cb97913b1db9995c02b4a07af4ef80113b2ce3b15",
+          "moments_amu_angstrom2": [
+            2.1366846488212015,
+            85.67684761516449,
+            85.8318714708876
+          ],
+          "origin_convention": "supplied vector in input coordinate origin; charged-species dipoles are origin dependent",
+          "provenance": {
+            "atomic_unit_debye": 2.5417464714730396,
+            "cartesian_atomic_units": [
+              0.025845721,
+              -1.185513404,
+              8e-09
+            ],
+            "cartesian_conversion_convention": "current scipy CODATA atomic unit of electric dipole",
+            "cartesian_debye": [
+              0.06569327015442664,
+              -3.013274511500992,
+              2.0333971771784316e-08
+            ],
+            "definition": "ORCA total electronic plus nuclear Cartesian dipole",
+            "engine": "orca",
+            "engine_native_cartesian_debye": [
+              0.065694601946358,
+              -3.0133355992603916,
+              2.0334384000000002e-08
+            ],
+            "engine_version": "6.1.1",
+            "geometry_digest": "2e3d45e1758c8c618818c37cb97913b1db9995c02b4a07af4ef80113b2ce3b15",
+            "method": "HF",
+            "origin": "engine input/output Cartesian origin; charged-molecule origin dependence retained",
+            "parser": "topos.engines/orca-dipole-v1",
+            "printed_atomic_unit_debye": 2.541798,
+            "printed_component_rounding_bound_debye": 1.2708732357365198e-09,
+            "printed_conversion_convention": "ORCA 6.1.1 native 2.541798 Debye/e a0",
+            "printed_magnitude_debye": 3.014051629,
+            "raw_output": "final-gradient/engine.stdout",
+            "raw_output_sha256": "a352788be2e5473e7a328fdd69b9c5aa96d0434fcae4e8aa9e2fc9892ca0559e",
+            "selection": "last advertised molecular dipole block, without fallback to earlier incomplete results",
+            "source": "ORCA final DIPOLE MOMENT block; explicit Magnitude (a.u.) and Magnitude (Debye) cross-check",
+            "units": "debye"
+          },
+          "retain_in_thermodynamic_ensemble": true,
+          "sign_warning": "signed components require the recorded frame; arbitrary eigenvector signs must not be compared directly",
+          "signed_abc_debye": [
+            -2.99643725646278,
+            3.801387227792035e-08,
+            0.3248117231365374
+          ],
+          "status": "resolved",
+          "total_dipole_debye": 3.013990525433868
+        },
+        "discovery_sources": [
+          "INITIAL_SEED"
+        ],
+        "energy_comparison_key": "fce194651090d4ac333514112f74c06df92724bfd4b7f7691ecfbcecb8bb76cb",
+        "identity_comparisons": [],
+        "observation_source": "INITIAL_SEED",
+        "point_group": {
+          "algorithm": "MolSym point-group proposal with independent isotope-labelled operation verification",
+          "algorithm_reference": "https://doi.org/10.1002/jcc.23493",
+          "algorithm_version": "1.2.0",
+          "backend_tolerance_note": "MolSym uses its native scalar tolerance for internal Cartesian/inertia tests; every reported operation separately meets the stated Cartesian tolerance",
+          "coordinate_units": "angstrom",
+          "geometry_class": "nonlinear",
+          "geometry_digest": "2e3d45e1758c8c618818c37cb97913b1db9995c02b4a07af4ef80113b2ce3b15",
+          "has_improper_operations": true,
+          "is_chiral_geometry": false,
+          "isotope_policy": "most_abundant",
+          "isotope_provenance": [
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 16,
+              "mass_u": 15.99491461926,
+              "selection": "explicit",
+              "symbol": "O"
+            },
+            {
+              "mass_number": 16,
+              "mass_u": 15.99491461926,
+              "selection": "explicit",
+              "symbol": "O"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            }
+          ],
+          "max_operation_residual_angstrom": 2.3983470736425077e-08,
+          "operations": [
+            {
+              "atom_mapping": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "determinant": 1,
+              "max_residual_angstrom": 0.0,
+              "name": "E"
+            },
+            {
+              "atom_mapping": [
+                0,
+                1,
+                2,
+                3,
+                5,
+                4
+              ],
+              "determinant": -1,
+              "max_residual_angstrom": 2.3983470736425077e-08,
+              "name": "sigma_h"
+            }
+          ],
+          "point_group": "Cs",
+          "proposal_correction": null,
+          "proposed_point_group": "Cs",
+          "rotational_symmetry_number": 1,
+          "scope": "static nuclear geometry; not permutation-inversion symmetry or nuclear spin statistics",
+          "status": "stable",
+          "tolerance_angstrom": 0.001,
+          "tolerance_sweep": [
+            {
+              "geometry_class": "nonlinear",
+              "has_improper_operations": true,
+              "max_operation_residual_angstrom": 2.3983470736425077e-08,
+              "operations": [
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "determinant": 1,
+                  "max_residual_angstrom": 0.0,
+                  "name": "E"
+                },
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    4
+                  ],
+                  "determinant": -1,
+                  "max_residual_angstrom": 2.3983470736425077e-08,
+                  "name": "sigma_h"
+                }
+              ],
+              "point_group": "Cs",
+              "proposal_correction": null,
+              "proposed_point_group": "Cs",
+              "rotational_symmetry_number": 1,
+              "status": "verified",
+              "tolerance_angstrom": 0.0001,
+              "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+            },
+            {
+              "geometry_class": "nonlinear",
+              "has_improper_operations": true,
+              "max_operation_residual_angstrom": 2.3983470736425077e-08,
+              "operations": [
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "determinant": 1,
+                  "max_residual_angstrom": 0.0,
+                  "name": "E"
+                },
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    4
+                  ],
+                  "determinant": -1,
+                  "max_residual_angstrom": 2.3983470736425077e-08,
+                  "name": "sigma_h"
+                }
+              ],
+              "point_group": "Cs",
+              "proposal_correction": null,
+              "proposed_point_group": "Cs",
+              "rotational_symmetry_number": 1,
+              "status": "verified",
+              "tolerance_angstrom": 0.001,
+              "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+            },
+            {
+              "geometry_class": "nonlinear",
+              "has_improper_operations": true,
+              "max_operation_residual_angstrom": 2.3983470736425077e-08,
+              "operations": [
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "determinant": 1,
+                  "max_residual_angstrom": 0.0,
+                  "name": "E"
+                },
+                {
+                  "atom_mapping": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    5,
+                    4
+                  ],
+                  "determinant": -1,
+                  "max_residual_angstrom": 2.3983470736425077e-08,
+                  "name": "sigma_h"
+                }
+              ],
+              "point_group": "Cs",
+              "proposal_correction": null,
+              "proposed_point_group": "Cs",
+              "rotational_symmetry_number": 1,
+              "status": "verified",
+              "tolerance_angstrom": 0.01,
+              "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+            }
+          ],
+          "uncertainty": "stable-over-declared-sweep",
+          "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+        },
+        "post_optimization_validation": {
+          "contact_policy": "coincidence-1e-8A/radius-warning-0.35-v1",
+          "issues": [],
+          "provenance": {
+            "isotope_selection": "explicit mass number or recorded most-abundant isotope",
+            "mass_unit": "u",
+            "provider": "mendeleev",
+            "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+            "version": "1.3.0"
+          },
+          "status": "valid"
+        },
+        "proposal_processed": true,
+        "relative_electronic_energy_kcal_mol": 0.0,
+        "rotational_constants": {
+          "atomic_data": {
+            "isotope_selection": "explicit mass number or recorded most-abundant isotope",
+            "mass_unit": "u",
+            "provider": "mendeleev",
+            "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+            "version": "1.3.0"
+          },
+          "constants": {
+            "bohr_angstrom": "0.5291772105439999",
+            "codata_edition": "CODATA 2022",
+            "hartree_ev": "27.211386245981",
+            "hartree_j": "4.359744722206e-18",
+            "provider": "scipy.constants",
+            "version": "1.18.1"
+          },
+          "constants_ghz": [
+            236.5248464316749,
+            5.898664837732688,
+            5.888011059001163
+          ],
+          "geometry_class": "nonlinear",
+          "isotope_provenance": [
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 16,
+              "mass_u": 15.99491461926,
+              "selection": "explicit",
+              "symbol": "O"
+            },
+            {
+              "mass_number": 16,
+              "mass_u": 15.99491461926,
+              "selection": "explicit",
+              "symbol": "O"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            },
+            {
+              "mass_number": 1,
+              "mass_u": 1.007825031898,
+              "selection": "explicit",
+              "symbol": "H"
+            }
+          ],
+          "moments_amu_angstrom2": [
+            2.1366846488212046,
+            85.6768476151645,
+            85.8318714708876
+          ],
+          "not_measured_B0": true,
+          "observable": "equilibrium-rigid-rotor"
+        },
+        "rotational_observables": {
+          "correction_model": null,
+          "equilibrium": {
+            "atomic_data": {
+              "isotope_selection": "explicit mass number or recorded most-abundant isotope",
+              "mass_unit": "u",
+              "provider": "mendeleev",
+              "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+              "version": "1.3.0"
+            },
+            "constants": {
+              "bohr_angstrom": "0.5291772105439999",
+              "codata_edition": "CODATA 2022",
+              "hartree_ev": "27.211386245981",
+              "hartree_j": "4.359744722206e-18",
+              "provider": "scipy.constants",
+              "version": "1.18.1"
+            },
+            "constants_ghz": [
+              236.5248464316749,
+              5.898664837732688,
+              5.888011059001163
+            ],
+            "geometry_class": "nonlinear",
+            "isotope_provenance": [
+              {
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "explicit",
+                "symbol": "H"
+              },
+              {
+                "mass_number": 16,
+                "mass_u": 15.99491461926,
+                "selection": "explicit",
+                "symbol": "O"
+              },
+              {
+                "mass_number": 16,
+                "mass_u": 15.99491461926,
+                "selection": "explicit",
+                "symbol": "O"
+              },
+              {
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "explicit",
+                "symbol": "H"
+              },
+              {
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "explicit",
+                "symbol": "H"
+              },
+              {
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "explicit",
+                "symbol": "H"
+              }
+            ],
+            "moments_amu_angstrom2": [
+              2.1366846488212046,
+              85.6768476151645,
+              85.8318714708876
+            ],
+            "not_measured_B0": true,
+            "observable": "equilibrium-rigid-rotor"
+          },
+          "equilibrium_labels": [
+            "Ae",
+            "Be",
+            "Ce"
+          ],
+          "geometry_method": "orca/HF optimized geometry",
+          "ground_state_ghz": null,
+          "uncertainty": "not-established-by-geometry-alone"
+        },
+        "sample_index": 0,
+        "sampling_origin": {
+          "source": "INITIAL_SEED"
+        },
+        "seed_geometry": {
+          "atom_ids": [
+            "nist-1",
+            "nist-2",
+            "nist-3",
+            "nist-4",
+            "nist-5",
+            "nist-6"
+          ],
+          "bonds": [],
+          "charge": 0,
+          "coordinate_units": "angstrom",
+          "coordinates": [
+            [
+              0.147625,
+              0.570129,
+              0.0
+            ],
+            [
+              0.004514,
+              1.505184,
+              0.0
+            ],
+            [
+              0.004514,
+              -1.415378,
+              0.0
+            ],
+            [
+              0.860388,
+              1.89121,
+              0.0
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              0.748572
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              -0.748572
+            ]
+          ],
+          "environment": {
+            "phase": "gas"
+          },
+          "fragment_states": [
+            {
+              "atom_indices": [
+                0,
+                1,
+                3
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            },
+            {
+              "atom_indices": [
+                2,
+                4,
+                5
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            }
+          ],
+          "fragments": [
+            [
+              0,
+              1,
+              3
+            ],
+            [
+              2,
+              4,
+              5
+            ]
+          ],
+          "isotopes": [
+            1,
+            16,
+            16,
+            1,
+            1,
+            1
+          ],
+          "multiplicity": 1,
+          "name": "NIST independent HF water dimer",
+          "stereochemistry": {},
+          "symbols": [
+            "H",
+            "O",
+            "O",
+            "H",
+            "H",
+            "H"
+          ]
+        },
+        "stationary_point_classification": "not-evaluated: no frequency Hessian",
+        "stereochemistry_validation": {
+          "centers": [],
+          "issues": [],
+          "normalized_volume_tolerance": 0.001,
+          "not_certified": [
+            "CIP-R/S",
+            "E/Z",
+            "axial",
+            "helical",
+            "coordination stereochemistry"
+          ],
+          "scope": "atom-mapped-distinguishable-tetrahedral-orientation-v1",
+          "status": "preserved"
+        }
+      },
+      "molecule": {
+        "atom_ids": [
+          "nist-1",
+          "nist-2",
+          "nist-3",
+          "nist-4",
+          "nist-5",
+          "nist-6"
+        ],
+        "bonds": [],
+        "charge": 0,
+        "coordinate_units": "angstrom",
+        "coordinates": [
+          [
+            0.04566864225167,
+            0.70751669997432,
+            -2.27617e-09
+          ],
+          [
+            0.05028635253021,
+            1.65143478023385,
+            -2.95062e-09
+          ],
+          [
+            -0.09560268883166,
+            -1.37771971152669,
+            -9.7723e-10
+          ],
+          [
+            0.95348435962444,
+            1.90912348711049,
+            4.78876e-09
+          ],
+          [
+            -0.50851783033609,
+            -1.75950112689704,
+            0.75397530646539
+          ],
+          [
+            -0.50851783523858,
+            -1.75950112889493,
+            -0.75397530505012
+          ]
+        ],
+        "environment": {
+          "phase": "gas"
+        },
+        "fragment_states": [
+          {
+            "atom_indices": [
+              0,
+              1,
+              3
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          },
+          {
+            "atom_indices": [
+              2,
+              4,
+              5
+            ],
+            "charge": 0,
+            "multiplicity": 1
+          }
+        ],
+        "fragments": [
+          [
+            0,
+            1,
+            3
+          ],
+          [
+            2,
+            4,
+            5
+          ]
+        ],
+        "isotopes": [
+          1,
+          16,
+          16,
+          1,
+          1,
+          1
+        ],
+        "multiplicity": 1,
+        "name": "NIST independent HF water dimer",
+        "stereochemistry": {},
+        "symbols": [
+          "H",
+          "O",
+          "O",
+          "H",
+          "H",
+          "H"
+        ]
+      },
+      "sources": [
+        "INITIAL_SEED"
+      ],
+      "status": "eligible"
+    }
+  ],
+  "created_at": "2026-10-09T15:52:00.119572+00:00",
+  "decisions": [],
+  "metadata": {
+    "algorithm": "optimize",
+    "budget_accounting": {
+      "budget_seconds": 7199.995858745999,
+      "charged_seconds": 87.65804259400466,
+      "clock": "monotonic; timestamps are process-local and not portable restart state",
+      "elapsed_seconds": 87.68507750400022,
+      "execution_seconds": 87.65804259400466,
+      "queue_seconds": 0.027034909995563794,
+      "queue_time_in_budget": false,
+      "remaining_seconds": 0.0,
+      "scope": "workflow",
+      "status": "completed"
+    },
+    "budget_scope": "workflow invocation; queue is local preparation before execution; execution includes chemistry preflight and intermediate commits; final evidence commit may outlive deadline",
+    "capability_profile": {
+      "conditional_adapters": {
+        "CFOUR": {
+          "interface": "typed external_protocol in matrix requests",
+          "requirements": "licensed exact native version, GENBAS hash and BASE executable authority"
+        },
+        "ML": {
+          "backends": [
+            "mace",
+            "aimnet2"
+          ],
+          "devices": [
+            "cpu",
+            "gpu"
+          ],
+          "evidence_scope": "model inference; uncalibrated committee spread is not DFT accuracy",
+          "requirements": "explicit checkpoint hashes/domain/head, audited isolated BASE interpreter, actual device and VRAM"
+        },
+        "Psi4": {
+          "method": "SAPT2+3",
+          "requirements": "explicit orbital/fitting bases, actual BASE-audited native installation"
+        },
+        "native_VPT2": {
+          "engine": "ORCA 6.1.1",
+          "interface": "topos.anharmonic",
+          "requirements": "unconstrained nonlinear semirigid minimum; not a frozen-monomer R2 force field"
+        },
+        "native_analytic_Hessian": {
+          "engine": "ORCA 6.1.1",
+          "requirements": "supported SCF method, physical .hess and separate stationarity gradient"
+        }
+      },
+      "conditional_unverified": [
+        "ORCA 6.1.1 integration without installed licensed executable",
+        "TOPOS request-correlated GitHub Actions execution requires a separately recorded live acceptance run",
+        "TORQ consumer readiness is distinct from mandatory package installation"
+      ],
+      "deduplication": {
+        "criteria": "compatible protocol/state AND electronic energy AND equilibrium rotational constants AND proper-rotation graph-mapped RMSD",
+        "energy_kcal_mol": 0.05,
+        "limits": "fixed conservative rotational screen; not native CREGEN adaptive thresholds or spectroscopic identity",
+        "profile": "topos-conservative-generation-v1",
+        "rmsd_angstrom": 0.125,
+        "rotational_fraction": 0.01,
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6\u20137"
+      },
+      "engines": {
+        "orca": {
+          "device": "cpu",
+          "executable_discovered": true,
+          "methods": [
+            "HF-3c",
+            "r2SCAN-3c",
+            "HF",
+            "wB97X-V",
+            "wB97M-V",
+            "B3LYP-D4"
+          ],
+          "validation": "verify per execution"
+        },
+        "xtb": {
+          "device": "cpu",
+          "executable_discovered": true,
+          "methods": [
+            "GFN2-xTB"
+          ],
+          "validation": "verify per execution"
+        }
+      },
+      "execution_environment": {
+        "development": "Explicit numerical regression runtime, excluded from mandatory ecosystem acceptance",
+        "github-actions": "Private default-branch TOPOS worker provisioned by BASE; requires configured credentials and deployed workflow",
+        "local": "Linux through the verified BASE registry and subprocess broker"
+      },
+      "full_method_matrix": {
+        "execution": "Use matrix planning for exact prerequisites; catalog membership does not establish an executable route.",
+        "owner_counts": {
+          "TOPOS": 44,
+          "TORQ": 96
+        },
+        "revision": "method-matrix-v4-2026-08-09",
+        "rows": 140,
+        "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d"
+      },
+      "mandatory_ecosystem": {
+        "available": true,
+        "components": {
+          "CoChem-BASE": {
+            "available": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_base",
+            "version": "1.1.0"
+          },
+          "CoChem-TOPOS": {
+            "available": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/topos/__init__.py",
+            "version": "0.1.0"
+          },
+          "CoChem-TORQ": {
+            "available": true,
+            "consumer_ready": false,
+            "distribution_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/full-controller-v5/companions/cochem_torq-0.1.0-py3-none-any.whl",
+            "import_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_torq/__init__.py",
+            "import_shadowed": true,
+            "installed": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_torq/__init__.py",
+            "version": "0.1.0"
+          }
+        },
+        "problems": []
+      },
+      "platform": {
+        "available_memory_mb": 36167,
+        "cpu_count": 12,
+        "system": "Linux"
+      },
+      "profile_revision": "topos-0.1.0-supported-profile-v1",
+      "profiles": {
+        "orca-mapping-v4.1": {
+          "convergence": "mapping-v4.1 explicit thresholds",
+          "engine": "orca",
+          "purpose": "refinement",
+          "source": ".docs/method_matrix.md"
+        },
+        "orca-mapping-v4.2": {
+          "convergence": "TightSCF; explicit ConvCheckMode 0 and SCF TolE 1e-10",
+          "engine": "orca",
+          "numerical_profile_sha256": "8c9647bfbea0f7e8728d4ea4ad05bb9c98cf8c0536e9bae799fea76f4e9341f0",
+          "purpose": "refinement",
+          "source": ".docs/TOPOS_SCF_V42_PROFILE_REVIEW.md",
+          "validation_scope": "genuine historical-source water consistency diagnostic; other routes require separate live acceptance"
+        },
+        "orca-vpt2-reference-v1": {
+          "convergence": "Existing ExtremeSCF/DEFGRID3 profile; strict optimizer and independent final-gradient gates",
+          "engine": "orca",
+          "purpose": "unconstrained stationary derivative reference",
+          "source": "topos/engines.py; topos/anharmonic.py",
+          "validation_scope": "Admission of the existing native profile only; actual stationarity, Hessian and VPT2 completion are verified per execution"
+        },
+        "screening-v1": {
+          "convergence": "native normal",
+          "engine": "xtb",
+          "purpose": "screening"
+        },
+        "xtb-extreme-v1": {
+          "convergence": "native extreme",
+          "engine": "xtb",
+          "purpose": "stationary derivative reference"
+        },
+        "xtb-tight-v1": {
+          "convergence": "native tight",
+          "engine": "xtb",
+          "purpose": "screening"
+        },
+        "xtb-vtight-v1": {
+          "convergence": "native vtight",
+          "engine": "xtb",
+          "purpose": "screening"
+        }
+      },
+      "samplers": {
+        "abcluster": {
+          "exhaustiveness": "finishing requested generations is not proof of exhaustive sampling",
+          "potential": "explicit atom-mapped charge/Lennard-Jones rigid intermolecular force field",
+          "program": "rigidmol",
+          "refinement": "classical scores are seed observations only; every candidate requires independent requested quantum refinement",
+          "requirements": "cited per-atom charge/epsilon/sigma, explicit closed-shell fragments and states, BASE-audited native binary",
+          "seed": "engine-controlled random packing; no numeric seed support",
+          "version": "3.4"
+        },
+        "crest": {
+          "isotope_labelled_dynamics": "unsupported",
+          "nci": "explicit confinement for declared multifragment inputs; common-level unconfined refinement",
+          "potential": "external xTB 6.7.1 GFN2-xTB",
+          "profiles": [
+            "crest-imtdgc-v1",
+            "crest-mquick-v1",
+            "crest-nci-v1"
+          ],
+          "seed": "engine-controlled; no numeric seed support",
+          "version": "3.0.2"
+        },
+        "goat": {
+          "availability": "requires BASE-authorized ORCA and every selected potential backend",
+          "interface": "explicit matrix recipes",
+          "potential": "native r2SCAN-3c or externally audited xTB; explicit ExtOpt model manifest where selected",
+          "refinement": "search ensembles require common-level refinement and TOPOS deduplication",
+          "version": "ORCA 6.1.1"
+        }
+      },
+      "schema_version": "topos/0.1.0",
+      "scientific_limits": [
+        "Finite search does not establish completeness.",
+        "Electronic-energy weights are not Gibbs populations.",
+        "Numerical convergence does not establish method accuracy.",
+        "Frozen monomer refinement validates only the allowed subspace."
+      ],
+      "search_algorithm": "seeded Cartesian or rigid-fragment jiggle\u2013quench",
+      "search_algorithms": [
+        "jiggle-quench",
+        "crest",
+        "union",
+        "abcluster"
+      ],
+      "separate_module_requirements": [
+        "DVR and other TORQ-owned matrix algorithms require implemented TORQ consumers"
+      ],
+      "software": "CoChem-TOPOS",
+      "supported_operations": [
+        "energy",
+        "gradient",
+        "optimize",
+        "search",
+        "frequency",
+        "thermochemistry",
+        "association",
+        "matrix"
+      ],
+      "unavailable": [
+        "native Windows/macOS engine execution",
+        "HPC scheduler transport",
+        "Molpro F12 and MPQC native adapters",
+        "native VPT2 evaluated directly at a constrained frozen-monomer geometry",
+        "automatic kinetic grouping",
+        "automatic journal or repository deposition"
+      ],
+      "version": "0.1.0"
+    },
+    "citations": [
+      {
+        "kind": "software",
+        "license": "Apache-2.0",
+        "title": "CoChem-TOPOS",
+        "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "data-software",
+        "role": "versioned element/isotope data; installed version in software provenance",
+        "title": "Mendeleev",
+        "url": "https://mendeleev.readthedocs.io/"
+      },
+      {
+        "kind": "documentation",
+        "role": "units/constants; edition and installed version in derived-quantity provenance",
+        "title": "SciPy physical constants",
+        "url": "https://docs.scipy.org/doc/scipy/reference/constants.html"
+      },
+      {
+        "kind": "software",
+        "license": "LicenseRef-ORCA-EULA",
+        "role": "external licensed executable, not redistributed",
+        "title": "ORCA",
+        "url": "https://www.faccts.de/orca/"
+      },
+      {
+        "article": "e70019",
+        "authors": [
+          "Frank Neese"
+        ],
+        "doi": "10.1002/wcms.70019",
+        "journal": "WIREs Computational Molecular Science",
+        "kind": "peer-reviewed-software",
+        "role": "ORCA 6 required software citation; exact executed patch version recorded separately",
+        "source": "ORCA EULA, June 2025, section 5 (user-supplied license)",
+        "title": "Software Update: The ORCA Program System\u2014Version 6.0",
+        "volume": 15,
+        "year": 2025
+      },
+      {
+        "kind": "documentation",
+        "method": "HF",
+        "role": "version-specific implementation reference; canonical/local/F12 approximations are distinct",
+        "title": "Native orca implementation of HF",
+        "url": "https://www.faccts.de/docs/orca/6.1/manual/contents/modelchemistries/mdci.html"
+      }
+    ],
+    "deduplication": {
+      "enantiomers": "kept distinct; no inferred degeneracy",
+      "energy_threshold_kcal_mol": 0.05,
+      "inconclusive_comparisons": 0,
+      "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity",
+      "pair_comparisons": 0,
+      "profile": "topos-conservative-generation-v1",
+      "rmsd_threshold_angstrom": 0.125,
+      "rotational_threshold_fraction": 0.01,
+      "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6\u20137",
+      "stage": "generation",
+      "status": "completed"
+    },
+    "elapsed_seconds": 87.65804259400466,
+    "electronic_weights_by_protocol": {
+      "8680cf417231a56cda8e728582bf9618f376384a57db0ab5ac1021ab0aec1319": {
+        "comparison_protocol": "8680cf417231a56cda8e728582bf9618f376384a57db0ab5ac1021ab0aec1319",
+        "completeness": "not-certified",
+        "constants": {
+          "bohr_angstrom": "0.5291772105439999",
+          "codata_edition": "CODATA 2022",
+          "hartree_ev": "27.211386245981",
+          "hartree_j": "4.359744722206e-18",
+          "provider": "scipy.constants",
+          "version": "1.18.1"
+        },
+        "degeneracy_convention": "explicit-not-already-in-member-energy",
+        "ensemble_energy_hartree": -152.132799930134,
+        "populations": {
+          "candidate_ce3ba6b337ee4f4d940d49c47d8c6ddd": 1.0
+        },
+        "temperature_k": 298.15,
+        "weight_kind": "electronic-energy-weights-not-Gibbs-populations"
+      }
+    },
+    "electronic_weights_status": "sampled-ensemble electronic weights; not Gibbs populations",
+    "execution_authority": {
+      "backend": "cochem-base",
+      "ecosystem": {
+        "available": true,
+        "components": {
+          "CoChem-BASE": {
+            "available": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_base",
+            "version": "1.1.0"
+          },
+          "CoChem-TOPOS": {
+            "available": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/topos/__init__.py",
+            "version": "0.1.0"
+          },
+          "CoChem-TORQ": {
+            "available": true,
+            "consumer_ready": false,
+            "distribution_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/full-controller-v5/companions/cochem_torq-0.1.0-py3-none-any.whl",
+            "import_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_torq/__init__.py",
+            "import_shadowed": true,
+            "installed": true,
+            "kind": "installed",
+            "path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v5/controller/lib/python3.12/site-packages/cochem_torq/__init__.py",
+            "version": "0.1.0"
+          }
+        },
+        "problems": []
+      },
+      "registry_checksum": "9d5448d08db45815f187f2d2da6384b8950466d368e36369b57f7219171c9fa8",
+      "registry_path": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/runtime-full-v4-native/Registry/cochem_system_config.json",
+      "registry_sha256": "e90f05500360cd5309022f57438ca7a46cae4a1d445658bec580ac09016276a9"
+    },
+    "execution_provider": "CoChem-BASE",
+    "fragment_triage": {
+      "classification": "candidate-weak-complex",
+      "fragments": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          2,
+          4,
+          5
+        ]
+      ],
+      "graph_source": "distance-hypothesis/pyykko/scale-1.2",
+      "issues": []
+    },
+    "input_sha256": "e9ca41d46d40e280d4a5f27616b0243abd11a57ab51d530fcefd4169b5bf88b3",
+    "input_stereochemistry": {
+      "centers": [],
+      "issues": [],
+      "normalized_volume_tolerance": 0.001,
+      "not_certified": [
+        "CIP-R/S",
+        "E/Z",
+        "axial",
+        "helical",
+        "coordination stereochemistry"
+      ],
+      "scope": "atom-mapped-distinguishable-tetrahedral-orientation-v1",
+      "status": "preserved"
+    },
+    "input_validation": {
+      "contact_policy": "coincidence-1e-8A/radius-warning-0.35-v1",
+      "issues": [],
+      "provenance": {
+        "isotope_selection": "explicit mass number or recorded most-abundant isotope",
+        "mass_unit": "u",
+        "provider": "mendeleev",
+        "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+        "version": "1.3.0"
+      },
+      "status": "valid"
+    },
+    "invocation_budget_allocated_seconds": 7199.995858745999,
+    "invocation_budget_history": [
+      {
+        "budget_seconds": 7199.995858745999,
+        "charged_seconds": 87.65804259400466,
+        "clock": "monotonic; timestamps are process-local and not portable restart state",
+        "elapsed_seconds": 87.68507750400022,
+        "execution_seconds": 87.65804259400466,
+        "queue_seconds": 0.027034909995563794,
+        "queue_time_in_budget": false,
+        "remaining_seconds": 0.0,
+        "scope": "workflow",
+        "status": "completed"
+      }
+    ],
+    "invocation_budget_override_policy": "reduce only this invocation; immutable request remains unchanged",
+    "invocation_budget_override_seconds": 7199.996046264001,
+    "invocation_started_at": "2026-10-09T15:52:00.146586+00:00",
+    "nested_budget_accounting": {
+      "ensemble": {
+        "allocated_seconds": 7199.967786704998,
+        "deadline_exhausted": false,
+        "elapsed_seconds": 87.62993849399936,
+        "requested_seconds": null,
+        "scope": "sampling, refinements and comparison, bounded by workflow",
+        "started_at_execution_seconds": 0.028076150003471412,
+        "status": "completed"
+      },
+      "geometries": [
+        {
+          "allocated_seconds": 7199.952420756999,
+          "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+          "elapsed_seconds": 87.42462539000553,
+          "requested_seconds": null,
+          "sample_index": 0,
+          "scope": "one complete geometry operation, including all constrained optimizer gradients",
+          "status": "completed"
+        }
+      ],
+      "invocation_started_at": "2026-10-09T15:52:00.146586+00:00",
+      "semantics": "new invocation allocations; completed validated subjobs are reused; final evidence commit is outside execution deadlines"
+    },
+    "nested_budget_history": [
+      {
+        "ensemble": {
+          "allocated_seconds": 7199.967786704998,
+          "deadline_exhausted": false,
+          "elapsed_seconds": 87.62993849399936,
+          "requested_seconds": null,
+          "scope": "sampling, refinements and comparison, bounded by workflow",
+          "started_at_execution_seconds": 0.028076150003471412,
+          "status": "completed"
+        },
+        "geometries": [
+          {
+            "allocated_seconds": 7199.952420756999,
+            "attempt_id": "attempt_60ce1d40349c448e95ebc7bd0b4b37d6",
+            "elapsed_seconds": 87.42462539000553,
+            "requested_seconds": null,
+            "sample_index": 0,
+            "scope": "one complete geometry operation, including all constrained optimizer gradients",
+            "status": "completed"
+          }
+        ],
+        "invocation_started_at": "2026-10-09T15:52:00.146586+00:00",
+        "semantics": "new invocation allocations; completed validated subjobs are reused; final evidence commit is outside execution deadlines"
+      }
+    ],
+    "queue_seconds": 0.027034909995563794,
+    "queue_time_in_budget": false,
+    "request_sha256": "da85f49dad1c7e5815c5b50923747a2b1a15a911dbaedf4c2148220d104475a7",
+    "run_dir": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-campaign-v3/measured/run_4dd92365f7954e3a8fe6978f3b4be52c",
+    "sample_plan": [
+      {
+        "molecule": {
+          "atom_ids": [
+            "nist-1",
+            "nist-2",
+            "nist-3",
+            "nist-4",
+            "nist-5",
+            "nist-6"
+          ],
+          "bonds": [],
+          "charge": 0,
+          "coordinate_units": "angstrom",
+          "coordinates": [
+            [
+              0.147625,
+              0.570129,
+              0.0
+            ],
+            [
+              0.004514,
+              1.505184,
+              0.0
+            ],
+            [
+              0.004514,
+              -1.415378,
+              0.0
+            ],
+            [
+              0.860388,
+              1.89121,
+              0.0
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              0.748572
+            ],
+            [
+              -0.54012,
+              -1.589896,
+              -0.748572
+            ]
+          ],
+          "environment": {
+            "phase": "gas"
+          },
+          "fragment_states": [
+            {
+              "atom_indices": [
+                0,
+                1,
+                3
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            },
+            {
+              "atom_indices": [
+                2,
+                4,
+                5
+              ],
+              "charge": 0,
+              "multiplicity": 1
+            }
+          ],
+          "fragments": [
+            [
+              0,
+              1,
+              3
+            ],
+            [
+              2,
+              4,
+              5
+            ]
+          ],
+          "isotopes": [
+            1,
+            16,
+            16,
+            1,
+            1,
+            1
+          ],
+          "multiplicity": 1,
+          "name": "NIST independent HF water dimer",
+          "stereochemistry": {},
+          "symbols": [
+            "H",
+            "O",
+            "O",
+            "H",
+            "H",
+            "H"
+          ]
+        },
+        "source": "INITIAL_SEED"
+      }
+    ],
+    "sampling_complete": false,
+    "search_summary": {
+      "candidate_observations": 1,
+      "completed_samples": 1,
+      "exhaustive": false,
+      "processed_samples": 1,
+      "requested_samples": 1,
+      "unique_eligible": 1,
+      "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately"
+    },
+    "software": {
+      "commit": null,
+      "dependencies": {
+        "h5py": "3.16.0",
+        "mendeleev": "1.3.0",
+        "networkx": "3.7",
+        "numpy": "2.5.3",
+        "pydantic": "2.14.0",
+        "scipy": "1.18.1"
+      },
+      "dirty": null,
+      "name": "CoChem-TOPOS",
+      "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "python": "3.12.15",
+      "revision_lookup": "installed distribution; source commit unavailable",
+      "source_files": {
+        "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+        "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+        "topos/abcluster.py": "224ff6299b7970e03a14b6413300babd62b5aa498d6e8e00940c962dbcd4eb1b",
+        "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+        "topos/actions/compute_worker.py": "2e730fb776fc3faa9e2ca7e99ea4adc46627edb429d1692f5e98ebd8f875d9df",
+        "topos/actions/dispatch.py": "1c97bf2e9b5401251e3ac6bbd2424af3182238ce2d19f5dd338774166f9f6ad5",
+        "topos/actions/hosted_requirements.py": "c0d5941e1c1699cbcf6ce2136dfe86ff2f5c5d39fb13fe586733dd63384bb777",
+        "topos/actions/hosted_worker.py": "98214cd01cc984f65b9c412371f30844ed7ee9675e0f70a56b6eb9b60e369e08",
+        "topos/actions/queue_budget.py": "84ed379f4beba635ce92f9b385993e56b8e3a140f24280e70fa03e1efe25aa7c",
+        "topos/advanced_workflow.py": "f7e2bab457309f83acb31f7df639a3c5bf5c7ab3ff8bd15da616af881a46cd8c",
+        "topos/anharmonic.py": "d70b8ccfc6fc50d3af9a998ae034b1f681ff337fb52162f50783704ee78314bc",
+        "topos/base_integration.py": "fab8681f90054f3a3d904c6877536a10ca60645055105924c788c36081436475",
+        "topos/base_provider.py": "8b029150a013aac12ff9a4b661b99a790dc9cbc8b6c2504ed01f6516f319a1e9",
+        "topos/budget.py": "a4671c6e66b7397a5fc2e7db2491f9b2d7c1bb116059fdd66fe33c49f85fb3dc",
+        "topos/campaign_authority.py": "810adf71091c6508b4a688f5a45f598a44e8bf490b000d537083c9665fd9df61",
+        "topos/capabilities.py": "b555567e80e23c6d58cc0ddce954fbb2ed47696e8a614fd01c19d9e5917fa533",
+        "topos/cfour_artifacts.py": "cdeafda9ff81391926511653384a5ffe3e7ddea071950dc34cf2872c6d8fa155",
+        "topos/cfour_controls.py": "d498416e2d1fa51b71277765f613d899e15023f0ceb0f8a7805e2f1bea00f8be",
+        "topos/cfour_corrections.py": "f55f0e825a78bb79d359354f3c11f5ec4630ca4d3bbb96a56499fb013281f64a",
+        "topos/cfour_counterpoise.py": "15528830ef982059674ef6b657d99e8a5ecfcc73e5a3d770f2247c1ea6bd3ab7",
+        "topos/cfour_dboc.py": "9a6a4c46f1f3a60729c8c73639d5ae4baf96a59c4f44917035608b8ec3c2066c",
+        "topos/cfour_dependencies.py": "88c73a196d171e553378cdd9b819f4356d271264e34bcfb713454a7595694117",
+        "topos/cfour_efg.py": "64e056fe302be067a8774d098c4657f00f28e42f3faf9e19680bfb767134145d",
+        "topos/cfour_gradient.py": "13b4e963dc6944fae57fa6ba46dddb5d584cfbac2039f50536b7536955d317c2",
+        "topos/cfour_memory.py": "226b4586b9dd0b7f9b3bedbc35d12f4dada1be9a8bd85f1b4510e6089d43cd0d",
+        "topos/cfour_operator.py": "0c49dc856c0c7c7cebd275d59311d827943adb2d56f81a14e328fc33de35211d",
+        "topos/cfour_properties.py": "66b4ab548c764f46b8b1e5209a59bc5d924290f14f03999b5c7dd3891b4ead2a",
+        "topos/cfour_scf.py": "287cbd3ab9ed8ea2792207c6616455c8ee277c538a752a59110b10d96aa65d96",
+        "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+        "topos/cli/__init__.py": "dbda53edc588edbd7e7df0589323f799670dc4ac6572d03f18f4b027e7ca6c7d",
+        "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+        "topos/composites.py": "cd82a0de497674afe5aedfa58a1b1ce3288576c16d0a02b6022442a877f47865",
+        "topos/config.py": "5a382e0358b84ae3325a46c3209eb3621ac9fbe651c4002362e4daeb0fc337ff",
+        "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+        "topos/correlated.py": "05539e2e993475bcdc7934660a8c246d9178355b19e213421d39f3e7709367e9",
+        "topos/correlated_counterpoise.py": "a144cf5669803b0546a87f434f5f85790a5b6090741a571753759894722fd614",
+        "topos/correlated_workflow.py": "4b1af015ac0cf84868e69b9a64ab99cbff1c2e71e3ff5ea999cad8077e0e4c08",
+        "topos/counterpoise.py": "73fcfb21c6887feb7aa39a16d31979a5163eee2dae15c03d2769dbf9e119eabf",
+        "topos/data/__init__.py": "f0125cb306990c6f037cadb6ea8beeb0683824a077b3ed5cc3959745e66a1227",
+        "topos/data/method_matrix_v4.py": "c6dda9afa3f93bb0b0dd96c198d412ac335b2e55d63be735ee98a3657af4683d",
+        "topos/data/reviewed_matrix_v010.py": "6eb430aba1902e6bafdadc8b15b422017711f45b6ce8bf200bcc287930e8bcb5",
+        "topos/data/runtime_recipes.py": "76f3f0288298c424e2fbaf9cee8d2eaba62d330b2740ea875da2c822a36681eb",
+        "topos/energy_composite.py": "9e717af7449655a6b9d6e842fd5e67b3f839d3b20f23995bfbb096781d876621",
+        "topos/engines.py": "3edc1e1bb1b7527113e0c4feff542192ac3b0977aa14bccc07712b73c3b03236",
+        "topos/ensemble_tools.py": "4607ed54f230f0605e629db267c13d129800ba8b04416d2313a02e284409573a",
+        "topos/entropy.py": "2050d23227ff5dff7bf13c903fea4b7e27a573d05b27b83c5438e08b536af5ca",
+        "topos/external_engines.py": "44fc8eeb773ec28c239882b72b8ab07871aff1dc0c38a43e884a4472fbc21dfb",
+        "topos/external_matrix_workflow.py": "94d014043a5c1f7209e4b645ef53ffba3d6e8c20ec005b1144d556f0d1ef8c85",
+        "topos/fragments.py": "37202905340eaf07238c6b040b9c61b3f9c1a432ab63bc155ebd932622d6ac92",
+        "topos/goat.py": "e30fd73d225eaea6d881e5e5a992bb0cb4ab5ae9916c82f744a663b27c8e7d2f",
+        "topos/higher_composite.py": "ad571ce58c147ae4fde3f9aa5d233052faf20e93521db3807c5ae4081332537f",
+        "topos/ingestion.py": "502c6e5d2763bfaf39086edc23bc1ba4a59694f906357d5840a3f05a4db3b983",
+        "topos/matrix_campaign.py": "68f34a5aae871284ad223cd3dbb81d367b76a4217eccecea0d749476299630c5",
+        "topos/matrix_components.py": "dd2a60c28c697669ce455839bd204f0a533f7b3f1f857c8fe7ce040e48a2dd5f",
+        "topos/matrix_diversity.py": "57f2b69dc980aa613d506161f91c2b81b5e0c33fb72a2ce712c724872d083478",
+        "topos/matrix_entropy.py": "7a12802ab1c07341cf3f9e0212ed728ff0b614588c32b42c68c494ab4e905160",
+        "topos/matrix_ml_search.py": "5da93348b3142324cd07e8d152f090dde46ca9e344c68b7b59e272de5532c6d2",
+        "topos/matrix_ml_training.py": "fc7b836795c995bbdaddf125e52d039f5e98785d95c7c991ed326261aaf7aa1f",
+        "topos/matrix_r2.py": "05cd31ac64a8658d84727a5bc5e65f6c1d484cdd1157a8d9697a132325d852bc",
+        "topos/matrix_sources.py": "e2a74f1a2aa6c5b8b43e22741801939bf087ba4fe8ff32ff224fffae03f4ce64",
+        "topos/matrix_union.py": "0a4e478a86dea2e47c672c1387cc3149970ed41d752902be2f224782830bd0c9",
+        "topos/matrix_workflow.py": "b93bf1069c361995614de930164a0b443f9979139d7983c350ec3065510f6e24",
+        "topos/method_matrix.py": "b86b8eafcfb371f6b83005cdb900a79e34400bf1fc45b4e30a5c93ed6d3c5103",
+        "topos/ml.py": "7a83713ec57ef7fa9779ed749e465292c2a6d0a7ead35e662fc4ce49e2e5e0c7",
+        "topos/ml_crest.py": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e",
+        "topos/ml_extopt.py": "0c4ede7d7d668cc77b479b6f79ea86a5c7fea68d4ce4d52a4b52f07376ba3332",
+        "topos/ml_training.py": "d43ed9deb4a3df240b1e864fc08934964558ed6791e19d3d0c530ed91b7ff0a3",
+        "topos/ml_training_worker.py": "281081f60dfb1749d002c431ec2f1f964f58f6934aad4f40746993ba24216ce3",
+        "topos/ml_worker.py": "0e5d47a34cba9e8a855054d32ba51ee0dadbbe724ae571ddde9a8e8f60d72087",
+        "topos/ml_workflow.py": "2084fcb1c358daba063857ad71a0d1f6abe69a93c411496ffd8ad16dbd791c37",
+        "topos/models.py": "c2364be0b06addfd243346cd0e294b03808cf867f731c93adb06dc58f07ce4ca",
+        "topos/month_geometry.py": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92",
+        "topos/native_diagnostics.py": "362147f9857c99a8cf7aba259f4708db549c50b96c612b0ed07a579148cdaba3",
+        "topos/native_hessian.py": "835333f0ba963129ae7d5fb08a899a4203af0a73684f12ec0b622a712e3bb0ef",
+        "topos/native_mass_rotors.py": "950565073bf33bb88d2ba20cff117491834621cd82a191e655cec4f48ed3b940",
+        "topos/orca_basis_names.py": "d538fea40c80f3ce6c98f3470cdecbcf1be67414a929a850e996c3797406318d",
+        "topos/orca_f12_composite.py": "b6d917761aa2f8bf0805a98a91b89b4763f7e2e03c86ed58da574f331e6cef85",
+        "topos/orca_geometry_evidence.py": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814",
+        "topos/orca_numerical_geometry.py": "0657b11f8300573efb38426479c3a930baf59ddc5a7e5bc967b12edc01aac47f",
+        "topos/orca_numerical_profiles.py": "6909d29bf6c0158f0b79fe098aa2bdde8e42e2341a7d6dd355408a57ad9f3447",
+        "topos/orca_scf_continuation.py": "1b8cdd6a613835a9447e3bf0e65f911b017a7b3367e4b78f475aa87edbfe8eaa",
+        "topos/orca_scf_exhaustion.py": "d478253f251db55030dae4230f5db3c558b7d4502adb3a5e242711da54de520d",
+        "topos/publication.py": "34c59f08de0d4160b67fc9c17cfe6562b1286d07b68f71e307bbbb530a3a32c1",
+        "topos/reference_interaction.py": "8247f47dfd6ccf81bce9840b907f1753b69eddf24d1664335d6d7ee0e5c6bfaa",
+        "topos/reference_thermal.py": "63683af63390f20616c1240b6bf609e77792b3c642803ea6a3d5226d0ac1a930",
+        "topos/references.py": "e7c5681d3c17f432e96c116f9f1538202b2345c0ae816c522ca449b41bac3342",
+        "topos/release.py": "4c3f012581207d60939d35fc67e7d2fcfba0ee5d2cdfde4f5b628370d7b1b8eb",
+        "topos/remote_workflow.py": "84ef641874bb8e368114964d36418140e47618f8aa06f23939a526965f0e606d",
+        "topos/reporting.py": "e8116f7bab85682c9770a5a63f1022c1d429cbfb89aa28fca0a3ca1c5466d86b",
+        "topos/review.py": "a5244e1fedb8471b14f56e10977113ddd70b60a39723360146de138e5cb14eed",
+        "topos/rotational_transfer.py": "3e20874b549ce4e117cef50c62fb017cb52d21b843a2daf20fc2d641ab9cbaec",
+        "topos/runtime.py": "7d848af18f096ad6d19607bac7d964112545def2a1714368e4184fa130bce294",
+        "topos/sampling.py": "1b67e3ed887dc29431fdc91f477738f5697f32e68d2eca5a84d254be4e126b53",
+        "topos/scans.py": "92216f8a75496e1d6fb84b2fb0170c60cf119323cbd8aa4b695864756804e01f",
+        "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+        "topos/scientific_references.py": "0a32a81878ff1ff90e10c1c2ffacf06534507a687a176bd2eab47bb738517637",
+        "topos/storage.py": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732",
+        "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+        "topos/symmetry.py": "9a5db0424a0d4a0cd93ffe3328f0fd94bffe0d29010a9077dabb9b316e5e3fd7",
+        "topos/thermochemistry.py": "de96551658e9f7b0fab5feda0625b94a8108e43270241c6306949c2f891ac736",
+        "topos/ui.py": "1f847636d41fecf49c12e7d044cd8d24fb346543f7c42d979b0bfab8469c6f86",
+        "topos/workflow.py": "7f23041e18ece5a17a55ea22f37b7e15ffc005311d04a51b69a4a36adca93ae0"
+      },
+      "version": "0.1.0"
+    },
+    "stationary_point_classification": "not-evaluated: no frequency Hessian",
+    "total_invocation_seconds": 87.65804259400466
+  },
+  "request": {
+    "abcluster_options": null,
+    "auxiliary_basis": null,
+    "basis": "def2-TZVPP",
+    "budget_scope": "workflow",
+    "budget_seconds": 7200.0,
+    "calculation_environment": "local",
+    "collapse_enantiomers": false,
+    "constraints": {},
+    "dedup_energy_threshold_kcal_mol": 0.05,
+    "dedup_rotational_threshold_fraction": 0.01,
+    "deduplication_stage": "generation",
+    "device": "cpu",
+    "dipole_method_error_debye": null,
+    "dispersion": null,
+    "energy_window_kcal_mol": 6.0,
+    "engine": "orca",
+    "engine_version": "6.1.1",
+    "environment_is_achiral": null,
+    "include_queue_in_budget": false,
+    "matrix_inputs": {},
+    "matrix_product": "A",
+    "matrix_revision": "topos-0.1.0-supported-profile-v1",
+    "matrix_row_id": null,
+    "memory_mb": 4096,
+    "metadata": {},
+    "method": "HF",
+    "molecule": {
+      "atom_ids": [
+        "nist-1",
+        "nist-2",
+        "nist-3",
+        "nist-4",
+        "nist-5",
+        "nist-6"
+      ],
+      "bonds": [],
+      "charge": 0,
+      "coordinate_units": "angstrom",
+      "coordinates": [
+        [
+          0.147625,
+          0.570129,
+          0.0
+        ],
+        [
+          0.004514,
+          1.505184,
+          0.0
+        ],
+        [
+          0.004514,
+          -1.415378,
+          0.0
+        ],
+        [
+          0.860388,
+          1.89121,
+          0.0
+        ],
+        [
+          -0.54012,
+          -1.589896,
+          0.748572
+        ],
+        [
+          -0.54012,
+          -1.589896,
+          -0.748572
+        ]
+      ],
+      "environment": {
+        "phase": "gas"
+      },
+      "fragment_states": [
+        {
+          "atom_indices": [
+            0,
+            1,
+            3
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        },
+        {
+          "atom_indices": [
+            2,
+            4,
+            5
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        }
+      ],
+      "fragments": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          2,
+          4,
+          5
+        ]
+      ],
+      "isotopes": [
+        1,
+        16,
+        16,
+        1,
+        1,
+        1
+      ],
+      "multiplicity": 1,
+      "name": "NIST independent HF water dimer",
+      "stereochemistry": {},
+      "symbols": [
+        "H",
+        "O",
+        "O",
+        "H",
+        "H",
+        "H"
+      ]
+    },
+    "n_candidates": 1,
+    "per_ensemble_budget_seconds": null,
+    "per_geometry_budget_seconds": null,
+    "perturbation_angstrom": 0.15,
+    "presentation_environment": "local",
+    "profile_id": "orca-vpt2-reference-v1",
+    "purpose": "optimize",
+    "rmsd_threshold_angstrom": 0.125,
+    "sampler_budget_fraction": 0.5,
+    "sampler_nci": false,
+    "sampler_profile": "crest-imtdgc-v1",
+    "search_algorithm": "jiggle-quench",
+    "seed": 0,
+    "solvent": null,
+    "starting_geometries": [],
+    "symmetry_tolerance_angstrom": 0.001,
+    "temperature_k": 298.15,
+    "thermochemistry_options": {
+      "concentration_mol_l": null,
+      "cutoff_cm1": 10.0,
+      "frequency_scale": 1.0,
+      "low_frequency_policy": "reject",
+      "optimize_first": true,
+      "pressure_pa": 101325.0,
+      "step_bohr": 0.005,
+      "symmetry_number": null
+    },
+    "threads": 2
+  },
+  "run_id": "run_4dd92365f7954e3a8fe6978f3b4be52c",
+  "schema_version": "topos/0.1.0",
+  "status": "completed",
+  "updated_at": "2026-10-09T15:53:27.800189+00:00",
+  "validation_status": "human-review"
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "retained-cartesian-gradient-decomposition/1",
+  "scope": "Diagnostic Euclidean least-squares projection onto six rigid motion generators only. Production raw Cartesian gradient thresholds/failed status remain unchanged; projected values are not alternative acceptance criteria and do not establish the cause.",
+  "original_native_topos_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+  "run_id": "run_df93d386d610473bb58c49a9404dc044",
+  "record_sha256": "77dd770e6a38f2ab8ba7ae1318a7987f664f91a8aea8e67389cb3f1e2646ef95",
+  "gradient_artifact_path": "attempts/attempt_38c7d22b29fe44d68e28bbbc254c188f/optimization-refinement-3/final-gradient/job.engrad",
+  "gradient_artifact_sha256": "e5c43a2cfb797d329cb5da415ebaa678c9c30730c811d412b226049f2eef072c",
+  "energy_hartree": -189.763786187255,
+  "raw_gradient": {
+    "max_hartree_per_bohr": 3.00253e-07,
+    "rms_hartree_per_bohr": 1.4654781414405334e-07
+  },
+  "rigid_projection": {
+    "max_hartree_per_bohr": 3.0017398524556255e-07,
+    "rms_hartree_per_bohr": 1.465468719656069e-07
+  },
+  "internal_projection": {
+    "max_hartree_per_bohr": 1.46887748620967e-09,
+    "rms_hartree_per_bohr": 5.254973796579592e-10
+  },
+  "six_rigid_generator_singular_values": [
+    5.033163133315108,
+    4.120763860779309,
+    2.8899889844526325,
+    2.2360679774997902,
+    2.23606797749979,
+    2.23606797749979
+  ],
+  "translation_gradient_sum_hartree_per_bohr": [
+    4.9999999999792e-12,
+    1.0000000000143688e-12,
+    -2.0679515313825692e-25
+  ],
+  "rotation_torque_hartree": [
+    -8.401305064093451e-10,
+    -2.868803347713756e-10,
+    -2.8566901786591914e-06
+  ],
+  "raw_stationarity_diagnostic": {
+    "max_gradient_hartree_per_bohr": 3.00253e-07,
+    "max_gradient_threshold": 1e-07,
+    "passed": false,
+    "rms_gradient_hartree_per_bohr": 1.4654781414405334e-07,
+    "rms_gradient_threshold": 3e-08,
+    "scope": "independent final EnGrad; no Hessian classification"
+  },
+  "interpretation_limit": "A large rigid rotational component is consistent with orientation-dependent numerical quadrature. This decomposition alone cannot independently identify quadrature as the sole cause or certify an optimized minimum."
+}

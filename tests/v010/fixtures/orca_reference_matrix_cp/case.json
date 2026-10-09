@@ -1,0 +1,192 @@
+{
+  "case_id": "original-S66-1-CP",
+  "chemistry_domain": "original S66-1 six-atom frozen water-water dimer electronic interaction",
+  "citation": {
+    "extraction_notes": "Primary10.1021/ct2002946;rawproviderSHA=02fdf4462db6d6aa87c4846e055a9752c6cbb2be27a89518f95be2cb6d34e2c6;literalgeometrySHA=14d133d1084e847d72618c199fc16f7cfa104036ddaad1dff45b380486aeaf3c;ASTconstant extraction only, downloaded code not imported;\u22124.918kcal/mol divided by627.5094740631.",
+    "kind": "data-repository",
+    "locator": "https://github.com/psi4/psi4/blob/23be3de4b1f6cd70e337b98a2a200008cf350274/psi4/share/psi4/databases/S66.py",
+    "title": "Original S66-1 water-water CCSD(T)/CBS reference, pinned officialPsi4 provider"
+  },
+  "comparison_rationale": "Existing genuine namedT5-1h five-leg CP/basis-export route; lower-costwB97M-V/def2TZVPP accuracy benchmark against exactoriginalCCSD(T)/CBS, no global method-matrix claim; immutableprospective-v2SHA=2a24d2db07251d2840c413d7ae81c67c8b4ef1a1f8d6588f3ea38a3902e5805c",
+  "datum_id": "original-S66-1-CP",
+  "definition": "counterpoise-corrected electronic interaction energy at the predeclared frozen complex geometry; no relaxation, ZPE or thermal corrections",
+  "engine_version": "6.1.1",
+  "geometry_role": "frozen-complex-geometry",
+  "observable": "cp_interaction_energy",
+  "reference_file": "original-S66-1-CP.json",
+  "reference_protocol": {
+    "basis": "original S66 CBS extrapolation protocol",
+    "core_treatment": "original published correlated reference convention; exact provider version retained",
+    "counterpoise": "original electronic Boys-Bernardi corrected interaction at original frozen geometry",
+    "energy_zero": "E_complex minus sum frozen monomers; no ZPE/relaxation/thermal correction",
+    "geometry_convention": "Exact pinned original S66-1 six-atom eight-decimal water-water geometry; fragments remain unrelaxed",
+    "geometry_role": "frozen-complex-geometry",
+    "geometry_sha256": "d5e1ea1601789de040dba88c086b67c41764722180c913f2d212bc1b2120c335",
+    "isotope_mass_convention": "Explicit1H/16O identities; electronic CP mass independent, ghosts never physical atoms",
+    "method": "original independent S66 CCSD(T)/CBS",
+    "source_limitations": "Source-4.918kcal/mol has no pointwise uncertainty; revised-5.011/GMTKN rounded4.92 series excluded. EvaluatedwB97M-V lower-cost DFT intentionally differs from CCSD(T)/CBS.",
+    "state_and_environment": "both monomers neutral singlet; isolated gas complex neutral singlet"
+  },
+  "reference_sha256": "ed036d25ddccb670c38967b742aa4e518840ee9d0ed69ce9fe0359d1cc4ad727",
+  "request": {
+    "abcluster_options": null,
+    "auxiliary_basis": "def2/J",
+    "basis": "def2-TZVPP",
+    "budget_scope": "workflow",
+    "budget_seconds": 7200.0,
+    "calculation_environment": "local",
+    "collapse_enantiomers": false,
+    "constraints": {},
+    "dedup_energy_threshold_kcal_mol": 0.05,
+    "dedup_rotational_threshold_fraction": 0.01,
+    "deduplication_stage": "generation",
+    "device": "cpu",
+    "dipole_method_error_debye": null,
+    "dispersion": null,
+    "energy_window_kcal_mol": 6.0,
+    "engine": "orca",
+    "engine_version": "6.1.1",
+    "environment_is_achiral": null,
+    "include_queue_in_budget": false,
+    "matrix_inputs": {},
+    "matrix_product": "A",
+    "matrix_revision": "method-matrix-v4-2026-08-09",
+    "matrix_row_id": "T5-1h",
+    "memory_mb": 4096,
+    "metadata": {},
+    "method": "wB97M-V",
+    "molecule": {
+      "atom_ids": [
+        "s66-1",
+        "s66-2",
+        "s66-3",
+        "s66-4",
+        "s66-5",
+        "s66-6"
+      ],
+      "bonds": [],
+      "charge": 0,
+      "coordinate_units": "angstrom",
+      "coordinates": [
+        [
+          -0.70219605,
+          -0.05606026,
+          0.00994226
+        ],
+        [
+          -1.02219322,
+          0.84677578,
+          -0.01148871
+        ],
+        [
+          0.25752106,
+          0.0421215,
+          0.005219
+        ],
+        [
+          2.22087107,
+          0.02671679,
+          0.00062048
+        ],
+        [
+          2.59749268,
+          -0.41166327,
+          0.76674486
+        ],
+        [
+          2.59313538,
+          -0.44949618,
+          -0.74478203
+        ]
+      ],
+      "environment": {
+        "phase": "gas"
+      },
+      "fragment_states": [
+        {
+          "atom_indices": [
+            0,
+            1,
+            2
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        },
+        {
+          "atom_indices": [
+            3,
+            4,
+            5
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        }
+      ],
+      "fragments": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          3,
+          4,
+          5
+        ]
+      ],
+      "isotopes": [
+        16,
+        1,
+        1,
+        16,
+        1,
+        1
+      ],
+      "multiplicity": 1,
+      "name": "original S66-1 frozen water-water electronic interaction",
+      "stereochemistry": {},
+      "symbols": [
+        "O",
+        "H",
+        "H",
+        "O",
+        "H",
+        "H"
+      ]
+    },
+    "n_candidates": 1,
+    "per_ensemble_budget_seconds": null,
+    "per_geometry_budget_seconds": null,
+    "perturbation_angstrom": 0.15,
+    "presentation_environment": "local",
+    "profile_id": "orca-mapping-v4.2",
+    "purpose": "matrix",
+    "rmsd_threshold_angstrom": 0.125,
+    "sampler_budget_fraction": 0.5,
+    "sampler_nci": false,
+    "sampler_profile": "crest-imtdgc-v1",
+    "search_algorithm": "jiggle-quench",
+    "seed": 0,
+    "solvent": null,
+    "starting_geometries": [],
+    "symmetry_tolerance_angstrom": 0.001,
+    "temperature_k": 298.15,
+    "thermochemistry_options": {
+      "concentration_mol_l": null,
+      "cutoff_cm1": 10.0,
+      "frequency_scale": 1.0,
+      "low_frequency_policy": "reject",
+      "optimize_first": true,
+      "pressure_pa": 101325.0,
+      "step_bohr": 0.005,
+      "symmetry_number": null
+    },
+    "threads": 2
+  },
+  "tolerance": {
+    "absolute": 0.00015936014376405157,
+    "rationale": "Prospective pointwise engineering target of0.1 kcal/mol, motivated by the original S66 high-quality methods' approximately0.08 kcal/mol dataset RMSE and benchmark precision goals. Dataset RMSE does not certify this point's uncertainty; no per-point source uncertainty is available.",
+    "relative": 0.0
+  },
+  "units": "hartree"
+}
