@@ -31,6 +31,12 @@ class SystemConfig(BaseModel):
     remote_ref: str = "main"
     remote_base_commit: str = Field(default=DEFAULT_REMOTE_BASE_COMMIT, pattern=r"^[0-9a-f]{40}$")
     remote_controller_profile: Literal["free", "legacy-topos-orca"] = "free"
+    # Lab workstation queue: the user's assigned Drive folder (synced path or
+    # drive.google.com link). Unset values fall back to the environment and to
+    # the folder assigned in CoChem-BASE.
+    workstation_folder: str | None = Field(default=None, max_length=1024)
+    workstation_student_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
+    workstation_template: str = Field(default="topos_run", pattern=r"^[A-Za-z0-9_-]{1,64}$")
 
 
 def load_config(path: Path | str | None = None) -> SystemConfig:
@@ -48,6 +54,10 @@ def load_config(path: Path | str | None = None) -> SystemConfig:
     if os.environ.get("TOPOS_REMOTE_BASE_COMMIT"):
         config = SystemConfig.model_validate({**config.model_dump(),
                                              "remote_base_commit": os.environ["TOPOS_REMOTE_BASE_COMMIT"]})
+    for variable, field in (("TOPOS_WORKSTATION_FOLDER", "workstation_folder"),
+                            ("TOPOS_WORKSTATION_STUDENT", "workstation_student_id")):
+        if os.environ.get(variable):
+            config = SystemConfig.model_validate({**config.model_dump(), field: os.environ[variable]})
     if os.environ.get("TOPOS_REMOTE_CONTROLLER_PROFILE"):
         config = SystemConfig.model_validate({**config.model_dump(),
                                              "remote_controller_profile": os.environ["TOPOS_REMOTE_CONTROLLER_PROFILE"]})

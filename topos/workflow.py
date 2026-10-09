@@ -166,6 +166,12 @@ class Workflow:
             from .remote_workflow import run_remote
 
             return run_remote(self, request, cancel_event=cancel_event)
+        if request.calculation_environment == "workstation":
+            if invocation_budget_seconds is not None or invocation_budget_context is not None:
+                raise ValueError("Initial invocation controls apply only inside the assigned local worker")
+            from .workstation import run_workstation
+
+            return run_workstation(self, request, cancel_event=cancel_event)
         allocated = request.budget_seconds if invocation_budget_seconds is None else max(
             0.0, invocation_budget_seconds - (time.monotonic() - preparation_started)
         )
@@ -240,6 +246,11 @@ class Workflow:
                 return resume_remote(self, record, store, cancel_event=cancel_event,
                                      invocation_budget_seconds=invocation_budget_seconds,
                                      original_request=stored["request"])
+            if record.request.calculation_environment == "workstation":
+                from .workstation import resume_workstation
+
+                return resume_workstation(self, record, store, cancel_event=cancel_event,
+                                          original_request=stored["request"])
             if (
                 digest_json(stored["request"])
                 != record.metadata.get("request_sha256")
