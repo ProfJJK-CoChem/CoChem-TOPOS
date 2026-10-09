@@ -25,6 +25,13 @@ PROFILES = {
         "validation_scope": "genuine historical-source water consistency diagnostic; other routes require separate live acceptance",
         "numerical_profile_sha256": numerical_profile_receipt(MAPPING_V42)["definition_sha256"],
     },
+    "orca-vpt2-reference-v1": {
+        "engine": "orca",
+        "convergence": "Existing ExtremeSCF/DEFGRID3 profile; strict optimizer and independent final-gradient gates",
+        "purpose": "unconstrained stationary derivative reference",
+        "source": "topos/engines.py; topos/anharmonic.py",
+        "validation_scope": "Admission of the existing native profile only; actual stationarity, Hessian and VPT2 completion are verified per execution",
+    },
     "orca-mapping-v4.1": {
         "engine": "orca",
         "convergence": "mapping-v4.1 explicit thresholds",
