@@ -314,7 +314,7 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
                           metadata={"execution_kind": "not-executed", "manual": FREQUENCY_MANUAL,
                                     "requested_method": method.model_dump(mode="json"),
                                     "derivative_kind": "native-analytic-SCF-Hessian",
-                                    "analytic_restart_policy": "reuse completed hashed stages; restart interrupted Freq in fresh scratch"})
+                                    "analytic_restart_policy": "reuse completed hashed stages; restart interrupted Freq in fresh scratch; profile v4.2 permits one bounded same-input own-Freq-GBW electronic continuation"})
     profile_receipt = numerical_profile_receipt(method.profile_id)
     if profile_receipt is not None:
         result.metadata["numerical_profile"] = profile_receipt
@@ -429,6 +429,30 @@ def run_orca_hessian(molecule: Molecule, method: MethodSpec, resources: Resource
             raise EngineParseError("native analytic frequency completion/energy unverified")
         if profile_receipt is not None:
             evidence = observe_scf_numerical_profile(raw)
+            if evidence["passed"] is not True:
+                from .orca_scf_continuation import continue_frequency_scf
+
+                continued = continue_frequency_scf(result.command, native, resources, process, raw,
+                    deadline=started + resources.budget_seconds, cancel_event=cancel_event,
+                    execute_process=execute)
+                result.artifacts = reference.artifacts.copy() + artifact_inventory(native)
+                if stopped():
+                    return result
+                if continued is not None:
+                    process, raw, stderr, binding = continued
+                    result.diagnostics["scf_continuation"] = binding
+                    result.diagnostics["process"] = process.to_dict()
+                    result.status = process.status
+                    if process.status != "completed":
+                        result.diagnostics["reason"] = process.reason
+                        return result
+                    energies = re.findall(r"FINAL SINGLE POINT ENERGY\s+(" + _FLOAT + ")", raw)
+                    if (_engine_version(raw + stderr, "orca") != ORCA_VERSION
+                            or "ORCA TERMINATED NORMALLY" not in raw or not energies
+                            or "SCF CONVERGED AFTER" not in raw
+                            or re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw + stderr, re.I)):
+                        raise EngineParseError("Native Freq continuation version/termination/convergence is invalid")
+                    evidence = observe_scf_numerical_profile(raw)
             result.diagnostics["scf_numerical_profile"] = evidence
             if evidence["passed"] is not True:
                 raise EngineParseError("Explicit ORCA Hessian numerical profile not achieved: " + "; ".join(evidence["failures"]))

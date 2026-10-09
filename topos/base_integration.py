@@ -561,7 +561,7 @@ print(json.dumps(result,sort_keys=True))
         probe = self._execute_authorized(probe_command, folder, remaining(), authority, engine=engine,
                                          cancel_event=cancel_event, log_prefix=log_prefix + "-authority",
                                          output_limit_mb=4, cuda_visible_devices=str(gpu_index) if gpu_index is not None else None,
-                                         gpu_memory_mb=gpu_memory_mb)
+                                         isolated_python=True, gpu_memory_mb=gpu_memory_mb)
         if probe.status != "completed":
             if probe.status in {"cancelled", "timed-out"}:
                 return probe
@@ -889,6 +889,10 @@ print(json.dumps(result,sort_keys=True))
             # this fixed workspace policy before its first matrix operation.
             supplied["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
         if isolated_python:
+            # The audited silo owns its native dependencies. Host engine paths
+            # can otherwise replace Torch's C++ runtime before Python imports.
+            supplied.pop("LD_LIBRARY_PATH", None)
+            supplied.pop("DYLD_LIBRARY_PATH", None)
             supplied.update(PYTHONSAFEPATH="1", PYTHONNOUSERSITE="1")
         if engine == "orca":
             # The BASE installer deliberately does not alter the controller

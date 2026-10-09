@@ -1,0 +1,22 @@
+{
+  "scope": "Retained genuine native parser/policy fixtures; not current-source scientific acceptance",
+  "source_pin": "922d5c77476c2ddc855cba3dd4fa7b87a4d7bc06",
+  "proposal_sha256": {
+    "native_hessian.py": "835333f0ba963129ae7d5fb08a899a4203af0a73684f12ec0b622a712e3bb0ef",
+    "orca_scf_continuation.py": "5dc4f169f669f29961d0ccf5d4a4e327bcd2572b0527db13562a7bed9df985fc"
+  },
+  "raw_sha256": {
+    "continued-frequency.stdout": "7994523fe4dad3517f0a3a96aec3411b6a1bbe38c6a2e9af155aeadf8ed00bbb",
+    "frequency.inp": "c6cac3d93bfbe54908c7177eaeae00c8941ec1e000917c29cd454348b178f59b",
+    "initial-frequency.stdout": "15cfa22a63af80b31de5b782aec6814bbeda38d9bb6f76690557119f5d1b6c0f"
+  },
+  "initial_active_scf_failure": [
+    "active final criterion not achieved: RMS-Density change"
+  ],
+  "final_scf_passed": true,
+  "unchanged_input_sha256": "c6cac3d93bfbe54908c7177eaeae00c8941ec1e000917c29cd454348b178f59b",
+  "own_initial_gbw_sha256": "a7f52c7d793287fb888daf3583bf5593f2c677a404f9e56b260a3ce6e37c0d77",
+  "native_executable_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea",
+  "native_diagnostic_root": "/tmp/cochem-topos-workstation-20261008/evidence/orca-hessian-continuation-v4",
+  "licensed_executable_or_orbitals_included": false
+}

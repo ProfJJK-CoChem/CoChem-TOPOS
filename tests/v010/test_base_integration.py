@@ -456,11 +456,14 @@ def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime,
     monkeypatch.setenv("GITHUB_ACTIONS", "true")
     monkeypatch.setenv("RUNNER_ENVIRONMENT", "github-hosted")
     monkeypatch.setenv("OMPI_unrelated_token", "must-not-leak")
+    monkeypatch.setenv("LD_LIBRARY_PATH", "/unrelated-engine/lib")
+    monkeypatch.setenv("COCHEM_ORCA_LD_LIBRARY_PATH", "/reviewed-orca/lib")
     authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
                                    cores=2, maxcore_mb=64)
     command = [str(Path(sys.executable).absolute()), "-c",
                "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS']); "
                "print(os.environ['OMPI_MCA_rmaps_base_mapping_policy']); "
+               "assert 'LD_LIBRARY_PATH' in os.environ and os.environ['LD_LIBRARY_PATH']=='/reviewed-orca/lib'; "
                "assert 'OMPI_unrelated_token' not in os.environ"]
     resources = ResourceLimits(threads=2, memory_mb=256, budget_seconds=10)
     result = runtime._execute_authorized(command, tmp_path / "mpi-path-probe", resources,
@@ -471,6 +474,31 @@ def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime,
     with pytest.raises(BaseIntegrationError, match="MPI launcher"):
         runtime._execute_authorized(command, tmp_path / "changed-mpi", resources,
                                     authority, engine="orca")
+
+
+
+@pytest.mark.parametrize("engine", ["mace", "aimnet2"])
+def test_isolated_python_broker_excludes_host_engine_library_paths(runtime, tmp_path, monkeypatch, engine):
+    """Actual Python broker child checks isolation, without claiming ML inference."""
+    host_libraries = "/unrelated-orca/lib:/unrelated-openmpi/lib"
+    monkeypatch.setenv("LD_LIBRARY_PATH", host_libraries)
+    monkeypatch.setenv("DYLD_LIBRARY_PATH", "/unrelated-native/lib")
+    authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
+                                   cores=1, maxcore_mb=64)
+    code = """import json,os
+assert 'LD_LIBRARY_PATH' not in os.environ and 'DYLD_LIBRARY_PATH' not in os.environ
+assert os.environ['PYTHONSAFEPATH'] == os.environ['PYTHONNOUSERSITE'] == '1'
+assert os.environ['OMP_NUM_THREADS'] == os.environ['OPENBLAS_NUM_THREADS'] == '1'
+print(json.dumps({'isolated': True}))
+"""
+    result = runtime._execute_authorized([authority.executable, "-I", "-c", code],
+        tmp_path / engine, ResourceLimits(memory_mb=256, budget_seconds=10), authority,
+        engine=engine, isolated_python=True,
+        environment={"LD_LIBRARY_PATH": "/another-engine/lib", "DYLD_LIBRARY_PATH": "/another-native/lib"})
+    assert result.status == "completed", result
+    assert json.loads(Path(result.stdout_path).read_text()) == {"isolated": True}
+    assert os.environ["LD_LIBRARY_PATH"] == host_libraries
+    assert os.environ["DYLD_LIBRARY_PATH"] == "/unrelated-native/lib"
 
 
 def test_training_engine_guard_uses_actual_base_dictionary_schema(runtime, tmp_path, monkeypatch):
