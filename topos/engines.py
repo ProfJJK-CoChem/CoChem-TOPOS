@@ -752,12 +752,6 @@ def _run_engine_once(
             actual_version = _engine_version(raw, "orca")
             if actual_version != result.engine_version:
                 raise EngineParseError("ORCA production header does not match the verified engine version")
-            if "ORCA TERMINATED NORMALLY" not in raw:
-                raise EngineParseError("ORCA normal termination absent")
-            if "SCF CONVERGED AFTER" not in raw:
-                raise EngineParseError("ORCA electronic convergence marker absent")
-            if re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I):
-                raise EngineParseError("ORCA SCF failed to converge")
             if profile_receipt is not None:
                 from .orca_numerical_profiles import observe_scf_numerical_profile
 
@@ -767,7 +761,12 @@ def _run_engine_once(
 
                     continued = continue_ordinary_scf(command, folder, resources, process, raw,
                         operation=operation, deadline=start + resources.budget_seconds,
-                        cancel_event=cancel_event, execute_process=execute_process)
+                        cancel_event=cancel_event, execute_process=execute_process, stderr=stderr)
+                    if ((cancel_event is not None and cancel_event.is_set())
+                            or time.monotonic() >= start + resources.budget_seconds):
+                        result.status = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out"
+                        result.diagnostics["reason"] = "Native SCF continuation stopped within the original attempt budget"
+                        return result
                     if continued is not None:
                         process, raw, stderr, binding = continued
                         result.diagnostics["scf_continuation"] = binding
@@ -783,6 +782,13 @@ def _run_engine_once(
                             raise EngineParseError("Native SCF continuation version/termination/convergence is invalid")
                         evidence = observe_scf_numerical_profile(raw)
                 result.diagnostics["scf_numerical_profile"] = evidence
+            if "ORCA TERMINATED NORMALLY" not in raw:
+                raise EngineParseError("ORCA normal termination absent")
+            if "SCF CONVERGED AFTER" not in raw:
+                raise EngineParseError("ORCA electronic convergence marker absent")
+            if re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", raw, re.I):
+                raise EngineParseError("ORCA SCF failed to converge")
+            if profile_receipt is not None:
                 if evidence["passed"] is not True:
                     raise EngineParseError("Explicit ORCA numerical profile not achieved: " + "; ".join(evidence["failures"]))
             matches = re.findall(r"FINAL SINGLE POINT ENERGY\s+(" + _FLOAT + ")", raw)

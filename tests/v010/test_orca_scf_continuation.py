@@ -10,6 +10,8 @@ from topos.models import ResourceLimits
 from topos.orca_scf_continuation import continue_ordinary_scf
 from topos.runtime import ProcessResult
 
+COMPLETE_NATIVE_MARKERS = 'SCF CONVERGED AFTER 1 CYCLES\nORCA TERMINATED NORMALLY\n'
+
 
 def own_job(tmp_path):
     folder = tmp_path / 'own-job'
@@ -44,7 +46,7 @@ def test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline(tmp_
         (folder / 'engine.stderr').write_text('')
         return process
 
-    result = continue_ordinary_scf(process.command, folder, ResourceLimits(budget_seconds=100), process, '',
+    result = continue_ordinary_scf(process.command, folder, ResourceLimits(budget_seconds=100), process, COMPLETE_NATIVE_MARKERS,
         operation=operation, deadline=deadline, cancel_event=None, execute_process=runner)
     assert len(calls) == 1 and result[3]['native_own_autostart'] is True
     assert (folder / 'initial-scf/initial-engine.stdout').read_bytes() == b'initial native bytes\x00\xff'
@@ -61,7 +63,7 @@ def test_one_own_job_continuation_preserves_bytes_input_and_shared_deadline(tmp_
 def test_incomplete_or_changed_native_profile_never_continues(tmp_path, monkeypatch, failure):
     monkeypatch.setattr('topos.orca_scf_continuation.observe_scf_numerical_profile', lambda raw: {'failures': [failure]})
     folder, process = own_job(tmp_path)
-    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='energy',
+    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='energy',
         deadline=time.monotonic() + 5, cancel_event=None, execute_process=lambda *a, **k: pytest.fail('forbidden launch')) is None
     assert not (folder / 'initial-scf').exists()
 
@@ -80,7 +82,7 @@ def test_forbidden_or_stopped_continuations_do_not_launch(tmp_path, monkeypatch,
         (folder / 'job.gbw').unlink()
     if condition == 'failed-process':
         process = ProcessResult(process.command, 'failed', 1, 4, 10, process.stdout_path, process.stderr_path)
-    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '',
+    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS,
         operation='optimize' if condition == 'optimizer' else 'gradient', deadline=deadline,
         cancel_event=event, execute_process=lambda *a, **k: pytest.fail('forbidden launch')) is None
     assert not (folder / 'initial-scf').exists()
@@ -96,7 +98,7 @@ def test_native_continuation_without_own_orbital_marker_cannot_be_accepted(tmp_p
         return process
 
     with pytest.raises(ValueError, match='own-orbital lineage'):
-        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='gradient',
+        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='gradient',
             deadline=time.monotonic() + 5, cancel_event=None, execute_process=runner)
 
 
@@ -111,7 +113,7 @@ def test_native_continuation_cannot_change_the_scientific_input(tmp_path, monkey
         return process
 
     with pytest.raises(ValueError, match='exact input'):
-        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='gradient',
+        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='gradient',
             deadline=time.monotonic() + 5, cancel_event=None, execute_process=runner)
 
 
@@ -120,7 +122,7 @@ def test_deadline_expiring_during_archive_restores_streams_without_launch(tmp_pa
     folder, process = own_job(tmp_path)
     times = iter((1.0, 3.0))
     monkeypatch.setattr('topos.orca_scf_continuation.time.monotonic', lambda: next(times))
-    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='gradient',
+    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='gradient',
         deadline=2.0, cancel_event=None, execute_process=lambda *a, **k: pytest.fail('expired launch')) is None
     assert (folder / 'engine.stdout').read_bytes() == b'initial native bytes\x00\xff'
     assert (folder / 'engine.stderr').read_bytes() == b'initial stderr\n'
@@ -141,7 +143,7 @@ def test_cancellation_during_archive_restores_streams_without_launch(tmp_path, m
         return copied
 
     monkeypatch.setattr('topos.orca_scf_continuation.shutil.copyfile', copy_and_cancel)
-    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='energy',
+    assert continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='energy',
         deadline=time.monotonic() + 5, cancel_event=event, execute_process=lambda *a, **k: pytest.fail('cancelled launch')) is None
     assert (folder / 'engine.stdout').read_bytes() == b'initial native bytes\x00\xff'
 
@@ -161,7 +163,7 @@ def test_changed_own_orbitals_after_archive_do_not_launch(tmp_path, monkeypatch)
 
     monkeypatch.setattr('topos.orca_scf_continuation.shutil.copyfile', copy_then_change_orbitals)
     with pytest.raises(ValueError, match='own orbitals changed'):
-        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='gradient',
+        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='gradient',
             deadline=time.monotonic() + 5, cancel_event=None, execute_process=lambda *a, **k: pytest.fail('changed-orbital launch'))
 
 
@@ -170,5 +172,5 @@ def test_a_second_continuation_is_rejected_before_another_native_launch(tmp_path
     folder, process = own_job(tmp_path)
     (folder / 'initial-scf').mkdir()
     with pytest.raises(FileExistsError):
-        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, '', operation='energy',
+        continue_ordinary_scf(process.command, folder, ResourceLimits(), process, COMPLETE_NATIVE_MARKERS, operation='energy',
             deadline=time.monotonic() + 5, cancel_event=None, execute_process=lambda *a, **k: pytest.fail('second continuation'))
