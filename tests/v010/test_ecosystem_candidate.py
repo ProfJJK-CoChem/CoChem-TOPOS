@@ -292,8 +292,8 @@ def test_workflow_requires_an_explicit_immutable_base_source_before_checkout(pin
         assert "base_commit" in result.stderr and "COCHEM_BASE_COMMIT" in result.stderr
 
 
-@pytest.mark.parametrize("old_version", ["1.0.0", "1.0.2"])
-def test_unreviewed_base_version_cannot_join_exact_1_0_1_release_set(inputs, old_version):
+@pytest.mark.parametrize("old_version", ["1.0.0", "1.0.1", "1.0.2", "1.1.1"])
+def test_unreviewed_base_version_cannot_join_exact_1_1_0_release_set(inputs, old_version):
     """Inert wheel metadata; no package or engine is installed by this case."""
     candidate, wheelhouse, installation = inputs
     base = kit.read_json(wheelhouse / "companion-build-manifest.json")["companions"]["base"]
@@ -307,8 +307,8 @@ def test_exact_base_foundation_version_matches_dependency_and_download_paths():
     """The standalone kit pins a reviewed BASE within managed compatibility."""
     dependencies = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["dependencies"]
     assert "CoChem-BASE>=1.0.1,<2" in dependencies
-    assert kit.PROJECTS["base"] == kit.PACKAGE_VERSIONS["cochem-base"] == "1.0.1"
-    assert "BASE 1.0.1" in kit.INSTALL_README
-    assert "--base-root source/cochem_base-1.0.1" in kit.INSTALL_README
+    assert kit.PROJECTS["base"] == kit.PACKAGE_VERSIONS["cochem-base"] == "1.1.0"
+    assert "BASE 1.1.0" in kit.INSTALL_README
+    assert "--base-root source/cochem_base-1.1.0" in kit.INSTALL_README
     acceptance = (ROOT / "scripts/accept_installed_release.py").read_text()
-    assert "m.version('CoChem-BASE')=='1.0.1'" in acceptance
+    assert "m.version('CoChem-BASE')=='1.1.0'" in acceptance
