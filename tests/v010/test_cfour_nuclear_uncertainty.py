@@ -20,9 +20,9 @@ from topos.cfour_properties import (
     inertial_quadrupole_couplings,
     nuclear_quadrupole_couplings,
 )
-from topos.external_engines import ExternalProtocol, parse_cfour_output
+from topos.external_engines import ExternalProtocol, cfour_input, parse_cfour_output
 from topos.matrix_workflow import MatrixInputs
-from topos.models import Molecule
+from topos.models import Molecule, ResourceLimits
 
 FIXTURE = Path(__file__).parent / "fixtures/cfour_first_order_2_1"
 POLICY = ("Stone 2016 pp.3-4 reported parenthetic error and adoption/rounding policy; "
@@ -156,3 +156,121 @@ def test_authentic_correlated_acquisition_with_reported_nuclear_error_remains_co
     assert output["native_unit_sign_independently_verified"] is False
     assert output["validity"] == "human-review"
     assert reasons and any("caller declarations cannot certify" in reason for reason in reasons)
+
+
+def component_data(**changes):
+    # Mathematical magnitudes exercise separate reported errors, not real Q data.
+    declared = {"citation": "Mathematical separate-error contract test; no measured nuclear-data assertion",
+                "identifier": "urn:topos:mathematical-error-components-only", "locator": "two symbolic errors"}
+    components = [{"label": "estimated-theory-error", "magnitude_millibarn": .00015,
+                   "interpretation": "Estimated omitted terms; no probability distribution established", "source": declared},
+                  {"label": "experimental-input-error", "magnitude_millibarn": .00018,
+                   "interpretation": "Reported experimental input error; coverage not established", "source": declared}]
+    return reported_data(q_reported_uncertainty_millibarn=None,
+        q_reported_uncertainty_components=components,
+        q_reported_uncertainty_policy="Retain both reported errors separately; no combination or k=1 interpretation",
+        q_uncertainty_source=declared) | changes
+
+
+def test_separate_reported_errors_round_trip_without_scalar_combination_or_standard_relabeling():
+    inputs = MatrixInputs.model_validate({"cfour_quadrupole_moments": [component_data()]})
+    target = inputs.cfour_quadrupole_moments[0]
+    assert NuclearQuadrupoleMoment.model_validate_json(target.model_dump_json()) == target
+    assert [item.magnitude_millibarn for item in target.q_reported_uncertainty_components] == [.00015, .00018]
+    assert target.q_standard_uncertainty_millibarn is target.q_reported_uncertainty_millibarn is None
+    assert [item.source.locator for item in target.q_reported_uncertainty_components] == ["two symbolic errors"] * 2
+
+
+@pytest.mark.parametrize("mutation", ["empty", "scalar-mix", "standard-mix", "duplicate-label",
+    "blank-label", "blank-interpretation", "missing-source", "negative", "boolean", "nonfinite"])
+def test_ambiguous_or_incomplete_component_declarations_are_rejected(mutation):
+    data = component_data()
+    components = data["q_reported_uncertainty_components"]
+    if mutation == "empty":
+        data["q_reported_uncertainty_components"] = []
+    elif mutation == "scalar-mix":
+        data["q_reported_uncertainty_millibarn"] = .00023
+    elif mutation == "standard-mix":
+        data.update(uncertainty_convention="standard-uncertainty-k1", q_standard_uncertainty_millibarn=.00023,
+                    q_reported_uncertainty_policy=None)
+    elif mutation == "duplicate-label":
+        components[1]["label"] = " ESTIMATED-THEORY-ERROR "
+    elif mutation == "blank-label":
+        components[0]["label"] = " "
+    elif mutation == "blank-interpretation":
+        components[0]["interpretation"] = "        "
+    elif mutation == "missing-source":
+        del components[1]["source"]
+    else:
+        components[0]["magnitude_millibarn"] = {"negative": -.1, "boolean": False, "nonfinite": float("inf")}[mutation]
+    with pytest.raises(ValidationError):
+        NuclearQuadrupoleMoment(**data)
+
+
+def test_each_reported_error_propagates_individually_in_cartesian_principal_and_isotope_inertial_frames():
+    target = NuclearQuadrupoleMoment(**component_data())
+    raw = tensors()
+    cartesian = nuclear_quadrupole_couplings(molecule(), raw, np.zeros_like(raw), [target])
+    output = cartesian["couplings"][0]
+    assert output["q_only_component_standard_uncertainty_khz"] is None
+    assert cartesian["full_uncertainty_available"] is False
+    inertial = inertial_quadrupole_couplings(molecule(), cartesian)
+    rotated = inertial["couplings"][0]
+    assert rotated["q_only_component_standard_uncertainty_abc_khz"] is None
+    sensitivity = np.asarray(rotated["q_sensitivity_abc_khz_per_millibarn"])
+    for component, entry, rotated_entry in zip(target.q_reported_uncertainty_components,
+            output["q_only_reported_uncertainty_components"], rotated["q_only_reported_uncertainty_components"], strict=True):
+        assert entry["nuclear_component"] == rotated_entry["nuclear_component"] == component.model_dump(mode="json")
+        np.testing.assert_allclose(entry["coupling_tensor_magnitude_khz"],
+                                   234.96474 * np.abs(raw[1]) * component.magnitude_millibarn)
+        np.testing.assert_allclose(entry["principal_coupling_magnitudes_khz"],
+                                   234.96474 * np.array([.2, .3, .5]) * component.magnitude_millibarn)
+        np.testing.assert_allclose(rotated_entry["coupling_tensor_magnitude_abc_khz"],
+                                   np.abs(sensitivity) * component.magnitude_millibarn)
+    assert "Uncombined" in output["q_reported_components_combination_policy"]
+    assert "Uncombined" in rotated["q_reported_components_combination_policy"]
+
+
+def test_deuterium_uses_hydrogen_electronic_input_and_explicit_mass_aware_inertial_axes():
+    from topos.chemistry import resolved_masses
+
+    heavy = molecule()
+    heavy.isotopes = [16, 2, 1]
+    light = heavy.model_copy(deep=True)
+    light.isotopes = [16, 1, 1]
+    protocol = ExternalProtocol(engine="cfour", engine_version="2.1", operation="first-order-properties",
+                                method="CCSD(T)", orbital_basis="PVTZ", frozen_core=False)
+    resources = ResourceLimits(threads=2, memory_mb=4096)
+    assert cfour_input(heavy, protocol, resources) == cfour_input(light, protocol, resources)
+    native = cfour_input(heavy, protocol, resources)
+    assert native.splitlines()[2].startswith("H ") and "BASIS=PVTZ" in native
+    assert "PROPS=FIRST_ORDER" in native and "FROZEN_CORE=OFF" in native
+    target = NuclearQuadrupoleMoment(**component_data())
+    cartesian = nuclear_quadrupole_couplings(heavy, tensors(), np.zeros((3, 3, 3)), [target])
+    inertial = inertial_quadrupole_couplings(heavy, cartesian)
+    masses, records = resolved_masses(heavy, isotope_policy="require_explicit")
+    xyz = np.asarray(heavy.coordinates)
+    centered = xyz - np.average(xyz, axis=0, weights=masses)
+    expected = sum(mass * (np.dot(r, r) * np.eye(3) - np.outer(r, r)) for mass, r in zip(masses, centered, strict=True))
+    axes = np.asarray(inertial["axes_columns_in_requested_cartesian_frame"])
+    np.testing.assert_allclose(axes.T @ expected @ axes, np.diag(inertial["moments_amu_angstrom2"]), atol=1e-14)
+    assert records == inertial["isotope_provenance"]
+    assert records[1]["mass_number"] == 2 and records[1]["mass_u"] > 2
+    light_masses, _ = resolved_masses(light, isotope_policy="require_explicit")
+    light_centered = xyz - np.average(xyz, axis=0, weights=light_masses)
+    light_inertia = sum(mass * (np.dot(r, r) * np.eye(3) - np.outer(r, r))
+                        for mass, r in zip(light_masses, light_centered, strict=True))
+    assert np.max(np.abs(axes.T @ light_inertia @ axes - np.diag(np.diag(axes.T @ light_inertia @ axes)))) > .01
+
+
+def test_unresolved_inertial_axes_retain_component_sources_but_withhold_rotated_magnitudes():
+    linear = Molecule(symbols=["H", "H"], isotopes=[2, 1], coordinates=[[0, 0, -.4], [0, 0, .4]])
+    target = NuclearQuadrupoleMoment(**component_data(atom_id="atom-0"))
+    cartesian = nuclear_quadrupole_couplings(linear, [np.diag([-1., -1., 2.])] * 2,
+                                            np.zeros((2, 3, 3)), [target])
+    inertial = inertial_quadrupole_couplings(linear, cartesian)
+    assert inertial["axes_resolved"] is False
+    for component, entry in zip(target.q_reported_uncertainty_components,
+            inertial["couplings"][0]["q_only_reported_uncertainty_components"], strict=True):
+        assert entry["nuclear_component"] == component.model_dump(mode="json")
+        assert entry["coupling_tensor_magnitude_abc_khz"] is None

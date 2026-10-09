@@ -41,6 +41,21 @@ class NuclearDataSource(Contract):
         return self
 
 
+class NuclearReportedUncertaintyComponent(Contract):
+    """One source-reported error, without assumed coverage or independence."""
+
+    label: str = Field(min_length=1)
+    magnitude_millibarn: float = Field(ge=0, strict=True)
+    interpretation: str = Field(min_length=8)
+    source: NuclearDataSource
+
+    @model_validator(mode="after")
+    def nonblank(self):
+        if not self.label.strip() or not self.interpretation.strip():
+            raise ValueError("Reported nuclear error components require a nonblank label and interpretation")
+        return self
+
+
 class NuclearQuadrupoleMoment(Contract):
     """Signed spectroscopic Q with an explicit sourced uncertainty interpretation.
 
@@ -55,6 +70,7 @@ class NuclearQuadrupoleMoment(Contract):
     signed_q_millibarn: float = Field(strict=True)
     q_standard_uncertainty_millibarn: float | None = Field(default=None, ge=0, strict=True)
     q_reported_uncertainty_millibarn: float | None = Field(default=None, ge=0, strict=True)
+    q_reported_uncertainty_components: list[NuclearReportedUncertaintyComponent] = Field(default_factory=list)
     q_reported_uncertainty_policy: str | None = Field(default=None, min_length=8)
     q_convention: Literal["spectroscopic-signed-area"] = "spectroscopic-signed-area"
     uncertainty_convention: Literal["standard-uncertainty-k1", "reported-source-uncertainty"] = "standard-uncertainty-k1"
@@ -67,11 +83,15 @@ class NuclearQuadrupoleMoment(Contract):
         if self.uncertainty_convention == "standard-uncertainty-k1":
             if self.q_standard_uncertainty_millibarn is None:
                 raise ValueError("A k=1 standard nuclear uncertainty must be supplied explicitly")
-            if self.q_reported_uncertainty_millibarn is not None or self.q_reported_uncertainty_policy is not None:
+            if (self.q_reported_uncertainty_millibarn is not None or self.q_reported_uncertainty_components
+                    or self.q_reported_uncertainty_policy is not None):
                 raise ValueError("Standard and reported nuclear uncertainty declarations cannot be mixed")
         else:
-            if self.q_reported_uncertainty_millibarn is None:
-                raise ValueError("A reported nuclear uncertainty must be supplied explicitly")
+            if (self.q_reported_uncertainty_millibarn is not None) == bool(self.q_reported_uncertainty_components):
+                raise ValueError("Supply exactly one reported nuclear uncertainty scalar or nonempty component list")
+            labels = [item.label.strip().casefold() for item in self.q_reported_uncertainty_components]
+            if len(set(labels)) != len(labels):
+                raise ValueError("Reported nuclear uncertainty component labels must be unique")
             if self.q_standard_uncertainty_millibarn is not None:
                 raise ValueError("Reported nuclear uncertainty cannot be relabeled as a k=1 standard uncertainty")
             if self.q_reported_uncertainty_policy is None or not self.q_reported_uncertainty_policy.strip():
@@ -255,6 +275,13 @@ def nuclear_quadrupole_couplings(molecule: Molecule, tensors_atomic_units: Any,
                         "q_sensitivity_khz_per_millibarn": sensitivity.tolist(),
                         "q_only_component_standard_uncertainty_khz": (
                             standard_uncertainty.tolist() if standard_uncertainty is not None else None),
+                        "q_only_reported_uncertainty_components": [
+                            {"nuclear_component": item.model_dump(mode="json"),
+                             "coupling_tensor_magnitude_khz": (np.abs(sensitivity) * item.magnitude_millibarn).tolist(),
+                             "principal_coupling_magnitudes_khz": (factor * np.abs(np.asarray(
+                                 principal["principal_values_atomic_units"])) * item.magnitude_millibarn).tolist()}
+                            for item in nucleus.q_reported_uncertainty_components],
+                        "q_reported_components_combination_policy": "Uncombined source-reported magnitudes; no independence, coverage or standard uncertainty inferred",
                         "q_uncertainty_propagation": (
                             "Declared k=1 Q-only standard uncertainty; tensor components share the same scalar Q"
                             if standard_uncertainty is not None else
@@ -329,6 +356,12 @@ def inertial_quadrupole_couplings(molecule: Molecule, cartesian_couplings: dict[
                 if resolved and target.q_standard_uncertainty_millibarn is not None else None,
             "q_uncertainty_convention": target.uncertainty_convention,
             "q_reported_uncertainty_millibarn": target.q_reported_uncertainty_millibarn,
+            "q_only_reported_uncertainty_components": [
+                {"nuclear_component": component.model_dump(mode="json"),
+                 "coupling_tensor_magnitude_abc_khz": (np.abs(transformed_sensitivity) *
+                     component.magnitude_millibarn).tolist() if resolved else None}
+                for component in target.q_reported_uncertainty_components],
+            "q_reported_components_combination_policy": "Uncombined source-reported magnitudes; no independence, coverage or standard uncertainty inferred",
             "q_reported_uncertainty_policy": target.q_reported_uncertainty_policy,
             "efg_printing_component_absolute_bound_abc_khz": (np.abs(axes).T @ bounds @
                 np.abs(axes)).tolist() if resolved else None})
