@@ -344,8 +344,13 @@ class BaseRuntime:
             if resources.device != "gpu" or engine not in {"mace", "aimnet2"}:
                 raise BaseIntegrationError("Only an explicitly audited ML engine may request GPU execution")
             metrics = self.registry.hardware.gpu_compute_metrics
-            if (type(gpu_index) is not int or not 0 <= gpu_index < metrics.device_count
-                    or type(gpu_memory_mb) is not int or not 1 <= gpu_memory_mb <= metrics.vram_gb * 1024):
+            # BASE preserves unavailable observations as None. An unknown
+            # device count or VRAM cannot authorize an allocation.
+            device_count, vram_gb = metrics.device_count, metrics.vram_gb
+            if (type(device_count) is not int or device_count < 1
+                    or type(vram_gb) not in {int, float} or not math.isfinite(vram_gb) or vram_gb <= 0
+                    or type(gpu_index) is not int or not 0 <= gpu_index < device_count
+                    or type(gpu_memory_mb) is not int or not 1 <= gpu_memory_mb <= vram_gb * 1024):
                 raise BaseIntegrationError("GPU index and positive VRAM request must fit measured BASE GPU authority")
             inherited = os.environ.get("CUDA_VISIBLE_DEVICES")
             if inherited is not None and str(gpu_index) not in inherited.split(","):

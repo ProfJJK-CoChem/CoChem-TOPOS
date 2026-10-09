@@ -332,6 +332,35 @@ def test_ml_gpu_requires_measured_authority_and_cpu_has_no_implicit_device(runti
         runtime.validate_resources(ResourceLimits(), engine="mace", gpu_index=0)
 
 
+@pytest.mark.parametrize(("count", "vram"), [(None, 2.0), (1, None), (0, 2.0),
+                                            (1, 0.0), (1, float("inf"))])
+def test_unknown_or_unusable_gpu_observations_cannot_authorize_allocation(runtime, count, vram):
+    metrics = runtime.registry.hardware.gpu_compute_metrics
+    runtime.registry.hardware.gpu_compute_metrics = metrics.model_copy(
+        update={"device_count": count, "vram_gb": vram})
+    with pytest.raises(BaseIntegrationError, match="measured BASE GPU"):
+        runtime.validate_resources(ResourceLimits(device="gpu"), engine="mace", gpu_index=0, gpu_memory_mb=128)
+
+
+def test_measured_gpu_bounds_and_visibility_remain_required(runtime, monkeypatch):
+    metrics = runtime.registry.hardware.gpu_compute_metrics
+    runtime.registry.hardware.gpu_compute_metrics = metrics.model_copy(
+        update={"device_count": 1, "vram_gb": 2.0})
+    observed = runtime.registry.hardware.gpu_compute_metrics
+    before = observed.model_dump(mode="json")
+    request = ResourceLimits(device="gpu")
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    runtime.validate_resources(request, engine="mace", gpu_index=0, gpu_memory_mb=2048)
+    assert observed.model_dump(mode="json") == before
+    assert observed.fp64_tflops is None
+    for index, memory in ((1, 128), (0, 2049)):
+        with pytest.raises(BaseIntegrationError, match="measured BASE GPU"):
+            runtime.validate_resources(request, engine="mace", gpu_index=index, gpu_memory_mb=memory)
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "1")
+    with pytest.raises(BaseIntegrationError, match="visibility boundary"):
+        runtime.validate_resources(request, engine="mace", gpu_index=0, gpu_memory_mb=128)
+
+
 def test_python_ml_worker_cannot_claim_an_unaudited_silo(runtime, tmp_path):
     # Hash-bound files exercise an authority rejection; no model is executed.
     request = tmp_path / "request.json"
