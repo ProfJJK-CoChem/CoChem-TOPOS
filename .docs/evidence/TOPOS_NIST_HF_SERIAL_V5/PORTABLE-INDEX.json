@@ -39,5 +39,27 @@
   "scientific_accuracy_threshold": null,
   "formal_srs_or_complete_matrix_clearance": false,
   "production_modified": false,
-  "native_calculations_launched": 0
+  "native_calculations_launched": 0,
+  "receipts": [
+    {
+      "retained_path": "comparison.json",
+      "sha256": "498991c89d258d2666c432315b6c7cce9075f7c2ccdd25702c93eaabfa91c0c2",
+      "size_bytes": 18795
+    },
+    {
+      "retained_path": "ORIGINAL_COMPARISON.md",
+      "sha256": "f1b47fbefd502f3888fb7e5753f8020ea33d84043d034ff71f8c261deb002788",
+      "size_bytes": 3973
+    },
+    {
+      "retained_path": "literal-arithmetic-audit.json",
+      "sha256": "145cc342ffa5d66e1adfaeaadcdda882890b5731260fd1287a0c10e7384b2d9a",
+      "size_bytes": 2463
+    },
+    {
+      "retained_path": "README.md",
+      "sha256": "e436847da8ce2c82dc390b24635c8983ff50bbceacb5ec6848f6133256dc1062",
+      "size_bytes": 3087
+    }
+  ]
 }

@@ -1,0 +1,37 @@
+{
+  "schema": "cochem-retained-whole-suite-members/1",
+  "original_record_bytes_changed": false,
+  "scope": "Exact original and separately labelled portable whole-suite records; no scientific campaign promotion",
+  "receipts": [
+    {
+      "retained_path": "ORIGINAL_VALIDATION.json",
+      "sha256": "44473e5ea5fb63302ba8a2ab2e537177d94964b92967e7c181aafa4b0d909612",
+      "size_bytes": 136530
+    },
+    {
+      "retained_path": "validation.json",
+      "sha256": "a851f85ae9a19be0495c28c7aa07ef8dd6a46fc2601e31fae723156307147400",
+      "size_bytes": 137265
+    },
+    {
+      "retained_path": "regression.xml",
+      "sha256": "69bb6852e008f418934761ee41b701c63ed9508acfea553f8e0757958fba48b1",
+      "size_bytes": 470792
+    },
+    {
+      "retained_path": "pytest.log",
+      "sha256": "c6758b5ab851ba7b5e7e385e6f0c19a1a668d48eddf3ac07e1929a4cfb17794a",
+      "size_bytes": 3474
+    },
+    {
+      "retained_path": "ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "size_bytes": 19
+    },
+    {
+      "retained_path": "pip-check.log",
+      "sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09",
+      "size_bytes": 30
+    }
+  ]
+}
