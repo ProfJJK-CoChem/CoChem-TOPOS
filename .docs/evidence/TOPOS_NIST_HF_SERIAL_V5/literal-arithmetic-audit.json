@@ -1,0 +1,64 @@
+{
+  "schema": "cochem-nist-literal-arithmetic-audit/1",
+  "plan_sha256": "6a57d464af8172a50bc5e1671987d89ccbca808d4fc502f2806b9bf0bfe67294",
+  "comparison_sha256": "498991c89d258d2666c432315b6c7cce9075f7c2ccdd25702c93eaabfa91c0c2",
+  "native_stdout_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\engines\\nist-formic-frozen-hf-serial-v5\\vpt2\\vpt2-df116f4acd4c4d368b8938306a4f166d\\anharmonic.stdout",
+  "native_stdout_sha256": "089fd748f6f6a6653cabd4750d9b864186591be28c6b75903bdbed6418b68c6b",
+  "native_literal_rotational_rows_cm_inverse": {
+    "B_e": [
+      "2.68501",
+      "0.41799",
+      "0.36169"
+    ],
+    "B_0": [
+      "2.67320",
+      "0.41540",
+      "0.35899"
+    ]
+  },
+  "independent_descending_equilibrium_axis_order": [
+    0,
+    1,
+    2
+  ],
+  "exact_conversion_MHz_per_cm_inverse": "29979.2458",
+  "rows": [
+    {
+      "constant": "A0",
+      "native_axis": 0,
+      "native_B0_literal_cm_inverse": "2.67320",
+      "calculated_MHz_exact_from_native_print": "80140.519872560",
+      "experimental_MHz": "77512.2310",
+      "experimental_standard_uncertainty_MHz": "0.0063",
+      "signed_error_MHz": "2628.288872560",
+      "signed_relative_error_percent": "3.390805346010489621953985559"
+    },
+    {
+      "constant": "B0",
+      "native_axis": 1,
+      "native_B0_literal_cm_inverse": "0.41540",
+      "calculated_MHz_exact_from_native_print": "12453.378705320",
+      "experimental_MHz": "12055.1045",
+      "experimental_standard_uncertainty_MHz": "0.0008",
+      "signed_error_MHz": "398.274205320",
+      "signed_relative_error_percent": "3.303780612768640869102378996"
+    },
+    {
+      "constant": "C0",
+      "native_axis": 2,
+      "native_B0_literal_cm_inverse": "0.35899",
+      "calculated_MHz_exact_from_native_print": "10762.249449742",
+      "experimental_MHz": "10416.1145",
+      "experimental_standard_uncertainty_MHz": "0.0008",
+      "signed_error_MHz": "346.134949742",
+      "signed_relative_error_percent": "3.323071666906119359575012352"
+    }
+  ],
+  "literal_decimal_arithmetic_matches_report": true,
+  "native_resource_boundaries_checked": 11,
+  "native_calculations_launched": 0,
+  "evidence_changed": false,
+  "scientific_accuracy_threshold": null,
+  "formal_reference_or_matrix_clearance": false,
+  "interpretation": "Arithmetic verification of the native printed constants is distinct from HF/VPT2 model accuracy and experimental uncertainty."
+}

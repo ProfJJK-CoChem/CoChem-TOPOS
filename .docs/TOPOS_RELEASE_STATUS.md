@@ -1,17 +1,41 @@
 # TOPOS 0.1.0 release status
 
-The student testing implementation now includes canonical external starting
-states, all 42 compiled matrix rows in the complete browser interface, verified
-downloads and BASE's separately staged private native Actions route. The current
-unfiltered [source regression](evidence/TOPOS_STUDENT_VALIDATION_20261008.json)
-passed **2,808 tests**, with **42 explicit availability skips** and no failures or
-errors. Its source remained unchanged. Fresh installed-kit and live hosted
-qualification require actual receipts matching the final candidate's sources
-and artifact bytes. The initial final-kit installation stopped at BASE Phase 6:
-observed free space was 0.373 GiB, below its unchanged 1.0 GiB guard. Its failure
-is retained. The candidate's matching clean-install receipt reports whether a
-subsequent attempt completed. The current private student Actions pilot has not
-run. Regression alone does not establish deployment or scientific acceptance.
+The student implementation includes canonical external starting states, all 42
+compiled matrix rows in the complete browser interface, verified downloads and
+BASE's separately staged private native Actions route.
+
+The Windows 11/WSL2 workstation's unfiltered
+[regression](evidence/TOPOS_WORKSTATION_V13_WHOLE_SUITE/validation.json) covers the executable source at TOPOS
+`09b551ebb48cd78ca93136898affdf9fa1aaddf4`: **3067 passed, 0 skipped, zero failures/errors**,
+with unchanged executable source. The [full JUnit](evidence/TOPOS_WORKSTATION_V13_WHOLE_SUITE/regression.xml) retains every
+parameterized outcome. The reviewed [50-clause ledger](TOPOS_SRS_ACCEPTANCE.json)
+records **22 verified, 28 verification-pending and 0 partial**
+requirements, with 0 listed coding gaps. These are supported-profile
+software results; native, installed-deployment, hosted, complete-matrix and
+independent-reference conditions remain explicit in the ledger.
+
+Fresh installed-kit, browser-service and private-hosted qualification require
+their own exact-source/artifact receipts. The earlier installer observation of
+0.373 GiB free space below its unchanged 1.0 GiB guard remains a dated historical
+failure; it does not describe the workstation's current available space. The
+private student Actions pilot remains unexecuted. Regression alone establishes
+neither deployed installation nor scientific release acceptance.
+
+
+A separate serial HF/def2-TZVPP native VPT2 comparison of main-isotopologue
+trans-formic acid completed on frozen TOPOS `4488faf5f4a236316b8cbd8f38d6be06e610c0b1`.
+Calculated constants are A0 = 80140.519873, B0 = 12453.378705, C0 = 10762.249450 MHz,
+with respective signed deviations of +3.390805%, +3.303781%, +3.323072% from
+[NIST microwave ground-state data](https://srd.nist.gov/jpcrdreprint/1.555618.pdf).
+Actual native masses and both independent Cartesian stationarity checks
+passed the predeclared unchanged gates. HF/VPT2 overpredicts all three constants by about 3.3–3.4%; passing
+stationarity does not establish spectroscopic accuracy.
+This is a descriptive monomer
+comparison with no accuracy threshold or formal scientific-reference
+clearance; all 42 noncovalent matrix campaigns remain separate. The prior
+B3LYP stationarity failure and MPI HF native crash remain preserved.
+The compact [comparison records and independent arithmetic audit](evidence/TOPOS_NIST_HF_SERIAL_V5/README.md) retain the actual frozen source
+identity; full raw native evidence remains in the controlled workstation copy.
 
 TOPOS exposes all **42 available TOPOS method-matrix recipe entry points**
 and has historical mandatory BASE/TOPOS/TORQ installation evidence. Full SRS acceptance and
@@ -26,9 +50,13 @@ Current-source TOPOS CFOUR execution still needs verification; BASE has separate
 
 ## Current student deployment implementation — 8 October 2026, America/Chicago
 
-The mandatory package versions are BASE **1.0.1**, TOPOS **0.1.0**, and TORQ
-**0.1.0**. BASE's source-bound catalog and complete ecosystem kit select compatible
-sources, wheels and setup helpers. The compatible-core TORQ importer line and the
+BASE's source-bound catalog selects the exact reviewed sources, wheels and
+setup helpers. Managed TOPOS metadata allows BASE `>=1.0.1,<2`; that version range
+does not establish qualification. The standalone combined kit separately retains
+its exact BASE 1.0.1 / TOPOS 0.1.0 / compatible-core TORQ 0.1.0 assumptions.
+The [managed integration](BASE_1_1_Managed_Integration.md) also supports an
+independently verified isolated TORQ sidecar; its actual installed positive
+qualification requires its own receipt. The compatible-core TORQ importer line and the
 newer separately isolated TORQ student calculator have distinct environment
 profiles; installing a later TORQ `main` into the BASE/TOPOS authority interpreter
 is not the supported upgrade path.
@@ -65,8 +93,9 @@ full regression, candidate artifacts, clean installation and actual private
 hosted lifecycle evidence must identify the exact exercised deployment; a coded
 submission path does not establish its successful execution.
 
-The current 50-requirement acceptance ledger records **22 verified requirements,
-28 requirements awaiting physical acceptance and zero listed coding gaps**. It
+The current 50-requirement acceptance ledger records **22 verified,
+28 verification-pending and 0 partial requirements**, with
+0 listed coding gaps. It
 retains historical assessments and receipt scopes separately from its current
 source-bound regression. Code coverage is not permission to overwrite physical
 conditions or mark unexecuted scientific campaigns verified.

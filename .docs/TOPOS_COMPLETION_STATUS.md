@@ -1,13 +1,33 @@
 # TOPOS 0.1.0 implementation and student deployment status
 
-The current student deployment is documented in the
+The student implementation is documented in the
 [chapter-by-chapter review](TOPOS_STUDENT_READINESS.md) and
-[installation guide](TOPOS_INSTALLATION.md). The unfiltered current
-[regression](evidence/TOPOS_STUDENT_VALIDATION_20261008.json) records 2,808 passed,
-42 explicitly skipped, zero failures/errors and unchanged executable source.
-The current ledger binds all 50 SRS clauses to reviewed files and actual named
-outcomes; 22 supported-profile clauses are verified and 28 retain scientific/native
-conditions. No identified coding gaps remain in that review.
+[installation guide](TOPOS_INSTALLATION.md).
+
+The Windows 11/WSL2 workstation's unfiltered
+[regression](evidence/TOPOS_WORKSTATION_V13_WHOLE_SUITE/validation.json) covers the executable source at TOPOS
+`09b551ebb48cd78ca93136898affdf9fa1aaddf4`: **3067 passed, 0 skipped, zero failures/errors**,
+with unchanged executable source. The [full JUnit](evidence/TOPOS_WORKSTATION_V13_WHOLE_SUITE/regression.xml) retains every
+parameterized outcome. The reviewed [50-clause ledger](TOPOS_SRS_ACCEPTANCE.json)
+records **22 verified, 28 verification-pending and 0 partial**
+requirements, with 0 listed coding gaps. These are supported-profile
+software results; native, installed-deployment, hosted, complete-matrix and
+independent-reference conditions remain explicit in the ledger.
+
+A separate serial HF/def2-TZVPP native VPT2 comparison of main-isotopologue
+trans-formic acid completed on frozen TOPOS `4488faf5f4a236316b8cbd8f38d6be06e610c0b1`.
+Calculated constants are A0 = 80140.519873, B0 = 12453.378705, C0 = 10762.249450 MHz,
+with respective signed deviations of +3.390805%, +3.303781%, +3.323072% from
+[NIST microwave ground-state data](https://srd.nist.gov/jpcrdreprint/1.555618.pdf).
+Actual native masses and both independent Cartesian stationarity checks
+passed the predeclared unchanged gates. HF/VPT2 overpredicts all three constants by about 3.3–3.4%; passing
+stationarity does not establish spectroscopic accuracy.
+This is a descriptive monomer
+comparison with no accuracy threshold or formal scientific-reference
+clearance; all 42 noncovalent matrix campaigns remain separate. The prior
+B3LYP stationarity failure and MPI HF native crash remain preserved.
+The compact [comparison records and independent arithmetic audit](evidence/TOPOS_NIST_HF_SERIAL_V5/README.md) retain the actual frozen source
+identity; full raw native evidence remains in the controlled workstation copy.
 
 ## Historical 7 October assessment
 
@@ -16,17 +36,18 @@ This retains the earlier `053c827` assessment. Current completion work and the
 [release status](TOPOS_RELEASE_STATUS.md); the historical counts below do not
 certify later source revisions.
 
-TOPOS has implemented all 42 available recipe entry points and passed the
-source-bound local regression and fresh BASE/TOPOS/TORQ installation checks.
-**Full SRS acceptance and scientific release certification remain incomplete.**
-The [50-requirement acceptance ledger](TOPOS_SRS_ACCEPTANCE.json) records
-**33 verified supported-profile requirements and 17 awaiting acceptance**.
+The 7 October assessment recorded all 42 available recipe entry points and
+source-bound regression and fresh BASE/TOPOS/TORQ installation checks for that revision.
+**Full SRS acceptance and scientific release certification were incomplete.**
+That dated assessment recorded **33 verified supported-profile requirements and
+17 awaiting acceptance**; current counts are given above and in the
+[50-requirement ledger](TOPOS_SRS_ACCEPTANCE.json).
 The [release status](TOPOS_RELEASE_STATUS.md) provides the detailed evidence,
 scientific conditions and remaining release gates.
 
-## Verified source and installation
+## Historical source and installation — 7 October 2026
 
-The executable snapshot covered by the current regression receipts is
+The executable snapshot covered by these historical regression receipts was
 `053c827638b3481c5c3d645856b69d50c47b387f`. Later executable-source changes
 require their own validation.
 
@@ -57,7 +78,7 @@ ABCluster sampling have retained evidence linked from the release status and
 CPU model calculations, parser fixtures and contract checks do not establish
 physical GPU execution, DFT accuracy or exhaustive sampling.
 
-## Method-matrix coverage
+## Historical method-matrix coverage — 7 October 2026
 
 | Coverage | Rows | Meaning |
 | --- | ---: | --- |
@@ -73,12 +94,12 @@ a complete native matrix campaign or the source papers' accuracy claims.
 User-authorized ORCA alternatives and approximate composite protocols retain
 explicit provenance and limitations in the release status.
 
-## Native acceptance and remaining work
+## Historical native acceptance and remaining work — 7 October 2026
 
 The earlier full [licensed run 37666938546](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37666938546)
-targets executable source `65af1e0`. At this status update, its baseline stage has
-failed and its extended stage is still running; its completed artifacts remain
-pending. Dispatch and engine provisioning do not establish acceptance.
+targeted executable source `65af1e0`. The 7 October assessment recorded a
+failed baseline stage and an extended stage then still running, with completed
+artifacts then pending. Dispatch and engine provisioning do not establish acceptance.
 
 The separate [baseline diagnostic run 37671080822](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37671080822)
 has completed with **two of five cases passing**: HF-3c energy/gradient validation
@@ -94,29 +115,32 @@ r2SCAN-3c thermochemistry, wB97X-V optimization and GOAT seed optimization faile
 native early-stop rules signaled convergence with declared criteria unmet, then
 one-cycle restarts omitted the `Energy change` row. Strict five-criterion
 convergence was therefore not established. This baseline-only diagnostic ran
-neither extended acceptance nor licensed pytest. The current strict optimizer
-policy and explicit one-cycle energy evidence retain every requested tolerance;
-the regression receipts above cover these changes. See the
+neither extended acceptance nor licensed pytest. The 7 October strict optimizer
+policy and explicit one-cycle energy evidence retained every requested tolerance;
+the historical regression receipts in this section covered that revision. See the
 [native optimizer contract](TOPOS_ORCA_OPTIMIZER_POLICY.md).
 
-The new full [licensed run 37675771359](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359)
-tests current source `053c827` through unchanged BASE `705b9d5` and TORQ `79fbb11`.
-Its native outcome remains pending. Local passes do not replace that validation.
+The then-new full [licensed run 37675771359](https://github.com/ProfJJK-CoChem/CoChem-BASE/actions/runs/37675771359)
+tested source `053c827` through BASE `705b9d5` and TORQ `79fbb11`.
+Its outcome was pending in the 7 October assessment; this dated observation
+does not describe the final workstation regression reported above.
 
 Earlier hosted native runs contain real component successes and overall failures.
 Their unchanged receipts, including the
 [run 37650295795 evidence index](evidence/TOPOS_ORCA_RUN_37650295795_EVIDENCE_INDEX.json),
 remain historical evidence for their exact source revisions. They do not certify
-the current source or cover its two local licensed skips.
+later source revisions. The two licensed skips belonged to the 7 October
+local receipt, rather than the final workstation regression reported above.
 
-Remaining acceptance requires:
+The 7 October remaining-work list was:
 
 1. Retrieve and diagnose the full hosted results, validate subsequent fixes,
    and obtain passing same-source native ORCA evidence for every required case.
-2. Complete the 17 pending SRS assessments, including native CFOUR, physical GPU,
+2. Complete the 17 SRS assessments then pending, including native CFOUR, physical GPU,
    full matrix campaigns and deployed queue/run correlation where required.
 3. Run the release gate with source-matched physical, licensing and acceptance
-   evidence. Candidate archives remain unsigned, unpublished and uncertified.
+   evidence. Candidate archives were unsigned, unpublished and uncertified
+   in that assessment.
 
 The [installation guide](TOPOS_INSTALLATION.md) documents build, installation,
 upgrade, rollback and gate commands. The earlier
