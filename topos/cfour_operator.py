@@ -140,7 +140,8 @@ def property_operator_authority(folder: Path, artifact_paths: list[Path], author
             or protocol_data.get("operation") != "first-order-properties" or protocol_data.get("method") != "CCSD(T)"
             or protocol_data.get("orbital_basis") not in {"cc-pVTZ", "PVTZ"}
             or protocol_data.get("frozen_core") is not False
-            or molecule.charge != 0 or molecule.multiplicity != 1 or molecule.environment):
+            or molecule.charge != 0 or molecule.multiplicity != 1
+            or molecule.environment not in ({}, {"phase": "gas"})):
         return None
     from .external_engines import ExternalProtocol, parse_cfour_output
 

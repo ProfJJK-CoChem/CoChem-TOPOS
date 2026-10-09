@@ -115,7 +115,7 @@ def verify_vpt2_native_frame_reference(molecule: Molecule, geometry: dict[str, A
     """
     pose = vpt2_native_reference_pose(molecule, geometry, hessian_path)
     md = reference.metadata
-    if (reference.status != 'completed' or reference.converged is not True
+    if (reference.status != 'completed'
             or reference.operation != 'hessian' or reference.engine != 'orca'
             or reference.engine_version != ORCA_VERSION or reference.method != method['method']
             or reference.molecule is None or reference.molecule.model_dump(mode='json') != pose.model_dump(mode='json')
@@ -124,6 +124,17 @@ def verify_vpt2_native_frame_reference(molecule: Molecule, geometry: dict[str, A
             or reference.energy_hartree is None or reference.gradient_hartree_per_bohr is None
             or not reference.command or not reference.artifacts):
         raise EngineParseError('VPT2 requires independent actual Hessian evidence in its exact native equilibrium pose')
+    if reference.converged is not True:
+        gradient = np.asarray(reference.gradient_hartree_per_bohr, dtype=float)
+        if gradient.shape != (len(pose.symbols), 3) or not np.isfinite(gradient).all():
+            raise EngineParseError('VPT2 native-pose reference Cartesian gradient is incomplete or nonfinite')
+        maximum = float(np.max(np.abs(gradient)))
+        rms = float(np.sqrt(np.mean(gradient ** 2)))
+        raise EngineParseError(
+            'VPT2 independently executed native-pose reference is not a strict stationary semirigid minimum '
+            f'(converged={reference.converged!r}; Cartesian gradient max={maximum:.8g}, RMS={rms:.8g} Eh/bohr; '
+            'required max<=1e-7 Eh/bohr). Optimize and independently verify the geometry in the actual '
+            'native VPT2 pose before calculating constants; original-pose convergence does not certify that pose.')
     from .science import harmonic_analysis
 
     parsed = parse_orca_hessian(hessian_path, pose)

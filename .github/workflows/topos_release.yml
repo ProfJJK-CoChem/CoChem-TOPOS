@@ -7,19 +7,14 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       hosted_acceptance_run_id:
         description: Completed TOPOS ORCA acceptance run with GOAT and counterpoise evidence
         required: false
         type: string
       hosted_acceptance_repository:
-        description: Repository that executed the licensed acceptance run
+        description: Exact private controller repository that executed the licensed acceptance run (owner/name)
         required: true
-        type: choice
-        default: ProfJJK-CoChem/CoChem-BASE
-        options:
-          - ProfJJK-CoChem/CoChem-BASE
-          - ProfJJK-CoChem/CoChem-TOPOS
+        type: string
       hosted_acceptance_run_attempt:
         description: Exact attempt of the selected native acceptance run
         required: true
@@ -48,7 +43,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      BASE_COMMIT: ${{ inputs.base_commit || vars.COCHEM_BASE_COMMIT }}
       COCHEM_HEADLESS: '1'
       QT_QPA_PLATFORM: offscreen
       COCHEM_CPU_ALLOCATION_POLICY: github_hosted_vcpus
@@ -62,6 +57,10 @@ jobs:
       - name: Validate the exact BASE source commit
         shell: bash
         run: |
+          if [[ -z "$BASE_COMMIT" ]]; then
+            echo 'Set base_commit to the reviewed BASE commit, or configure repository variable COCHEM_BASE_COMMIT.' >&2
+            exit 1
+          fi
           if [[ ! "$BASE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo 'BASE source must be an exact lowercase 40-character Git commit.' >&2
             exit 1
@@ -121,11 +120,24 @@ jobs:
             --wheelhouse "$RUNNER_TEMP/wheelhouse" \
             --registry "$RUNNER_TEMP/cochem-release-runtime/Registry/cochem_system_config.json" \
             --output "$RUNNER_TEMP/installed-release"
+      - name: Validate selected hosted evidence identity
+        if: inputs.hosted_acceptance_run_id != '' || inputs.campaign_evidence_run_id != ''
+        env:
+          ACCEPTANCE_REPOSITORY: ${{ inputs.hosted_acceptance_repository }}
+          ACCEPTANCE_RUN_ID: ${{ inputs.hosted_acceptance_run_id }}
+          ACCEPTANCE_ATTEMPT: ${{ inputs.hosted_acceptance_run_attempt }}
+          CAMPAIGN_RUN_ID: ${{ inputs.campaign_evidence_run_id }}
+        shell: bash
+        run: |
+          [[ "$ACCEPTANCE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
+          [[ "$ACCEPTANCE_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
+          if test -n "$ACCEPTANCE_RUN_ID"; then [[ "$ACCEPTANCE_RUN_ID" =~ ^[1-9][0-9]*$ ]]; fi
+          if test -n "$CAMPAIGN_RUN_ID"; then [[ "$CAMPAIGN_RUN_ID" =~ ^[1-9][0-9]*$ ]]; fi
       - name: Retrieve explicitly selected licensed scientific acceptance evidence
         if: inputs.hosted_acceptance_run_id != ''
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: ${{ inputs.hosted_acceptance_repository == 'ProfJJK-CoChem/CoChem-BASE' && format('topos-orca-acceptance-{0}-{1}', inputs.hosted_acceptance_run_id, inputs.hosted_acceptance_run_attempt) || format('topos-orca-acceptance-{0}', inputs.hosted_acceptance_run_id) }}
+          name: ${{ format('topos-orca-acceptance-{0}-{1}', inputs.hosted_acceptance_run_id, inputs.hosted_acceptance_run_attempt) }}
           repository: ${{ inputs.hosted_acceptance_repository }}
           run-id: ${{ inputs.hosted_acceptance_run_id }}
           github-token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN || github.token }}

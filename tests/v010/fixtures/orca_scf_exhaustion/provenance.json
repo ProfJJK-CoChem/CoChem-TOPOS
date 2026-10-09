@@ -1,0 +1,18 @@
+{
+  "schema": "topos-native-scf-exhaustion-parser-fixture/1",
+  "scope": "Retained original native parser fixture; not live acceptance of the modified source",
+  "original_topos_commit": "09b551ebb48cd78ca93136898affdf9fa1aaddf4",
+  "original_base_commit": "5ef80c9362ce5bd01f69fbe65b467f1bdb0e04ac",
+  "original_registry_sha256": "d21ee880cf4b34ee1a179ac8fb2bd36ea64d9687b511e89645f04b27f6b58ef4",
+  "original_attempt_id": "attempt_5e6b738861884964ba84510cae67f7e4",
+  "native_returncode": 0,
+  "typed_attempt_status": "failed",
+  "native_scf_converged": false,
+  "native_elapsed_seconds": 149.2557314149999,
+  "original_retention_manifest_sha256": "6d8af88febef6bd34debdf519c0b898ec4cf9a4299c3485c2a2c4dc26032c930",
+  "files": {
+    "engine.stderr": "00501b7d5b7187bfd2d019536edc229526f94e8d009bb66ba3785517a2c9aeec",
+    "engine.stdout": "58994c3227a997461313018cb65f90e26810e2e6e856b31ff6cf614ddbdd64e9",
+    "job.inp": "817854e2b8ad0581ff240d888e90ea6423a476135766a98586aaf20a4cd307f2"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "cochem-portable-nist-descriptive-records/1",
+  "plan_sha256": "6a57d464af8172a50bc5e1671987d89ccbca808d4fc502f2806b9bf0bfe67294",
+  "actual_frozen_source_git_commits": {
+    "BASE": "5ef80c9362ce5bd01f69fbe65b467f1bdb0e04ac",
+    "TOPOS": "4488faf5f4a236316b8cbd8f38d6be06e610c0b1",
+    "TORQ": "4f323800227dbde00ffb082bd6d9e44d851e1c7a"
+  },
+  "controlled_raw_copy_index_sha256": "a9c79bd72a4f72a6026372922311a6164a8567c31ed462697993ffd7200084fb",
+  "original_record_files": {
+    "comparison.json": {
+      "sha256": "498991c89d258d2666c432315b6c7cce9075f7c2ccdd25702c93eaabfa91c0c2",
+      "size_bytes": 18795,
+      "original_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\engines\\nist-formic-frozen-hf-serial-v5\\comparison.json",
+      "original_bytes_preserved": true
+    },
+    "ORIGINAL_COMPARISON.md": {
+      "sha256": "f1b47fbefd502f3888fb7e5753f8020ea33d84043d034ff71f8c261deb002788",
+      "size_bytes": 3973,
+      "original_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\nist-rigid-rotor\\NIST-HF-SERIAL-V5-COMPARISON.md",
+      "original_bytes_preserved": true
+    },
+    "literal-arithmetic-audit.json": {
+      "sha256": "145cc342ffa5d66e1adfaeaadcdda882890b5731260fd1287a0c10e7384b2d9a",
+      "size_bytes": 2463,
+      "original_path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\nist-rigid-rotor\\v5-literal-comparison-audit.json",
+      "original_bytes_preserved": true
+    }
+  },
+  "derived_readme": {
+    "sha256": "e436847da8ce2c82dc390b24635c8983ff50bbceacb5ec6848f6133256dc1062",
+    "size_bytes": 3087
+  },
+  "helper_sha256": "a8bcae2d0ad42c81f7fbb7189afe277bf8f2b1116f9b696f7b5013fbb444b4dd",
+  "original_record_bytes_changed": false,
+  "full_raw_native_evidence_remains_local": true,
+  "native_binary_or_model_or_pdf_included": false,
+  "raw_artifact_portable_retrieval_or_acceptance_promoted": false,
+  "scientific_accuracy_threshold": null,
+  "formal_srs_or_complete_matrix_clearance": false,
+  "production_modified": false,
+  "native_calculations_launched": 0,
+  "receipts": [
+    {
+      "retained_path": "comparison.json",
+      "sha256": "498991c89d258d2666c432315b6c7cce9075f7c2ccdd25702c93eaabfa91c0c2",
+      "size_bytes": 18795
+    },
+    {
+      "retained_path": "ORIGINAL_COMPARISON.md",
+      "sha256": "f1b47fbefd502f3888fb7e5753f8020ea33d84043d034ff71f8c261deb002788",
+      "size_bytes": 3973
+    },
+    {
+      "retained_path": "literal-arithmetic-audit.json",
+      "sha256": "145cc342ffa5d66e1adfaeaadcdda882890b5731260fd1287a0c10e7384b2d9a",
+      "size_bytes": 2463
+    },
+    {
+      "retained_path": "README.md",
+      "sha256": "e436847da8ce2c82dc390b24635c8983ff50bbceacb5ec6848f6133256dc1062",
+      "size_bytes": 3087
+    }
+  ]
+}

@@ -9,7 +9,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
+        default: 09059f052adbe5bb8208ec68a824bd45a0cab0dc
 permissions:
   contents: read
 concurrency:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      BASE_COMMIT: ${{ inputs.base_commit || '09059f052adbe5bb8208ec68a824bd45a0cab0dc' }}
       # A missing executable is a CI failure, never a successful skipped test.
       TOPOS_REQUIRE_REAL_ENGINES: '1'
       TOPOS_EXECUTION_BACKEND: development

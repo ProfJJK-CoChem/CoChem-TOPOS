@@ -151,7 +151,12 @@ def run_acceptance(registry: Path, output: Path, *, cases=CASES, budget_seconds=
                 method = (MethodSpec(engine="orca", method="r2SCAN-3c", profile_id="orca-mapping-v4.2")
                           if case == "native-hessian" else MethodSpec(engine="orca", method="B3LYP", basis="def2-TZVPP",
                               auxiliary_basis="def2/J", dispersion="D4", profile_id="orca-vpt2-reference-v1"))
-                optimized = retain(run_engine(molecule, method, remaining(), folder / "optimization", executable=binary,
+                # Use the native-demonstrated principal-axis C2v seed for this
+                # positive VPT2 case; final-pose stationarity remains mandatory.
+                optimization_molecule = (Molecule(symbols=["O", "H", "H"],
+                    coordinates=[[0., 0., 0.], [.758, .586, 0.], [-.758, .586, 0.]])
+                    if case == "native-vpt2" else molecule)
+                optimized = retain(run_engine(optimization_molecule, method, remaining(), folder / "optimization", executable=binary,
                                                process_runner=runtime.run_process), folder, "optimization")
                 dft_import = None
                 if case == "native-hessian":

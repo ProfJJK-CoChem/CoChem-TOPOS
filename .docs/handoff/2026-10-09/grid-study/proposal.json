@@ -1,0 +1,195 @@
+{
+  "allocation": {
+    "leg_seconds_maximum": 190,
+    "policy": "Serial three predeclared legs; every native call receives min190 and shared remaining time, with cleanup/retention inside total600; no deadline reset/retries/orbital reuse",
+    "total_seconds_maximum": 600
+  },
+  "fixed_geometry": {
+    "choice": "ORIGINAL rejected R2 independent-reference refinement3 endpoint, not the later Cartesian endpoint",
+    "origin": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/r2-reprobe-v2/full-v1/R2-composite/runs/run_a7e97cfd808344188377da4b14f24c5b/attempts/attempt_65cf4cdade544f7b98c71e2cc50a4aa8/optimization-stage-3.json",
+    "origin_sha256": "2dce8131908da0ceab342ede25d63b64f6311525a86101aa8940ce26c710ec37",
+    "policy": "Identical typed18 coordinate values/element order/nuclear state for every leg; no optimization/rotation/projection/rounding adjustment"
+  },
+  "frozen_observation_gate": {
+    "atom_and_geometry_mapping_required": true,
+    "energy_derivative_consistency_hartree": 2e-07,
+    "finite_required": true,
+    "gradient_shape": [
+      6,
+      3
+    ],
+    "native_version": "6.1.1",
+    "no_projected_gradient_permitted": true,
+    "normal_termination_required": true,
+    "returncode": 0,
+    "strict_SCF_active_criteria_required": true
+  },
+  "grid_overrides_are_new_diagnostic_numerics": "Keeping the DEFGRID3 base keyword does not make denser variants original-profile results. Every override/input hash is explicit; no production numerical profile or cached result is changed/promoted.",
+  "legs": [
+    {
+      "explicit_grid_overrides": {},
+      "geometry_matches_original_baseline": true,
+      "input_bytes": 449,
+      "input_file": "baseline-defgrid3.inp",
+      "input_sha256": "1fab3561fce218d128d545120e16ae8d908452cd3790ce3a934af2014a9de937",
+      "leg_budget_seconds_maximum": 190,
+      "name": "baseline-defgrid3",
+      "resources": {
+        "budget_seconds": 190.0,
+        "device": "cpu",
+        "memory_mb": 4096,
+        "threads": 2
+      },
+      "status": "unmeasured"
+    },
+    {
+      "explicit_grid_overrides": {
+        "AngularGridX": [
+          5,
+          6,
+          7
+        ],
+        "IntAccX": [
+          6.0,
+          6.0,
+          6.0
+        ]
+      },
+      "geometry_matches_original_baseline": true,
+      "input_bytes": 492,
+      "input_file": "dense-cosx.inp",
+      "input_sha256": "6f0d90388076e70be788adfc6f5ba9247df89a4f21bd6e4f0884c4f24fe3c750",
+      "leg_budget_seconds_maximum": 190,
+      "name": "dense-cosx",
+      "resources": {
+        "budget_seconds": 190.0,
+        "device": "cpu",
+        "memory_mb": 4096,
+        "threads": 2
+      },
+      "status": "unmeasured"
+    },
+    {
+      "explicit_grid_overrides": {
+        "AngularGrid": 7,
+        "AngularGridX": [
+          5,
+          6,
+          7
+        ],
+        "IntAcc": 6.0,
+        "IntAccX": [
+          6.0,
+          6.0,
+          6.0
+        ]
+      },
+      "geometry_matches_original_baseline": true,
+      "input_bytes": 521,
+      "input_file": "dense-xc-cosx.inp",
+      "input_sha256": "792f74b6dc6118c0c4dae6bf645683a899c60ef2f99c424f5aca6eba5c29f376",
+      "leg_budget_seconds_maximum": 190,
+      "name": "dense-xc-cosx",
+      "resources": {
+        "budget_seconds": 190.0,
+        "device": "cpu",
+        "memory_mb": 4096,
+        "threads": 2
+      },
+      "status": "unmeasured"
+    }
+  ],
+  "method": {
+    "auxiliary_basis": null,
+    "basis": "def2-TZVPP",
+    "constraints": {},
+    "dispersion": "D4",
+    "engine": "orca",
+    "engine_version": "6.1.1",
+    "method": "B3LYP",
+    "profile_id": "orca-vpt2-reference-v1",
+    "purpose": "gradient",
+    "solvent": null
+  },
+  "native_authority": {
+    "bindings": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/campaign-bindings-v5-native/bindings.json",
+    "bindings_sha256": "7e4d74129b691923964786e3172e9b92f36a1252359c8e2ec3750c6aff381655",
+    "orca_binary_sha256": "335aef8bacd939620522d757016dcdb3107a9f0f4e71faad9e7764aa95bdc4ea",
+    "source_manager_BASE": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+    "source_topos": "c8895754e4bb430596b07a26c1e7dcbd11255c1b"
+  },
+  "native_resources": {
+    "MaxCore_mb_per_rank": 1536,
+    "PAL_nprocs": 2,
+    "device": "cpu",
+    "memory_mb": 4096,
+    "threads": 2
+  },
+  "original_Cartesian_diagnostic_status": "failed",
+  "original_Cartesian_envelope_sha256": "e2c59e8a674735e74c5e2a63300f6fd50cfc433ed4bbe3af5a37076cad75a9cd",
+  "original_R2_receipt_sha256": "e4450b15e37c0d7ee83ff45c4eeca5a2dc9c602a6001f5d2deaae5d0e363b0e2",
+  "original_R2_status": "failed",
+  "predeclared_analysis": [
+    "All three actual native energies/vectors/raw SCF/grid settings and individual max/RMS full Cartesian norms",
+    "Baseline versus denseCOSX isolates the declared COSX grid override; denseCOSX versus denseXC+COSX isolates the XC override",
+    "Pairwise full gradient-vector maximum/RMS differences and energy differences; diagnostics-only Euclidean rigid-motion character without changing acceptance",
+    "No posthoc grid selection or assumed monotonic convergence; a single-point threshold pass alone does not establish optimizer, vibrational, full-R2 or experimental accuracy qualification"
+  ],
+  "preparation_helper_sha256": "7f54864b3322dc2f6a8e3f10b231a965304d4515d85e3f1dc8d3a063e3d8c8bc",
+  "prepared_files": {
+    "baseline-defgrid3.inp": {
+      "bytes": 449,
+      "sha256": "1fab3561fce218d128d545120e16ae8d908452cd3790ce3a934af2014a9de937"
+    },
+    "dense-cosx.diff": {
+      "bytes": 214,
+      "sha256": "780aebbf16844cc7eb7ec67e3c56d7d5e3c91bde66a69ac0c7f9b9f7fefd3126"
+    },
+    "dense-cosx.inp": {
+      "bytes": 492,
+      "sha256": "6f0d90388076e70be788adfc6f5ba9247df89a4f21bd6e4f0884c4f24fe3c750"
+    },
+    "dense-xc-cosx.diff": {
+      "bytes": 249,
+      "sha256": "79d9929a66bd4fa4a142f85836ddd0d742f5493f95a3c89afca494f60dcd9e16"
+    },
+    "dense-xc-cosx.inp": {
+      "bytes": 521,
+      "sha256": "792f74b6dc6118c0c4dae6bf645683a899c60ef2f99c424f5aca6eba5c29f376"
+    },
+    "method.json": {
+      "bytes": 254,
+      "sha256": "e50a6c92b9bbcc8a0746c1eda7cf245f9ce35a7a853677138317d801006cfa16"
+    },
+    "starting-molecule.json": {
+      "bytes": 1358,
+      "sha256": "f23fa55837b7908365ebb64ea1854b7d040c7e0d7de9c3ff55fc7524e613b5aa"
+    }
+  },
+  "primary_manual": {
+    "sections": [
+      "2.10.1",
+      "2.10.2",
+      "2.10.3",
+      "2.10.5"
+    ],
+    "support": "DFT/XC and COSX numerical grids are separate. DEFGRID3 uses XC angular6 and COSX2,3,4; angular7 and IntAcc/IntAccX controls are documented. The third SCF COSX grid supplies final energy/gradient integration.",
+    "tables": [
+      "2.46",
+      "2.47",
+      "2.48"
+    ],
+    "url": "https://orca-manual.mpi-muelheim.mpg.de/contents/essentialelements/numericalintegration.html",
+    "version": "ORCA6.1.1"
+  },
+  "prospective_output_root": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/r2-fixed-original-grid-diagnostic-v1",
+  "schema": "topos-r2-fixed-original-grid-diagnostic-proposal/1",
+  "scope": "Fixed-geometry native gradient-only quadrature study; cannot repair/relabel previous failed R2/Cartesian cases or establish a full row",
+  "status": "prepared-unexecuted-requires-root-review-and-go",
+  "unchanged_full_cartesian_stationarity_targets": {
+    "max_gradient_hartree_per_bohr": 1e-07,
+    "rms_gradient_hartree_per_bohr": 3e-08,
+    "scope": "Report separately for each full native Cartesian vector, never loosen or substitute projected norms"
+  },
+  "unchanged_physical_inputs": "B3LYP-D4/def2-TZVPP/RIJCOSX/def2-J, ExtremeSCF, Z_Tol1e-14, same fixed molecule and2CPU/4096MiB allocation; only predeclared numerical quadrature overrides differ"
+}

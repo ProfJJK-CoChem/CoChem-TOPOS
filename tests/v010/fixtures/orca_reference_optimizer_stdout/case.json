@@ -1,0 +1,192 @@
+{
+  "case_id": "HF-water-dimer-E-optimize-prerequisite",
+  "chemistry_domain": "six-atom neutral singlet gas-phase main-isotopologue water dimer; independent computed HF/def2-TZVPP harmonic/RRHO domain",
+  "citation": {
+    "extraction_notes": "Official exact retained energySHA=d646b1f65402d532a70ea267a0d0b28fbca94f1fb887663094c8d7ca78394706;geometrySHA=749747c4f424cfcb4f5723600437254814c2b18f85c807f619b830a8ac799723;RRHOsha=bad6bc78f883d372a4e9a3126229bdc38cca216886d8799c2ef7f9d0745d5dff;60-digitprecisionSHA=dd26aec1e15ae9652286bc8bdadd2826732b3c53dc83752337426b752e50cd68. No evaluated native result was read in source derivation.",
+    "kind": "data-repository",
+    "locator": "https://cccbdb.nist.gov/energy3x.asp?method=1&basis=38&charge=0&casno=25655838",
+    "title": "Independent NIST CCCBDB HF/def2-TZVPP water dimer and separately reconstructed RRHO"
+  },
+  "comparison_rationale": "Separate strictoptimize electronicE case through existing production importer; separate-pose check cannot substitute exact thermo-central-E custom prerequisite; immutableprospective-v2SHA=2a24d2db07251d2840c413d7ae81c67c8b4ef1a1f8d6588f3ea38a3902e5805c",
+  "datum_id": "HF-water-dimer-E-optimize-prerequisite",
+  "definition": "electronic potential energy at recorded output geometry; no ZPE or thermal corrections",
+  "engine_version": "6.1.1",
+  "geometry_role": "optimized-stationary-geometry",
+  "observable": "electronic_energy",
+  "reference_file": "HF-water-dimer-E-optimize-prerequisite.json",
+  "reference_protocol": {
+    "basis": "def2-TZVPP",
+    "core_treatment": "all electrons; no correlation/core freeze",
+    "counterpoise": "none",
+    "energy_zero": "absolute electronic HF potential plus explicit single-conformer nonlinear ideal-gas RRHO where G is named",
+    "geometry_convention": "Independent NIST computed HF optimized water-dimer minimum; complete sorted 12-mode unscaled spectrum",
+    "geometry_role": "optimized-stationary-geometry",
+    "geometry_sha256": null,
+    "isotope_mass_convention": "Evaluated explicit1H/16O neutral masses; same main-isotope source convention is an explicit unconfirmed NIST review assumption",
+    "method": "all-electron HF",
+    "source_limitations": "NIST publishes integer frequencies/6-decimal electronicE/6-decimalXYZ but no original mass list/settings/raw Hessian. Printed rotors inconsistent with literalXYZ are excluded. Independent RRHO is computed harmonic convention, not experimental Gibbs. The primary source isotope assumption requires independent review before formal clearance.",
+    "state_and_environment": "neutral closed-shell singlet gas;298.15K/101325Pa/sigma1/g_e1/frequency_scale1; no floor/solvent/concentration correction"
+  },
+  "reference_sha256": "67abc3344b8c57720ace85b6e891d638202e77715bae6de70c412f44c3918fc0",
+  "request": {
+    "abcluster_options": null,
+    "auxiliary_basis": null,
+    "basis": "def2-TZVPP",
+    "budget_scope": "workflow",
+    "budget_seconds": 7200.0,
+    "calculation_environment": "local",
+    "collapse_enantiomers": false,
+    "constraints": {},
+    "dedup_energy_threshold_kcal_mol": 0.05,
+    "dedup_rotational_threshold_fraction": 0.01,
+    "deduplication_stage": "generation",
+    "device": "cpu",
+    "dipole_method_error_debye": null,
+    "dispersion": null,
+    "energy_window_kcal_mol": 6.0,
+    "engine": "orca",
+    "engine_version": "6.1.1",
+    "environment_is_achiral": null,
+    "include_queue_in_budget": false,
+    "matrix_inputs": {},
+    "matrix_product": "A",
+    "matrix_revision": "topos-0.1.0-supported-profile-v1",
+    "matrix_row_id": null,
+    "memory_mb": 4096,
+    "metadata": {},
+    "method": "HF",
+    "molecule": {
+      "atom_ids": [
+        "nist-1",
+        "nist-2",
+        "nist-3",
+        "nist-4",
+        "nist-5",
+        "nist-6"
+      ],
+      "bonds": [],
+      "charge": 0,
+      "coordinate_units": "angstrom",
+      "coordinates": [
+        [
+          0.147625,
+          0.570129,
+          0.0
+        ],
+        [
+          0.004514,
+          1.505184,
+          0.0
+        ],
+        [
+          0.004514,
+          -1.415378,
+          0.0
+        ],
+        [
+          0.860388,
+          1.89121,
+          0.0
+        ],
+        [
+          -0.54012,
+          -1.589896,
+          0.748572
+        ],
+        [
+          -0.54012,
+          -1.589896,
+          -0.748572
+        ]
+      ],
+      "environment": {
+        "phase": "gas"
+      },
+      "fragment_states": [
+        {
+          "atom_indices": [
+            0,
+            1,
+            3
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        },
+        {
+          "atom_indices": [
+            2,
+            4,
+            5
+          ],
+          "charge": 0,
+          "multiplicity": 1
+        }
+      ],
+      "fragments": [
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          2,
+          4,
+          5
+        ]
+      ],
+      "isotopes": [
+        1,
+        16,
+        16,
+        1,
+        1,
+        1
+      ],
+      "multiplicity": 1,
+      "name": "NIST independent HF water dimer",
+      "stereochemistry": {},
+      "symbols": [
+        "H",
+        "O",
+        "O",
+        "H",
+        "H",
+        "H"
+      ]
+    },
+    "n_candidates": 1,
+    "per_ensemble_budget_seconds": null,
+    "per_geometry_budget_seconds": null,
+    "perturbation_angstrom": 0.15,
+    "presentation_environment": "local",
+    "profile_id": "orca-vpt2-reference-v1",
+    "purpose": "optimize",
+    "rmsd_threshold_angstrom": 0.125,
+    "sampler_budget_fraction": 0.5,
+    "sampler_nci": false,
+    "sampler_profile": "crest-imtdgc-v1",
+    "search_algorithm": "jiggle-quench",
+    "seed": 0,
+    "solvent": null,
+    "starting_geometries": [],
+    "symmetry_tolerance_angstrom": 0.001,
+    "temperature_k": 298.15,
+    "thermochemistry_options": {
+      "concentration_mol_l": null,
+      "cutoff_cm1": 10.0,
+      "frequency_scale": 1.0,
+      "low_frequency_policy": "reject",
+      "optimize_first": true,
+      "pressure_pa": 101325.0,
+      "step_bohr": 0.005,
+      "symmetry_number": null
+    },
+    "threads": 2
+  },
+  "tolerance": {
+    "absolute": 5.001e-07,
+    "rationale": "Prospective half of last6decimal source unit plus1e-10 strictSCF; conditional nearest-rounding assumption.",
+    "relative": 0.0
+  },
+  "units": "hartree"
+}

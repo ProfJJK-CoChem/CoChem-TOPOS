@@ -15,7 +15,7 @@ import re
 import shutil
 import tempfile
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Literal
 
 import numpy as np
@@ -480,6 +480,33 @@ def _frozen(path: Path, source_root: Path) -> tuple[dict, ReferenceCampaign]:
     return frozen, campaign
 
 
+def _orca_optimizer_stdout(attempt, molecule: Molecule, snapshot: Path):
+    """Bind the recorded optimizer process to its exact retained native stage."""
+    from .ml_training import _optimization_refinement_contract, _reference_artifact
+
+    method = MethodSpec.model_validate(attempt.metadata['requested_method'])
+    resources = ResourceLimits.model_validate(attempt.metadata['resources'])
+    initial = Molecule.model_validate(attempt.metadata['input_molecule'])
+    stages = _optimization_refinement_contract(attempt, initial, molecule, method, resources)
+    stage = stages[-1]['stage_directory'] if stages else ''
+    expected = PurePosixPath('attempts', attempt.attempt_id, stage, 'engine.stdout')
+    recorded = attempt.diagnostics.get('process', {}).get('stdout_path')
+    if not isinstance(recorded, str):
+        raise IntegrityError('Native optimizer process lacks its exact stdout path')
+    normalized = recorded.replace('\\', '/')
+    original = PurePosixPath(normalized)
+    # Original native locators survive relocation of the immutable snapshot.
+    # Bind the run/attempt/stage tail rather than resolving that old directory.
+    suffix = (attempt.run_id, *expected.parts)
+    if (not (original.is_absolute() or PureWindowsPath(recorded).is_absolute())
+            or any(part in {'.', '..'} for part in normalized.split('/'))
+            or original.parts[-len(suffix):] != suffix):
+        raise IntegrityError('Native optimizer process stdout differs from its exact run/attempt/stage identity')
+    path = _reference_artifact(snapshot, attempt, 'engine.stdout', stage=stage)
+    artifact = next(a for a in attempt.artifacts if a.path == expected.as_posix())
+    return artifact, path
+
+
 def _orca_optimization_proof(attempt, molecule: Molecule, snapshot: Path) -> tuple[float, dict]:
     """Reuse production native optimizer/gradient gates without ML label restrictions."""
     from .engines import _orca_input, parse_orca_engrad, read_xyz
@@ -725,11 +752,18 @@ def _native_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tu
     if attempt.metadata.get('output_molecule') != candidate.molecule.model_dump(mode='json'):
         raise ValueError('Measured native output geometry differs from the eligible candidate')
     snapshot = store.snapshot_path()
-    stdout_name = Path(attempt.diagnostics.get('process', {}).get('stdout_path', '')).name
-    outputs = [artifact for artifact in attempt.artifacts if Path(artifact.path).name == stdout_name]
-    if len(outputs) != 1:
-        raise ValueError('Native process stdout is not uniquely inventoried')
-    raw = confined_file(snapshot, 'artifacts/' + outputs[0].path).read_text(errors='replace')
+    if attempt.engine == 'orca' and case.request.purpose == 'optimize':
+        if attempt.run_id != record.run_id:
+            raise IntegrityError('Native optimizer attempt belongs to a different measured run')
+        output, stdout_path = _orca_optimizer_stdout(attempt, candidate.molecule, snapshot)
+    else:
+        stdout_name = Path(process.get('stdout_path', '')).name
+        outputs = [artifact for artifact in attempt.artifacts if Path(artifact.path).name == stdout_name]
+        if len(outputs) != 1:
+            raise ValueError('Native process stdout is not uniquely inventoried')
+        output = outputs[0]
+        stdout_path = confined_file(snapshot, 'artifacts/' + output.path)
+    raw = stdout_path.read_text(errors='replace')
     from .engines import XTB_PROFILES, _engine_version, _number, parse_xtb_gradient, read_xyz
 
     if attempt.engine == 'xtb':
@@ -812,7 +846,7 @@ def _native_value(case: ReferenceCase, record: RunRecord, store: RunStore) -> tu
         value = rotors['constants_ghz']
     return value, {'candidate_id': candidate.candidate_id, 'attempt_id': attempt.attempt_id,
                    'engine_version': attempt.engine_version, 'geometry_sha256': digest_json(candidate.molecule.model_dump(mode='json')),
-                   'native_stdout_sha256': outputs[0].sha256, 'parser': quantities[0].parser,
+                   'native_stdout_sha256': output.sha256, 'parser': quantities[0].parser,
                    **({'optimization': optimization_proof} if attempt.engine == 'orca' and case.request.purpose == 'optimize' else {})}
 
 

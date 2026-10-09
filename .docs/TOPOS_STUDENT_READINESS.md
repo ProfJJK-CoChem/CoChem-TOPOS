@@ -28,7 +28,11 @@ The intake supports a starting geometry for each calculation purpose, a supplied
 
 ## Installation and execution profiles
 
-BASE installs TOPOS through its independently reviewed complete ecosystem kit. Use the complete dashboard launcher in BASE's module panel after installation. The supported kit contains the BASE/TOPOS runtime and compatible TORQ consumer. The newer TORQ student calculator uses its separately isolated BASE module environment: its package shares paths with BASE and must not overwrite the BASE/TOPOS authority interpreter. A complete installation selects both module profiles while retaining their separate environments.
+BASE installs TOPOS through its independently reviewed complete ecosystem kit. Use the complete dashboard launcher in BASE's module panel after installation. The standalone supported kit contains the BASE/TOPOS runtime and compatible
+TORQ consumer. The [managed integration](BASE_1_1_Managed_Integration.md) also
+accepts an independently verified isolated TORQ sidecar, with exact source,
+wheel RECORD and dependency verification. Its implemented refusal checks do not
+replace an actual installed positive qualification receipt. The newer TORQ student calculator uses its separately isolated BASE module environment: its package shares paths with BASE and must not overwrite the BASE/TOPOS authority interpreter. A complete installation selects both module profiles while retaining their separate environments.
 
 The generic correlated Actions worker is a bounded free-engine profile. Native TOPOS calculations use BASE's separately staged private-project workflow and canonical request export. Licensed assets are staged and consumed only through their controlled engine-specific contracts. A student's personal repository uses their account's Actions allowance and their authorized access; organization secrets are not inherited by personal repositories. Codespaces authentication and Actions job authentication are separate contexts.
 

@@ -33,6 +33,12 @@ The ordinary native generator supplies the same method to optimization and its f
 
 More SCF iterations may increase computation time. No timing scaling or universal cost claim is justified by the water experiment. Every attempt, workflow and derivative retains its original deadline; the new profile may yield partial or timed-out results under shorter tiers. New matched hardware/method/profile measurements are required for runtime estimates.
 
+## Bounded native continuation on the workstation
+
+An ordinary energy or analytic-gradient job that terminates normally but misses an active final SCF residual may continue once from its own freshly generated GBW. The input deck, numerical targets, method, original shared deadline and cancellation state remain unchanged. Optimization orbitals are never imported into an independent cold-gradient job. Missing or changed targets, unknown final convergers, failed native processes and optimization jobs do not qualify.
+
+The controller retains the initial input, GBW, derivatives and both native streams under `initial-scf/`, records their exact hashes in `scf-continuation.json`, and requires native AutoStart evidence before accepting the continuation. The final native output must independently pass the existing numerical-profile parser. This changes solver execution only; it supplies no reference-accuracy or complete-matrix pass. Earlier failed native results remain retained.
+
 ## Sources
 
 1. FACCTs, *ORCA 6.1 Manual*, “Convergence Tolerances,” including `%scf TolE`, TightSCF targets and `ConvCheckMode` semantics: <https://www.faccts.de/docs/orca/6.1/manual/contents/essentialelements/scf.html#convergence-tolerances>. The exact retrieved document used for preparation is retained outside the repository as `scf-mode0-tole-investigation-20261008/official-orca61-scf-source.md`, SHA256 `6586b7ca35d5f95560618384f85332202271d7d9bfd4f1ca6373fb977df3f7c1`.

@@ -132,8 +132,8 @@ class DevelopmentNativeMLRuntime:
 
 @pytest.fixture
 def genuine_runtime():
-    python, request_path, crest = (os.environ.get(name) for name in
-                                   ("TOPOS_ML_TEST_PYTHON", "TOPOS_ML_TEST_REQUEST", "TOPOS_CREST_EXECUTABLE"))
+    python = os.environ.get("TOPOS_MACE_PYTHON") or os.environ.get("TOPOS_ML_TEST_PYTHON")
+    request_path, crest = os.environ.get("TOPOS_ML_TEST_REQUEST"), os.environ.get("TOPOS_CREST_EXECUTABLE")
     if not python or not request_path or not crest:
         pytest.skip("explicit genuine CREST/MACE interpreter and checkpoint request required")
     original = read_json(Path(request_path))
@@ -221,6 +221,9 @@ def test_actual_patched_binary_requires_matching_source_provenance(tmp_path, gen
     copied.mkdir()
     for name in ("crest", "installation.json", "source.patch"):
         shutil.copy2(source / name, copied / name)
+    # Keep the actual native loader dependencies beside the copied executable.
+    if (source / "lib").is_dir():
+        shutil.copytree(source / "lib", copied / "lib")
     if damage == "missing-manifest":
         (copied / "installation.json").unlink()
     elif damage == "patch-bytes":

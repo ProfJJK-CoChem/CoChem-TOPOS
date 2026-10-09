@@ -44,7 +44,9 @@ class GenuineDevelopmentRuntime:
 
 def real_request(backend):
     variable = "TOPOS_AIMNET_TEST_REQUEST" if backend == "aimnet2" else "TOPOS_ML_TEST_REQUEST"
-    path, python = os.environ.get(variable), os.environ.get("TOPOS_ML_TEST_PYTHON")
+    interpreter_variable = "TOPOS_AIMNET_PYTHON" if backend == "aimnet2" else "TOPOS_MACE_PYTHON"
+    path = os.environ.get(variable)
+    python = os.environ.get(interpreter_variable) or os.environ.get("TOPOS_ML_TEST_PYTHON")
     if not path or not python:
         pytest.skip("Explicit actual ML interpreter/checkpoint request required")
     request = read_json(Path(path))

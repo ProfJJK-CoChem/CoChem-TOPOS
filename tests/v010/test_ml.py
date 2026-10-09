@@ -128,7 +128,7 @@ def test_grid_rejects_repeated_and_excessive_points():
 @pytest.mark.integration
 def test_actual_aimnet_committee_derivative_and_rigid_invariance(tmp_path):
     """Run official hash-bound weights; no generated checkpoint or fabricated energy."""
-    executable = os.environ.get("TOPOS_ML_TEST_PYTHON")
+    executable = os.environ.get("TOPOS_AIMNET_PYTHON") or os.environ.get("TOPOS_ML_TEST_PYTHON")
     request_path = os.environ.get("TOPOS_AIMNET_TEST_REQUEST")
     if not executable or not request_path:
         pytest.skip("Explicit AIMNet interpreter and official checkpoint request required")

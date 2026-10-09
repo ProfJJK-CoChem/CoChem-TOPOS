@@ -1,8 +1,12 @@
 # Installing and upgrading the mandatory CoChem package
 
-TOPOS 0.1.0 build tooling produces a Python wheel and source archive. Its mandatory
-package versions are **CoChem-BASE 1.0.1, CoChem-TOPOS 0.1.0 and CoChem-TORQ
-0.1.0**, on Python 3.11 or newer. Native calculation acceptance currently targets
+TOPOS 0.1.0 build tooling produces a Python wheel and source archive. The standalone
+combined kit uses **CoChem-BASE 1.0.1, CoChem-TOPOS 0.1.0 and compatible-core
+CoChem-TORQ 0.1.0**, on Python 3.11 or newer. The
+[BASE-managed integration](BASE_1_1_Managed_Integration.md) permits BASE
+`>=1.0.1,<2` and an independently verified isolated TORQ sidecar. Its source-bound
+catalog and actual installation receipt must qualify the exact selected set;
+the version range alone supplies no compatibility proof. Native calculation acceptance currently targets
 Linux CPU. Installing a package does not establish an audited engine allocation,
 complete method-matrix coverage, or downstream TORQ scientific readiness.
 
@@ -25,8 +29,10 @@ The coded student path is:
 2. Open BASE's **Module installation and execution** panel. Choose
    **CoChem-TOPOS**, set external **Module storage**, provide the **CoChem kit
    directory**, and select **Install selected recipient**. BASE installs the
-   complete BASE/TOPOS/compatible-core-TORQ package into its independent
-   noneditable environment and audits its actual runtime.
+   reviewed BASE/TOPOS deployment into its independent noneditable environment
+   and audits its actual runtime. Its selected profile either uses the compatible
+   combined kit or separately verifies the isolated TORQ installation and sidecar;
+   source, wheel RECORD and dependency checks remain mandatory.
 3. Refresh availability and select **Open complete TOPOS interface**. The
    installed Streamlit application runs in that audited environment. Use the
    provided local or Codespaces URL; keep a Codespaces forwarded port private.
@@ -105,8 +111,20 @@ reviewed source revisions using the commands below. The download should contain:
 - The TOPOS wheel, source archive, `distribution-manifest.json` and `SHA256SUMS`.
 - A wheelhouse containing the exact three mandatory distributions and its own
   `SHA256SUMS`.
+- Matching BASE, TOPOS and TORQ source archives, plus the separately installed ML
+  worker wheel and its source manifest.
 - Installed-package and scientific validation receipts, plus the separate release
   gate report. A successful archive build alone is insufficient.
+
+For **Prepare and verify unsigned TOPOS release candidate**, supply the reviewed
+full lowercase 40-character BASE commit in the required `base_commit` dispatch
+input. Automation may instead configure repository variable `COCHEM_BASE_COMMIT`.
+The workflow fails before companion checkout when neither is set or the value is
+not an immutable commit. There is no historical foundation or moving-branch
+default. Select the BASE revision whose installed catalog binds this exact TOPOS
+commit, wheel and setup helper; retain that selection in the companion build
+manifest. The BASE catalog is finalized after TOPOS is frozen, so a fixed reverse
+pin in TOPOS would create a circular revision dependency.
 
 Do not let a public package index choose similarly named CoChem dependencies.
 The installer passes the reviewed BASE, TOPOS and TORQ wheel paths explicitly.
@@ -314,7 +332,9 @@ override a failed or absent extended calculation.
 
 ## Isolated ML inference worker
 
-The mandatory controller environment still installs BASE, TOPOS and TORQ together.
+The standalone combined controller installs compatible BASE, TOPOS and TORQ
+together. The BASE-managed sidecar profile instead verifies TORQ in its separate
+interpreter; installation-rejection tests alone do not qualify that deployment.
 BASE runs ML inference in its separately locked interpreter so incompatible model
 frameworks cannot alter the controller's numerical environment. The worker carries
 identical TOPOS source bytes in a separate `cochem-topos-ml-worker` distribution.

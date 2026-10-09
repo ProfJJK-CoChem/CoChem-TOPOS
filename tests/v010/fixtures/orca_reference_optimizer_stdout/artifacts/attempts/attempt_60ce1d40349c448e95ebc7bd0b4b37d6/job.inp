@@ -1,0 +1,24 @@
+! HF ExtremeSCF DEFGRID3 def2-TZVPP Opt
+%pal nprocs 2 end
+%maxcore 1536
+%method
+  Z_Tol 1e-14
+end
+%geom
+  EnforceStrictConvergence true
+  MaxIter 200
+  TolE 1e-10
+  TolMaxG 1e-7
+  TolRMSG 3e-8
+  TolRMSD 5e-7
+  TolMaxD 1e-6
+  InHess Lindh
+end
+* xyz 0 1
+H 0.147625 0.570129 0
+O 0.004514 1.505184 0
+O 0.004514 -1.415378 0
+H 0.860388 1.89121 0
+H -0.54012 -1.589896 0.748572
+H -0.54012 -1.589896 -0.748572
+*

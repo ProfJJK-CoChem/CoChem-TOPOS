@@ -136,11 +136,11 @@ def test_charged_total_dipole_has_origin_translation_in_atomic_units():
 
 def test_cartesian_input_does_not_distort_water_or_claim_native_optimization():
     _, molecule, _ = native_fixture()
-    resources = ResourceLimits(memory_mb=512, threads=2)
+    resources = ResourceLimits(memory_mb=2048, threads=2)
     deck = cfour_input(molecule, protocol(operation="optimize"), resources)
     assert "COORDINATES=CARTESIAN" in deck and "DERIV_LEVEL=FIRST" in deck
     assert "VIB" not in deck and "ANHARM" not in deck and "GEO_METHOD" not in deck
-    assert "ABCDTYPE=AOBASIS" in deck and "MEMORY_SIZE=50331648" in deck
+    assert "ABCDTYPE=AOBASIS" in deck and "MEMORY_SIZE=150994944" in deck
     observed = np.array([[float(v) for v in row.split()[1:]] for row in deck.splitlines()[1:4]])
     assert observed == pytest.approx(np.asarray(molecule.coordinates))
     assert "PROPS=FIRST_ORDER" in cfour_input(molecule, protocol(operation="first-order-properties"), resources)

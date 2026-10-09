@@ -25,6 +25,13 @@ PROFILES = {
         "validation_scope": "genuine historical-source water consistency diagnostic; other routes require separate live acceptance",
         "numerical_profile_sha256": numerical_profile_receipt(MAPPING_V42)["definition_sha256"],
     },
+    "orca-vpt2-reference-v1": {
+        "engine": "orca",
+        "convergence": "Existing ExtremeSCF/DEFGRID3 profile; strict optimizer and independent final-gradient gates",
+        "purpose": "unconstrained stationary derivative reference",
+        "source": "topos/engines.py; topos/anharmonic.py",
+        "validation_scope": "Admission of the existing native profile only; actual stationarity, Hessian and VPT2 completion are verified per execution",
+    },
     "orca-mapping-v4.1": {
         "engine": "orca",
         "convergence": "mapping-v4.1 explicit thresholds",
@@ -212,7 +219,27 @@ def validate_route(request: RunRequest, config: SystemConfig) -> tuple[str, str]
     ):
         return "unsupported", "ABCluster requires gas-phase CPU sampling of explicitly state-resolved closed-shell rigid fragments without additional constraints."
     if request.engine not in {"xtb", "orca"}:
-        return "unsupported", "Requested engine has no validated adapter."
+        if request.purpose != "matrix" or request.engine not in {"cfour", "psi4"}:
+            return "unsupported", "Requested engine has no validated adapter."
+        from .data.runtime_recipes import EXECUTABLE_ROWS
+        from .matrix_workflow import MatrixInputs
+        from .method_matrix import resolved_recipe
+
+        try:
+            row = resolve_row(request.matrix_row_id, product=request.matrix_product)
+            if row.owner != "TOPOS" or row.row_id not in EXECUTABLE_ROWS or row.track_gap:
+                return "unsupported", "The requested external engine requires an implemented TOPOS matrix recipe."
+            inputs = MatrixInputs.model_validate(request.matrix_inputs)
+            steps, _ = resolved_recipe(row, inputs.source_resolution)
+        except (TypeError, ValueError) as exc:
+            return "unsupported", str(exc)
+        if request.engine not in {step.engine for step in steps}:
+            return "unsupported", "Requested external engine does not match the selected compiled matrix recipe."
+        if inputs.external_protocol is not None and inputs.external_protocol.engine != request.engine:
+            return "unsupported", "Requested external engine differs from its typed native protocol."
+        # This admits the matrix parent only. The complete compiled recipe,
+        # exact scientific inputs and fresh BASE authority remain mandatory
+        # before any of its native components can execute.
     if request.threads > min(config.max_threads, os.cpu_count() or 1):
         return "unavailable", "Requested threads exceed the configured or detected CPU allocation."
     available_mb = psutil.virtual_memory().available // (1024 * 1024)

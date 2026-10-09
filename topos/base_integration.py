@@ -32,6 +32,59 @@ class BaseIntegrationError(RuntimeError):
     """Mandatory installation, registry authority, or broker is unavailable."""
 
 
+def _verified_torq_sidecar(path: str | Path) -> dict[str, Any]:
+    """Normalize invalid sidecars and BASE verification failures at the boundary."""
+    try:
+        return _read_verified_torq_sidecar(path)
+    except BaseIntegrationError:
+        raise
+    except (ImportError, ValueError, OSError, KeyError, TypeError, AttributeError, RuntimeError) as exc:
+        raise BaseIntegrationError("TORQ isolated installation failed verification: " + str(exc)) from exc
+
+
+def _read_verified_torq_sidecar(path: str | Path) -> dict[str, Any]:
+    """Verify TORQ's real separate installation without importing its namespaces.
+
+    TORQ currently distributes names also owned by BASE. Installing both wheels
+    into one interpreter can replace BASE's broker/context. BASE supplies this
+    receipt only after its own installation check; this receiver independently
+    rechecks the source, environment, wheel RECORDs and dependency consistency.
+    """
+    sidecar = Path(path).expanduser().resolve(strict=True)
+    if not sidecar.is_file() or sidecar.stat().st_size > 100_000:
+        raise BaseIntegrationError("TORQ sidecar must be a bounded regular JSON receipt")
+    raw = sidecar.read_bytes()
+    value = json.loads(raw)
+    required = {"schema_version", "module_id", "root", "spec", "installation_receipt_sha256"}
+    if (not isinstance(value, dict) or set(value) != required
+            or value["schema_version"] != "cochem.module-sidecar/1" or value["module_id"] != "torq"
+            or not isinstance(value["root"], str) or not value["root"].strip()
+            or not isinstance(value["spec"], dict)
+            or not isinstance(value["installation_receipt_sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", value["installation_receipt_sha256"])):
+        raise BaseIntegrationError("Invalid BASE-verified TORQ sidecar contract")
+    root = Path(value["root"]).expanduser().resolve(strict=True)
+    receipt_path = root / "torq" / "installation.json"
+    digest = hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+    if digest != value["installation_receipt_sha256"]:
+        raise BaseIntegrationError("TORQ installation receipt changed after BASE verification")
+    from scripts.manage_modules import verify_installation
+    receipt = verify_installation("torq", value["spec"], root)
+    if (receipt["distribution_metadata"]["name"].lower().replace("_", "-") != "cochem-torq"
+            or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != digest
+            or sidecar.read_bytes() != raw):
+        raise BaseIntegrationError("TORQ sidecar identity changed during verification")
+    return {"available": True, "kind": "verified-isolated-installation",
+            "installed": True, "version": receipt["distribution_metadata"]["version"],
+            "path": receipt["source_path"], "python_path": receipt["python_path"],
+            "repository": receipt["repository"], "revision": receipt["revision"],
+            "environment_sha256": receipt["environment_sha256"],
+            "installation_receipt_sha256": digest,
+            "sidecar_sha256": hashlib.sha256(raw).hexdigest(), "consumer_ready": False,
+            "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"}
+
+
+
 def _source_root(variable: str, project: str, package: str) -> Path | None:
     value = os.environ.get(variable)
     if not value:
@@ -78,6 +131,9 @@ def inspect_ecosystem(*, require_torq: bool = True) -> EcosystemStatus:
         if project == "CoChem-TORQ" and not require_torq:
             continue
         try:
+            if project == "CoChem-TORQ" and os.environ.get("COCHEM_TORQ_SIDECAR"):
+                components[project] = _verified_torq_sidecar(os.environ["COCHEM_TORQ_SIDECAR"])
+                continue
             source = _source_root(variable, project, package)
             if source is not None:
                 # Only BASE is imported by this adapter. TORQ discovery must not
@@ -288,8 +344,13 @@ class BaseRuntime:
             if resources.device != "gpu" or engine not in {"mace", "aimnet2"}:
                 raise BaseIntegrationError("Only an explicitly audited ML engine may request GPU execution")
             metrics = self.registry.hardware.gpu_compute_metrics
-            if (type(gpu_index) is not int or not 0 <= gpu_index < metrics.device_count
-                    or type(gpu_memory_mb) is not int or not 1 <= gpu_memory_mb <= metrics.vram_gb * 1024):
+            # BASE preserves unavailable observations as None. An unknown
+            # device count or VRAM cannot authorize an allocation.
+            device_count, vram_gb = metrics.device_count, metrics.vram_gb
+            if (type(device_count) is not int or device_count < 1
+                    or type(vram_gb) not in {int, float} or not math.isfinite(vram_gb) or vram_gb <= 0
+                    or type(gpu_index) is not int or not 0 <= gpu_index < device_count
+                    or type(gpu_memory_mb) is not int or not 1 <= gpu_memory_mb <= vram_gb * 1024):
                 raise BaseIntegrationError("GPU index and positive VRAM request must fit measured BASE GPU authority")
             inherited = os.environ.get("CUDA_VISIBLE_DEVICES")
             if inherited is not None and str(gpu_index) not in inherited.split(","):
@@ -504,7 +565,8 @@ print(json.dumps(result,sort_keys=True))
         probe_command = [command[0], "-I", "-c", probe_code, json.dumps(contract, sort_keys=True)]
         probe = self._execute_authorized(probe_command, folder, remaining(), authority, engine=engine,
                                          cancel_event=cancel_event, log_prefix=log_prefix + "-authority",
-                                         output_limit_mb=4, cuda_visible_devices=str(gpu_index) if gpu_index is not None else None)
+                                         output_limit_mb=4, cuda_visible_devices=str(gpu_index) if gpu_index is not None else None,
+                                         isolated_python=True, gpu_memory_mb=gpu_memory_mb)
         if probe.status != "completed":
             if probe.status in {"cancelled", "timed-out"}:
                 return probe
@@ -520,7 +582,7 @@ print(json.dumps(result,sort_keys=True))
         result = self._execute_authorized(command, folder, remaining(), authority, engine=engine,
                                           cancel_event=cancel_event, log_prefix=log_prefix, output_limit_mb=output_limit_mb,
                                           cuda_visible_devices=str(gpu_index) if gpu_index is not None else None,
-                                          isolated_python=True)
+                                          isolated_python=True, gpu_memory_mb=gpu_memory_mb)
         if file_digest(request_path) != request_sha256 or any(file_digest(Path(p)) != h for p, h in model_files.items()):
             raise BaseIntegrationError("The immutable ML request or model members changed during execution")
         if file_digest(Path(observed["worker_path"])) != worker_sha256 or file_digest(self.registry_path) != binding["registry_sha256"]:
@@ -741,10 +803,22 @@ print(json.dumps(result,sort_keys=True))
         environment: dict[str, str] | None = None, output_limit_mb: int = 256,
         threads_per_process: int | None = None,
         cuda_visible_devices: str | None = None, isolated_python: bool = False,
+        gpu_memory_mb: int | None = None,
     ) -> ProcessResult:
         """Private common broker path after engine or distribution authority succeeds."""
         from .runtime import ProcessResult
 
+        gpu_launch = resources.device == "gpu"
+        if gpu_launch:
+            record = self.registry.engines.get(engine)
+            if (engine not in {"mace", "aimnet2"} or authorization.engine != engine
+                    or not record or not record.gpu_support or cuda_visible_devices is None
+                    or not re.fullmatch(r"\d+", cuda_visible_devices)):
+                raise BaseIntegrationError("Native GPU launch requires an explicit audited GPU allocation")
+            self.validate_resources(resources, engine=engine, gpu_index=int(cuda_visible_devices),
+                                    gpu_memory_mb=gpu_memory_mb)
+        elif gpu_memory_mb is not None:
+            raise BaseIntegrationError("CPU launch cannot carry a GPU allocation")
         folder = Path(workdir).resolve()
         folder.mkdir(parents=True, exist_ok=True)
         stdout, stderr = folder / f"{log_prefix}.stdout", folder / f"{log_prefix}.stderr"
@@ -815,7 +889,15 @@ print(json.dumps(result,sort_keys=True))
             })
         if cuda_visible_devices is not None:
             supplied["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
+        if gpu_launch:
+            # The worker requires deterministic CUDA algorithms. CuBLAS reads
+            # this fixed workspace policy before its first matrix operation.
+            supplied["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
         if isolated_python:
+            # The audited silo owns its native dependencies. Host engine paths
+            # can otherwise replace Torch's C++ runtime before Python imports.
+            supplied.pop("LD_LIBRARY_PATH", None)
+            supplied.pop("DYLD_LIBRARY_PATH", None)
             supplied.update(PYTHONSAFEPATH="1", PYTHONNOUSERSITE="1")
         if engine == "orca":
             # The BASE installer deliberately does not alter the controller
@@ -886,7 +968,8 @@ print(json.dumps(result,sort_keys=True))
 
         watcher = Thread(target=monitor, name="topos-base-budget", daemon=True)
         watcher.start()
-        launcher = [sys.executable, str(Path(__file__).resolve()), "--native-exec",
+        launcher_mode = "--native-exec-gpu" if gpu_launch else "--native-exec"
+        launcher = [sys.executable, str(Path(__file__).resolve()), launcher_mode,
                     str(resources.memory_mb), str(output_limit_mb), str(stdout), str(stderr), *command]
         try:
             result = broker.execute(launcher, cwd=folder, timeout_seconds=resources.budget_seconds)
@@ -932,7 +1015,11 @@ def _native_exec() -> None:
     import resource
 
     memory, limit = int(sys.argv[2]) * 1024**2, int(sys.argv[3]) * 1024**2
-    resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+    # CUDA reserves virtual address space far beyond its resident host RAM.
+    # GPU launches retain the aggregate process-tree RSS watcher and the worker's
+    # explicit GPU allocator ceiling; CPU launches retain their original AS cap.
+    if sys.argv[1] != "--native-exec-gpu":
+        resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
     resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     for descriptor, path in ((1, sys.argv[4]), (2, sys.argv[5])):
@@ -945,6 +1032,6 @@ def _native_exec() -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 7 or sys.argv[1] != "--native-exec":
+    if len(sys.argv) < 7 or sys.argv[1] not in {"--native-exec", "--native-exec-gpu"}:
         raise SystemExit("Private TOPOS native launcher: invalid arguments")
     _native_exec()

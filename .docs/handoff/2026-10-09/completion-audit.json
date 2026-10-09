@@ -1,0 +1,475 @@
+{
+  "schema_version": "cochem-readonly-completion-audit/2",
+  "status": "in-progress",
+  "recorded_at_utc": "2026-10-09T16:33:52.900006+00:00",
+  "finalized": false,
+  "release": {
+    "unsigned": true,
+    "published": false,
+    "certified": false
+  },
+  "qualified_source_pins": {
+    "topos": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+    "manager_base": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+    "science_base": "09059f052adbe5bb8208ec68a824bd45a0cab0dc",
+    "legacy_torq": "4f323800227dbde00ffb082bd6d9e44d851e1c7a",
+    "modern_isolated_torq": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4"
+  },
+  "next_source_pins": null,
+  "mutable_worktree_status_informational": " M topos/reference_interaction.py\n M topos/scientific_references.py\n?? tests/v010/fixtures/orca_reference_matrix_cp/\n?? tests/v010/fixtures/orca_reference_optimizer_stdout/\n?? tests/v010/test_reference_matrix_cp.py\n?? tests/v010/test_reference_optimizer_stdout.py\n",
+  "working_edits_claimed_qualified": false,
+  "source_contracts_at_frozen_commit": {
+    "topos/release.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "4c3f012581207d60939d35fc67e7d2fcfba0ee5d2cdfde4f5b628370d7b1b8eb"
+    },
+    "topos/matrix_campaign.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "68f34a5aae871284ad223cd3dbb81d367b76a4217eccecea0d749476299630c5"
+    },
+    "topos/matrix_ml_training.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "fc7b836795c995bbdaddf125e52d039f5e98785d95c7c991ed326261aaf7aa1f"
+    },
+    "topos/matrix_workflow.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "b93bf1069c361995614de930164a0b443f9979139d7983c350ec3065510f6e24"
+    },
+    "topos/data/runtime_recipes.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "76f3f0288298c424e2fbaf9cee8d2eaba62d330b2740ea875da2c822a36681eb"
+    },
+    "topos/data/method_matrix_v4.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "c6dda9afa3f93bb0b0dd96c198d412ac335b2e55d63be735ee98a3657af4683d"
+    },
+    "topos/data/reviewed_matrix_v010.py": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "6eb430aba1902e6bafdadc8b15b422017711f45b6ce8bf200bcc287930e8bcb5"
+    },
+    ".github/workflows/topos_orca_acceptance.yml": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "c79fd41823da7bd680eec9fcd1b6120f0f94b4d0a24c26a3d489388aba870123"
+    },
+    ".docs/CoChem-TOPOS_SRS.md": {
+      "git_commit": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+      "sha256": "7e70b41cb15e31c5ef8c2ad98568691c5913bd2e866ce1abdc7d50748b834271"
+    }
+  },
+  "candidate_index": {
+    "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\delivery-status-v2-candidate\\index.json",
+    "sha256": "d7a1d1ed1d6040b0d4d17255ab1d92bc90b29c1f233efbd93e72f8e7fd6a2fcc"
+  },
+  "software": {
+    "full_source_regression": {
+      "status": "passed",
+      "named_passed": 3151,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "ruff": "passed",
+      "pip_check": "passed"
+    },
+    "srs_ledger": {
+      "status": "incomplete",
+      "clauses": 50,
+      "verified": 22,
+      "verification_pending": 28,
+      "source_bindings": 185
+    },
+    "public_ci": [
+      {
+        "repository": "ProfJJK-CoChem/CoChem-TOPOS",
+        "run_id": "37942562100",
+        "attempt": 1,
+        "head_sha": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+        "actual_checkout_commits": [
+          "b33b659744077b15494050b223cbf283993f7ba4"
+        ],
+        "status": "success",
+        "junit_counts": [
+          {
+            "tests": 3063,
+            "passed": 3019,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 44
+          },
+          {
+            "tests": 3063,
+            "passed": 3019,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 44
+          }
+        ],
+        "scope": "Public profile only; declared skips and separately uncollected BASE-dependent suites remain explicit"
+      },
+      {
+        "repository": "ProfJJK-CoChem/CoChem-BASE",
+        "run_id": "37942646480",
+        "attempt": 1,
+        "head_sha": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+        "actual_checkout_commits": [
+          "dcabc0e5220f810af6f7b07e55495bb7e54d93ca"
+        ],
+        "status": "success",
+        "junit_counts": [
+          {
+            "tests": 221,
+            "passed": 221,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          {
+            "tests": 221,
+            "passed": 221,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          {
+            "tests": 221,
+            "passed": 221,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          {
+            "tests": 1641,
+            "passed": 1641,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        ],
+        "scope": "Public profile only; declared skips and separately uncollected BASE-dependent suites remain explicit"
+      }
+    ]
+  },
+  "deployment": {
+    "student": {
+      "status": "passed",
+      "release_gate": "blocked",
+      "app_test_controls": {
+        "selectboxes": 15,
+        "buttons": 5
+      },
+      "real_native_xtb": {
+        "status": "completed",
+        "validation_status": "human-review",
+        "engine_version": "6.7.1",
+        "energy_hartree": -5.07054405468
+      },
+      "retention": {
+        "manifest": {
+          "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\student-release-v5\\retention-manifest.json",
+          "sha256": "906cf47f059de9d989f9f326b104a376fe265c3bc9f5ae92a4ef126813278659",
+          "bytes": 90788
+        },
+        "independently_verified_selected_files": 171
+      }
+    },
+    "modern_providers": {
+      "status": "passed",
+      "separate_provider_environments": true,
+      "scientific_execution": "not exercised by this installation proof",
+      "retention": {
+        "manifest": {
+          "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\managed-providers-v3\\retention-manifest.json",
+          "sha256": "152aabbf5c302bfcaf6962ed624e69ae5aa3a98fd91d462035e958f39dbcf15d",
+          "bytes": 11200
+        },
+        "independently_verified_selected_files": 27
+      }
+    },
+    "gui": {
+      "status": "observed",
+      "scope": "Actual Windows launcher and installed stock-CREST UI rendering/request preparation; no calculation submitted",
+      "calculation_submission": "none",
+      "request_prepared_and_download_controls_observed": true
+    }
+  },
+  "native_components": {
+    "t9": {
+      "status": "passed",
+      "named_test": "test_native_service_routes_live_failure_and_publishes_real_t9",
+      "job_id": "t9_39d5b6aa0e7147a6a7991c00d065cf20",
+      "energy_hartree": -1.514320027296539,
+      "spin_square": 0.7500000000000163,
+      "scope": "Real native spin rejection followed by audited CAS(3,3)/NEVPT2; no reference accuracy claim"
+    },
+    "r2_cold": {
+      "status": "passed",
+      "continuation_executed": true,
+      "scope": "Fresh exact historical failing pose native gradient, not full R2 or accuracy qualification"
+    },
+    "r2_full": {
+      "status": "failed",
+      "reason": "Reviewed R2 did not complete its exact approximate scope: partial; Matrix component r2-independent-dft-reference-optimize: requested optimization convergence was not established",
+      "diagnosis": "Correct typed scientific stationarity rejection after native optimizer convergence; full R2 unqualified"
+    }
+  },
+  "release_gate": {
+    "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\outputs\\completion-20261009\\student-release-v5\\candidate\\release-gate.json",
+    "sha256": "93f7c7e7e54f990993122c66d617978c6670f7488381a6c739fa94f90efb4515",
+    "status": "blocked",
+    "blockers": [
+      "Regression receipt explicitly lacks full SRS/matrix acceptance",
+      "SRS acceptance: TOPOS-010-011 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-012 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-013 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-014 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-015 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-016 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-017 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-019 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-020 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-021 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-022 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-023 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-024 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-025 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-026 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-027 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-028 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-029 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-030 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-031 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-032 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-033 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-034 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-035 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-036 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-041 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-049 is not verified with retained evidence",
+      "SRS acceptance: TOPOS-010-050 is not verified with retained evidence",
+      "hosted ORCA acceptance: current evidence file is missing",
+      "extended hosted ORCA acceptance: current evidence file is missing",
+      "Scientific reference campaign: current evidence file is missing",
+      "Reviewed matrix campaign: current evidence file is missing"
+    ]
+  },
+  "pending_srs_condition_counts_overlapping": {
+    "hosted_orca": 14,
+    "all_matrix_recipes": 1,
+    "external_engines": 5,
+    "gpu_models": 5,
+    "reviewed_matrix_campaign": 3,
+    "hosted_queue_accounting": 2,
+    "scientific_reference_campaign": 20
+  },
+  "pending_srs_requirements": {
+    "TOPOS-010-011": [
+      "hosted_orca"
+    ],
+    "TOPOS-010-012": [
+      "all_matrix_recipes",
+      "external_engines",
+      "gpu_models",
+      "hosted_orca",
+      "reviewed_matrix_campaign"
+    ],
+    "TOPOS-010-013": [
+      "hosted_queue_accounting"
+    ],
+    "TOPOS-010-014": [
+      "gpu_models"
+    ],
+    "TOPOS-010-015": [
+      "hosted_orca"
+    ],
+    "TOPOS-010-016": [
+      "gpu_models"
+    ],
+    "TOPOS-010-017": [
+      "hosted_orca"
+    ],
+    "TOPOS-010-019": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-020": [
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-021": [
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-022": [
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-023": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-024": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-025": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-026": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-027": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-028": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-029": [
+      "external_engines",
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-030": [
+      "external_engines",
+      "gpu_models",
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-031": [
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-032": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-033": [
+      "external_engines",
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-034": [
+      "hosted_orca",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-035": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-036": [
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-041": [
+      "hosted_orca",
+      "hosted_queue_accounting"
+    ],
+    "TOPOS-010-049": [
+      "external_engines",
+      "gpu_models",
+      "hosted_orca",
+      "reviewed_matrix_campaign",
+      "scientific_reference_campaign"
+    ],
+    "TOPOS-010-050": [
+      "reviewed_matrix_campaign",
+      "scientific_reference_campaign"
+    ]
+  },
+  "selected_retention_files_independently_reverified": 198,
+  "github": {
+    "observed_at_utc": "2026-10-09T16:33:52.456683+00:00",
+    "main_heads": {
+      "topos": "a6f763c5efce85b6cc3ed7870427f4a6686f3d5d",
+      "base": "7d5b8ac06d54e9e70578115bbe8634cc1ae76cc4",
+      "torq": "cbf53f57109c6842ff1ca50025c522058026bfe4"
+    },
+    "pull_requests": [
+      {
+        "html_url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS/pull/3",
+        "state": "open",
+        "draft": true,
+        "title": "Repair native execution and verify the student installation",
+        "updated_at": "2026-10-09T15:52:07Z",
+        "head": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+        "base": "a6f763c5efce85b6cc3ed7870427f4a6686f3d5d"
+      },
+      {
+        "html_url": "https://github.com/ProfJJK-CoChem/CoChem-BASE/pull/12",
+        "state": "open",
+        "draft": true,
+        "title": "Fix combined TOPOS runtime installation and preserve numerical contracts",
+        "updated_at": "2026-10-09T15:52:32Z",
+        "head": "bbbcf02b4dcba86791d93905b03f9b2bccae94b8",
+        "base": "7d5b8ac06d54e9e70578115bbe8634cc1ae76cc4"
+      }
+    ],
+    "topos_repository_private": false,
+    "licensed_workflow_runs_returned": 0,
+    "raw_api_responses": {
+      "topos-main": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\topos-main.json",
+        "sha256": "6f3971bfa124af99d265e8202ae5b8c39dec75635073f205c88fe0b1a16b42f2",
+        "bytes": 9295
+      },
+      "base-main": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\base-main.json",
+        "sha256": "79fbde65040bf40ebb9bc2cf97a2eab68e5b8d701bfa9d9a5eecf8f70a3983d1",
+        "bytes": 38055
+      },
+      "torq-main": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\torq-main.json",
+        "sha256": "36553897837706f109a99bdb1cace7c52f0740e20d08e37a1939c26999e3e74e",
+        "bytes": 889159
+      },
+      "topos-pr3": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\topos-pr3.json",
+        "sha256": "fa899fe82f97153ea90498800c06e0d5c3e507e4c6c6082e8784331e8642b92a",
+        "bytes": 19985
+      },
+      "base-pr12": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\base-pr12.json",
+        "sha256": "5b4042a0542f0d5a19b57137183b7c8bf8d523fbbc62e71aadfd2560a0c6b3e5",
+        "bytes": 19000
+      },
+      "topos-repository": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\topos-repository.json",
+        "sha256": "e5ec33cbaae7aa77430d8ec226e99308ffaed3a1750e079fbe5a03fbe3b43b19",
+        "bytes": 7639
+      },
+      "topos-licensed-runs": {
+        "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\github\\topos-licensed-runs.json",
+        "sha256": "a2790a384d7d281e7395679000c35d27768d89dbd7052f725b8f4688beb59915",
+        "bytes": 36
+      }
+    }
+  },
+  "matrix_prospective_review": {
+    "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\evidence\\completion-audit-v2-retry-v1\\prospective-matrix42-v1.json",
+    "sha256": "5865a016d266f327c269810034c8a745f3d6f0d5ba58b2c80e93c7852061c6a4",
+    "bytes": 58316
+  },
+  "reference_v3_terminal_observation": {
+    "status": "failed",
+    "reported_by": "/root/acceptance_recovery",
+    "driver_elapsed_seconds": 1043.45,
+    "guard_elapsed_seconds": 1045.83,
+    "timeout": false,
+    "orphans": false,
+    "sources_and_authority_unchanged": true,
+    "native_groups_completed": 4,
+    "strict_formic_gradient_max": 3.00253e-07,
+    "strict_formic_gradient_rms": 1.46548e-07,
+    "reason": "Strict stationarity rejected after3refinements; no VPT2/B0. Production assessment also rejected duplicate optimizer/final-gradient stdout basename.",
+    "other_failed_conditions": [
+      "G same-pose Be disagrees",
+      "HF coarse/fine3/12frequency comparisons failed",
+      "NIST source mass convention unconfirmed"
+    ],
+    "safe_selected_retention_sha256": null,
+    "scope": "Owner terminal observation; receipt hash pending safe retention, no quantitative or20-clause clearance."
+  },
+  "remaining_mandatory_work": [
+    "Finish authorized importer fixes, genuine controls and consolidate fresh source/runtime; rerun complete source-bound software/install/UI qualification for that new identity.",
+    "Complete quantitative reviewed scientific reference coverage including Be/B0/frequency/CPinteraction/absoluteGibbs with source-matched masses and predeclared tolerances.",
+    "Complete source-domain current-source full42 CampaignPlan and authentic postdeclaration RunStores under mandatoryBASE authority.",
+    "Execute real float64 training/independent committees and both actual model-driven samplers, then required refinements; component GPU smoke is insufficient.",
+    "Obtain current-source protected licensed hostedORCA baseline5/5 and extended13/13 in the exact same GitHubrepository/run/attempt/commit, plus hosted queue-accounting evidence. Public currentrepo/private-job predicate does not satisfy this.",
+    "Clear each exact SRS external-engine/physics/hosted/GPU/matrix condition with evidence; production ledger refresh and fullreleasegate must then genuinely pass before certification."
+  ],
+  "receipt_reuse_assessment": "Reuse verified source-independent input bytes/provenance only. Existing component/failed/earlier-source/native-before-declaration receipts do not satisfy any future42 case.",
+  "jobs_or_tests_performed": false,
+  "existing_indices_or_receipts_modified": false
+}

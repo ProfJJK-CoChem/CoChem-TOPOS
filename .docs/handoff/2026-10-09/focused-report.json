@@ -1,0 +1,22 @@
+{
+  "mode": "candidate",
+  "pytest_exit_code": 0,
+  "scope": "Offline focused native importer controls only; no native job, qualification, source-runtime rebuild or source relabeling.",
+  "pytest_args": [
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "--basetemp=/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-importer-focused-candidate-v3/tmp",
+    "--junitxml=/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/reference-importer-focused-candidate-v3/pytest.xml",
+    "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/CoChem-TOPOS/tests/v010/test_reference_optimizer_stdout.py",
+    "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/CoChem-TOPOS/tests/v010/test_reference_matrix_cp.py",
+    "/mnt/c/Users/ansac/Documents/Codex/2026-10-08/codex-threads-01a113a5-0dfb-7736-b0e1-2/work/completion-20261009/CoChem-TOPOS/tests/v010/test_reference_interaction.py"
+  ],
+  "source_hashes": {
+    "scientific_references": "0ec3f9be2b6844604835512d1e5e35131bacb6663ec7a1d837ccb623148ef910",
+    "reference_interaction": "2fbdf7bf8e70f84a933b4d13ce8769ea63e9cdeaa1f5b9551ed6f7b5882e1225"
+  },
+  "junit_sha256": "dc8eaa37beb2d93a20fa2a5be7e606fe72ce9a05091632644e876bbd21a950bd"
+}

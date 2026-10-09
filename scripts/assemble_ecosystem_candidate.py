@@ -26,8 +26,8 @@ sys.path.insert(0, str(SCRIPT_ROOT))
 from build_release import DEFAULT_EPOCH, normalize_archive  # noqa: E402
 from setup_ecosystem import verified_release_wheels  # noqa: E402
 
-PROJECTS = {"base": "1.0.1", "torq": "0.1.0"}
-PACKAGE_VERSIONS = {"cochem-base": "1.0.1", "cochem-topos": "0.1.0", "cochem-torq": "0.1.0"}
+PROJECTS = {"base": "1.1.0", "torq": "0.1.0"}
+PACKAGE_VERSIONS = {"cochem-base": PROJECTS["base"], "cochem-topos": "0.1.0", "cochem-torq": PROJECTS["torq"]}
 MODEL_SUFFIXES = {".pt", ".pth", ".safetensors", ".onnx", ".ckpt", ".gguf"}
 
 
@@ -101,7 +101,10 @@ def git_source(root: Path, pin: str, prefix: str) -> bytes:
     actual = subprocess.check_output(["git", "-C", str(root), "rev-parse", pin + "^{commit}"], text=True).strip()
     if actual != pin:
         raise ValueError("Git source commit differs from the requested companion pin")
-    return subprocess.check_output(["git", "-C", str(root), "archive", "--format=tar.gz", "--prefix=" + prefix + "/", pin])
+    # Git archive applies text conversion settings too. The downloaded source
+    # must preserve the reviewed Linux bytes regardless of Windows Git defaults.
+    return subprocess.check_output(["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+                                    "-C", str(root), "archive", "--format=tar.gz", "--prefix=" + prefix + "/", pin])
 
 
 def write_checksums(folder: Path, paths: list[Path]) -> None:
@@ -312,9 +315,9 @@ def verify_inputs(candidate: Path, wheelhouse: Path, installation: Path) -> dict
             "companion_sources": companion_sources, "worker_wheel": worker_wheel, "gate": gate}
 
 
-INSTALL_README = """# CoChem TOPOS 0.1.0 unsigned installation candidate
+INSTALL_README = f"""# CoChem TOPOS 0.1.0 unsigned installation candidate
 
-This complete package contains BASE 1.0.1, TOPOS 0.1.0 and TORQ 0.1.0,
+This complete package contains BASE {PROJECTS['base']}, TOPOS 0.1.0 and TORQ {PROJECTS['torq']},
 matching source archives, wheels, an isolated ML worker and actual installation
 evidence. It is unsigned and unpublished. Read `evidence/release-gate.json` for
 scientific acceptance status and remaining blockers; building this kit does not
@@ -333,8 +336,8 @@ sha256sum --check SHA256SUMS
 mkdir source
 for archive in sources/*.tar.gz; do tar -xzf "$archive" -C source; done
 python source/cochem_topos-0.1.0/scripts/setup_ecosystem.py \\
-  --base-root source/cochem_base-1.0.1 \\
-  --torq-root source/cochem_torq-0.1.0 \\
+  --base-root source/cochem_base-{PROJECTS['base']} \\
+  --torq-root source/cochem_torq-{PROJECTS['torq']} \\
   --wheelhouse wheels \\
   --artifacts /absolute/path/outside/sources/CoChem-0.1.0-runtime
 ```

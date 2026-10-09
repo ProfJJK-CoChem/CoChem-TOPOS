@@ -5,11 +5,14 @@ name: Licensed ORCA hosted acceptance (BASE integration)
 on:
   workflow_dispatch:
     inputs:
+      topos_commit:
+        description: Exact reviewed CoChem-TOPOS Git commit
+        required: true
+        type: string
       base_commit:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
 
 permissions:
   contents: read
@@ -19,7 +22,8 @@ jobs:
     if: github.event.repository.private && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     uses: ./.github/workflows/topos_orca_acceptance.yml
     with:
-      base_commit: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      topos_commit: ${{ inputs.topos_commit }}
+      base_commit: ${{ inputs.base_commit }}
       include_goat: true
       include_counterpoise: true
     secrets:

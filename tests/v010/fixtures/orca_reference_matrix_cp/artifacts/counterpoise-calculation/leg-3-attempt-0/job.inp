@@ -1,0 +1,16 @@
+! wB97M-V TightSCF DEFGRID3 RIJCOSX
+%pal nprocs 2 end
+%maxcore 1536
+%basis
+  GTOName "orbital.bas"
+  GTOAuxJName "auxiliary.bas"
+end
+%scf
+  ConvCheckMode 0
+  TolE 1e-10
+end
+* xyz 0 1
+O 2.22087107 0.02671679 0.00062048
+H 2.59749268 -0.41166327 0.76674486
+H 2.59313538 -0.44949618 -0.74478203
+*

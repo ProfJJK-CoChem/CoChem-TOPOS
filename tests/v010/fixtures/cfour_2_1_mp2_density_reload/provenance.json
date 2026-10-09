@@ -1,0 +1,297 @@
+{
+  "schema": "topos-owned-cfour-native-regression/1",
+  "scope": "Native one-evaluation regression output; not a completed matrix row or independent accuracy reference",
+  "licensed_assets_included": false,
+  "geometry_scope": "All six-atom dimer calculations use the illustrative predeclared v2 source-domain seed, not the S66-1 benchmark geometry. Retained private diagnostic names containing s66 are historical inaccurate labels. No reference comparison is made.",
+  "excluded_assets": [
+    "CFOUR executable/source",
+    "GENBAS",
+    "ECPDATA",
+    "native scratch"
+  ],
+  "source_archive_sha256": "3c596dcdb866d500d3c37e602d8e5491deea6cfad9e4595c50dfc08b4088944a",
+  "runtime": {
+    "binary_sha256": "d48c2f39c3018c375854fe9310a079674f4752333bcf2e2666f36f177dca9764",
+    "executable": "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour",
+    "identity_scope": "BASE authorization verifies complete CFOUR runtime against Stage 0",
+    "runtime_seal_sha256": "dcc0b8ab4f0bda02cb472581c57fff63c2e4c8e582c8be9eb6cfab77601322cc"
+  },
+  "GENBAS_sha256": "6ae208af57916c3271985d1f9002f7dff52046af2c634fec436533af4c2d3caa",
+  "diagnostic_receipt_sha256": "ba6303e73d090b8df2fe390b3f35388cbc9bcc9dbc28377a3d0545ff7283cf67",
+  "original_diagnostic_scope": "Original sealed native runtime. Same MP2/PVDZ Hamiltonian, derivative, frozen core and convergence. Diagnostic only; no full matrix, release or independent-accuracy claim.",
+  "cases": {
+    "water": {
+      "name": "water-2048MiB-2threads",
+      "source_input_sha256": "8db5d867c0c87f4de79436b143fe0e743a7f2a1f24ca9f5e3d46db9a34497b74",
+      "memory_mb": 2048,
+      "threads": 2,
+      "reserve_MiB": 896,
+      "native_MiB": 1152,
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 0.5455600149998645,
+        "peak_rss_mb": 168.73828125,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-memory-reservation-diagnostic-v4/water-2048MiB-2threads/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-memory-reservation-diagnostic-v4/water-2048MiB-2threads/engine.stdout"
+      },
+      "started_at": "2026-10-08T22:49:18.305615+00:00",
+      "finished_at": "2026-10-08T22:49:18.962864+00:00",
+      "parser_observation": "Original parser rejected two genuine SCF events; the fixture exists to regression-test the narrowly framed zero-iteration reload repair."
+    },
+    "water-dimer-seed": {
+      "name": "s66-water-dimer-2048MiB-2threads",
+      "source_input_sha256": "cb0d7f96a0fbcd0b45fe314a1324a7423fd3de9ef14516fc59b44546bac95287",
+      "memory_mb": 2048,
+      "threads": 2,
+      "reserve_MiB": 896,
+      "native_MiB": 1152,
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 1.0333173050000823,
+        "peak_rss_mb": 191.13671875,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-memory-reservation-diagnostic-v4/s66-water-dimer-2048MiB-2threads/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-memory-reservation-diagnostic-v4/s66-water-dimer-2048MiB-2threads/engine.stdout"
+      },
+      "started_at": "2026-10-08T22:49:19.755673+00:00",
+      "finished_at": "2026-10-08T22:49:20.942377+00:00",
+      "parser_observation": "Original parser rejected two genuine SCF events; the fixture exists to regression-test the narrowly framed zero-iteration reload repair."
+    },
+    "ccsd-water": {
+      "artifacts": {
+        "GRD": {
+          "bytes": 512,
+          "sha256": "48c5aa3b0654edd190c49409ac01f22883960418669d01b0c27fa5139af477cf"
+        },
+        "ZMAT": {
+          "bytes": 386,
+          "sha256": "52ec735f4cd5e085178a1382b2a6c00672bc959c7b7fe8bd3ece7f3103e202d1"
+        },
+        "engine.stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine.stdout": {
+          "bytes": 64512,
+          "sha256": "539f410ed854afdf582e97125af9179b52875ffba57c8c0b7c6cb9ee53c558a9"
+        }
+      },
+      "input_sha256": "52ec735f4cd5e085178a1382b2a6c00672bc959c7b7fe8bd3ece7f3103e202d1",
+      "input_unchanged": true,
+      "method": "CCSD",
+      "molecule": "water",
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 0.7226912979999724,
+        "peak_rss_mb": 173.6953125,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD-water/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD-water/engine.stdout"
+      },
+      "source_input_sha256": "54b6476e7c7f3b8fcdfdb70aecb7fad2f7b4ba3591175a8cc091671e6afd9494",
+      "status": "completed"
+    },
+    "ccsd-water-dimer-seed": {
+      "artifacts": {
+        "GRD": {
+          "bytes": 998,
+          "sha256": "c15a166540ac54943d2323598582a0afc398eb2f87a44a7ec004f646924451de"
+        },
+        "ZMAT": {
+          "bytes": 410,
+          "sha256": "f8919e57204ca7ccf8199ee66aea1e680523ec10c61486742f3f04b2228a4f18"
+        },
+        "engine.stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine.stdout": {
+          "bytes": 79633,
+          "sha256": "13cc5d08e293dc75a5527b131a1ce4f1dcd48a836cf9091a47414c94919d95e5"
+        }
+      },
+      "input_sha256": "f8919e57204ca7ccf8199ee66aea1e680523ec10c61486742f3f04b2228a4f18",
+      "input_unchanged": true,
+      "method": "CCSD",
+      "molecule": "s66-water-dimer",
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 3.5028388570001425,
+        "peak_rss_mb": 191.171875,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD-s66-water-dimer/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD-s66-water-dimer/engine.stdout"
+      },
+      "source_input_sha256": "46296f0cfe45ef3c77798111394c952829997d890fff837a6a0c152a3643630e",
+      "status": "completed"
+    },
+    "ccsd_t-water": {
+      "artifacts": {
+        "GRD": {
+          "bytes": 512,
+          "sha256": "725d4d4796ff8af94d8d7110bd5bb5d6005312a726c0e020773f3652dee8f40f"
+        },
+        "ZMAT": {
+          "bytes": 389,
+          "sha256": "97d1c783def1c39e8f424502eeaac4ed68df3bf28ffc8e964e424660d1c91e1f"
+        },
+        "engine.stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine.stdout": {
+          "bytes": 64348,
+          "sha256": "f0b8a1c498a9135e1c12f1f66a2139f958c1677276bef246e1af6abb32354e25"
+        }
+      },
+      "input_sha256": "97d1c783def1c39e8f424502eeaac4ed68df3bf28ffc8e964e424660d1c91e1f",
+      "input_unchanged": true,
+      "method": "CCSD[T]",
+      "molecule": "water",
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 0.6936370749999696,
+        "peak_rss_mb": 192.9140625,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD_T-water/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD_T-water/engine.stdout"
+      },
+      "source_input_sha256": "54b6476e7c7f3b8fcdfdb70aecb7fad2f7b4ba3591175a8cc091671e6afd9494",
+      "status": "completed"
+    },
+    "ccsd_t-water-dimer-seed": {
+      "artifacts": {
+        "GRD": {
+          "bytes": 998,
+          "sha256": "4551af4c7e5ac682c096d9b2b6ac1608d4984c3c7b633013fdda5d316b183721"
+        },
+        "ZMAT": {
+          "bytes": 413,
+          "sha256": "72b82214a49a588748e26e01407df4e5cab7b1b58f51ffa837476e12938401ab"
+        },
+        "engine.stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine.stdout": {
+          "bytes": 79469,
+          "sha256": "ec15f9523e26b2158f323ef19992ad784ce0b107805a6e1a07d52a4b04376363"
+        }
+      },
+      "input_sha256": "72b82214a49a588748e26e01407df4e5cab7b1b58f51ffa837476e12938401ab",
+      "input_unchanged": true,
+      "method": "CCSD[T]",
+      "molecule": "s66-water-dimer",
+      "process": {
+        "command": [
+          "/home/ansac/.local/cochem/cfour/2.1-gcc11-openmp-ilp64-20261007/bin/xcfour"
+        ],
+        "elapsed_seconds": 4.390212608999946,
+        "peak_rss_mb": 191.1796875,
+        "reason": null,
+        "returncode": 0,
+        "status": "completed",
+        "stderr_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD_T-s66-water-dimer/engine.stderr",
+        "stdout_path": "/tmp/cochem-topos-workstation-20261008/evidence/cfour-cc-density-reload-diagnostic-v5/CCSD_T-s66-water-dimer/engine.stdout"
+      },
+      "source_input_sha256": "46296f0cfe45ef3c77798111394c952829997d890fff837a6a0c152a3643630e",
+      "status": "completed"
+    }
+  },
+  "files": {
+    "water/ZMAT": {
+      "sha256": "54b6476e7c7f3b8fcdfdb70aecb7fad2f7b4ba3591175a8cc091671e6afd9494",
+      "size_bytes": 385
+    },
+    "water/GRD": {
+      "sha256": "5c4fd6fbcb2d1465987e9eba1c1582c31a64a9e6305321c97cf4e9399159437d",
+      "size_bytes": 512
+    },
+    "water/engine.stdout": {
+      "sha256": "fa493025463797848e4fba7ca2e468a87f6cc099d884eb4b64a00272afdf8a7e",
+      "size_bytes": 50763
+    },
+    "water-dimer-seed/ZMAT": {
+      "sha256": "46296f0cfe45ef3c77798111394c952829997d890fff837a6a0c152a3643630e",
+      "size_bytes": 409
+    },
+    "water-dimer-seed/GRD": {
+      "sha256": "10dbd2e619170634e508dbb0bd35e44fd321d8878505a7ff2ae7c627791b4cda",
+      "size_bytes": 998
+    },
+    "water-dimer-seed/engine.stdout": {
+      "sha256": "23c08e54077c3664e0ab858aaa094e91ce60043b30e82b3a524ccfee44b2cedc",
+      "size_bytes": 63678
+    },
+    "ccsd-water/ZMAT": {
+      "sha256": "52ec735f4cd5e085178a1382b2a6c00672bc959c7b7fe8bd3ece7f3103e202d1",
+      "size_bytes": 386
+    },
+    "ccsd-water/GRD": {
+      "sha256": "48c5aa3b0654edd190c49409ac01f22883960418669d01b0c27fa5139af477cf",
+      "size_bytes": 512
+    },
+    "ccsd-water/engine.stdout": {
+      "sha256": "539f410ed854afdf582e97125af9179b52875ffba57c8c0b7c6cb9ee53c558a9",
+      "size_bytes": 64512
+    },
+    "ccsd-water-dimer-seed/ZMAT": {
+      "sha256": "f8919e57204ca7ccf8199ee66aea1e680523ec10c61486742f3f04b2228a4f18",
+      "size_bytes": 410
+    },
+    "ccsd-water-dimer-seed/GRD": {
+      "sha256": "c15a166540ac54943d2323598582a0afc398eb2f87a44a7ec004f646924451de",
+      "size_bytes": 998
+    },
+    "ccsd-water-dimer-seed/engine.stdout": {
+      "sha256": "13cc5d08e293dc75a5527b131a1ce4f1dcd48a836cf9091a47414c94919d95e5",
+      "size_bytes": 79633
+    },
+    "ccsd_t-water/ZMAT": {
+      "sha256": "97d1c783def1c39e8f424502eeaac4ed68df3bf28ffc8e964e424660d1c91e1f",
+      "size_bytes": 389
+    },
+    "ccsd_t-water/GRD": {
+      "sha256": "725d4d4796ff8af94d8d7110bd5bb5d6005312a726c0e020773f3652dee8f40f",
+      "size_bytes": 512
+    },
+    "ccsd_t-water/engine.stdout": {
+      "sha256": "f0b8a1c498a9135e1c12f1f66a2139f958c1677276bef246e1af6abb32354e25",
+      "size_bytes": 64348
+    },
+    "ccsd_t-water-dimer-seed/ZMAT": {
+      "sha256": "72b82214a49a588748e26e01407df4e5cab7b1b58f51ffa837476e12938401ab",
+      "size_bytes": 413
+    },
+    "ccsd_t-water-dimer-seed/GRD": {
+      "sha256": "4551af4c7e5ac682c096d9b2b6ac1608d4984c3c7b633013fdda5d316b183721",
+      "size_bytes": 998
+    },
+    "ccsd_t-water-dimer-seed/engine.stdout": {
+      "sha256": "ec15f9523e26b2158f323ef19992ad784ce0b107805a6e1a07d52a4b04376363",
+      "size_bytes": 79469
+    }
+  },
+  "CC_diagnostic_receipt_sha256": "c806b82ae31e6c9ce6119e5e701347032ab4db0ea91b9dacb8d4357bda8db1c4"
+}

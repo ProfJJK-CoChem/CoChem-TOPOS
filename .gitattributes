@@ -8,3 +8,9 @@
 .docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/r2/ORIGINAL_FINAL_STDOUT_FRAME.txt -whitespace
 .docs/evidence/TOPOS_WORKER13_CI_48_20261007/*_ACTUAL_CHECKOUT.txt -whitespace
 .docs/evidence/TOPOS_WORKER13_CI_48_20261007/NATIVE_TEXT/**/*.stdout -whitespace
+# Owned native CFOUR regression output retains its exact provenance bytes.
+tests/v010/fixtures/cfour_2_1_mp2_density_reload/** -text -whitespace
+# Preserve hash-bound native fixtures and handoff receipts byte-for-byte.
+tests/v010/fixtures/orca_reference_optimizer_stdout/** -text -whitespace
+tests/v010/fixtures/orca_reference_matrix_cp/** -text -whitespace
+.docs/handoff/2026-10-09/** -text -whitespace

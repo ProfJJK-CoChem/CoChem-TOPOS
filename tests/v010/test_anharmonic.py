@@ -218,7 +218,13 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path, monkeypatch)
         binary = runtime.resolve_executable('orca', binary)
         process_runner = runtime.run_process
     resources = ResourceLimits(budget_seconds=600, threads=2, memory_mb=4096)
-    optimized = run_engine(water(), method(), resources, tmp_path / 'strict-optimize', executable=binary,
+    # Finite XC/COSX grids require stationarity in the final native VPT2 pose.
+    # This explicitly C2v/principal-axis-aligned positive seed passed the same
+    # B3LYP-D4 strict profile natively; an arbitrary initial orientation is not
+    # guaranteed to remain stationary after ORCA rotates its numerical grids.
+    aligned_water = Molecule(symbols=['O', 'H', 'H'],
+        coordinates=[[0., 0., 0.], [.758, .586, 0.], [-.758, .586, 0.]])
+    optimized = run_engine(aligned_water, method(), resources, tmp_path / 'strict-optimize', executable=binary,
                            process_runner=process_runner)
     assert optimized.status == 'completed', optimized.diagnostics
     assert optimized.molecule is not None
@@ -342,3 +348,60 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path, monkeypatch)
                                     process_runner=no_new_process, cancel_event=cancel)
         assert stopped.status == stop_kind and stopped.converged is False
         assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
+
+
+def _unconverged_native_pose_contract_reference():
+    """Synthetic identity/gradient contract input; no native execution is claimed."""
+    from topos.engines import EngineResult
+    from topos.models import Artifact
+
+    molecule = water()
+    requested = method().model_dump(mode='json')
+    reference = EngineResult(status='completed', engine='orca', method=requested['method'], operation='hessian',
+        engine_version='6.1.1', molecule=molecule, converged=False, energy_hartree=-76.,
+        gradient_hartree_per_bohr=[[-1.88318e-7, -1.67877e-6, 1.58e-10],
+            [-6.55563e-7, 7.67179e-7, -5.6e-11], [8.43881e-7, 9.11582e-7, -1.02e-10]],
+        command=['orca', 'frequency.inp'],
+        artifacts=[Artifact(path='contract-only.hess', sha256='a' * 64, size_bytes=1, role='contract-only')],
+        metadata={'execution_kind': 'real', 'requested_method': requested, 'executable_sha256': 'b' * 64})
+    return molecule, requested, reference
+
+
+def test_native_pose_nonstationarity_reports_raw_gradient_without_waiving_gate(monkeypatch):
+    from topos import anharmonic
+
+    molecule, requested, reference = _unconverged_native_pose_contract_reference()
+    # Isolate the already validated native-pose identity boundary, not its acceptance result.
+    monkeypatch.setattr(anharmonic, 'vpt2_native_reference_pose', lambda *args: molecule)
+    policy_before = anharmonic.vpt2_reference_policy()
+    with pytest.raises(EngineParseError) as caught:
+        anharmonic.verify_vpt2_native_frame_reference(molecule, {}, Path('contract-only.hess'),
+            reference, requested, 'b' * 64)
+    reason = str(caught.value)
+    assert 'independently executed native-pose reference' in reason
+    assert 'not a strict stationary semirigid minimum' in reason
+    assert 'converged=False' in reason
+    assert 'max=1.67877e-06' in reason and 'RMS=7.7568434e-07' in reason
+    assert 'required max<=1e-7 Eh/bohr' in reason
+    assert 'original-pose convergence does not certify that pose' in reason
+    assert reference.converged is False
+    assert anharmonic.vpt2_reference_policy() == policy_before
+
+
+@pytest.mark.parametrize('changed', ['executable', 'method', 'pose', 'status'])
+def test_native_pose_identity_failure_precedes_nonstationarity_diagnostic(monkeypatch, changed):
+    from topos import anharmonic
+
+    molecule, requested, reference = _unconverged_native_pose_contract_reference()
+    monkeypatch.setattr(anharmonic, 'vpt2_native_reference_pose', lambda *args: molecule)
+    if changed == 'executable':
+        reference.metadata['executable_sha256'] = 'c' * 64
+    elif changed == 'method':
+        reference.metadata['requested_method'] = {**requested, 'basis': 'def2-SVP'}
+    elif changed == 'pose':
+        reference.molecule = molecule.model_copy(update={'coordinates': [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]]})
+    else:
+        reference.status = 'failed'
+    with pytest.raises(EngineParseError, match='requires independent actual Hessian evidence'):
+        anharmonic.verify_vpt2_native_frame_reference(molecule, {}, Path('contract-only.hess'),
+            reference, requested, 'b' * 64)

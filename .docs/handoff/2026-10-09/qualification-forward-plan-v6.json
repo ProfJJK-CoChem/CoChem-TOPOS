@@ -1,0 +1,175 @@
+{
+  "schema_version": "cochem-prospective-qualification-forward-plan/6",
+  "status": "prepared-not-executed",
+  "source_freeze_approved": false,
+  "next_topos_commit": null,
+  "next_manager_base_commit": null,
+  "science_base_revision_if_unchanged": "09059f052adbe5bb8208ec68a824bd45a0cab0dc",
+  "mandatory_torq_revision": "4f323800227dbde00ffb082bd6d9e44d851e1c7a",
+  "existing_sealed_source": "c8895754e4bb430596b07a26c1e7dcbd11255c1b",
+  "existing_reviewed_helpers": [
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\build-base-controller-v1.py",
+      "sha256": "a50478dbf0fdae622ec918089d98b586ff9086ebb3d565deb58740686e13d608"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\build-full-controller-v5.py",
+      "sha256": "77923cdcfb16a8813a51b0c18c6bc3a769259d723c3e7b08096d0c4399bd930a"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\prepare-fresh-silos-v5.py",
+      "sha256": "0f9bf2f48e4c291149c937b1d9f24f7069d6f70944cf8c348ac0408e2b1c74d5"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\prepare-fresh-silos-v5.sh",
+      "sha256": "f3e0f1992d120faa24521ff642b37bf45a012c2d708783b8239beafaab66233f"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\env-completion-ml-v5.sh",
+      "sha256": "076783f484b86a41e10815004ce031f60fd2607ee13f9535aaa5ee76b09356ab"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\seal-runtime-profile-v5.py",
+      "sha256": "667796143747f2b3e6214ba59d99402ac961d40517bf5ae8f55e84cdb19352dc"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\run-dual-stage0-v5.py",
+      "sha256": "b21996a53ff8abc96cee565b7d727234280b9645e8707c40b08658eb13920a93"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\run-full-stage0-v1.py",
+      "sha256": "664eaf62b7f5d3c16dea218d22071a4d4467e5bbe0283ba2eb7eaa393a55fa5e"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\seal-campaign-bindings-v5.py",
+      "sha256": "93ab43181c9a069b6f45497799e987c611b3e50e2f1abfb3fa8e12f34f8c55e3"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\snapshot-v4-preservation-v1.py",
+      "sha256": "69ba4951a3879069e461573e50365072d5a20eff0d1bce0bb1eaab903b1d5073"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\run_topos_full_regression_v3.py",
+      "sha256": "bcf8aec4d397dd05e459309e5e881822db3135f67023559dcdaed08ed7cb0186"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\run_topos_full_regression_v3.sh",
+      "sha256": "49781def8b15eca4b66f42126e1e747096d3e47c8c2164b67de60f2107d025a8"
+    },
+    {
+      "path": "C:\\Users\\ansac\\Documents\\Codex\\2026-10-08\\codex-threads-01a113a5-0dfb-7736-b0e1-2\\work\\completion-20261009\\retain_topos_regression_v3.py",
+      "sha256": "c8f74b14c7a30acd8366fd3b1d37c14fe74602d31ba01f0595c20326971a16b6"
+    }
+  ],
+  "pending_change_scope": "Authorized reference importer repairs only. Cartesian diagnostic failed scientifically; no optimizer production repair is authorized or assumed.",
+  "fresh_paths_reserved_in_plan_only": {
+    "base_controller": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/base-controller-v6",
+    "full_controller": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/full-controller-v6",
+    "five_silos": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/silos-v6",
+    "provision_evidence": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/silo-provision-v6",
+    "dual_audit_evidence": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/evidence/dual-stage0-v6",
+    "native12_registry_root": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/runtime-full-v5-native",
+    "whole4_registry_root": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/runtime-full-v4-whole",
+    "runtime_profile": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/runtime-profile-v6",
+    "native_bindings": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/campaign-bindings-v6-native",
+    "whole_bindings": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/campaign-bindings-v6-whole",
+    "source_regression": "/home/ansac/.local/share/cochem-topos/workstation-20261008/completion-20261009/full-topos-regression-v4",
+    "short_private_test_parent": "/home/ansac/ct-c4-v1"
+  },
+  "before_any_execution": [
+    "ROOT consolidates/tests/commits reviewed importer source; sends exact TOPOS and catalog-only manager BASE commits. Do not bind mutable worktree bytes to c889 receipt.",
+    "Review new BASE manager/science equivalence. Preserve actual distinct roles and require changed executable bytes to be reviewed if more than catalogue/ring differs.",
+    "Export clean LF Git bundles, POSIX source inventory/modes and actual fresh export JSON hashes. Preserve all prior exports and build wheels.",
+    "Create fresh outside v6 helper copies with exact bounded replacement diff from the retained v5 helpers. Update every actual installation/profile/model request/bindings hash, never relabel old output.",
+    "Check fresh reserved prefixes and short test parent do not exist, are owned and confined; no relocations or recursive cleanup of old roots.",
+    "Snapshot selected old v5 installed payloads, dependency metadata/hooks, model requests, sources, receipts, registry/p1-p11/environment/bindings/outputs; record ignored caches separately without claiming every old source file clean.",
+    "Observe >=12GiB available RAM and >=20GiB disk minimum from old provisioner, then assess actual needed new silo wheel bytes and retain a larger disk margin. Quiesce all owned chemistry/model/training before jobs."
+  ],
+  "serial_stages": [
+    {
+      "stage": "fresh BASE controller",
+      "from_helper": "build-base-controller-v1.py",
+      "command_template": "<durable CPython> -I -B <outside helper> --source-export <new BASE manifest> --expected-source-export-sha256 <new raw hash> --expected-commit <new manager commit> --label base-controller-v6",
+      "acceptance": "Exact noneditable BASE1.1 extras, wheel/installed ownership/dependency/pip-check/source bindings and actual source commit; preserve failed outputs."
+    },
+    {
+      "stage": "fresh complete noneditable controller",
+      "from_helper": "build-full-controller-v5.py",
+      "command_template": "<new BASE controller> -I -B <reviewed v6 copy> --base-label base-controller-v6 --output-label full-controller-v6 --topos-pin <new pin> --manager-base-pin <new pin> --science-base-pin <explicit unchanged/reviewed science pin> --topos-export <new manifest> --topos-export-sha256 <actual hash> --torq-export <unchanged verified4f export> --torq-export-sha256 <actual hash>",
+      "acceptance": "Exact TOPOS[dev,ui]/BASE[dev,symmetry,ui,catalog]/mandatory4f, independently repeated wheels, zero owned payload overlap, all installed py/json bytes/current metadata and pip-check."
+    },
+    {
+      "stage": "five fresh phase4 silos and exact worker",
+      "from_helper": "prepare-fresh-silos-v5.py",
+      "command_template": "<new controller> -I -B <reviewed v6 copy> --installation-report <actual new full-controller report> --installation-report-sha256 <actual hash> --label silo-provision-v6 --silo-root <R>/silos-v6",
+      "limits": {
+        "build_workers": 2,
+        "omp_blas_make_cmake_threads": 2
+      },
+      "acceptance": "Production core/UI/calc22/MACE76-cuda128/AIM52-CPU locks. Build worker twice from the exact new payload (count computed, formerly102); no-index/no-deps install into both ML silos; every payload hash +10 worker requirements + actual lock pins/pip-check."
+    },
+    {
+      "stage": "two all11 authorities from new silos only",
+      "from_helper": "run-dual-stage0-v5.py",
+      "acceptance": "Native parent0-11 and whole parent0-3 affinity applied BEFORE phase1; all eleven genuine PASSED reports, canonical phase digests against registry and raw-byte digests in bindings. No changed deadlines."
+    },
+    {
+      "stage": "timestamp-only comparison, seal and independent validation",
+      "from_helper": "seal-campaign-bindings-v5.py",
+      "acceptance": "Measure five silo JSON/hooks/pyvenv.cfg before native and after each audit; permit only production injected_at_utc changes, preserve stack_flags/env_vars/hooks. Seal both bindings after audits, independently reauthorize native12 afterward, compare explicit authority objects. Old v5 snapshot equality must pass."
+    },
+    {
+      "stage": "whole unfiltered source suite alone",
+      "from_helper": "run_topos_full_regression_v3.py",
+      "command_template": "<new reviewed whole-v4 wrapper with new source/bindings/env hashes>",
+      "limits": {
+        "parent_cpu_affinity": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "minimum_observed_host_available_ram_gib": 12,
+        "do_not_reduce_authentic_request_allocation": true,
+        "genuine_compound_ml_request_memory_mb": 8704
+      },
+      "acceptance": "Correct new BASE source locator in pytest child, short fresh private0700 test parent, ordinary stockCREST selector + separate patched ML selector, both model-specific interpreters/requests and actual licensed ORCA. Exact collection counted from JUnit; require zero fail/error/avoidable skip, Ruff/pip-check, source/authority/worker/silo hashes stable, no owned leftovers. Do not assert predetermined3151 count after new tests."
+    },
+    {
+      "stage": "forward queue after software is quiet",
+      "acceptance": "ROOT separately queues native diagnostic/reference or100labels/standalonefits/full42 preparation, fresh installed kit/modern-provider proof and actual GUI observation. Existing c889 installation/browser/CI results remain scoped historical evidence."
+    }
+  ],
+  "environment_contract": {
+    "explicit_COCHEM_CONFIG_after_source": true,
+    "clear_inherited": [
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "VIRTUAL_ENV",
+      "LD_LIBRARY_PATH",
+      "DYLD_LIBRARY_PATH"
+    ],
+    "orca_loader": "Preserve actual scoped COCHEM_ORCA_LD_LIBRARY_PATH only; no global ORCA/OpenMPI libraries in ML/Python.",
+    "ordinary_whole_crest": "Existing genuine durable stock distribution; exact sealed binary SHA.",
+    "native_ml_crest": "Existing adopted durable patched distribution; original/adoption/provenance/native library receipts unchanged.",
+    "cfour": "Genuine completion-20261009/engines/cfour-h-o-junchs-v1 derived prefix plus unchanged licensed original parent authority, not the absent historical shortcut.",
+    "base_source_locator": "Pytest harness only, points to exact new frozen source. No source/PYTHONPATH override for installed application."
+  },
+  "preserved_producers": {
+    "training_plan_sha256": "97e4cd3ca731f1974b711d7e2820cea08865446c37f04b316f6c9442ed1efaed",
+    "native_requests": 100,
+    "split": [
+      80,
+      10,
+      10
+    ],
+    "replay_frames": 15,
+    "seeds": [
+      17,
+      43
+    ],
+    "epochs": 50,
+    "old_labels_not_relabelled_current_native_success": true
+  },
+  "no_execution_or_source_freeze_performed": true
+}

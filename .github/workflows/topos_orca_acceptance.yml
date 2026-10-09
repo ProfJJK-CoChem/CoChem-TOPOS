@@ -3,11 +3,14 @@ name: TOPOS licensed ORCA physical acceptance
 on:
   workflow_dispatch:
     inputs:
+      topos_commit:
+        description: Exact reviewed CoChem-TOPOS Git commit to execute in this private controller
+        required: true
+        type: string
       base_commit:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       include_goat:
         description: Run genuine native GOAT sampling and common r2SCAN-3c refinement
         type: boolean
@@ -19,11 +22,14 @@ on:
 
   workflow_call:
     inputs:
+      topos_commit:
+        description: Exact reviewed CoChem-TOPOS Git commit
+        required: true
+        type: string
       base_commit:
         description: Exact reviewed CoChem-BASE Git commit
-        required: false
+        required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
       include_goat:
         type: boolean
         default: true
@@ -53,7 +59,8 @@ jobs:
     timeout-minutes: 330
     environment: cochem-student-tests
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      TOPOS_COMMIT: ${{ inputs.topos_commit }}
+      BASE_COMMIT: ${{ inputs.base_commit }}
       ORCA_CLOUD_LICENSE_CONFIRMED: ${{ vars.ORCA_CLOUD_LICENSE_CONFIRMED }}
       TOPOS_REQUIRE_BASE: '1'
       TOPOS_EXECUTION_BACKEND: base
@@ -88,9 +95,22 @@ jobs:
             echo 'The configured private ORCA distribution credential is unavailable.' >&2
             exit 1
           fi
+      - name: Validate the exact TOPOS source commit
+        shell: bash
+        run: |
+          if [[ ! "$TOPOS_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'TOPOS source must be an exact lowercase 40-character Git commit.' >&2
+            exit 1
+          fi
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          repository: ProfJJK-CoChem/CoChem-TOPOS
+          ref: ${{ env.TOPOS_COMMIT }}
+          token: ${{ secrets.COCHEM_SOURCE_READ_TOKEN || secrets.BASE_SOURCE_READ_TOKEN || github.token }}
           persist-credentials: false
+      - name: Verify the checked-out TOPOS source identity
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$TOPOS_COMMIT"
       - name: Validate the exact BASE source commit
         shell: bash
         run: |
@@ -137,26 +157,43 @@ jobs:
         with:
           asset-token: ${{ secrets[vars.COCHEM_ORCA_ASSET_CREDENTIAL] || secrets.asset_credential }}
       - name: Install all mandatory CoChem packages and audit all eleven setup phases
+        id: ecosystem
         run: |
           python scripts/setup_ecosystem.py \
             --base-root "$GITHUB_WORKSPACE/.cochem-dependencies/base" \
             --torq-root "$GITHUB_WORKSPACE/.cochem-dependencies/torq" \
             --artifacts "$COCHEM_ARTIFACT_DIR" --min-disk-space-gb 1
       - name: Require real TOPOS ORCA derivatives, thermochemistry, hybrid and selected native paths
+        id: baseline
+        if: ${{ !cancelled() && steps.ecosystem.outcome == 'success' }}
         run: |
           options=()
           if test "$INCLUDE_GOAT" = true; then options+=(--include-goat); fi
           if test "$INCLUDE_COUNTERPOISE" = true; then options+=(--include-counterpoise); fi
           "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" scripts/accept_orca_topos.py \
             --registry "$COCHEM_CONFIG" --output "$RUNNER_TEMP/topos-orca-evidence" \
-            --threads 2 --memory-mb 2048 --budget-seconds 10800 "${options[@]}"
+            --threads 2 --memory-mb 2048 --budget-seconds 7200 "${options[@]}"
+      - name: Require all thirteen extended native ORCA acceptance cases
+        id: extended
+        if: ${{ !cancelled() && steps.ecosystem.outcome == 'success' }}
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" scripts/accept_orca_extended.py \
+            --registry "$COCHEM_CONFIG" --output "$RUNNER_TEMP/topos-orca-extended" \
+            --threads 2 --memory-mb 4096 --budget-seconds 7200
+      - name: Require genuine licensed Hessian, VPT2 and thermal regression tests
+        id: licensed-pytest
+        if: ${{ !cancelled() && steps.ecosystem.outcome == 'success' }}
+        run: |
+          "$COCHEM_ARTIFACT_DIR/ui-env/bin/python" scripts/accept_orca_pytest.py \
+            --registry "$COCHEM_CONFIG" --output "$RUNNER_TEMP/topos-orca-evidence"
       - name: Preserve calculation evidence and audited installation receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: topos-orca-acceptance-${{ github.run_id }}
+          name: topos-orca-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/topos-orca-evidence/
+            ${{ runner.temp }}/topos-orca-extended/
             ${{ runner.temp }}/cochem-artifacts/Registry/*.json
             ${{ runner.temp }}/cochem-artifacts/setup-receipt.json
             ${{ runner.temp }}/cochem-artifacts/mandatory-validation.json

@@ -1,0 +1,38 @@
+[file orca_leanscf/orca_leanscf.cpp, line 306, Process 1]: Error (ORCA_LEANSCF): unfortunately, the SCF has not converged. There may be a way out but we have to stop here 
+[AetherDesk:548338] *** Process received signal ***
+[AetherDesk:548338] Signal: Aborted (6)
+[AetherDesk:548338] Signal code:  (-6)
+[file orca_leanscf/orca_leanscf.cpp, line 306, Process 0]: Error (ORCA_LEANSCF): unfortunately, the SCF has not converged. There may be a way out but we have to stop here 
+[AetherDesk:548337] *** Process received signal ***
+[AetherDesk:548337] Signal: Aborted (6)
+[AetherDesk:548337] Signal code:  (-6)
+[AetherDesk:548338] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ed991442520]
+[AetherDesk:548338] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x7ed9914969bc]
+[AetherDesk:548338] [ 2] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x7ed991442476]
+[AetherDesk:548338] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x7ed9914287f3]
+[AetherDesk:548338] [ 4] [AetherDesk:548337] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x78d2da442520]
+[AetherDesk:548337] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x78d2da4969bc]
+[AetherDesk:548337] [ 2] /lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x78d2da442476]
+[AetherDesk:548337] [ 3] /lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x78d2da4287f3]
+[AetherDesk:548337] [ 4] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/lib/liborca_tools_6_1_1_mpi.so.6(_Z9PAL_Aborti+0x20)[0x7ed9967a1f50]
+[AetherDesk:548338] [ 5] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_leanscf_mpi[0x426c3f]
+[AetherDesk:548338] [ 6] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/lib/liborca_tools_6_1_1_mpi.so.6(_Z9PAL_Aborti+0x20)[0x78d2df7a1f50]
+[AetherDesk:548337] [ 5] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_leanscf_mpi[0x426c3f]
+[AetherDesk:548337] [ 6] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ed991429d90]
+[AetherDesk:548338] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x78d2da429d90]
+[AetherDesk:548337] [ 7] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ed991429e40]
+[AetherDesk:548338] [ 8] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_leanscf_mpi[0x426116]
+[AetherDesk:548338] *** End of error message ***
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x78d2da429e40]
+[AetherDesk:548337] [ 8] /tmp/cochem-topos-workstation-20261008/engines/orca-native-v1/orca_6_1_1_linux_x86-64_shared_openmpi418/orca_leanscf_mpi[0x426116]
+[AetherDesk:548337] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 0 on node AetherDesk exited on signal 6 (Aborted).
+--------------------------------------------------------------------------
+[file orca_tools/qcmsg.cpp, line 394]: 
+  .... aborting the run
+
