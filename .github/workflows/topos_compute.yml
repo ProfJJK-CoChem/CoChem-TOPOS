@@ -8,7 +8,7 @@ on:
         description: Exact reviewed CoChem-BASE Git commit; final installer acceptance requires catalog B
         required: true
         type: string
-        default: 35f97a1b7a6a294f381b4a30780c5b3a766b537d
+        default: 09059f052adbe5bb8208ec68a824bd45a0cab0dc
       dispatch_id:
         description: Unique request correlation ID
         required: true
@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 330
     environment: cochem-student-tests
     env:
-      BASE_COMMIT: ${{ inputs.base_commit || '35f97a1b7a6a294f381b4a30780c5b3a766b537d' }}
+      BASE_COMMIT: ${{ inputs.base_commit || '09059f052adbe5bb8208ec68a824bd45a0cab0dc' }}
       ORCA_CLOUD_LICENSE_CONFIRMED: ${{ vars.ORCA_CLOUD_LICENSE_CONFIRMED }}
       TOPOS_DISPATCH_ID: ${{ inputs.dispatch_id }}
       TOPOS_REQUEST_B64: ${{ inputs.request_b64 }}
