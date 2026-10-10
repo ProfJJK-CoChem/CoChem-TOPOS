@@ -3,10 +3,13 @@
 The worker side is a real ``python -m topos run`` on the exact submitted
 request (its outcome in this environment is whatever TOPOS genuinely records).
 Only the job runner's protocol files - status.json and the results archive
-summary - are written here, as the workstation runner would write them.
+summary - are written here, as the workstation runner would write them. The
+runner's result signature is a real Ed25519 signature made with a key
+generated here in place of the workstation's.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import json
@@ -17,6 +20,8 @@ import zipfile
 from pathlib import Path
 
 import pytest
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from topos.config import SystemConfig
 from topos.models import RunRequest
@@ -30,7 +35,25 @@ REQUEST = {"molecule": {"symbols": ["O", "H", "H"], "coordinates": [[0, 0, 0], [
            "threads": 4, "memory_mb": 2048, "calculation_environment": "workstation"}
 
 
+WORKSTATION_KEY = Ed25519PrivateKey.generate()  # stands in for the workstation's signing key
+
+
+def _fingerprint(key: Ed25519PrivateKey = WORKSTATION_KEY) -> str:
+    return hashlib.sha256(key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).hexdigest()
+
+
+def _attestation(statement: dict, key: Ed25519PrivateKey = WORKSTATION_KEY) -> dict:
+    """What the runner's ``Signer.attest`` publishes in status.json."""
+    payload = json.dumps({"schema": "cochem.workstation-attestation/1", **statement}, sort_keys=True,
+                         separators=(",", ":")).encode()
+    public = key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+    return {"schema": "cochem.workstation-attestation/1", "algorithm": "ed25519",
+            "public_key": base64.b64encode(public).decode(), "key_fingerprint": hashlib.sha256(public).hexdigest(),
+            "statement": base64.b64encode(payload).decode(), "signature": base64.b64encode(key.sign(payload)).decode()}
+
+
 def _workflow(tmp_path: Path, **settings) -> Workflow:
+    settings.setdefault("workstation_trusted_keys", [_fingerprint()])
     (tmp_path / "Drive").mkdir(exist_ok=True)
     config = SystemConfig(output_root=tmp_path / "runs", workstation_folder=str(tmp_path / "Drive" / "alice"),
                           workstation_student_id="alice", **settings)
@@ -57,6 +80,11 @@ def _status(job: Path, dispatch: dict, state: str, archive: bytes | None = None,
            "progress": {}, "output_tail": ["line 1", "line 2"], **extra}
     if archive is not None:
         (job / doc["result_file"]).write_bytes(archive)
+        with zipfile.ZipFile(io.BytesIO(archive)) as bundle:  # the runner signs the inputs it recorded
+            inputs = json.loads(bundle.read("_runner/job_summary.json"))["input_hashes"]
+        doc["attestation"] = _attestation({
+            "client_job_id": dispatch["client_job_id"], "label": label, "state": state, "workstation": "lab-ws",
+            "input_hashes": inputs, "result_file": doc["result_file"], "result_sha256": doc["result_sha256"]})
     (job / "status.json").write_text(json.dumps(doc))
 
 
@@ -146,9 +174,14 @@ def test_mismatched_or_tampered_results_are_refused(tmp_path, problem):
     archive = _archive(work, dispatch, tamper=problem == "tampered-artifact",
                        request_hash="0" * 64 if problem == "other-request" else None)
     _status(job, dispatch, "COMPLETED", archive)
-    with pytest.raises(IntegrityError):
-        workflow.resume(Path(record.metadata["run_dir"]))
-    assert RunStore(Path(record.metadata["run_dir"])).load()["metadata"].get("workstation_completion_confirmed") is False
+    run_dir = Path(record.metadata["run_dir"])
+    if problem == "other-request":  # the workstation's signature names another request: never imported
+        message = workflow.resume(run_dir).metadata["workstation_dispatch"]["message"]
+        assert "signature is for different results" in message
+    else:  # validly signed archive whose TOPOS record does not verify
+        with pytest.raises(IntegrityError):
+            workflow.resume(run_dir)
+    assert RunStore(run_dir).load()["metadata"].get("workstation_completion_confirmed") is False
 
 
 def test_cancel_request_reaches_the_workstation(tmp_path):
@@ -221,3 +254,32 @@ def test_queued_workstation_record_explains_itself(tmp_path):
     _show_workstation_status(recorder, record)
     assert "Queued to the lab workstation" in recorder.lines[0] and "check back later" in recorder.lines[0]
     assert any("SUBMITTED" in line for line in recorder.lines)
+
+
+def test_results_are_imported_only_when_signed_by_a_trusted_key(tmp_path, monkeypatch):
+    for variable in ("TOPOS_WORKSTATION_TRUSTED_KEYS", "COCHEM_WORKSTATION_TRUSTED_KEYS"):
+        monkeypatch.delenv(variable, raising=False)
+    monkeypatch.setenv("COCHEM_ARTIFACTS", str(tmp_path / "base-artifacts"))  # no keys trusted in BASE either
+    workflow = _workflow(tmp_path, workstation_trusted_keys=[])
+    folder = tmp_path / "Drive" / "alice"
+    record = workflow.run(RunRequest.model_validate(REQUEST))
+    dispatch = record.metadata["workstation_dispatch"]
+    run_dir = Path(record.metadata["run_dir"])
+    job, work = _pick_up(folder, dispatch)
+    _run_worker(work)
+    archive = _archive(work, dispatch)
+    _status(job, dispatch, "COMPLETED", archive)
+    waiting = workflow.resume(run_dir)
+    assert f"workstation key {_fingerprint()}, which is not trusted" in waiting.metadata["workstation_dispatch"]["message"]
+    assert waiting.metadata.get("workstation_completion_confirmed") is not True
+
+    doc = json.loads((job / "status.json").read_text())
+    unsigned = {key: value for key, value in doc.items() if key != "attestation"}
+    (job / "status.json").write_text(json.dumps(unsigned))
+    monkeypatch.setenv("TOPOS_WORKSTATION_TRUSTED_KEYS", _fingerprint())
+    assert "not signed" in workflow.resume(run_dir).metadata["workstation_dispatch"]["message"]
+
+    (job / "status.json").write_text(json.dumps(doc))  # the genuine signed status, now from a trusted key
+    imported = workflow.resume(run_dir)
+    assert imported.metadata["execution_kind"] == "verified-workstation-result"
+    assert imported.metadata["workstation_dispatch"]["attestation"]["key_fingerprint"] == _fingerprint()

@@ -156,10 +156,16 @@ def _workstation_configuration_panel(st: Any) -> None:
                                    key="topos_workstation_folder")
             student = st.text_input("Student ID", value=configured.get("workstation_student_id") or "",
                                     key="topos_workstation_student")
+            keys = st.text_input("Workstation key", value=", ".join(configured.get("workstation_trusted_keys") or []),
+                                 key="topos_workstation_keys",
+                                 help="Fingerprint from the workstation owner (cochem-runner key). Only results "
+                                      "signed by a key you trust are imported.")
             if st.form_submit_button("Use this workstation folder"):
                 try:
+                    from topos.workstation import _key_fingerprints
                     settings = SystemConfig.model_validate({**configured, "workstation_folder": folder.strip() or None,
-                                                            "workstation_student_id": student.strip() or None})
+                                                            "workstation_student_id": student.strip() or None,
+                                                            "workstation_trusted_keys": _key_fingerprints(keys)})
                     if settings.workstation_folder and settings.workstation_student_id:
                         from topos.workstation import open_transport
                         open_transport(settings.workstation_folder, settings.workstation_student_id).ensure(

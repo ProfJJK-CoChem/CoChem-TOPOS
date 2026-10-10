@@ -14,12 +14,24 @@ request.json --output-root runs`) when its owner is not using the machine.
   "Resume saved calculation") polls `jobs/<label>/status.json`, records the
   workstation state, queue position, adjustments, progress and output tail in
   `metadata.workstation_dispatch`, and never re-submits.
-* **Import** happens only when the runner's summary binds the archive to this
-  submission and the exact worker request bytes, the archive matches its
-  published SHA-256, the worker's RunStore snapshot verifies, and its request
-  equals the submitted one. Artifacts are copied with the same verified-copy
+* **Import** happens only when the archive matches its published SHA-256, the
+  workstation's Ed25519 **signature** verifies against a key you trust and names
+  this submission, the exact worker request bytes and that archive, the
+  runner's summary agrees, the worker's RunStore snapshot verifies, and its
+  request equals the submitted one. Results that are unsigned, signed by an
+  unknown key or for something else are not imported; the run keeps waiting
+  (with the reason in its status), so trusting the right key later still
+  imports them. Artifacts are copied with the same verified-copy
   rules as GitHub Actions results; the run becomes
   `execution_kind = "verified-workstation-result"`.
+
+## Trusting the workstation
+
+The workstation owner prints the key fingerprint with `cochem-runner key`.
+Enter it as **Workstation key** in the app's "Lab workstation" expander
+(`SystemConfig.workstation_trusted_keys`), or set `TOPOS_WORKSTATION_TRUSTED_KEYS`
+/ `COCHEM_WORKSTATION_TRUSTED_KEYS` (comma-separated); keys trusted in
+CoChem-BASE's Lab workstation panel are trusted too.
 
 ## Choosing the folder
 

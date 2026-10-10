@@ -16,6 +16,7 @@ CoChem-BASE's Drive API transport when BASE provides it.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -86,6 +87,78 @@ def workstation_settings(config: Any) -> tuple[str, str, str]:
     return str(folder), str(student), str(template)
 
 
+ATTESTATION_SCHEMA = "cochem.workstation-attestation/1"
+
+
+def _key_fingerprints(value: Any) -> list[str]:
+    """SHA-256 fingerprints from fingerprints or base64 Ed25519 public keys (list or comma/space separated)."""
+    entries = re.split(r"[\s,]+", value) if isinstance(value, str) else list(value or [])
+    found: list[str] = []
+    for entry in entries:
+        text = str(entry).strip()
+        if not text:
+            continue
+        compact = re.sub(r"^(?:sha256|ed25519):", "", text, flags=re.I).replace(":", "").lower()
+        if re.fullmatch(r"[0-9a-f]{64}", compact):
+            fingerprint = compact
+        else:
+            try:
+                raw = base64.b64decode(text, validate=True)
+            except ValueError:
+                raw = b""
+            if len(raw) != 32:
+                raise WorkstationUnavailable(f"'{text[:20]}' is not a workstation key fingerprint "
+                                             "(64 hexadecimal characters from `cochem-runner key`)")
+            fingerprint = hashlib.sha256(raw).hexdigest()
+        if fingerprint not in found:
+            found.append(fingerprint)
+    return found
+
+
+def trusted_key_fingerprints(config: Any) -> list[str]:
+    """Workstation keys this user trusts: TOPOS settings, the environment, then CoChem-BASE's panel."""
+    keys = _key_fingerprints(getattr(config, "workstation_trusted_keys", None) or [])
+    for variable in ("TOPOS_WORKSTATION_TRUSTED_KEYS", "COCHEM_WORKSTATION_TRUSTED_KEYS"):
+        keys += _key_fingerprints(os.environ.get(variable, ""))
+    try:
+        from cochem_base.interfaces.workstation_queue import load_settings
+        saved = load_settings()
+    except Exception:
+        saved = None
+    keys += list(getattr(saved, "trusted_keys", ()) or ())
+    return list(dict.fromkeys(keys))
+
+
+def verify_attestation(status: dict, trusted: list[str]) -> dict:
+    """The workstation's signed statement for these results, if it verifies against a trusted key."""
+    from cryptography.exceptions import InvalidSignature
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+    attestation = status.get("attestation")
+    if (not isinstance(attestation, dict) or attestation.get("schema") != ATTESTATION_SCHEMA
+            or attestation.get("algorithm") != "ed25519"):
+        raise WorkstationUnavailable("the results are not signed by the workstation (update its job runner)")
+    try:
+        public_key = base64.b64decode(attestation["public_key"], validate=True)
+        payload = base64.b64decode(attestation["statement"], validate=True)
+        signature = base64.b64decode(attestation["signature"], validate=True)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise WorkstationUnavailable("the workstation signature is malformed") from exc
+    fingerprint = hashlib.sha256(public_key).hexdigest()
+    if fingerprint not in trusted:
+        raise WorkstationUnavailable(
+            f"the results are signed by workstation key {fingerprint}, which is not trusted; if the workstation "
+            "owner gave you this fingerprint, add it under 'Workstation key' (or TOPOS_WORKSTATION_TRUSTED_KEYS)")
+    try:
+        Ed25519PublicKey.from_public_bytes(public_key).verify(signature, payload)
+    except (InvalidSignature, ValueError) as exc:
+        raise WorkstationUnavailable("the workstation signature does not match these results") from exc
+    statement = json.loads(payload)
+    if not isinstance(statement, dict) or statement.get("schema") != ATTESTATION_SCHEMA:
+        raise WorkstationUnavailable("the signed workstation statement is malformed")
+    return {"key_fingerprint": fingerprint, "statement": statement}
+
+
 class LocalFolder:
     """A folder synced by Google Drive for desktop (standard library only)."""
 
@@ -125,7 +198,9 @@ class LocalFolder:
                 doc = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, ValueError):
                 continue
-            if doc.get("schema") == STATUS_SCHEMA and doc.get("client_job_id") == client_job_id:
+            # The label is used in paths, so it must name this very job folder.
+            if (doc.get("schema") == STATUS_SCHEMA and doc.get("client_job_id") == client_job_id
+                    and doc.get("label") == path.parent.name):
                 return doc
         return None
 
@@ -376,10 +451,22 @@ def resume_workstation(workflow: Workflow, record: RunRecord, store: RunStore, *
         evidence = store.run_dir / f"workstation-evidence-recovery-{uuid.uuid4().hex}"
     staging = Path(tempfile.mkdtemp(prefix=".workstation-", dir=store.run_dir))
     try:
+        expected = status.get("result_sha256")
+        if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise WorkstationUnavailable("the workstation has not published the results archive checksum yet")
         archive = staging / "results.zip"
         transport.download_result(status, archive)
-        if status.get("result_sha256") and file_digest(archive) != status["result_sha256"]:
+        if file_digest(archive) != expected:
             raise WorkstationUnavailable("The results archive is still syncing (checksum differs)")
+        attested = verify_attestation(status, trusted_key_fingerprints(workflow.config))
+        signed = attested["statement"]
+        if (signed.get("client_job_id") != dispatch["client_job_id"] or signed.get("label") != status.get("label")
+                or signed.get("result_file") != status.get("result_file") or signed.get("result_sha256") != expected
+                or (signed.get("input_hashes") or {}).get("request.json") != dispatch["worker_request_sha256"]
+                or signed.get("state") not in TERMINAL):
+            raise WorkstationUnavailable("the workstation signature is for different results")
+        status = {**status, "state": signed["state"], "workstation": signed.get("workstation")}
+        dispatch.update(state=signed["state"], attestation=attested)
         _safe_extract(archive, staging / "evidence")
         shutil.move(str(staging / "evidence"), str(evidence))
     except (WorkstationUnavailable, OSError, zipfile.BadZipFile) as exc:

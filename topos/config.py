@@ -37,6 +37,10 @@ class SystemConfig(BaseModel):
     workstation_folder: str | None = Field(default=None, max_length=1024)
     workstation_student_id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
     workstation_template: str = Field(default="topos_run", pattern=r"^[A-Za-z0-9_-]{1,64}$")
+    # Fingerprints of the workstation keys whose signed results are imported
+    # (`cochem-runner key` on the workstation); TOPOS_/COCHEM_WORKSTATION_TRUSTED_KEYS
+    # and the keys trusted in CoChem-BASE are added to these.
+    workstation_trusted_keys: list[str] = Field(default_factory=list, max_length=32)
 
 
 def load_config(path: Path | str | None = None) -> SystemConfig:
