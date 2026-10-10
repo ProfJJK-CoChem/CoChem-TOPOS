@@ -182,7 +182,8 @@ def _verify_pristine_external(record: RunRecord, store: RunStore, workflow: Work
             or store.load() != record.model_dump(mode="json") or request != record.request
             or record.status != "queued" or record.attempts or record.candidates
             or "remote_dispatch" in record.metadata
-            or record.metadata.get("execution_kind") == "remote-request"
+            or record.metadata.get("execution_kind") in {"remote-request", "workstation-request"}
+            or "workstation_dispatch" in record.metadata
             or record.metadata.get("request_sha256") != digest_json(request.model_dump(mode="json"))
             or record.metadata.get("input_sha256") != digest_json(request.molecule.model_dump(mode="json"))):
         raise IntegrityError("Only an unchanged pristine queued external import may receive an initial dispatch")
