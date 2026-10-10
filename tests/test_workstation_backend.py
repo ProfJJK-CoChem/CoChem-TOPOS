@@ -78,10 +78,13 @@ def _status(job: Path, dispatch: dict, state: str, archive: bytes | None = None,
            "result_file": f"{label}_results.zip" if archive is not None else None,
            "result_sha256": hashlib.sha256(archive).hexdigest() if archive is not None else None,
            "progress": {}, "output_tail": ["line 1", "line 2"], **extra}
+    inputs = {}
     if archive is not None:
         (job / doc["result_file"]).write_bytes(archive)
         with zipfile.ZipFile(io.BytesIO(archive)) as bundle:  # the runner signs the inputs it recorded
             inputs = json.loads(bundle.read("_runner/job_summary.json"))["input_hashes"]
+    if state in {"COMPLETED", "FAILED", "CANCELLED"} and (archive is not None or doc["attempts"] == 0):
+        # The runner signs a final outcome once delivered: with its archive, or without one.
         doc["attestation"] = _attestation({
             "client_job_id": dispatch["client_job_id"], "label": label, "state": state, "workstation": "lab-ws",
             "input_hashes": inputs, "result_file": doc["result_file"], "result_sha256": doc["result_sha256"]})
@@ -205,7 +208,18 @@ def test_rejected_submission_is_final(tmp_path):
     dispatch = record.metadata["workstation_dispatch"]
     job, _work = _pick_up(folder, dispatch)
     _status(job, dispatch, "FAILED", attempts=0, message="Rejected: Unknown engine 'topos_run'")
-    final = workflow.resume(Path(record.metadata["run_dir"]))
+    run_dir = Path(record.metadata["run_dir"])
+    signed = json.loads((job / "status.json").read_text())
+    forged = {key: value for key, value in signed.items() if key != "attestation"}
+    (job / "status.json").write_text(json.dumps(forged))  # an unsigned "final" status cannot end the run
+    waiting = workflow.resume(run_dir)
+    assert waiting.status != "failed" and waiting.metadata.get("workstation_completion_confirmed") is not True
+    (job / "status.json").write_text(json.dumps(dict(forged, attestation=_attestation({
+        "client_job_id": dispatch["client_job_id"], "label": job.name, "state": "FAILED", "input_hashes": {},
+        "result_file": "other.zip", "result_sha256": "0" * 64}))))
+    assert "different outcome" in workflow.resume(run_dir).metadata["workstation_dispatch"]["message"]
+    (job / "status.json").write_text(json.dumps(signed))
+    final = workflow.resume(run_dir)
     assert final.status == "failed" and "Unknown engine" in final.metadata["termination_reason"]
     assert final.metadata["workstation_completion_confirmed"] is True
 
@@ -283,3 +297,76 @@ def test_results_are_imported_only_when_signed_by_a_trusted_key(tmp_path, monkey
     imported = workflow.resume(run_dir)
     assert imported.metadata["execution_kind"] == "verified-workstation-result"
     assert imported.metadata["workstation_dispatch"]["attestation"]["key_fingerprint"] == _fingerprint()
+
+
+def test_cancelling_before_pickup_withdraws_the_job(tmp_path):
+    import threading
+    workflow = _workflow(tmp_path)
+    folder = tmp_path / "Drive" / "alice"
+    record = workflow.run(RunRequest.model_validate(REQUEST))
+    dispatch = record.metadata["workstation_dispatch"]
+    cancel = threading.Event()
+    cancel.set()
+    cancelled = workflow.resume(Path(record.metadata["run_dir"]), cancel_event=cancel)
+    assert cancelled.status == "cancelled" and cancelled.metadata["workstation_completion_confirmed"] is True
+    assert not (folder / "inbox" / dispatch["job_name"]).exists()
+
+
+def test_cancellation_is_repeated_once_the_job_appears(tmp_path):
+    import threading
+    workflow = _workflow(tmp_path)
+    folder = tmp_path / "Drive" / "alice"
+    record = workflow.run(RunRequest.model_validate(REQUEST))
+    dispatch = record.metadata["workstation_dispatch"]
+    run_dir = Path(record.metadata["run_dir"])
+    job, _work = _pick_up(folder, dispatch)  # picked up, but its status.json has not synced yet
+    cancel = threading.Event()
+    cancel.set()
+    assert workflow.resume(run_dir, cancel_event=cancel).metadata["workstation_dispatch"]["cancel_requested"]
+    _status(job, dispatch, "RUNNING")
+    workflow.resume(run_dir)  # no cancel event this time: the recorded request is repeated
+    assert (job / "CANCEL").exists()
+
+
+def test_budgets_beyond_the_workstation_limit_are_refused(tmp_path):
+    workflow = _workflow(tmp_path)
+    record = workflow.run(RunRequest.model_validate({**REQUEST, "budget_seconds": 200 * 3600}))
+    assert record.status == "unavailable" and "at most 168 hours" in record.metadata["termination_reason"]
+    inbox = tmp_path / "Drive" / "alice" / "inbox"
+    assert not inbox.exists() or not any(inbox.iterdir())  # refused before anything is deposited
+
+
+def test_a_status_that_is_not_a_json_object_is_ignored(tmp_path):
+    workflow = _workflow(tmp_path)
+    folder = tmp_path / "Drive" / "alice"
+    record = workflow.run(RunRequest.model_validate(REQUEST))
+    dispatch = record.metadata["workstation_dispatch"]
+    job, _work = _pick_up(folder, dispatch)
+    (job / "status.json").write_text("[1, 2, 3]")
+    assert workflow.resume(Path(record.metadata["run_dir"])).status == "queued"
+
+
+def test_an_interrupted_submission_is_delivered_once_on_resume(tmp_path):
+    workflow = _workflow(tmp_path)
+    folder = tmp_path / "Drive" / "alice"
+    record = workflow.run(RunRequest.model_validate(REQUEST))
+    dispatch = record.metadata["workstation_dispatch"]
+    run_dir = Path(record.metadata["run_dir"])
+    # As if TOPOS stopped after committing the dispatch but before the folder write.
+    shutil.rmtree(folder / "inbox" / dispatch["job_name"])
+    store = RunStore(run_dir)
+    saved = store.load()
+    saved["metadata"]["workstation_dispatch"]["state"] = "SUBMITTING"
+    from topos.models import RunRecord
+    store.commit(RunRecord.model_validate(saved))
+    resumed = workflow.resume(run_dir)
+    assert resumed.metadata["workstation_dispatch"]["state"] == "SUBMITTED"
+    assert (folder / "inbox" / dispatch["job_name"] / "request.json").is_file()
+    workflow.resume(run_dir)
+    assert len(list((folder / "inbox").iterdir())) == 1
+
+
+def test_drive_link_transport_errors_keep_the_run_waiting():
+    base = pytest.importorskip("cochem_base.interfaces.workstation_queue")
+    from topos.workstation import _transport_errors
+    assert base.WorkstationQueueError in _transport_errors()

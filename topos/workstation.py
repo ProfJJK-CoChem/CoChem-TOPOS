@@ -54,6 +54,7 @@ FOLDER_MARKER = "cochem_workstation_folder.json"
 TERMINAL = {"COMPLETED", "FAILED", "CANCELLED"}
 DRIVE_LINK = re.compile(r"^(?:https://drive\.google\.com/|drive:)")
 MAX_RESULT_BYTES = 4 * 1024 * 1024 * 1024
+MAX_HOURS = 168  # the job runner's longest allowed job
 STUDENT_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}")
 
 
@@ -199,7 +200,7 @@ class LocalFolder:
             except (OSError, ValueError):
                 continue
             # The label is used in paths, so it must name this very job folder.
-            if (doc.get("schema") == STATUS_SCHEMA and doc.get("client_job_id") == client_job_id
+            if (isinstance(doc, dict) and doc.get("schema") == STATUS_SCHEMA and doc.get("client_job_id") == client_job_id
                     and doc.get("label") == path.parent.name):
                 return doc
         return None
@@ -233,9 +234,50 @@ def open_transport(folder: str, student_id: str) -> Any:
 # ---------------------------------------------------------------------------
 # Submission
 # ---------------------------------------------------------------------------
+def _job_hours(request: RunRequest) -> int:
+    """The request's budget plus two hours of slack for pauses; never silently shortened."""
+    hours = max(1, int(request.budget_seconds // 3600) + 2)
+    if hours > MAX_HOURS:
+        raise WorkstationUnavailable(f"The workstation runs a job for at most {MAX_HOURS} hours; this request's "
+                                     f"budget needs {hours} hours. Reduce budget_seconds or choose another "
+                                     "calculation environment")
+    return hours
+
+
+def _transport_errors() -> tuple[type[BaseException], ...]:
+    """Errors a transport raises while the folder or archive is not (yet) reachable."""
+    errors: tuple[type[BaseException], ...] = (WorkstationUnavailable, OSError)
+    try:
+        from cochem_base.interfaces.workstation_queue import WorkstationQueueError
+    except Exception:
+        return errors
+    return (*errors, WorkstationQueueError)
+
+
+def _delivered(transport: Any, dispatch: dict) -> bool:
+    return bool(transport.pending(dispatch["job_name"])
+                or transport.status(dispatch["job_name"], dispatch["client_job_id"]) is not None)
+
+
+def _worker_bytes(request: RunRequest) -> tuple[RunRequest, bytes]:
+    worker = RunRequest.model_validate({**request.model_dump(mode="json"), "calculation_environment": "local"})
+    return worker, json.dumps(worker.model_dump(mode="json"), indent=2, sort_keys=True).encode()
+
+
+def _deliver(transport: Any, dispatch: dict, request: RunRequest) -> None:
+    """Put the job in the inbox unless it is already there (or picked up); safe to repeat."""
+    _worker, worker_bytes = _worker_bytes(request)
+    if hashlib.sha256(worker_bytes).hexdigest() != dispatch["worker_request_sha256"]:
+        raise IntegrityError("The saved request no longer matches the committed workstation submission")
+    if not _delivered(transport, dispatch):
+        transport.submit(dispatch["job_name"], _job_files(
+            worker_bytes, job_name=dispatch["job_name"], client_job_id=dispatch["client_job_id"],
+            student_id=dispatch["student_id"], template=dispatch["template"], request=request))
+
+
 def _job_files(worker_request: bytes, *, job_name: str, client_job_id: str, student_id: str, template: str,
                request: RunRequest) -> dict[str, bytes]:
-    hours = max(1, min(168, int(request.budget_seconds // 3600) + 2))
+    hours = _job_hours(request)
     manifest = {"schema": JOB_SCHEMA, "engine": template, "name": job_name, "input": "request.json",
                 "resources": {"cores": request.threads, "memory_gb": round(request.memory_mb / 1024, 3),
                               "max_hours": hours},
@@ -269,7 +311,7 @@ def run_workstation(workflow: Workflow, request: RunRequest, *, cancel_event: Ev
         atomic_json(request_path, request.model_dump(mode="json"))
         record.artifacts.append(Artifact(path=request_path.name, sha256=file_digest(request_path),
                                          size_bytes=request_path.stat().st_size, role="workstation-user-request"))
-        store.commit(record)
+        # Nothing is committed as a workstation request until its dispatch record is (below).
         if cancel_event is not None and cancel_event.is_set():
             record.status = "cancelled"
             record.metadata["termination_reason"] = "cancelled before workstation submission"
@@ -277,15 +319,10 @@ def run_workstation(workflow: Workflow, request: RunRequest, *, cancel_event: Ev
             return record
         try:
             folder_setting, student, template = workstation_settings(workflow.config)
+            _job_hours(request)
             transport = open_transport(folder_setting, student)
             transport.ensure(student)
-            worker = RunRequest.model_validate({**request.model_dump(mode="json"),
-                                                "calculation_environment": "local"})
-            worker_bytes = json.dumps(worker.model_dump(mode="json"), indent=2, sort_keys=True).encode()
-            job_name = "topos-" + record.run_id.removeprefix("run_")[:12]
-            client_job_id = "cochem-topos:" + record.run_id
-            transport.submit(job_name, _job_files(worker_bytes, job_name=job_name, client_job_id=client_job_id,
-                                                  student_id=student, template=template, request=request))
+            worker, worker_bytes = _worker_bytes(request)
         except WorkstationUnavailable as exc:
             record.status = "unavailable"
             record.metadata["termination_reason"] = str(exc)
@@ -296,14 +333,26 @@ def run_workstation(workflow: Workflow, request: RunRequest, *, cancel_event: Ev
             record.metadata["termination_reason"] = f"workstation submission failed: {exc}"
             store.commit(record)
             return record
-        record.metadata["workstation_dispatch"] = {
-            "client_job_id": client_job_id, "job_name": job_name, "folder": folder_setting, "student_id": student,
-            "template": template, "worker_request_sha256": hashlib.sha256(worker_bytes).hexdigest(),
+        dispatch = {
+            "client_job_id": "cochem-topos:" + record.run_id,
+            "job_name": "topos-" + record.run_id.removeprefix("run_")[:12], "folder": folder_setting,
+            "student_id": student, "template": template,
+            "worker_request_sha256": hashlib.sha256(worker_bytes).hexdigest(),
             "worker_request_identity": digest_json(worker.model_dump(mode="json")), "submitted_at": utc_now(),
-            "state": "SUBMITTED", "message": "Waiting for the workstation to pick the job up from the folder",
+            "state": "SUBMITTING", "message": "Delivering the job to the workstation folder",
         }
+        # Committed before delivery: an interrupted submission resumes here and is never sent twice.
+        record.metadata["workstation_dispatch"] = dispatch
         record.status = "queued"
         record.updated_at = utc_now()
+        store.commit(record)
+        try:
+            _deliver(transport, dispatch, request)
+        except _transport_errors() as exc:
+            dispatch["message"] = f"Not delivered to the workstation folder yet ({exc}); check the workstation again"
+            store.commit(record)
+            return record
+        dispatch.update(state="SUBMITTED", message="Waiting for the workstation to pick the job up from the folder")
         store.commit(record)
         return record
 
@@ -407,15 +456,34 @@ def resume_workstation(workflow: Workflow, record: RunRecord, store: RunStore, *
     if record.metadata.get("workstation_completion_confirmed") is True:
         return record
     transport = open_transport(dispatch["folder"], dispatch["student_id"])
-    status = transport.status(dispatch["job_name"], dispatch["client_job_id"])
-    if cancel_event is not None and cancel_event.is_set():
-        transport.cancel(dispatch["job_name"], status)
-        dispatch.update(state="CANCEL_REQUESTED", message="Cancellation requested from TOPOS")
-        record.metadata["workstation_dispatch"] = dispatch
+    try:
+        if dispatch.get("state") == "SUBMITTING":  # an interrupted submission: finish delivering it once
+            _deliver(transport, dispatch, RunRequest.model_validate(request))
+            dispatch.update(state="SUBMITTED", message="Waiting for the workstation to pick the job up from the folder")
+            store.commit(record)
+        status = transport.status(dispatch["job_name"], dispatch["client_job_id"])
+        waiting = status is None and transport.pending(dispatch["job_name"])
+        cancelling = (cancel_event is not None and cancel_event.is_set()) or dispatch.get("cancel_requested")
+        if cancelling and (status is None or str(status.get("state")) not in TERMINAL):
+            transport.cancel(dispatch["job_name"], status)  # idempotent: repeated until the workstation stops it
+            if waiting and not transport.pending(dispatch["job_name"]):
+                record.status = "cancelled"
+                record.metadata.update(termination_reason="Withdrawn from the workstation folder before it started",
+                                       workstation_completion_confirmed=True)
+                dispatch.update(state="CANCELLED", message="Withdrawn before the workstation picked it up",
+                                cancel_requested=True)
+                store.commit(record)
+                return record
+            if not dispatch.get("cancel_requested"):
+                dispatch.update(cancel_requested=True, message="Cancellation requested from TOPOS")
+                store.commit(record)
+            if cancel_event is not None and cancel_event.is_set():
+                return record
+    except _transport_errors() as exc:
+        dispatch["message"] = f"The workstation folder is not reachable right now: {exc}"
         store.commit(record)
         return record
     if status is None:
-        waiting = transport.pending(dispatch["job_name"])
         state = "SUBMITTED" if waiting else "SYNCING"
         message = ("Waiting for the workstation to pick the job up from the folder" if waiting
                    else "The job is between the inbox and jobs/ folders (Drive may still be syncing)")
@@ -433,18 +501,30 @@ def resume_workstation(workflow: Workflow, record: RunRecord, store: RunStore, *
     changed = any(dispatch.get(key) != value for key, value in live.items())
     dispatch.update(live)
     record.metadata["workstation_dispatch"] = dispatch
-    if state not in TERMINAL or (not status.get("result_file") and status.get("attempts", 0) > 0):
+    if state in TERMINAL and not status.get("result_file") and status.get("attestation"):
+        # Ended without results (rejected, cancelled, nothing to return): final only when the workstation signed it.
+        try:
+            attested = verify_attestation(status, trusted_key_fingerprints(workflow.config))
+            signed = attested["statement"]
+            if (signed.get("client_job_id") != dispatch["client_job_id"] or signed.get("label") != status.get("label")
+                    or signed.get("result_file") is not None or signed.get("state") not in TERMINAL):
+                raise WorkstationUnavailable("the workstation signature is for a different outcome")
+        except WorkstationUnavailable as exc:
+            dispatch["message"] = f"Final state not accepted yet: {exc}"
+            store.commit(record)
+            return record
+        record.status = "cancelled" if signed["state"] == "CANCELLED" else "failed"
+        dispatch.update(state=signed["state"], attestation=attested)
+        record.metadata.update(termination_reason=live["message"], workstation_completion_confirmed=True)
+        store.commit(record)
+        return record
+    if state not in TERMINAL or not status.get("result_file"):  # running, or the final outcome is still syncing
         new_status = "running" if state in {"RUNNING", "SUSPENDED"} or state in TERMINAL else "queued"
         if changed or record.status != new_status:
             dispatch["updated_at"] = utc_now()
             record.status = new_status
             record.updated_at = utc_now()
             store.commit(record)
-        return record
-    if not status.get("result_file"):  # rejected or cancelled before it ever ran
-        record.status = "cancelled" if state == "CANCELLED" else "failed"
-        record.metadata.update(termination_reason=live["message"], workstation_completion_confirmed=True)
-        store.commit(record)
         return record
     evidence = store.run_dir / "workstation-evidence"
     if evidence.exists():
@@ -469,7 +549,7 @@ def resume_workstation(workflow: Workflow, record: RunRecord, store: RunStore, *
         dispatch.update(state=signed["state"], attestation=attested)
         _safe_extract(archive, staging / "evidence")
         shutil.move(str(staging / "evidence"), str(evidence))
-    except (WorkstationUnavailable, OSError, zipfile.BadZipFile) as exc:
+    except (*_transport_errors(), zipfile.BadZipFile) as exc:
         dispatch["message"] = f"Results not imported yet: {exc}"
         store.commit(record)
         return record

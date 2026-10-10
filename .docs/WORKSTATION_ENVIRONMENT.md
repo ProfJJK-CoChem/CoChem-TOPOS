@@ -9,7 +9,15 @@ request.json --output-root runs`) when its owner is not using the machine.
 * **Submit** (`Workflow.run`) deposits the request with
   `calculation_environment` set to `local` for the worker and returns at once
   with a `queued` record (`execution_kind = "workstation-request"`). Jobs may
-  wait for hours; nothing blocks.
+  wait for hours; nothing blocks. The dispatch is recorded before the folder
+  write, so an interrupted submission is completed on the next resume and never
+  sent twice. The workstation runs a job for at most 168 hours (the budget plus
+  two hours for pauses); longer budgets are refused, not shortened.
+* **Cancel** withdraws a job still waiting in the inbox (the run becomes
+  `cancelled`) or asks the workstation to stop it, repeating the request until
+  the workstation reports a final state. A final state without results
+  (rejected or cancelled before running) is accepted only when the workstation
+  signed it.
 * **Resume** (`Workflow.resume`, the app's "Check the workstation now" or
   "Resume saved calculation") polls `jobs/<label>/status.json`, records the
   workstation state, queue position, adjustments, progress and output tail in
