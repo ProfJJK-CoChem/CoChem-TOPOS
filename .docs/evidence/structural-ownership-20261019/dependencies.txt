@@ -17,7 +17,7 @@ cffi==2.1.1
 charset-normalizer==3.5.2
 click==8.5.0
 CoChem-BASE @ file:///workspace/.topos-compat/wheels/cochem_base-1.1.0-py3-none-any.whl#sha256=7f6a1a3fcd8493a5c7b425d9856b52d3b8162809dcdc4838cd07fb23ce83deb5
-cochem-topos @ file:///workspace/.completion/structural-transfer/validation/dist/cochem_topos-0.1.0-py3-none-any.whl
+cochem-topos @ file:///workspace/.completion/structural-transfer/whitespace-validation/dist/cochem_topos-0.1.0-py3-none-any.whl
 colorama==0.4.6
 comm==0.2.3
 contourpy==1.4.0

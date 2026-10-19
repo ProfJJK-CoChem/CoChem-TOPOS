@@ -32,7 +32,7 @@ FORBIDDEN_COORDINATE_KEYS: frozenset[str] = frozenset({
 
 class TopologyGraph(nx.Graph):
     """Unified chemical topology graph subclassing networkx.Graph.
-    
+
     Invariants:
     1. Topologically Pure Node Schema: Node attributes strictly exclude Cartesian coordinates.
     2. Dynamic Mendeleev Elemental Queries: Masses and atomic numbers queried dynamically.

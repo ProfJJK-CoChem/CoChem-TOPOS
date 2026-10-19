@@ -13,13 +13,13 @@
       "legacy_alias_equal": true,
       "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
       "target_path": "topos/structural/exceptions.py",
-      "target_sha256": "574800385caaf08f2aac8acbe046a40dcb65e4cb1fdcd325f24fe2289a4db652",
-      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "target_sha256": "d2b6d1f12f1ea67b3f0f3e6db3b0b32986642d613e1017d8fd1cf23df22d265b",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, two lint comments preserving original zip semantics, and documented nonexecutable whitespace cleanup only; algorithms, models, numerical constants and thresholds preserved",
       "dependencies": [
         "__future__",
         "cochem_base.exceptions"
       ],
-      "executable_ast_equal_excluding_imports": true
+      "executable_ast_equal_excluding_imports_and_docstring_blank_line_whitespace": true
     },
     {
       "source_repository": "ProfJJK-CoChem/CoChem-BASE",
@@ -30,8 +30,8 @@
       "legacy_alias_equal": true,
       "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
       "target_path": "topos/structural/graph.py",
-      "target_sha256": "4d6131e9619792a4495dcc63481e0d7a1da98ff429277d1c872dc497e6746d38",
-      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "target_sha256": "0cec4cdf346c713e21b628661d516b8f869d594b1b4dba5cd79de238852cfa10",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, two lint comments preserving original zip semantics, and documented nonexecutable whitespace cleanup only; algorithms, models, numerical constants and thresholds preserved",
       "dependencies": [
         "__future__",
         "cochem_base.physics.isotopes",
@@ -46,7 +46,7 @@
         "topos.structural.exceptions",
         "typing"
       ],
-      "executable_ast_equal_excluding_imports": true
+      "executable_ast_equal_excluding_imports_and_docstring_blank_line_whitespace": true
     },
     {
       "source_repository": "ProfJJK-CoChem/CoChem-BASE",
@@ -57,8 +57,8 @@
       "legacy_alias_equal": true,
       "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
       "target_path": "topos/structural/rings.py",
-      "target_sha256": "9e879cb0a821ea13e6ef3e92e5c9ecbcde5a52f3c6be58bfe320bc9cf9235e56",
-      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "target_sha256": "de7139960df1caed6f539fbb88d78ab7a9586020b8a269c3500abb5c69212aad",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, two lint comments preserving original zip semantics, and documented nonexecutable whitespace cleanup only; algorithms, models, numerical constants and thresholds preserved",
       "dependencies": [
         "__future__",
         "logging",
@@ -67,7 +67,7 @@
         "topos.structural.graph",
         "typing"
       ],
-      "executable_ast_equal_excluding_imports": true
+      "executable_ast_equal_excluding_imports_and_docstring_blank_line_whitespace": true
     },
     {
       "source_repository": "ProfJJK-CoChem/CoChem-BASE",
@@ -79,7 +79,7 @@
       "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
       "target_path": "topos/structural/resonance.py",
       "target_sha256": "5bb0cb0cbd6b0f1e12a8713e0aa365e7420f3caae0918056f18708935245211c",
-      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, two lint comments preserving original zip semantics, and documented nonexecutable whitespace cleanup only; algorithms, models, numerical constants and thresholds preserved",
       "dependencies": [
         "__future__",
         "logging",
@@ -90,7 +90,7 @@
         "topos.structural.rings",
         "typing"
       ],
-      "executable_ast_equal_excluding_imports": true
+      "executable_ast_equal_excluding_imports_and_docstring_blank_line_whitespace": true
     },
     {
       "source_repository": "ProfJJK-CoChem/CoChem-BASE",
@@ -102,7 +102,7 @@
       "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
       "target_path": "topos/structural/tautomer.py",
       "target_sha256": "e34080be2c0cb943a88fd4fef3a1933e5a28f02ed07b2866030f5bc3647c7fab",
-      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, two lint comments preserving original zip semantics, and documented nonexecutable whitespace cleanup only; algorithms, models, numerical constants and thresholds preserved",
       "dependencies": [
         "__future__",
         "cochem_base.physics.isotopes",
@@ -124,7 +124,7 @@
         "time",
         "typing"
       ],
-      "executable_ast_equal_excluding_imports": true
+      "executable_ast_equal_excluding_imports_and_docstring_blank_line_whitespace": true
     }
   ],
   "scientific_tests": [
@@ -184,6 +184,30 @@
   ],
   "graph_helper_byte_unchanged": true,
   "topos_parent_revision": "bde1d3464f0e37c04f13cb254188104da930e0b5",
-  "source_equivalence_method": "Each complete module AST is equal after removing import nodes only; comments/docstrings, algorithms, models, mass resolvers, numeric constants and thresholds otherwise preserved. Four complete test functions and helper are byte-identical.",
-  "direct_dependency_added": "rdkit>=2026.3.5; real Chem.MolFromSmiles/ResonanceMolSupplier and isotope-preserving RWMol operations; no reliance on BASE transitive installation"
+  "source_equivalence_method": "Each module AST equals immutable BASE after removing import nodes and normalizing whitespace-only blank lines in docstrings. The only additional source differences from locally committed TOPOS550717e are exactly the three recorded whitespace sites; algorithms, models, resolvers, numerical constants and scientific thresholds are unchanged. Four complete test functions and helper remain byte-identical.",
+  "direct_dependency_added": "rdkit>=2026.3.5; real Chem.MolFromSmiles/ResonanceMolSupplier and isotope-preserving RWMol operations; no reliance on BASE transitive installation",
+  "whitespace_cleanup": {
+    "parent_revision": "550717ed54c10387557099fe095bf1d336bc8614",
+    "source_changes": [
+      {
+        "path": "topos/structural/exceptions.py",
+        "before_whitespace_sha256": "574800385caaf08f2aac8acbe046a40dcb65e4cb1fdcd325f24fe2289a4db652",
+        "after_whitespace_sha256": "d2b6d1f12f1ea67b3f0f3e6db3b0b32986642d613e1017d8fd1cf23df22d265b",
+        "change": "remove two excess EOF blank lines"
+      },
+      {
+        "path": "topos/structural/graph.py",
+        "before_whitespace_sha256": "4d6131e9619792a4495dcc63481e0d7a1da98ff429277d1c872dc497e6746d38",
+        "after_whitespace_sha256": "0cec4cdf346c713e21b628661d516b8f869d594b1b4dba5cd79de238852cfa10",
+        "change": "remove line35 blank-line spaces inside docstring"
+      },
+      {
+        "path": "topos/structural/rings.py",
+        "before_whitespace_sha256": "9e879cb0a821ea13e6ef3e92e5c9ecbcde5a52f3c6be58bfe320bc9cf9235e56",
+        "after_whitespace_sha256": "de7139960df1caed6f539fbb88d78ab7a9586020b8a269c3500abb5c69212aad",
+        "change": "remove line35 blank-line spaces inside docstring"
+      }
+    ],
+    "historical_original_evidence": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/receipt.json"
+  }
 }

@@ -7,11 +7,15 @@ conformance, thermodynamic ranking, exhaustive sampling or student deployment.
 The immutable source is BASE
 [`b05f7b048eff39bedf63019c8f371bdde5b5579a`](https://github.com/ProfJJK-CoChem/CoChem-BASE/tree/b05f7b048eff39bedf63019c8f371bdde5b5579a).
 The [transfer manifest](evidence/structural-ownership-transfer-20261019.json)
-records every original and migrated file SHA-256. All executable module AST
-nodes are identical after removing import nodes. Changes are namespace imports,
-import sorting, removal of one unused typing import, and two lint comments that
-preserve the original `zip` behavior. No algorithm, model, dynamic mass resolver,
-numeric constant or scientific threshold changes.
+records every original and migrated file SHA-256. Module ASTs are identical after
+removing import nodes and normalizing whitespace-only blank lines in docstrings.
+Changes are namespace imports, import sorting, removal of one unused typing
+import, two lint comments that preserve the original `zip` behavior, and the
+three documented whitespace sites. No algorithm, model, dynamic mass resolver,
+numeric constant or scientific threshold changes. Compared with locally
+committed producer `550717ed54c10387557099fe095bf1d336bc8614`, only excess EOF
+blank lines in `exceptions.py` and blank-line spaces inside the `graph.py` and
+`rings.py` docstrings were removed.
 
 The four complete scientific test functions and their SMILES graph helper are
 byte-identical to the original BASE functions. They test two actual benzene
@@ -57,19 +61,23 @@ as JSON object keys. Missing energies, weights and temperature remain null;
 `structural_enumeration_only`. Output publication is exclusive and atomic;
 symlinked paths, changed requests and existing student output are refused.
 
-Installed noneditable-wheel validation outside the checkout passed **26 cases**
-with zero failures, errors or skips. The expanded selection, including existing
-science, schema-evolution and release cases, passed **127 cases**, also with zero
-failures, errors or skips. A separate source/import-path environment exercised the
-temporary real-wheel test harness and passed the same **26 cases** without
-exclusions. Full repository Ruff and dependency consistency checks passed.
-Independent review corrected the test harness to compare all eight installed
-source hashes with the current checkout before reusing its interpreter. A real
-stale-wheel guard exercise passed: an external current-source copy had one
-nonexecutable comment change, and the fixture rebuilt and executed its actual
-wheel rather than accepting the previously installed source. The final refreshed
-regression selection again passed all 127 cases with zero failures, errors or
-skips; both final JUnit receipts are retained.
+After that whitespace cleanup, a fresh installed noneditable wheel was validated
+outside the checkout: **127 cases passed with zero failures, errors or skips**,
+including all **26 required structural and real boundary cases** plus existing
+science, schema-evolution and release regressions. Full repository Ruff and
+dependency consistency checks passed. All three actual structural output proofs
+were regenerated and their complete eight-member source hash maps were checked
+against the post-whitespace source.
+
+The [historical producer archive](evidence/structural-ownership-20261019/pre-whitespace-550717e/README.md)
+retains the exact original native outputs, wheel identity, JUnit, dependency
+freeze, initial failures, source-suite and stale-wheel proof from producer
+`550717e`. Its byte-equivalence inventory was checked against that commit. Those
+receipts remain historical evidence; they do not validate the later producer
+bytes. The current test harness still compares all eight installed source hashes
+with the current checkout before reusing its interpreter; mismatches rebuild a
+current disposable wheel. No test body changed for the whitespace cleanup.
+
 The receipt retains exact counts, durations, JUnit files and actual native
 [benzene](evidence/structural-ownership-20261019/benzene-result.json),
 [truncated benzene](evidence/structural-ownership-20261019/benzene-truncated-result.json),

@@ -1,0 +1,1 @@
+{"schema": "cochem.topos-structural/1", "request_id": "isotope-formaldehyde", "operation": "topology_to_rdkit", "input": {"molecule_id": "isotope-formaldehyde", "elements": ["13C", "O"], "atomic_numbers": [6, 8], "bonds": [[0, 1, 2.0]]}}

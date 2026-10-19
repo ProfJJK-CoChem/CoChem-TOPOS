@@ -1,72 +1,36 @@
 {
+  "status": "CURRENT_POST_WHITESPACE_PRODUCER_EVIDENCE",
   "scope": "Bounded canonical structural ownership and actual installed-wheel process verification only; no quantum engine was run by these structural operations",
   "base_source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
-  "topos_parent_revision": "bde1d3464f0e37c04f13cb254188104da930e0b5",
+  "topos_parent_revision": "550717ed54c10387557099fe095bf1d336bc8614",
+  "producer_change_from_parent": "Only exceptions.py EOF blank lines, graph.py35 and rings.py35 blank-line spaces inside docstrings were removed. No algorithm, model, mass resolver, numeric constant, threshold or test body changed.",
   "source_equivalence_manifest": ".docs/evidence/structural-ownership-transfer-20261019.json",
-  "source_equivalence_manifest_sha256": "1fb1aee508ad8b28eea50bfb9dc0eaf4d873f51ef638e2476f125481831a1b55",
+  "source_equivalence_manifest_sha256": "db95473755101b8a4e19965a1e961399965f80081a2a6dc8bebb72d72947af8c",
   "candidate_wheel": {
     "filename": "cochem_topos-0.1.0-py3-none-any.whl",
-    "sha256": "fab6a6fbb9eb4fe69db795a6cab80fe4181e486cab986ca23bd1e3359e68e13e",
-    "bytes": 664201,
+    "sha256": "07ca68536da0dac35b817caca02b4e95cb9f8286f99e0f39b80a344dd8150f5e",
+    "bytes": 664199,
     "installed_noneditable": true,
-    "provider_archive_hash_note": "uv left PEP 610 archive_info empty; result receipts honestly retain null. The directly hashed candidate wheel and installed source/RECORD proof supply separate byte identity; an approved managed seal remains the caller authority."
+    "provider_archive_hash_note": "uv leaves PEP610 archive_info empty; native receipts retain null rather than invent a digest. Actual wheel SHA is calculated directly here; externally approved managed seal remains caller authority."
   },
   "scientific_body_equivalence": {
     "modules": 5,
-    "nonimport_executable_AST_equal": true,
+    "AST_equal_excluding_imports_and_docstring_blank_line_whitespace": true,
     "complete_test_functions_byte_identical": 4,
-    "graph_helper_byte_identical": true
+    "graph_helper_byte_identical": true,
+    "additional_changes_from_parent_exactly_three_whitespace_sites": true
   },
   "checks": [
     {
-      "scope": "structural-final",
-      "tests": 26,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "time_seconds": 21.012,
-      "path": ".docs/evidence/structural-ownership-20261019/structural-final.xml",
-      "sha256": "7ef7d1da06d75a20ce5de6d97d59c70c9cf3e8b91be396b322601f57f6fe88ce"
-    },
-    {
-      "scope": "structural-related",
+      "scope": "Current post-whitespace installed noneditable wheel: preserved4 scientific cases+22 actual boundary cases and existing science/schema/release regressions",
       "tests": 127,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
-      "time_seconds": 37.263,
-      "path": ".docs/evidence/structural-ownership-20261019/structural-related.xml",
-      "sha256": "49df20c2d8e6934fa40eef7552874d476183edb2fd1120795087d00c32d86b78"
-    },
-    {
-      "scope": "structural-source",
-      "tests": 26,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "time_seconds": 23.662,
-      "path": ".docs/evidence/structural-ownership-20261019/structural-source.xml",
-      "sha256": "6cf6c8c165f32ef0ed26ec5b2a41c63b82914b7573573ee89669e264e7e40755"
-    },
-    {
-      "scope": "structural-reviewed",
-      "tests": 127,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "time_seconds": 38.974,
-      "path": ".docs/evidence/structural-ownership-20261019/structural-reviewed.xml",
-      "sha256": "e4ccef7365ac1eb58433da15986f60ee5aa9dfa9400d5580846b3c0a0cd17b41"
-    },
-    {
-      "scope": "structural-stale",
-      "tests": 1,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "time_seconds": 8.796,
-      "path": ".docs/evidence/structural-ownership-20261019/structural-stale.xml",
-      "sha256": "920f14e84b4b938130d19e133bda7bcc2602136e4ba30c884a74baf2164e7525"
+      "time_seconds": 31.475,
+      "included_required_structural_and_boundary_cases": 26,
+      "path": ".docs/evidence/structural-ownership-20261019/structural-post-whitespace.xml",
+      "sha256": "68df362b0e47bf617c048f50b0dca9094118e69dec773ed4af2a31b6175f3960"
     }
   ],
   "native_structural_artifacts": [
@@ -77,7 +41,7 @@
     },
     {
       "path": ".docs/evidence/structural-ownership-20261019/benzene-result.json",
-      "sha256": "092048108afc57f50a089f804f9b4721915270b4ef0be5ffe27aff2671e51c83",
+      "sha256": "349893e5d3234403ba4f3ccf2a7b0125fcf5205b2515f7ab222d6a6496c5a252",
       "bytes": 3491
     },
     {
@@ -87,7 +51,7 @@
     },
     {
       "path": ".docs/evidence/structural-ownership-20261019/benzene-truncated-result.json",
-      "sha256": "6d6b676021f99d2c4059d1cc818d1bdc1abe8a73968e7423ecbd5160418abb9c",
+      "sha256": "045232c56db18613dc4c9d0503fdde7a8a8c2f1bdff82bc9774d036ea5c97155",
       "bytes": 3065
     },
     {
@@ -97,34 +61,27 @@
     },
     {
       "path": ".docs/evidence/structural-ownership-20261019/13c-formaldehyde-result.json",
-      "sha256": "04c1d0a6c3e0fa940e2e2f467d62de57c13c43498fa1fdfbf63793d6f524d6d8",
+      "sha256": "a530fa5d13ea4bfa4cc497312bd8b707eae1b9d92ed0ca3b37fa62eff1cad609",
       "bytes": 2165
     }
   ],
   "ruff": "All checks passed across topos frontend scripts tests setup.py cochem_topos_web.py",
   "dependency_check": "No broken requirements found",
-  "initial_attempts_retained": {
-    "unconfigured_install": "uv attempted unwritable default cache; collection then failed. Configured writable cache resolved installation.",
-    "first_actual_wheel_run": "23 passed, 2 failed: required nullable absent uv wheel archive hash and pytest huge parameter ID overflow. Honest nullable digest plus explicit short test IDs resolved both. Failed evidence remains in external validation folder.",
-    "independent_review_correction": "Fixture now compares the complete eight-member installed source hash map to current checkout before reusing its interpreter. A stale matching-version wheel must rebuild the current source. Corrected guard and127 regression cases passed."
-  },
-  "limitations": [
-    "No quantum-engine execution, energy, thermodynamic population, optimized minimum, exhaustive resonance/tautomer coverage or full SRS conformance is established.",
-    "This JSON boundary exposes only bounded resonance enumeration from SMILES and explicit non-ghost isotope topology conversion; other transferred module APIs retain their existing narrower evidence.",
-    "New GitHub workflow is implemented but has not run in Actions in this local receipt.",
-    "BASE catalog pin, managed structural integration and approved retirement/test split remain pending independent review and publication.",
-    "Structural byte integrity verifies wheel RECORD and source members; the caller must verify approved revision and externally sealed wheel."
-  ],
-  "stale_installed_wheel_guard": {
-    "scope": "Actual source-suite harness exercise using an external copy with one nonexecutable comment change; current provider wheel initially stale",
-    "source_hash_map_exactly_copied_current_source": true,
-    "original_installed_init_sha256": "2f190beb382474aa5ba8d64bbe8e52976a77efb8506fbc83b06f2702d0903e3a",
-    "changed_current_copy_init_sha256": "b2aa74eec6141469d1cfebf268f7f6455d97e92a847799f69930fdfaea0a96ae",
-    "fresh_disposable_wheel_was_executed": true,
-    "science_algorithms_and_thresholds_changed": false
-  },
   "validation_test_source_sha256": {
     "tests/v010/test_structural_ownership.py": "09b668310f710d6ee549f360c0d1b6e2d0e0ca0b2f7aa9a1ac70a79ddf239ea4",
     "tests/v010/test_structural_boundary.py": "28a4fb236c06cdd8b0b8db43c485463fdee6f5e0bb78432eaa9d8a16841782d7"
-  }
+  },
+  "historical_pre_whitespace_producer": {
+    "revision": "550717ed54c10387557099fe095bf1d336bc8614",
+    "receipt": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/receipt.json",
+    "byte_equivalence_inventory": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/historical-origin.json",
+    "scope": "Original native outputs, wheel hashes, JUnit, initial failures, source-suite and stale-wheel proof remain exact historical bytes; they are not current-producer acceptance."
+  },
+  "limitations": [
+    "No quantum-engine execution, energy, thermodynamic population, optimized minimum, exhaustive resonance/tautomer coverage or full SRS conformance is established.",
+    "This boundary exposes only bounded resonance enumeration from SMILES and explicit non-ghost isotope topology conversion; other transferred APIs retain narrower evidence.",
+    "Current full frozen TOPOS profile, publication, BASE catalog pin and managed structural integration remain pending.",
+    "New GitHub workflow is implemented but has not run in Actions in this local receipt.",
+    "Wheel RECORD/source hashes prove byte consistency; caller must verify approved revision and external wheel seal."
+  ]
 }

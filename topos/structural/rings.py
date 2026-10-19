@@ -32,7 +32,7 @@ def canonicalize_cycle(cycle: list[int]) -> list[int]:
 
 def perceive_cycle_basis(graph: TopologyGraph) -> list[list[int]]:
     """Computes deterministic permutation-invariant cycle basis with ESSR cage fallback.
-    
+
     Annotates all participating nodes and edges with `in_ring = True` and `ring_sizes`.
     """
     for n in graph.nodes:

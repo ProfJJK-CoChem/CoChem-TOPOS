@@ -1,0 +1,73 @@
+{
+  "source_revision": "550717ed54c10387557099fe095bf1d336bc8614",
+  "status": "HISTORICAL_PRE_WHITESPACE_PRODUCER_ONLY",
+  "all_preexisting_evidence_bytes_equal_source_commit": true,
+  "files": [
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/13c-formaldehyde-request.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/13c-formaldehyde-request.json",
+      "sha256": "f617d0e8adedc5d606cb4ff10d0a9072119940de39ba87614be0e89dc7c48c2c"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/13c-formaldehyde-result.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/13c-formaldehyde-result.json",
+      "sha256": "04c1d0a6c3e0fa940e2e2f467d62de57c13c43498fa1fdfbf63793d6f524d6d8"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/benzene-request.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/benzene-request.json",
+      "sha256": "00afae89c030265dba4f1ac2957165fa2ecfaded0150625d9dc56f4670513074"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/benzene-result.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/benzene-result.json",
+      "sha256": "092048108afc57f50a089f804f9b4721915270b4ef0be5ffe27aff2671e51c83"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/benzene-truncated-request.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/benzene-truncated-request.json",
+      "sha256": "1a3d7fd82416f5a2f033da102b8d50ee5f8051d8d06f54fd78f7251afd8be045"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/benzene-truncated-result.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/benzene-truncated-result.json",
+      "sha256": "6d6b676021f99d2c4059d1cc818d1bdc1abe8a73968e7423ecbd5160418abb9c"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/dependencies.txt",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/dependencies.txt",
+      "sha256": "c9b1cac06ecfb9e1affc2227498ccad11c228ce974cfa7f0aad82f29f42d4251"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/receipt.json",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/receipt.json",
+      "sha256": "fff38fe9d92c3cd6ffd07ac2754930c6d02f364c025423fda7795349f5c043e3"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/structural-final.xml",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/structural-final.xml",
+      "sha256": "7ef7d1da06d75a20ce5de6d97d59c70c9cf3e8b91be396b322601f57f6fe88ce"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/structural-related.xml",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/structural-related.xml",
+      "sha256": "49df20c2d8e6934fa40eef7552874d476183edb2fd1120795087d00c32d86b78"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/structural-reviewed.xml",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/structural-reviewed.xml",
+      "sha256": "e4ccef7365ac1eb58433da15986f60ee5aa9dfa9400d5580846b3c0a0cd17b41"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/structural-source.xml",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/structural-source.xml",
+      "sha256": "6cf6c8c165f32ef0ed26ec5b2a41c63b82914b7573573ee89669e264e7e40755"
+    },
+    {
+      "original_path": ".docs/evidence/structural-ownership-20261019/structural-stale.xml",
+      "archived_path": ".docs/evidence/structural-ownership-20261019/pre-whitespace-550717e/structural-stale.xml",
+      "sha256": "920f14e84b4b938130d19e133bda7bcc2602136e4ba30c884a74baf2164e7525"
+    }
+  ],
+  "original_transfer_manifest_sha256": "1fb1aee508ad8b28eea50bfb9dc0eaf4d873f51ef638e2476f125481831a1b55"
+}
