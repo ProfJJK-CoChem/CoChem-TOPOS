@@ -1,0 +1,189 @@
+{
+  "status": "IMPLEMENTED_NOT_YET_PUBLISHED_OR_PINNED_BY_BASE",
+  "scope": "Exact canonical scientific ownership transfer with separate installed-wheel structural JSON boundary; no electronic-structure calculations, energies, populations, minima or complete SRS acceptance",
+  "base_source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+  "topos_checkout_revision_at_staging": "8e2f999811c96c3b78cb33413d002a55677e3963",
+  "files": [
+    {
+      "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+      "source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+      "source_path": "src/cochem/topos/exceptions.py",
+      "source_sha256": "286e0f0d62da0ebb332d1b4779556002cc23aa6891381b362c8aa67f3fd52a0c",
+      "legacy_alias_path": "cochem/topos/exceptions.py",
+      "legacy_alias_equal": true,
+      "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
+      "target_path": "topos/structural/exceptions.py",
+      "target_sha256": "574800385caaf08f2aac8acbe046a40dcb65e4cb1fdcd325f24fe2289a4db652",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "dependencies": [
+        "__future__",
+        "cochem_base.exceptions"
+      ],
+      "executable_ast_equal_excluding_imports": true
+    },
+    {
+      "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+      "source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+      "source_path": "src/cochem/topos/graph.py",
+      "source_sha256": "148c647a38881bb32ef60d6f6673d42d3db376309f7ba686ace0430945c88792",
+      "legacy_alias_path": "cochem/topos/graph.py",
+      "legacy_alias_equal": true,
+      "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
+      "target_path": "topos/structural/graph.py",
+      "target_sha256": "4d6131e9619792a4495dcc63481e0d7a1da98ff429277d1c872dc497e6746d38",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "dependencies": [
+        "__future__",
+        "cochem_base.physics.isotopes",
+        "filelock",
+        "json",
+        "logging",
+        "mendeleev",
+        "networkx",
+        "numpy",
+        "os",
+        "pathlib",
+        "topos.structural.exceptions",
+        "typing"
+      ],
+      "executable_ast_equal_excluding_imports": true
+    },
+    {
+      "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+      "source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+      "source_path": "src/cochem/topos/rings.py",
+      "source_sha256": "09ec0b4797bee8817d2e4a44f683e5e438c427dcd1141ecdd0b17248eaee5c95",
+      "legacy_alias_path": "cochem/topos/rings.py",
+      "legacy_alias_equal": true,
+      "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
+      "target_path": "topos/structural/rings.py",
+      "target_sha256": "9e879cb0a821ea13e6ef3e92e5c9ecbcde5a52f3c6be58bfe320bc9cf9235e56",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "dependencies": [
+        "__future__",
+        "logging",
+        "networkx",
+        "numpy",
+        "topos.structural.graph",
+        "typing"
+      ],
+      "executable_ast_equal_excluding_imports": true
+    },
+    {
+      "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+      "source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+      "source_path": "src/cochem/topos/resonance.py",
+      "source_sha256": "b48eff7b0113d2d52fcaf21bdcc2a449f175acbaf3cfa9da4fc5210dcc2637d7",
+      "legacy_alias_path": "cochem/topos/resonance.py",
+      "legacy_alias_equal": true,
+      "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
+      "target_path": "topos/structural/resonance.py",
+      "target_sha256": "5bb0cb0cbd6b0f1e12a8713e0aa365e7420f3caae0918056f18708935245211c",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "dependencies": [
+        "__future__",
+        "logging",
+        "pydantic",
+        "rdkit",
+        "topos.structural.exceptions",
+        "topos.structural.graph",
+        "topos.structural.rings",
+        "typing"
+      ],
+      "executable_ast_equal_excluding_imports": true
+    },
+    {
+      "source_repository": "ProfJJK-CoChem/CoChem-BASE",
+      "source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+      "source_path": "src/cochem/topos/tautomer.py",
+      "source_sha256": "205682c07f4505417cda4f624c12973844baf475a602415c46036865893877b7",
+      "legacy_alias_path": "cochem/topos/tautomer.py",
+      "legacy_alias_equal": true,
+      "target_repository": "ProfJJK-CoChem/CoChem-TOPOS",
+      "target_path": "topos/structural/tautomer.py",
+      "target_sha256": "e34080be2c0cb943a88fd4fef3a1933e5a28f02ed07b2866030f5bc3647c7fab",
+      "rewrite": "Namespace imports, import sorting/removal of one unused typing import, and two lint comments preserving original zip semantics only; all executable nonimport AST nodes unchanged",
+      "dependencies": [
+        "__future__",
+        "cochem_base.physics.isotopes",
+        "cochem_base.physics.nuclide_resolver",
+        "collections",
+        "concurrent.futures",
+        "filelock",
+        "h5py",
+        "hashlib",
+        "logging",
+        "mendeleev",
+        "numpy",
+        "os",
+        "pathlib",
+        "pydantic",
+        "rdkit",
+        "rdkit.Chem",
+        "threading",
+        "time",
+        "typing"
+      ],
+      "executable_ast_equal_excluding_imports": true
+    }
+  ],
+  "scientific_tests": [
+    {
+      "name": "test_general_resonance_retains_real_kekule_forms_without_isomer_populations",
+      "source_path": "tests/base/test_topology_scientific_admission.py",
+      "target_path": "tests/v010/test_structural_ownership.py",
+      "original_body_sha256": "394184e4aa5468ca39ef390c499217c732d5f6b2e3089d23713aa72b591323de",
+      "migrated_body_sha256": "394184e4aa5468ca39ef390c499217c732d5f6b2e3089d23713aa72b591323de",
+      "body_unchanged": true
+    },
+    {
+      "name": "test_resonance_temperature_and_guessed_numeric_weights_are_explicitly_refused",
+      "source_path": "tests/base/test_topology_scientific_admission.py",
+      "target_path": "tests/v010/test_structural_ownership.py",
+      "original_body_sha256": "c8a7eec546d638fccc7d8ff64034ea00966b6651df809248e8ca176e06e4a014",
+      "migrated_body_sha256": "c8a7eec546d638fccc7d8ff64034ea00966b6651df809248e8ca176e06e4a014",
+      "body_unchanged": true
+    },
+    {
+      "name": "test_structural_truncation_is_declared_instead_of_claiming_complete_coverage",
+      "source_path": "tests/base/test_topology_scientific_admission.py",
+      "target_path": "tests/v010/test_structural_ownership.py",
+      "original_body_sha256": "90e56ec56a9d93b8f3ad658ecc4e668c085bb22cb669d6ae9152f691b5023ec8",
+      "migrated_body_sha256": "90e56ec56a9d93b8f3ad658ecc4e668c085bb22cb669d6ae9152f691b5023ec8",
+      "body_unchanged": true
+    },
+    {
+      "name": "test_tautomer_topology_preserves_exact_explicit_nuclear_label",
+      "source_path": "tests/base/test_topology_scientific_admission.py",
+      "target_path": "tests/v010/test_structural_ownership.py",
+      "original_body_sha256": "8dadb8c223eba4134ed6451614fa7a75142faea069bd78b1148a1b881873d3a0",
+      "migrated_body_sha256": "8dadb8c223eba4134ed6451614fa7a75142faea069bd78b1148a1b881873d3a0",
+      "body_unchanged": true
+    }
+  ],
+  "base_quench_tests_retained_unchanged": [
+    "test_unconfigured_potential_cannot_be_replaced_by_lennard_jones",
+    "test_requested_unreviewed_model_is_refused_without_model_substitution",
+    "test_comparison_of_different_explicit_potential_parameters_is_refused",
+    "test_actual_nonconverged_optimizer_cannot_return_an_optimized_geometry",
+    "test_genuine_explicit_emt_force_convergence_retains_exact_method_scope"
+  ],
+  "legacy_alias_byte_equality_replacement": {
+    "retired_name": "test_tracked_source_and_checkout_aliases_expose_the_same_scientific_contract",
+    "reason": "It checked duplicate source-file agreement rather than a physical threshold. Canonical ownership intentionally removes that duplicate distribution.",
+    "replacement_existing_real_artifact_tests": [
+      "tests/base/test_module_package_ownership.py::test_base_wheel_does_not_publish_canonical_module_namespaces",
+      "tests/base/test_module_package_ownership.py::test_base_source_distribution_excludes_obsolete_provider_copies"
+    ]
+  },
+  "pending": [
+    "Independent review and publication of this bounded TOPOS change.",
+    "BASE reviewed catalog pin and verified installed file/process structural integration.",
+    "Only after that integration: apply proposed BASE test split, retain all five actual quench checks and four immutable upstream scientific assertions.",
+    "Complete selected BASE source, wheel and unpacked sdist acceptance; no full SRS conformance or student readiness is claimed."
+  ],
+  "graph_helper_byte_unchanged": true,
+  "topos_parent_revision": "bde1d3464f0e37c04f13cb254188104da930e0b5",
+  "source_equivalence_method": "Each complete module AST is equal after removing import nodes only; comments/docstrings, algorithms, models, mass resolvers, numeric constants and thresholds otherwise preserved. Four complete test functions and helper are byte-identical.",
+  "direct_dependency_added": "rdkit>=2026.3.5; real Chem.MolFromSmiles/ResonanceMolSupplier and isotope-preserving RWMol operations; no reliance on BASE transitive installation"
+}
