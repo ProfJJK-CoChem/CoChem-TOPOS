@@ -142,6 +142,67 @@ def _execution_configuration_panel(st: Any) -> None:
                     st.error(_error_message(exc))
 
 
+def _workstation_configuration_panel(st: Any) -> None:
+    from topos.config import SystemConfig, load_config
+
+    configured = st.session_state.get("topos_execution_config") or load_config().model_dump(mode="json")
+    with st.expander("Lab workstation (Drive folder queue)", expanded=False):
+        st.caption("Calculations sent to the lab workstation are deposited in the Google Drive folder you assign; "
+                   "the workstation runs them when its owner is not using the machine and returns the results there. "
+                   "Use a folder synced by Google Drive for desktop, or a drive.google.com folder link (Codespaces). "
+                   "Leave empty to use the folder assigned in CoChem-BASE.")
+        with st.form("topos_workstation_configuration"):
+            folder = st.text_input("Workstation Drive folder", value=configured.get("workstation_folder") or "",
+                                   key="topos_workstation_folder")
+            student = st.text_input("Student ID", value=configured.get("workstation_student_id") or "",
+                                    key="topos_workstation_student")
+            keys = st.text_input("Workstation key", value=", ".join(configured.get("workstation_trusted_keys") or []),
+                                 key="topos_workstation_keys",
+                                 help="Fingerprint from the workstation owner (cochem-runner key). Only results "
+                                      "signed by a key you trust are imported.")
+            if st.form_submit_button("Use this workstation folder"):
+                try:
+                    from topos.workstation import _key_fingerprints
+                    settings = SystemConfig.model_validate({**configured, "workstation_folder": folder.strip() or None,
+                                                            "workstation_student_id": student.strip() or None,
+                                                            "workstation_trusted_keys": _key_fingerprints(keys)})
+                    if settings.workstation_folder and settings.workstation_student_id:
+                        from topos.workstation import open_transport
+                        open_transport(settings.workstation_folder, settings.workstation_student_id).ensure(
+                            settings.workstation_student_id)
+                    st.session_state["topos_execution_config"] = settings.model_dump(mode="json")
+                    st.success("Workstation folder selected. Choose the 'workstation' calculation environment to use it.")
+                except (ValueError, OSError, RuntimeError) as exc:
+                    st.error(_error_message(exc))
+
+
+def _show_workstation_status(st: Any, record: dict[str, Any]) -> None:
+    dispatch = record.get("metadata", {}).get("workstation_dispatch") or {}
+    if record.get("metadata", {}).get("execution_kind") != "workstation-request" or not dispatch:
+        return
+    host = dispatch.get("workstation") or "the lab workstation"
+    st.info(f"Queued to {host}. This job uses the workstation's extended resources; you can close this window "
+            "and check back later - the job keeps its place and pauses automatically while the workstation "
+            "owner uses the machine.")
+    state = dispatch.get("state", "SUBMITTED")
+    st.write(f"Workstation state: **{state}** - {dispatch.get('message', '')}")
+    if dispatch.get("queue_position"):
+        st.caption(f"Position in the workstation queue: {dispatch['queue_position']}")
+    if dispatch.get("repairs"):
+        st.caption("Adjusted by the workstation: " + "; ".join(dispatch["repairs"]))
+    progress = {key: value for key, value in (dispatch.get("progress") or {}).items() if not key.startswith("_")}
+    if progress:
+        st.caption("Progress: " + ", ".join(f"{key} = {value}" for key, value in progress.items()))
+    if dispatch.get("output_tail"):
+        with st.expander("Latest workstation output"):
+            st.code("\n".join(dispatch["output_tail"]))
+    run_dir = record.get("metadata", {}).get("run_dir")
+    current = st.session_state.get("topos_job")
+    if run_dir and st.button("Check the workstation now", key=f"workstation-refresh-{record['run_id']}",
+                             disabled=current is not None and not current.done.is_set()):
+        _start_job(st, RunRequest.model_validate(record["request"]), Path(run_dir).parent, Path(run_dir))
+
+
 def _matrix_calculation_panel(st: Any) -> tuple[str, dict[str, Any], str]:
     """Choose an actual compiled row without inferring chemistry from a budget."""
     from topos.data.reviewed_matrix_v010 import RECIPES
@@ -665,6 +726,8 @@ def verified_bundle_download(destination: Path | str) -> bytes:
 def _show_record(st: Any, record: dict[str, Any], *, view: str = "execution") -> None:
     st.write(f"Execution: **{record['status']}** · Validation: **{record['validation_status']}**")
     st.caption(f"Run: {record['run_id']}")
+    if record.get("status") in {"queued", "running"}:
+        _show_workstation_status(st, record)
     st.json(record.get("metadata", {}), expanded=False)
     with st.expander("Input structure", expanded=False):
         _show_structure(st, record["request"]["molecule"], key=f"{view}-{record['run_id']}-input")
@@ -860,6 +923,7 @@ def render_streamlit() -> None:
         if not ecosystem.available:
             st.info("Provision the mandatory CoChem-BASE, TOPOS and TORQ package before calculation.")
     _execution_configuration_panel(st)
+    _workstation_configuration_panel(st)
     run_tab, external_tab, review_tab, matrix_tab = st.tabs([
         "Calculate", "External starting states", "Review and export", "Method matrix",
     ])
@@ -874,7 +938,8 @@ def render_streamlit() -> None:
                 engine = st.selectbox("Calculation engine", ["xtb", "orca"]) if purpose != "matrix" else "xtb"
                 budget = st.number_input("Workflow budget (seconds)", min_value=1.0, value=300.0)
             with second:
-                environment = st.selectbox("Calculation environment", ["local", "github-actions", "hpc"])
+                environment = st.selectbox("Calculation environment", ["local", "github-actions", "hpc", "workstation"],
+                                           help="workstation: queue to the lab workstation through your assigned Drive folder")
                 method = st.selectbox("Method", capability_report()["engines"][engine]["methods"]) if purpose != "matrix" else "GFN2-xTB"
                 device = st.selectbox("Calculation device", ["cpu", "gpu"] if purpose == "matrix" else ["cpu", "cuda"])
                 basis = st.text_input("Basis (empty for native composite or not applicable)") if purpose != "matrix" else ""
