@@ -5,7 +5,25 @@ Stage 0 engine identity and the subprocess broker. TOPOS owns molecular requests
 scientific validation, resource ceilings, persistence, review and research export.
 Installing or finding an ORCA binary on PATH does not establish BASE authority.
 
-This integration requires BASE 1.0.1 and uses the reviewed integration foundation below. Final candidate catalog and kit binding are still pending:
+## Managed isolated installation
+
+The BASE-managed student route keeps TOPOS and TORQ in separate verified
+interpreters. TOPOS accepts BASE's `COCHEM_TORQ_SIDECAR` receipt and independently
+rechecks the TORQ source revision, retained wheel, installed files, environment
+and dependency consistency through BASE's installer. Changed or malformed
+sidecars fail without falling back to a source checkout. Discovery does not
+import TORQ, acknowledge an ensemble, or establish scientific completion.
+
+TOPOS declares `CoChem-BASE>=1.0.1,<1.2`, including BASE 1.1.0, and does not declare
+TORQ as an ordinary Python dependency. This avoids reinstalling TORQ over BASE's
+still-overlapping namespaces. BASE remains responsible for downloading, selecting
+and verifying the canonical module revisions. The explicit source-discovery
+paths below remain development support; the older shared-environment helper and
+TOPOS-specific workflows are not qualification of the isolated student route.
+See the [source-bound compatibility record](TOPOS_ISOLATED_BASE_COMPATIBILITY.md)
+for current evidence and remaining limits.
+
+The historical integration foundation below used BASE 1.0.1. Final candidate catalog and kit binding are still pending:
 
 | Component | GitHub Actions source revision |
 |---|---|

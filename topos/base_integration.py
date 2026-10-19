@@ -32,6 +32,69 @@ class BaseIntegrationError(RuntimeError):
     """Mandatory installation, registry authority, or broker is unavailable."""
 
 
+def _sidecar_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise BaseIntegrationError("TORQ sidecar has duplicate JSON fields")
+        result[key] = value
+    return result
+
+
+def _verified_torq_sidecar(path: str | Path) -> dict[str, Any]:
+    """Recheck BASE's separate TORQ installation without importing TORQ.
+
+    BASE and TORQ still own overlapping namespaces. BASE's installer verifies
+    the reviewed source, wheel RECORD, interpreter environment and dependencies;
+    this boundary additionally binds the unchanged receipt and sidecar bytes.
+    An installation receipt does not establish a scientific calculation.
+    """
+    sidecar = Path(path).expanduser()
+    if sidecar.is_symlink() or not sidecar.is_file():
+        raise BaseIntegrationError("TORQ sidecar must be a bounded regular JSON receipt")
+    if sidecar.stat().st_size > 100_000:
+        raise BaseIntegrationError("TORQ sidecar must be a bounded regular JSON receipt")
+    with sidecar.open("rb") as stream:
+        raw = stream.read(100_001)
+    if len(raw) > 100_000:
+        raise BaseIntegrationError("TORQ sidecar must be a bounded regular JSON receipt")
+    value = json.loads(raw, object_pairs_hook=_sidecar_object)
+    required = {"schema_version", "module_id", "root", "spec", "installation_receipt_sha256"}
+    if (not isinstance(value, dict) or set(value) != required
+            or value["schema_version"] != "cochem.module-sidecar/1" or value["module_id"] != "torq"
+            or not isinstance(value["root"], str) or not Path(value["root"]).is_absolute()
+            or not isinstance(value["spec"], dict)
+            or not isinstance(value["installation_receipt_sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", value["installation_receipt_sha256"])):
+        raise BaseIntegrationError("Invalid BASE-verified TORQ sidecar contract")
+    root = Path(value["root"]).resolve(strict=True)
+    receipt_path = root / "torq" / "installation.json"
+    if receipt_path.is_symlink() or not receipt_path.is_file():
+        raise BaseIntegrationError("TORQ installation receipt must be a regular file")
+    digest = hashlib.sha256(receipt_path.read_bytes()).hexdigest()
+    if digest != value["installation_receipt_sha256"]:
+        raise BaseIntegrationError("TORQ installation receipt changed after BASE verification")
+    from scripts.manage_modules import verify_installation
+
+    try:
+        receipt = verify_installation("torq", value["spec"], root)
+    except (ValueError, OSError, RuntimeError) as exc:
+        raise BaseIntegrationError("TORQ isolated installation failed verification: " + str(exc)) from exc
+    if (receipt["distribution_metadata"]["name"].lower().replace("_", "-") != "cochem-torq"
+            or Path(receipt["python_path"]).parent.parent.resolve() == Path(sys.prefix).resolve()
+            or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != digest
+            or sidecar.is_symlink() or sidecar.read_bytes() != raw):
+        raise BaseIntegrationError("TORQ sidecar identity changed or does not identify a separate environment")
+    return {"available": True, "kind": "verified-isolated-installation",
+            "installed": True, "version": receipt["distribution_metadata"]["version"],
+            "path": receipt["source_path"], "python_path": receipt["python_path"],
+            "repository": receipt["repository"], "revision": receipt["revision"],
+            "environment_sha256": receipt["environment_sha256"],
+            "installation_receipt_sha256": digest,
+            "sidecar_sha256": hashlib.sha256(raw).hexdigest(), "consumer_ready": False,
+            "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"}
+
+
 def _source_root(variable: str, project: str, package: str) -> Path | None:
     value = os.environ.get(variable)
     if not value:
@@ -78,6 +141,9 @@ def inspect_ecosystem(*, require_torq: bool = True) -> EcosystemStatus:
         if project == "CoChem-TORQ" and not require_torq:
             continue
         try:
+            if project == "CoChem-TORQ" and os.environ.get("COCHEM_TORQ_SIDECAR"):
+                components[project] = _verified_torq_sidecar(os.environ["COCHEM_TORQ_SIDECAR"])
+                continue
             source = _source_root(variable, project, package)
             if source is not None:
                 # Only BASE is imported by this adapter. TORQ discovery must not
@@ -288,7 +354,9 @@ class BaseRuntime:
             if resources.device != "gpu" or engine not in {"mace", "aimnet2"}:
                 raise BaseIntegrationError("Only an explicitly audited ML engine may request GPU execution")
             metrics = self.registry.hardware.gpu_compute_metrics
-            if (type(gpu_index) is not int or not 0 <= gpu_index < metrics.device_count
+            if (metrics.device_count is None or metrics.vram_gb is None
+                    or not math.isfinite(metrics.vram_gb)
+                    or type(gpu_index) is not int or not 0 <= gpu_index < metrics.device_count
                     or type(gpu_memory_mb) is not int or not 1 <= gpu_memory_mb <= metrics.vram_gb * 1024):
                 raise BaseIntegrationError("GPU index and positive VRAM request must fit measured BASE GPU authority")
             inherited = os.environ.get("CUDA_VISIBLE_DEVICES")

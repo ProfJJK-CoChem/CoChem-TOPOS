@@ -1,0 +1,54 @@
+{
+  "scope": "Canonical installed-wheel isolation and integrity; no TORQ chemistry execution",
+  "python": "/workspace/.topos-compat/env/bin/python",
+  "base_version": "1.1.0",
+  "topos_version": "0.1.0",
+  "torq_revision": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4",
+  "torq_repository": "ProfJJK-CoChem/CoChem-TORQ",
+  "torq_python": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/env/bin/python",
+  "checks": {
+    "no_torq_distribution_in_topos_environment": "passed",
+    "noneditable_wheel_installations": "passed",
+    "genuine_canonical_installation_accepted": "passed",
+    "changed_receipt_rejected": {
+      "status": "rejected",
+      "reason": "TORQ installation receipt changed after BASE verification"
+    },
+    "changed_retained_wheel_rejected": {
+      "status": "rejected",
+      "reason": "TORQ isolated installation failed verification: Retained module wheel differs from its accepted provenance."
+    },
+    "changed_installed_provider_rejected": {
+      "status": "rejected",
+      "reason": "TORQ isolated installation failed verification: Isolated environment integrity differs from its receipt; no module code was executed."
+    },
+    "changed_canonical_source_rejected": {
+      "status": "rejected",
+      "reason": "TORQ isolated installation failed verification: Module checkout is dirty; retain it for inspection and use a clean installation root."
+    },
+    "mismatched_revision_rejected": {
+      "status": "rejected",
+      "reason": "TORQ isolated installation failed verification: Installation receipt does not match the current reviewed module specification."
+    },
+    "sidecar_changed_during_real_verification_rejected": "passed",
+    "original_installation_reverified_after_negatives": "passed",
+    "no_torq_bootstrap_imported": "passed"
+  },
+  "accepted_sidecar": {
+    "available": true,
+    "kind": "verified-isolated-installation",
+    "installed": true,
+    "version": "0.1.0",
+    "path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/source",
+    "python_path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/env/bin/python",
+    "repository": "ProfJJK-CoChem/CoChem-TORQ",
+    "revision": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4",
+    "environment_sha256": "2fe66ef51effbc11951ba952f170ce08358cae2d4f627b7d3d09ab095341cc11",
+    "installation_receipt_sha256": "faacc9dfcaf22f2a098ffe2861240eff1c228f363f860013db2551022660ef75",
+    "sidecar_sha256": "01e3374f2746a3492a1f6847f9302a075c347eae5bb484ce9967e3bee5c1017f",
+    "consumer_ready": false,
+    "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"
+  },
+  "base_wheel_sha256": "7f6a1a3fcd8493a5c7b425d9856b52d3b8162809dcdc4838cd07fb23ce83deb5",
+  "topos_wheel_sha256": "08e034766230b34e512f999b061f08f732b18dca596c4d979828ec6710974c0c"
+}

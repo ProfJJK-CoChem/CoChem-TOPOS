@@ -1,0 +1,2030 @@
+{
+  "scope": "Local Linux installed-wheel BASE-to-TOPOS single-point handoff and precancellation; no ORCA/CFOUR/Actions/Codespace claim",
+  "status": "completed",
+  "validation_status": "human-review",
+  "energy_hartree": -5.070371711236,
+  "receipt": {
+    "schema_version": "topos-base-consumption/0.1.0",
+    "received_at": "2026-10-19T01:15:03.330292+00:00",
+    "handoff_id": "377720d62bdd4d188ea8950bfe339612",
+    "manifest_file_sha256": "21e841b4a2af75ca095997031a472cd915bbcaf0d6dc6ae6639e994c2692c7e2",
+    "artifact_sha256": "50e1525af07c25ed250639d6f14b09fa87739229b989e95efe15c7b2d6bfeb4d",
+    "declared_request_sha256": "18e82d91eb144f159e4124d985fa2be73c6757642c84914fe0137a8b88b3b6b0",
+    "execution_request_sha256": "680a45b08ce3ac7ac407c7758178dac4dcd592e8573308b5699c1de50b8d7022",
+    "run_id": "run_30df9b2485a54bf38078938347446711",
+    "status": "completed",
+    "validation_status": "human-review",
+    "execution_provider": "CoChem-BASE",
+    "source_snapshot_sha256": "5df478f93f8d47033c52041e9383210365673d95dd82fb33451b997d7da93f24"
+  },
+  "snapshot": {
+    "artifacts": [
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/charges",
+        "role": "raw-output",
+        "sha256": "8f6429438a41851ddaf5b4c21f217326704ee18345dcbd1e498396dd59cf6c96",
+        "size_bytes": 45
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/energy",
+        "role": "raw-output",
+        "sha256": "0a46b6b3bdc4753708c68188751b4af4e169e15ed39671506330b190a89259c4",
+        "size_bytes": 74
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stderr",
+        "role": "raw-output",
+        "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+        "size_bytes": 26
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stdout",
+        "role": "raw-output",
+        "sha256": "ebc39250c5b70bccd8f6874194643c6bc6e98b06556567e53c508894316d4e08",
+        "size_bytes": 13527
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/gradient",
+        "role": "raw-output",
+        "sha256": "20b3bec04aae1fc56a10a61bc8b3527cfe389d0f63d1e233dd7dabb31473ba70",
+        "size_bytes": 506
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/input.engrad",
+        "role": "raw-output",
+        "sha256": "52dfad2f53a2bdca4f776c70b443bd5dfbd850d46eecedaa8e6534dc57f7e3b5",
+        "size_bytes": 519
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/input.xyz",
+        "role": "engine-input",
+        "sha256": "6b089d617eef648d0dd433c571619841fd957c374e9bc0e1bd65ec232f6ba7b5",
+        "size_bytes": 99
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stderr",
+        "role": "raw-output",
+        "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+        "size_bytes": 26
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stdout",
+        "role": "raw-output",
+        "sha256": "f47686023e4be88b6e2241c9a2660fffe132a193f8873d3890594b8f9ca0dd91",
+        "size_bytes": 660
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/wbo",
+        "role": "raw-output",
+        "sha256": "f092efbb0c368b64627881cc553dc84faa0745632ebfbac259330c3eaa3b519e",
+        "size_bytes": 98
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbout.json",
+        "role": "raw-output",
+        "sha256": "ecb158dabd6439b86deb78b057fa90989a388c00a1b1d07668ad8bcc681c04e7",
+        "size_bytes": 1406
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbrestart",
+        "role": "raw-output",
+        "sha256": "c74f587c9c4dfbef1d11aaa513218d275b524847d752cfcc754be2715a6855ad",
+        "size_bytes": 328
+      },
+      {
+        "media_type": null,
+        "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbtopo.mol",
+        "role": "raw-output",
+        "sha256": "61e984141e03ff636f1816cfa7a4c01136a2d43503b90cae516b6f5b58c947f5",
+        "size_bytes": 347
+      },
+      {
+        "media_type": null,
+        "path": "base-consumption-receipt.json",
+        "role": "base-consumption-receipt",
+        "sha256": "e045dc2606c0a89004dfd911ee827197110a36cc5b7cd1796b19982542602989",
+        "size_bytes": 740
+      },
+      {
+        "media_type": null,
+        "path": "input.xyz",
+        "role": "input-geometry",
+        "sha256": "00299a0e8ae333b601a785f821fa5c65910e2bbd60ddc4fc23f1f0d030ea85c8",
+        "size_bytes": 199
+      },
+      {
+        "media_type": null,
+        "path": "request.json",
+        "role": "request",
+        "sha256": "1af8043e05416cbfaa2374161b9ecdb02483eac5feba6c8c6d9ed28dd3a3b2a6",
+        "size_bytes": 5063
+      }
+    ],
+    "hdf5_sha256": "d184f36f62062b990788fefeecc838f5e14b834365824b7e78ce1c31dfaceec8",
+    "record_sha256": "36796865df8172c21eaa667ffec632c57f606055b3ea52138a9e5e4c85f0c0f0",
+    "run_id": "run_30df9b2485a54bf38078938347446711",
+    "schema_version": "topos-snapshot/0.1.0",
+    "snapshot_id": "95db4df381004b70d63b5fb0922ad5cc1de5dc3e4f5f54f0470022dadc8844ab"
+  },
+  "provider_file": "/workspace/.topos-compat/env/lib/python3.12/site-packages/topos/base_provider.py",
+  "provider_sha256": "7e68f57d020b4dbd0e85562492572302b6f3d2c90ef576108882208b9665eb98",
+  "authority_file": "/workspace/.topos-compat/env/lib/python3.12/site-packages/cochem_base/core_engine/execution_authority.py",
+  "authority_sha256": "d0881853c81eddca414e007c15c0d142b85a0c300d33a8e049c5f6db41199121",
+  "base_registry_sha256": "009f17963ddab44c5f6297bd31137306b8d0a45da340fab55698d16c9e2be232",
+  "cancelled_status": "cancelled",
+  "record": {
+    "run_id": "run_30df9b2485a54bf38078938347446711",
+    "schema_version": "topos/0.1.0",
+    "request": {
+      "molecule": {
+        "symbols": [
+          "O",
+          "H",
+          "H"
+        ],
+        "coordinates": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.9572,
+            0.0,
+            0.0
+          ],
+          [
+            -0.23999,
+            0.9273,
+            0.0
+          ]
+        ],
+        "coordinate_units": "angstrom",
+        "charge": 0,
+        "multiplicity": 1,
+        "isotopes": [
+          null,
+          null,
+          null
+        ],
+        "atom_ids": [
+          "atom-0",
+          "atom-1",
+          "atom-2"
+        ],
+        "fragments": [],
+        "fragment_states": [],
+        "bonds": [],
+        "stereochemistry": {},
+        "environment": {},
+        "name": null
+      },
+      "engine": "xtb",
+      "method": "GFN2-xTB",
+      "engine_version": null,
+      "purpose": "energy",
+      "search_algorithm": "jiggle-quench",
+      "abcluster_options": null,
+      "sampler_profile": "crest-imtdgc-v1",
+      "sampler_nci": false,
+      "sampler_budget_fraction": 0.5,
+      "presentation_environment": "local",
+      "calculation_environment": "local",
+      "budget_seconds": 30.0,
+      "budget_scope": "workflow",
+      "include_queue_in_budget": false,
+      "per_geometry_budget_seconds": null,
+      "per_ensemble_budget_seconds": null,
+      "seed": 0,
+      "n_candidates": 1,
+      "starting_geometries": [],
+      "threads": 1,
+      "memory_mb": 1024,
+      "device": "cpu",
+      "profile_id": "screening-v1",
+      "matrix_revision": "topos-0.1.0-supported-profile-v1",
+      "matrix_row_id": null,
+      "matrix_product": "A",
+      "matrix_inputs": {},
+      "basis": null,
+      "auxiliary_basis": null,
+      "dispersion": null,
+      "solvent": null,
+      "constraints": {},
+      "temperature_k": 298.15,
+      "thermochemistry_options": {
+        "optimize_first": true,
+        "step_bohr": 0.005,
+        "pressure_pa": 101325.0,
+        "concentration_mol_l": null,
+        "symmetry_number": null,
+        "frequency_scale": 1.0,
+        "low_frequency_policy": "reject",
+        "cutoff_cm1": 10.0
+      },
+      "deduplication_stage": "generation",
+      "collapse_enantiomers": false,
+      "environment_is_achiral": null,
+      "dipole_method_error_debye": null,
+      "symmetry_tolerance_angstrom": 0.001,
+      "rmsd_threshold_angstrom": 0.125,
+      "dedup_energy_threshold_kcal_mol": 0.05,
+      "dedup_rotational_threshold_fraction": 0.01,
+      "energy_window_kcal_mol": 6.0,
+      "perturbation_angstrom": 0.15,
+      "metadata": {
+        "base_handoff": {
+          "schema_version": "cochem.module-handoff/1",
+          "handoff_id": "377720d62bdd4d188ea8950bfe339612",
+          "manifest_file_sha256": "21e841b4a2af75ca095997031a472cd915bbcaf0d6dc6ae6639e994c2692c7e2",
+          "manifest": {
+            "schema_version": "cochem.module-handoff/1",
+            "handoff_id": "377720d62bdd4d188ea8950bfe339612",
+            "created_at": "2026-10-19T01:14:44.381158+00:00",
+            "module_id": "topos",
+            "operation": "energy",
+            "status": "pending_integration",
+            "capability": {
+              "module_id": "topos",
+              "name": "CoChem-TOPOS",
+              "responsibility": "Conformer and topology workflows",
+              "status": "installed_pending_integration",
+              "integration_contract": "cochem.module-handoff/1",
+              "providers": [
+                "cochem-topos==0.1.0:topos.base_provider:provider"
+              ],
+              "operations": [],
+              "execution_verified": false
+            },
+            "artifact": {
+              "kind": "geometry_xyz",
+              "filename": "artifact.xyz",
+              "source_path": "/workspace/.topos-compat/native-handoff-final/source.xyz",
+              "sha256": "50e1525af07c25ed250639d6f14b09fa87739229b989e95efe15c7b2d6bfeb4d",
+              "size_bytes": 78,
+              "metadata": {
+                "symbols": [
+                  "O",
+                  "H",
+                  "H"
+                ],
+                "atom_count": 3,
+                "coordinates_unit": "angstrom",
+                "nuclides": [
+                  "O",
+                  "H",
+                  "H"
+                ],
+                "mass_numbers": [
+                  null,
+                  null,
+                  null
+                ],
+                "masses_u": [
+                  15.99491461926,
+                  1.007825031898,
+                  1.007825031898
+                ],
+                "mass_source": "dynamic_mendeleev",
+                "mass_convention": "explicit_isotope_mass_else_principal_isotope_mass"
+              }
+            },
+            "options": {
+              "topos_request": {
+                "molecule": {
+                  "symbols": [
+                    "O",
+                    "H",
+                    "H"
+                  ],
+                  "coordinates": [
+                    [
+                      0.0,
+                      0.0,
+                      0.0
+                    ],
+                    [
+                      0.9572,
+                      0.0,
+                      0.0
+                    ],
+                    [
+                      -0.23999,
+                      0.9273,
+                      0.0
+                    ]
+                  ],
+                  "coordinate_units": "angstrom",
+                  "charge": 0,
+                  "multiplicity": 1,
+                  "isotopes": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "atom_ids": [
+                    "atom-0",
+                    "atom-1",
+                    "atom-2"
+                  ],
+                  "fragments": [],
+                  "fragment_states": [],
+                  "bonds": [],
+                  "stereochemistry": {},
+                  "environment": {},
+                  "name": null
+                },
+                "engine": "xtb",
+                "method": "GFN2-xTB",
+                "engine_version": null,
+                "purpose": "energy",
+                "search_algorithm": "jiggle-quench",
+                "abcluster_options": null,
+                "sampler_profile": "crest-imtdgc-v1",
+                "sampler_nci": false,
+                "sampler_budget_fraction": 0.5,
+                "presentation_environment": "local",
+                "calculation_environment": "local",
+                "budget_seconds": 30.0,
+                "budget_scope": "workflow",
+                "include_queue_in_budget": false,
+                "per_geometry_budget_seconds": null,
+                "per_ensemble_budget_seconds": null,
+                "seed": 0,
+                "n_candidates": 1,
+                "starting_geometries": [],
+                "threads": 1,
+                "memory_mb": 1024,
+                "device": "cpu",
+                "profile_id": "screening-v1",
+                "matrix_revision": "topos-0.1.0-supported-profile-v1",
+                "matrix_row_id": null,
+                "matrix_product": "A",
+                "matrix_inputs": {},
+                "basis": null,
+                "auxiliary_basis": null,
+                "dispersion": null,
+                "solvent": null,
+                "constraints": {},
+                "temperature_k": 298.15,
+                "thermochemistry_options": {
+                  "optimize_first": true,
+                  "step_bohr": 0.005,
+                  "pressure_pa": 101325.0,
+                  "concentration_mol_l": null,
+                  "symmetry_number": null,
+                  "frequency_scale": 1.0,
+                  "low_frequency_policy": "reject",
+                  "cutoff_cm1": 10.0
+                },
+                "deduplication_stage": "generation",
+                "collapse_enantiomers": false,
+                "environment_is_achiral": null,
+                "dipole_method_error_debye": null,
+                "symmetry_tolerance_angstrom": 0.001,
+                "rmsd_threshold_angstrom": 0.125,
+                "dedup_energy_threshold_kcal_mol": 0.05,
+                "dedup_rotational_threshold_fraction": 0.01,
+                "energy_window_kcal_mol": 6.0,
+                "perturbation_angstrom": 0.15,
+                "metadata": {}
+              }
+            },
+            "scientific_execution_performed": false,
+            "validation_scope": "artifact_structure_and_integrity"
+          },
+          "artifact_sha256": "50e1525af07c25ed250639d6f14b09fa87739229b989e95efe15c7b2d6bfeb4d",
+          "artifact_xyz": "3\nOriginal BASE water; genuine xTB GFN2\nO 0 0 0\nH .9572 0 0\nH -.23999 .9273 0\n",
+          "declared_request_sha256": "18e82d91eb144f159e4124d985fa2be73c6757642c84914fe0137a8b88b3b6b0",
+          "producer_scientific_execution_performed": false
+        }
+      }
+    },
+    "status": "completed",
+    "validation_status": "human-review",
+    "created_at": "2026-10-19T01:14:44.404126+00:00",
+    "updated_at": "2026-10-19T01:15:03.250945+00:00",
+    "attempts": [
+      {
+        "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+        "run_id": "run_30df9b2485a54bf38078938347446711",
+        "parent_attempt_id": null,
+        "engine": "xtb",
+        "method": "GFN2-xTB",
+        "status": "completed",
+        "validation_status": "validated-for-protocol",
+        "started_at": "2026-10-19T01:15:02.099989+00:00",
+        "finished_at": "2026-10-19T01:15:02.824049+00:00",
+        "converged": true,
+        "command": [
+          "/workspace/.topos-compat/tools/xtb/xtb",
+          "input.xyz",
+          "--gfn",
+          "2",
+          "--chrg",
+          "0",
+          "--uhf",
+          "0",
+          "--json",
+          "--grad"
+        ],
+        "engine_version": "6.7.1",
+        "artifacts": [
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/charges",
+            "sha256": "8f6429438a41851ddaf5b4c21f217326704ee18345dcbd1e498396dd59cf6c96",
+            "size_bytes": 45,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/energy",
+            "sha256": "0a46b6b3bdc4753708c68188751b4af4e169e15ed39671506330b190a89259c4",
+            "size_bytes": 74,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stderr",
+            "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+            "size_bytes": 26,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stdout",
+            "sha256": "ebc39250c5b70bccd8f6874194643c6bc6e98b06556567e53c508894316d4e08",
+            "size_bytes": 13527,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/gradient",
+            "sha256": "20b3bec04aae1fc56a10a61bc8b3527cfe389d0f63d1e233dd7dabb31473ba70",
+            "size_bytes": 506,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/input.engrad",
+            "sha256": "52dfad2f53a2bdca4f776c70b443bd5dfbd850d46eecedaa8e6534dc57f7e3b5",
+            "size_bytes": 519,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/input.xyz",
+            "sha256": "6b089d617eef648d0dd433c571619841fd957c374e9bc0e1bd65ec232f6ba7b5",
+            "size_bytes": 99,
+            "role": "engine-input",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stderr",
+            "sha256": "db41edc1c74dad5a3527d5c6e4a48bfce3c2cabc0f0ad20acb5e420ad2a68ea9",
+            "size_bytes": 26,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stdout",
+            "sha256": "f47686023e4be88b6e2241c9a2660fffe132a193f8873d3890594b8f9ca0dd91",
+            "size_bytes": 660,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/wbo",
+            "sha256": "f092efbb0c368b64627881cc553dc84faa0745632ebfbac259330c3eaa3b519e",
+            "size_bytes": 98,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbout.json",
+            "sha256": "ecb158dabd6439b86deb78b057fa90989a388c00a1b1d07668ad8bcc681c04e7",
+            "size_bytes": 1406,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbrestart",
+            "sha256": "c74f587c9c4dfbef1d11aaa513218d275b524847d752cfcc754be2715a6855ad",
+            "size_bytes": 328,
+            "role": "raw-output",
+            "media_type": null
+          },
+          {
+            "path": "attempts/attempt_3f357dbc98844766b15498675d19ab61/xtbtopo.mol",
+            "sha256": "61e984141e03ff636f1816cfa7a4c01136a2d43503b90cae516b6f5b58c947f5",
+            "size_bytes": 347,
+            "role": "raw-output",
+            "media_type": null
+          }
+        ],
+        "quantities": [
+          {
+            "name": "electronic_energy",
+            "value": -5.070371711236,
+            "units": "hartree",
+            "definition": "electronic potential energy at recorded output geometry; no ZPE or thermal corrections",
+            "geometry_id": "candidate_c4f3335afe7b41e68f1da32f76f265c8",
+            "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+            "method": "GFN2-xTB",
+            "parser": "topos.engines/0.1.0",
+            "validity": "validated-for-protocol",
+            "metadata": {}
+          }
+        ],
+        "diagnostics": {
+          "version_probe_process": {
+            "command": [
+              "/workspace/.topos-compat/tools/xtb/xtb",
+              "--version"
+            ],
+            "status": "completed",
+            "returncode": 0,
+            "elapsed_seconds": 0.23963982099985515,
+            "peak_rss_mb": 16.5078125,
+            "stdout_path": "/workspace/.topos-compat/native-handoff-final/runs/run_30df9b2485a54bf38078938347446711/attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stdout",
+            "stderr_path": "/workspace/.topos-compat/native-handoff-final/runs/run_30df9b2485a54bf38078938347446711/attempts/attempt_3f357dbc98844766b15498675d19ab61/version.stderr",
+            "reason": null
+          },
+          "observed_probe_version": "6.7.1",
+          "process": {
+            "command": [
+              "/workspace/.topos-compat/tools/xtb/xtb",
+              "input.xyz",
+              "--gfn",
+              "2",
+              "--chrg",
+              "0",
+              "--uhf",
+              "0",
+              "--json",
+              "--grad"
+            ],
+            "status": "completed",
+            "returncode": 0,
+            "elapsed_seconds": 0.2050697559998298,
+            "peak_rss_mb": 50.6640625,
+            "stdout_path": "/workspace/.topos-compat/native-handoff-final/runs/run_30df9b2485a54bf38078938347446711/attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stdout",
+            "stderr_path": "/workspace/.topos-compat/native-handoff-final/runs/run_30df9b2485a54bf38078938347446711/attempts/attempt_3f357dbc98844766b15498675d19ab61/engine.stderr",
+            "reason": null
+          }
+        },
+        "metadata": {
+          "sample_index": 0,
+          "seed": 0,
+          "input_molecule": {
+            "symbols": [
+              "O",
+              "H",
+              "H"
+            ],
+            "coordinates": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.9572,
+                0.0,
+                0.0
+              ],
+              [
+                -0.23999,
+                0.9273,
+                0.0
+              ]
+            ],
+            "coordinate_units": "angstrom",
+            "charge": 0,
+            "multiplicity": 1,
+            "isotopes": [
+              null,
+              null,
+              null
+            ],
+            "atom_ids": [
+              "atom-0",
+              "atom-1",
+              "atom-2"
+            ],
+            "fragments": [],
+            "fragment_states": [],
+            "bonds": [],
+            "stereochemistry": {},
+            "environment": {},
+            "name": null
+          },
+          "operation": "energy",
+          "execution_kind": "real",
+          "profile_id": "screening-v1",
+          "requested_method": {
+            "engine": "xtb",
+            "method": "GFN2-xTB",
+            "purpose": "energy",
+            "basis": null,
+            "auxiliary_basis": null,
+            "dispersion": null,
+            "solvent": null,
+            "engine_version": null,
+            "profile_id": "screening-v1",
+            "constraints": {}
+          },
+          "resources": {
+            "budget_seconds": 20.607535706999897,
+            "threads": 1,
+            "memory_mb": 1024,
+            "device": "cpu"
+          },
+          "precision": "float64",
+          "executable": "/workspace/.topos-compat/tools/xtb/xtb",
+          "executable_sha256": "debf27a9e0fa4bfb5ca75aafe4b90d8211f08ec2f4a482f375a4987212eaa12a",
+          "adapter_validation": "live-tested",
+          "dipole_cartesian_debye": [
+            1.3903353198957527,
+            1.7944730088599659,
+            0.0
+          ],
+          "dipole_provenance": {
+            "cartesian_debye": [
+              1.3903353198957527,
+              1.7944730088599659,
+              0.0
+            ],
+            "cartesian_atomic_units": [
+              0.547,
+              0.706,
+              0.0
+            ],
+            "printed_magnitude_debye": 2.27,
+            "units": "debye",
+            "definition": "GFN2-xTB cumulative atomic multipole molecular dipole (CAMM full)",
+            "parser": "topos.engines/xtb-dipole-v1",
+            "source": "https://github.com/grimme-lab/xtb/blob/26b28010e805f7d1aeeef39813feb473e69cc4be/src/aespot.f90#L701",
+            "atomic_unit_debye": 2.5417464714730396,
+            "cartesian_conversion_convention": "current scipy CODATA atomic unit of electric dipole",
+            "printed_atomic_unit_debye": 2.5417464714730396,
+            "printed_conversion_convention": "current CODATA",
+            "engine_native_cartesian_debye": [
+              1.3903353198957527,
+              1.7944730088599659,
+              0.0
+            ],
+            "printed_component_rounding_bound_debye": 0.0012708732357365198,
+            "selection": "last advertised molecular dipole block, without fallback to earlier incomplete results",
+            "origin": "engine input/output Cartesian origin; charged-molecule origin dependence retained",
+            "geometry_digest": "1210e4d16f17883c6c2c3a73676562e0c4ce87dbabceb47550d5198f43143550",
+            "method": "GFN2-xTB",
+            "engine": "xtb",
+            "engine_version": "6.7.1",
+            "raw_output": "engine.stdout",
+            "raw_output_sha256": "ebc39250c5b70bccd8f6874194643c6bc6e98b06556567e53c508894316d4e08"
+          },
+          "gradient_units": "hartree/bohr",
+          "energy_definition": "electronic potential energy; no thermochemical correction",
+          "convergence_scope": "electronic only",
+          "stationary_point_classification": "unclassified; no frequency Hessian",
+          "output_molecule": {
+            "symbols": [
+              "O",
+              "H",
+              "H"
+            ],
+            "coordinates": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.9572,
+                0.0,
+                0.0
+              ],
+              [
+                -0.23999,
+                0.9273,
+                0.0
+              ]
+            ],
+            "coordinate_units": "angstrom",
+            "charge": 0,
+            "multiplicity": 1,
+            "isotopes": [
+              null,
+              null,
+              null
+            ],
+            "atom_ids": [
+              "atom-0",
+              "atom-1",
+              "atom-2"
+            ],
+            "fragments": [],
+            "fragment_states": [],
+            "bonds": [],
+            "stereochemistry": {},
+            "environment": {},
+            "name": null
+          },
+          "elapsed_seconds": 0.6908972599999288,
+          "geometry_budget": {
+            "sample_index": 0,
+            "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+            "requested_seconds": null,
+            "allocated_seconds": 20.638153900999896,
+            "elapsed_seconds": 0.7267353070001263,
+            "status": "completed",
+            "scope": "one complete geometry operation, including all constrained optimizer gradients"
+          },
+          "comparison_protocol": "fd5fbfaa9100ea10d1177a2436c1504e68413a6a6873af89489685d3defe96a8",
+          "sampling_origin": {
+            "source": "INITIAL_SEED"
+          }
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "candidate_id": "candidate_c4f3335afe7b41e68f1da32f76f265c8",
+        "molecule": {
+          "symbols": [
+            "O",
+            "H",
+            "H"
+          ],
+          "coordinates": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.9572,
+              0.0,
+              0.0
+            ],
+            [
+              -0.23999,
+              0.9273,
+              0.0
+            ]
+          ],
+          "coordinate_units": "angstrom",
+          "charge": 0,
+          "multiplicity": 1,
+          "isotopes": [
+            null,
+            null,
+            null
+          ],
+          "atom_ids": [
+            "atom-0",
+            "atom-1",
+            "atom-2"
+          ],
+          "fragments": [],
+          "fragment_states": [],
+          "bonds": [],
+          "stereochemistry": {},
+          "environment": {},
+          "name": null
+        },
+        "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+        "energy_hartree": -5.070371711236,
+        "gibbs_hartree": null,
+        "comparison_protocol": "fd5fbfaa9100ea10d1177a2436c1504e68413a6a6873af89489685d3defe96a8",
+        "degeneracy": 1.0,
+        "status": "eligible",
+        "sources": [
+          "INITIAL_SEED"
+        ],
+        "metadata": {
+          "sample_index": 0,
+          "seed_geometry": {
+            "symbols": [
+              "O",
+              "H",
+              "H"
+            ],
+            "coordinates": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.9572,
+                0.0,
+                0.0
+              ],
+              [
+                -0.23999,
+                0.9273,
+                0.0
+              ]
+            ],
+            "coordinate_units": "angstrom",
+            "charge": 0,
+            "multiplicity": 1,
+            "isotopes": [
+              null,
+              null,
+              null
+            ],
+            "atom_ids": [
+              "atom-0",
+              "atom-1",
+              "atom-2"
+            ],
+            "fragments": [],
+            "fragment_states": [],
+            "bonds": [],
+            "stereochemistry": {},
+            "environment": {},
+            "name": null
+          },
+          "calculation_completed": true,
+          "proposal_processed": true,
+          "observation_source": "INITIAL_SEED",
+          "stationary_point_classification": "not-evaluated: no frequency Hessian",
+          "post_optimization_validation": {
+            "status": "valid",
+            "issues": [],
+            "provenance": {
+              "provider": "mendeleev",
+              "version": "1.3.0",
+              "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+              "mass_unit": "u",
+              "isotope_selection": "explicit mass number or recorded most-abundant isotope"
+            },
+            "contact_policy": "coincidence-1e-8A/radius-warning-0.35-v1"
+          },
+          "stereochemistry_validation": {
+            "status": "preserved",
+            "centers": [],
+            "issues": [],
+            "scope": "atom-mapped-distinguishable-tetrahedral-orientation-v1",
+            "not_certified": [
+              "CIP-R/S",
+              "E/Z",
+              "axial",
+              "helical",
+              "coordination stereochemistry"
+            ],
+            "normalized_volume_tolerance": 0.001
+          },
+          "rotational_constants": {
+            "moments_amu_angstrom2": [
+              0.6150112762941158,
+              1.1555472262766653,
+              1.7705585025707808
+            ],
+            "constants_ghz": [
+              821.7394183089191,
+              437.35037127279895,
+              285.434797947406
+            ],
+            "observable": "equilibrium-rigid-rotor",
+            "not_measured_B0": true,
+            "geometry_class": "nonlinear",
+            "isotope_provenance": [
+              {
+                "symbol": "O",
+                "mass_number": 16,
+                "mass_u": 15.99491461926,
+                "selection": "assumed-most-abundant"
+              },
+              {
+                "symbol": "H",
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "assumed-most-abundant"
+              },
+              {
+                "symbol": "H",
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "assumed-most-abundant"
+              }
+            ],
+            "atomic_data": {
+              "provider": "mendeleev",
+              "version": "1.3.0",
+              "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+              "mass_unit": "u",
+              "isotope_selection": "explicit mass number or recorded most-abundant isotope"
+            },
+            "constants": {
+              "provider": "scipy.constants",
+              "version": "1.18.1",
+              "codata_edition": "CODATA 2022",
+              "bohr_angstrom": "0.5291772105439999",
+              "hartree_ev": "27.211386245981",
+              "hartree_j": "4.359744722206e-18"
+            }
+          },
+          "point_group": {
+            "tolerance_angstrom": 0.001,
+            "point_group": null,
+            "proposed_point_group": "C2v",
+            "proposal_correction": null,
+            "status": "requires-review",
+            "geometry_class": "nonlinear",
+            "has_improper_operations": null,
+            "rotational_symmetry_number": null,
+            "max_operation_residual_angstrom": 0.001065133044340194,
+            "operations": [
+              {
+                "name": "E",
+                "determinant": 1,
+                "max_residual_angstrom": 0.0,
+                "atom_mapping": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              {
+                "name": "C_2",
+                "determinant": 1,
+                "max_residual_angstrom": 0.001065133044340194,
+                "atom_mapping": [
+                  0,
+                  2,
+                  1
+                ]
+              },
+              {
+                "name": "sigma_v(0)",
+                "determinant": -1,
+                "max_residual_angstrom": 0.001065133044340194,
+                "atom_mapping": [
+                  0,
+                  2,
+                  1
+                ]
+              },
+              {
+                "name": "sigma_d(0)",
+                "determinant": -1,
+                "max_residual_angstrom": 9.272501312303059e-17,
+                "atom_mapping": [
+                  0,
+                  1,
+                  2
+                ]
+              }
+            ],
+            "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual",
+            "geometry_digest": "1210e4d16f17883c6c2c3a73676562e0c4ce87dbabceb47550d5198f43143550",
+            "coordinate_units": "angstrom",
+            "algorithm": "MolSym point-group proposal with independent isotope-labelled operation verification",
+            "algorithm_version": "1.2.0",
+            "algorithm_reference": "https://doi.org/10.1002/jcc.23493",
+            "isotope_policy": "most_abundant",
+            "isotope_provenance": [
+              {
+                "symbol": "O",
+                "mass_number": 16,
+                "mass_u": 15.99491461926,
+                "selection": "assumed-most-abundant"
+              },
+              {
+                "symbol": "H",
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "assumed-most-abundant"
+              },
+              {
+                "symbol": "H",
+                "mass_number": 1,
+                "mass_u": 1.007825031898,
+                "selection": "assumed-most-abundant"
+              }
+            ],
+            "tolerance_sweep": [
+              {
+                "tolerance_angstrom": 0.0001,
+                "point_group": "Cs",
+                "proposed_point_group": "Cs",
+                "proposal_correction": null,
+                "status": "verified",
+                "geometry_class": "nonlinear",
+                "has_improper_operations": true,
+                "rotational_symmetry_number": 1,
+                "max_operation_residual_angstrom": 0.0,
+                "operations": [
+                  {
+                    "name": "E",
+                    "determinant": 1,
+                    "max_residual_angstrom": 0.0,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "name": "sigma_h",
+                    "determinant": -1,
+                    "max_residual_angstrom": 0.0,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  }
+                ],
+                "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+              },
+              {
+                "tolerance_angstrom": 0.001,
+                "point_group": null,
+                "proposed_point_group": "C2v",
+                "proposal_correction": null,
+                "status": "unresolved",
+                "geometry_class": "nonlinear",
+                "has_improper_operations": null,
+                "rotational_symmetry_number": null,
+                "max_operation_residual_angstrom": 0.001065133044340194,
+                "operations": [
+                  {
+                    "name": "E",
+                    "determinant": 1,
+                    "max_residual_angstrom": 0.0,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "name": "C_2",
+                    "determinant": 1,
+                    "max_residual_angstrom": 0.001065133044340194,
+                    "atom_mapping": [
+                      0,
+                      2,
+                      1
+                    ]
+                  },
+                  {
+                    "name": "sigma_v(0)",
+                    "determinant": -1,
+                    "max_residual_angstrom": 0.001065133044340194,
+                    "atom_mapping": [
+                      0,
+                      2,
+                      1
+                    ]
+                  },
+                  {
+                    "name": "sigma_d(0)",
+                    "determinant": -1,
+                    "max_residual_angstrom": 9.272501312303059e-17,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  }
+                ],
+                "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+              },
+              {
+                "tolerance_angstrom": 0.01,
+                "point_group": "C2v",
+                "proposed_point_group": "C2v",
+                "proposal_correction": null,
+                "status": "verified",
+                "geometry_class": "nonlinear",
+                "has_improper_operations": true,
+                "rotational_symmetry_number": 2,
+                "max_operation_residual_angstrom": 0.001065133044340194,
+                "operations": [
+                  {
+                    "name": "E",
+                    "determinant": 1,
+                    "max_residual_angstrom": 0.0,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  },
+                  {
+                    "name": "C_2",
+                    "determinant": 1,
+                    "max_residual_angstrom": 0.001065133044340194,
+                    "atom_mapping": [
+                      0,
+                      2,
+                      1
+                    ]
+                  },
+                  {
+                    "name": "sigma_v(0)",
+                    "determinant": -1,
+                    "max_residual_angstrom": 0.001065133044340194,
+                    "atom_mapping": [
+                      0,
+                      2,
+                      1
+                    ]
+                  },
+                  {
+                    "name": "sigma_d(0)",
+                    "determinant": -1,
+                    "max_residual_angstrom": 9.272501312303059e-17,
+                    "atom_mapping": [
+                      0,
+                      1,
+                      2
+                    ]
+                  }
+                ],
+                "verification": "all generated operations, labelled bijection and Euclidean Cartesian residual"
+              }
+            ],
+            "uncertainty": "tolerance-sensitive-or-unresolved",
+            "is_chiral_geometry": null,
+            "scope": "static nuclear geometry; not permutation-inversion symmetry or nuclear spin statistics",
+            "backend_tolerance_note": "MolSym uses its native scalar tolerance for internal Cartesian/inertia tests; every reported operation separately meets the stated Cartesian tolerance"
+          },
+          "rotational_observables": {
+            "equilibrium": {
+              "moments_amu_angstrom2": [
+                0.6150112762941158,
+                1.1555472262766653,
+                1.7705585025707808
+              ],
+              "constants_ghz": [
+                821.7394183089191,
+                437.35037127279895,
+                285.434797947406
+              ],
+              "observable": "equilibrium-rigid-rotor",
+              "not_measured_B0": true,
+              "geometry_class": "nonlinear",
+              "isotope_provenance": [
+                {
+                  "symbol": "O",
+                  "mass_number": 16,
+                  "mass_u": 15.99491461926,
+                  "selection": "assumed-most-abundant"
+                },
+                {
+                  "symbol": "H",
+                  "mass_number": 1,
+                  "mass_u": 1.007825031898,
+                  "selection": "assumed-most-abundant"
+                },
+                {
+                  "symbol": "H",
+                  "mass_number": 1,
+                  "mass_u": 1.007825031898,
+                  "selection": "assumed-most-abundant"
+                }
+              ],
+              "atomic_data": {
+                "provider": "mendeleev",
+                "version": "1.3.0",
+                "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+                "mass_unit": "u",
+                "isotope_selection": "explicit mass number or recorded most-abundant isotope"
+              },
+              "constants": {
+                "provider": "scipy.constants",
+                "version": "1.18.1",
+                "codata_edition": "CODATA 2022",
+                "bohr_angstrom": "0.5291772105439999",
+                "hartree_ev": "27.211386245981",
+                "hartree_j": "4.359744722206e-18"
+              }
+            },
+            "geometry_method": "supplied geometry; xtb/GFN2-xTB energy",
+            "equilibrium_labels": [
+              "Ae",
+              "Be",
+              "Ce"
+            ],
+            "ground_state_ghz": null,
+            "correction_model": null,
+            "uncertainty": "not-established-by-geometry-alone"
+          },
+          "dipole": {
+            "cartesian_debye": [
+              1.3903353198957527,
+              1.7944730088599659,
+              0.0
+            ],
+            "signed_abc_debye": [
+              -0.0014992514343959275,
+              -2.2700580242631903,
+              0.0
+            ],
+            "dipole_method": "xtb/GFN2-xTB",
+            "axes_columns_in_cartesian": [
+              [
+                0.7900916917258963,
+                -0.6129886774367949,
+                -0.0
+              ],
+              [
+                -0.6129886774367949,
+                -0.7900916917258963,
+                -0.0
+              ],
+              [
+                -0.0,
+                -0.0,
+                -1.0
+              ]
+            ],
+            "axis_order": [
+              "a",
+              "b",
+              "c"
+            ],
+            "axis_sign_convention": "ordered atom-ID projection; right-handed frame",
+            "moments_amu_angstrom2": [
+              0.6150112762941158,
+              1.1555472262766653,
+              1.7705585025707808
+            ],
+            "degenerate_axes": [
+              false,
+              false,
+              false
+            ],
+            "degeneracy_relative_tolerance": 1e-07,
+            "total_dipole_debye": 2.2700585193506715,
+            "dark_branches": [
+              true,
+              false,
+              true
+            ],
+            "dark_threshold_debye": 0.1,
+            "exclude_from_line_list": false,
+            "retain_in_thermodynamic_ensemble": true,
+            "status": "resolved",
+            "geometry_digest": "1210e4d16f17883c6c2c3a73676562e0c4ce87dbabceb47550d5198f43143550",
+            "origin_convention": "supplied vector in input coordinate origin; charged-species dipoles are origin dependent",
+            "sign_warning": "signed components require the recorded frame; arbitrary eigenvector signs must not be compared directly",
+            "provenance": {
+              "cartesian_debye": [
+                1.3903353198957527,
+                1.7944730088599659,
+                0.0
+              ],
+              "cartesian_atomic_units": [
+                0.547,
+                0.706,
+                0.0
+              ],
+              "printed_magnitude_debye": 2.27,
+              "units": "debye",
+              "definition": "GFN2-xTB cumulative atomic multipole molecular dipole (CAMM full)",
+              "parser": "topos.engines/xtb-dipole-v1",
+              "source": "https://github.com/grimme-lab/xtb/blob/26b28010e805f7d1aeeef39813feb473e69cc4be/src/aespot.f90#L701",
+              "atomic_unit_debye": 2.5417464714730396,
+              "cartesian_conversion_convention": "current scipy CODATA atomic unit of electric dipole",
+              "printed_atomic_unit_debye": 2.5417464714730396,
+              "printed_conversion_convention": "current CODATA",
+              "engine_native_cartesian_debye": [
+                1.3903353198957527,
+                1.7944730088599659,
+                0.0
+              ],
+              "printed_component_rounding_bound_debye": 0.0012708732357365198,
+              "selection": "last advertised molecular dipole block, without fallback to earlier incomplete results",
+              "origin": "engine input/output Cartesian origin; charged-molecule origin dependence retained",
+              "geometry_digest": "1210e4d16f17883c6c2c3a73676562e0c4ce87dbabceb47550d5198f43143550",
+              "method": "GFN2-xTB",
+              "engine": "xtb",
+              "engine_version": "6.7.1",
+              "raw_output": "engine.stdout",
+              "raw_output_sha256": "ebc39250c5b70bccd8f6874194643c6bc6e98b06556567e53c508894316d4e08"
+            }
+          },
+          "sampling_origin": {
+            "source": "INITIAL_SEED"
+          },
+          "identity_comparisons": [],
+          "relative_electronic_energy_kcal_mol": 0.0,
+          "energy_comparison_key": "d13c6d74732f3719a5edfce8211a6f5f561c88d9ff61b2305cbe6b8a03db65cd",
+          "discovery_sources": [
+            "INITIAL_SEED"
+          ]
+        }
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "request.json",
+        "sha256": "1af8043e05416cbfaa2374161b9ecdb02483eac5feba6c8c6d9ed28dd3a3b2a6",
+        "size_bytes": 5063,
+        "role": "request",
+        "media_type": null
+      },
+      {
+        "path": "input.xyz",
+        "sha256": "00299a0e8ae333b601a785f821fa5c65910e2bbd60ddc4fc23f1f0d030ea85c8",
+        "size_bytes": 199,
+        "role": "input-geometry",
+        "media_type": null
+      },
+      {
+        "path": "base-consumption-receipt.json",
+        "sha256": "e045dc2606c0a89004dfd911ee827197110a36cc5b7cd1796b19982542602989",
+        "size_bytes": 740,
+        "role": "base-consumption-receipt",
+        "media_type": null
+      }
+    ],
+    "decisions": [],
+    "metadata": {
+      "run_dir": "/workspace/.topos-compat/native-handoff-final/runs/run_30df9b2485a54bf38078938347446711",
+      "input_sha256": "e11b45615dab69b0daf44f0a16b8036e1d66dfaa506647d5d3cf8c5eb75ca2c4",
+      "request_sha256": "680a45b08ce3ac7ac407c7758178dac4dcd592e8573308b5699c1de50b8d7022",
+      "software": {
+        "name": "CoChem-TOPOS",
+        "version": "0.1.0",
+        "python": "3.12.14",
+        "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+        "commit": null,
+        "dirty": null,
+        "dependencies": {
+          "numpy": "2.5.4",
+          "scipy": "1.18.1",
+          "networkx": "3.7",
+          "pydantic": "2.14.1",
+          "mendeleev": "1.3.0",
+          "h5py": "3.16.0"
+        },
+        "revision_lookup": "installed distribution; source commit unavailable",
+        "source_files": {
+          "topos/__init__.py": "8c9061515fa94a3249e9f97b272b50def9cbbdc5aee75cdc2852fe12950be95e",
+          "topos/__main__.py": "251fde2d55d24cec3cb0ec64f279908f4799f2ba4f7937fcd213f295e866f755",
+          "topos/abcluster.py": "224ff6299b7970e03a14b6413300babd62b5aa498d6e8e00940c962dbcd4eb1b",
+          "topos/actions/__init__.py": "bc3310e1b08d40339caf04fe40564b9fb75ade17036f755cd239dacc357f51fe",
+          "topos/actions/compute_worker.py": "2e730fb776fc3faa9e2ca7e99ea4adc46627edb429d1692f5e98ebd8f875d9df",
+          "topos/actions/dispatch.py": "1c97bf2e9b5401251e3ac6bbd2424af3182238ce2d19f5dd338774166f9f6ad5",
+          "topos/actions/hosted_requirements.py": "c0d5941e1c1699cbcf6ce2136dfe86ff2f5c5d39fb13fe586733dd63384bb777",
+          "topos/actions/hosted_worker.py": "98214cd01cc984f65b9c412371f30844ed7ee9675e0f70a56b6eb9b60e369e08",
+          "topos/actions/queue_budget.py": "84ed379f4beba635ce92f9b385993e56b8e3a140f24280e70fa03e1efe25aa7c",
+          "topos/advanced_workflow.py": "f7e2bab457309f83acb31f7df639a3c5bf5c7ab3ff8bd15da616af881a46cd8c",
+          "topos/anharmonic.py": "f6261b9e42d7150d7472d06d6a6445f81e255a8cc61a96dbf7d7327a0e6d4c17",
+          "topos/base_integration.py": "d413749fa0f01aa41cbbf25db1ef7686214e6f8155c74e44fa833822fa07ff8b",
+          "topos/base_provider.py": "7e68f57d020b4dbd0e85562492572302b6f3d2c90ef576108882208b9665eb98",
+          "topos/budget.py": "a4671c6e66b7397a5fc2e7db2491f9b2d7c1bb116059fdd66fe33c49f85fb3dc",
+          "topos/campaign_authority.py": "810adf71091c6508b4a688f5a45f598a44e8bf490b000d537083c9665fd9df61",
+          "topos/capabilities.py": "c0ab0a9e8e8eadf9b05875a9a9ad296b50ef37ef7f15d34683b180e5d0fe4df9",
+          "topos/cfour_artifacts.py": "cdeafda9ff81391926511653384a5ffe3e7ddea071950dc34cf2872c6d8fa155",
+          "topos/cfour_controls.py": "d498416e2d1fa51b71277765f613d899e15023f0ceb0f8a7805e2f1bea00f8be",
+          "topos/cfour_corrections.py": "f55f0e825a78bb79d359354f3c11f5ec4630ca4d3bbb96a56499fb013281f64a",
+          "topos/cfour_counterpoise.py": "15528830ef982059674ef6b657d99e8a5ecfcc73e5a3d770f2247c1ea6bd3ab7",
+          "topos/cfour_dboc.py": "9a6a4c46f1f3a60729c8c73639d5ae4baf96a59c4f44917035608b8ec3c2066c",
+          "topos/cfour_dependencies.py": "88c73a196d171e553378cdd9b819f4356d271264e34bcfb713454a7595694117",
+          "topos/cfour_efg.py": "64e056fe302be067a8774d098c4657f00f28e42f3faf9e19680bfb767134145d",
+          "topos/cfour_operator.py": "cd3bd885691c46802c5beb92748eaec130c6efeeee55c5ba2dd1ebe0412985be",
+          "topos/cfour_properties.py": "e416e1636ea8e42669b90f9aed442f8dcbd95802bb9903bef8c10a8f4760f3cb",
+          "topos/chemistry.py": "ede078bb21036e695d5d3620a6022dcc0d31a9c5fd002d43233be69df12eb61d",
+          "topos/cli/__init__.py": "dbda53edc588edbd7e7df0589323f799670dc4ac6572d03f18f4b027e7ca6c7d",
+          "topos/cli/test_runner.py": "048131cd8a76bda01931350b0a94124d56088edec6e3597e311e481b2ade35cc",
+          "topos/composites.py": "cd82a0de497674afe5aedfa58a1b1ce3288576c16d0a02b6022442a877f47865",
+          "topos/config.py": "5a382e0358b84ae3325a46c3209eb3621ac9fbe651c4002362e4daeb0fc337ff",
+          "topos/constraints.py": "f65e671c744b35871ee34573f2b22d32ad43f16ba9eecb8e1efd2e7d642cb70c",
+          "topos/correlated.py": "05539e2e993475bcdc7934660a8c246d9178355b19e213421d39f3e7709367e9",
+          "topos/correlated_counterpoise.py": "a144cf5669803b0546a87f434f5f85790a5b6090741a571753759894722fd614",
+          "topos/correlated_workflow.py": "4b1af015ac0cf84868e69b9a64ab99cbff1c2e71e3ff5ea999cad8077e0e4c08",
+          "topos/counterpoise.py": "73fcfb21c6887feb7aa39a16d31979a5163eee2dae15c03d2769dbf9e119eabf",
+          "topos/data/__init__.py": "f0125cb306990c6f037cadb6ea8beeb0683824a077b3ed5cc3959745e66a1227",
+          "topos/data/method_matrix_v4.py": "c6dda9afa3f93bb0b0dd96c198d412ac335b2e55d63be735ee98a3657af4683d",
+          "topos/data/reviewed_matrix_v010.py": "6eb430aba1902e6bafdadc8b15b422017711f45b6ce8bf200bcc287930e8bcb5",
+          "topos/data/runtime_recipes.py": "76f3f0288298c424e2fbaf9cee8d2eaba62d330b2740ea875da2c822a36681eb",
+          "topos/energy_composite.py": "9e717af7449655a6b9d6e842fd5e67b3f839d3b20f23995bfbb096781d876621",
+          "topos/engines.py": "3534e8504eb7b90b2d01bd382ab4faf7bfeeafd980dcee6e1494fa70f26992d9",
+          "topos/ensemble_tools.py": "4607ed54f230f0605e629db267c13d129800ba8b04416d2313a02e284409573a",
+          "topos/entropy.py": "2050d23227ff5dff7bf13c903fea4b7e27a573d05b27b83c5438e08b536af5ca",
+          "topos/external_engines.py": "e4a5d27bc3eba2a949f18495a8dd23c0df3a204ad67da580999b5ddb7116cc04",
+          "topos/external_matrix_workflow.py": "94d014043a5c1f7209e4b645ef53ffba3d6e8c20ec005b1144d556f0d1ef8c85",
+          "topos/fragments.py": "37202905340eaf07238c6b040b9c61b3f9c1a432ab63bc155ebd932622d6ac92",
+          "topos/goat.py": "e30fd73d225eaea6d881e5e5a992bb0cb4ab5ae9916c82f744a663b27c8e7d2f",
+          "topos/higher_composite.py": "ad571ce58c147ae4fde3f9aa5d233052faf20e93521db3807c5ae4081332537f",
+          "topos/ingestion.py": "502c6e5d2763bfaf39086edc23bc1ba4a59694f906357d5840a3f05a4db3b983",
+          "topos/matrix_campaign.py": "68f34a5aae871284ad223cd3dbb81d367b76a4217eccecea0d749476299630c5",
+          "topos/matrix_components.py": "dd2a60c28c697669ce455839bd204f0a533f7b3f1f857c8fe7ce040e48a2dd5f",
+          "topos/matrix_diversity.py": "57f2b69dc980aa613d506161f91c2b81b5e0c33fb72a2ce712c724872d083478",
+          "topos/matrix_entropy.py": "7a12802ab1c07341cf3f9e0212ed728ff0b614588c32b42c68c494ab4e905160",
+          "topos/matrix_ml_search.py": "5da93348b3142324cd07e8d152f090dde46ca9e344c68b7b59e272de5532c6d2",
+          "topos/matrix_ml_training.py": "fc7b836795c995bbdaddf125e52d039f5e98785d95c7c991ed326261aaf7aa1f",
+          "topos/matrix_r2.py": "05cd31ac64a8658d84727a5bc5e65f6c1d484cdd1157a8d9697a132325d852bc",
+          "topos/matrix_sources.py": "e2a74f1a2aa6c5b8b43e22741801939bf087ba4fe8ff32ff224fffae03f4ce64",
+          "topos/matrix_union.py": "0a4e478a86dea2e47c672c1387cc3149970ed41d752902be2f224782830bd0c9",
+          "topos/matrix_workflow.py": "b93bf1069c361995614de930164a0b443f9979139d7983c350ec3065510f6e24",
+          "topos/method_matrix.py": "b86b8eafcfb371f6b83005cdb900a79e34400bf1fc45b4e30a5c93ed6d3c5103",
+          "topos/ml.py": "f1abf663588e9641e27361b3e84202a6695df79c91ec13f8678ca2cfc39e894b",
+          "topos/ml_crest.py": "8867926ce07eb5e9d3e4b853a44b8040f2378ba74493284baf5ebf900b65845e",
+          "topos/ml_extopt.py": "0c4ede7d7d668cc77b479b6f79ea86a5c7fea68d4ce4d52a4b52f07376ba3332",
+          "topos/ml_training.py": "4c017e00db2cb0c2523c1012e962c3e8a87a78f7222bc0cc9b8ae7d042ce3f65",
+          "topos/ml_training_worker.py": "281081f60dfb1749d002c431ec2f1f964f58f6934aad4f40746993ba24216ce3",
+          "topos/ml_worker.py": "0e5d47a34cba9e8a855054d32ba51ee0dadbbe724ae571ddde9a8e8f60d72087",
+          "topos/ml_workflow.py": "2084fcb1c358daba063857ad71a0d1f6abe69a93c411496ffd8ad16dbd791c37",
+          "topos/models.py": "c2364be0b06addfd243346cd0e294b03808cf867f731c93adb06dc58f07ce4ca",
+          "topos/month_geometry.py": "8ef140845cd1c373e6ebd68ee62f2a264ab9fc52bbfe497c604c8fbeb3432a92",
+          "topos/native_diagnostics.py": "362147f9857c99a8cf7aba259f4708db549c50b96c612b0ed07a579148cdaba3",
+          "topos/native_hessian.py": "c8a53b7a3cd7d245a34b8424639518dc1129b36251ec312a279679508b29a1ba",
+          "topos/native_mass_rotors.py": "950565073bf33bb88d2ba20cff117491834621cd82a191e655cec4f48ed3b940",
+          "topos/orca_basis_names.py": "d538fea40c80f3ce6c98f3470cdecbcf1be67414a929a850e996c3797406318d",
+          "topos/orca_f12_composite.py": "b6d917761aa2f8bf0805a98a91b89b4763f7e2e03c86ed58da574f331e6cef85",
+          "topos/orca_geometry_evidence.py": "7da603439a288a87d4852eabdc159905ba0576cce3980a6312b6ef1aec4d8814",
+          "topos/orca_numerical_geometry.py": "0657b11f8300573efb38426479c3a930baf59ddc5a7e5bc967b12edc01aac47f",
+          "topos/orca_numerical_profiles.py": "6909d29bf6c0158f0b79fe098aa2bdde8e42e2341a7d6dd355408a57ad9f3447",
+          "topos/publication.py": "34c59f08de0d4160b67fc9c17cfe6562b1286d07b68f71e307bbbb530a3a32c1",
+          "topos/reference_interaction.py": "8247f47dfd6ccf81bce9840b907f1753b69eddf24d1664335d6d7ee0e5c6bfaa",
+          "topos/reference_thermal.py": "63683af63390f20616c1240b6bf609e77792b3c642803ea6a3d5226d0ac1a930",
+          "topos/references.py": "e7c5681d3c17f432e96c116f9f1538202b2345c0ae816c522ca449b41bac3342",
+          "topos/release.py": "1e16edf24541fe5c48f16d8538bb8346a949568d762c377a59fc5f46e7574449",
+          "topos/remote_workflow.py": "84ef641874bb8e368114964d36418140e47618f8aa06f23939a526965f0e606d",
+          "topos/reporting.py": "e8116f7bab85682c9770a5a63f1022c1d429cbfb89aa28fca0a3ca1c5466d86b",
+          "topos/review.py": "a5244e1fedb8471b14f56e10977113ddd70b60a39723360146de138e5cb14eed",
+          "topos/rotational_transfer.py": "3e20874b549ce4e117cef50c62fb017cb52d21b843a2daf20fc2d641ab9cbaec",
+          "topos/runtime.py": "7d848af18f096ad6d19607bac7d964112545def2a1714368e4184fa130bce294",
+          "topos/sampling.py": "1b67e3ed887dc29431fdc91f477738f5697f32e68d2eca5a84d254be4e126b53",
+          "topos/scans.py": "92216f8a75496e1d6fb84b2fb0170c60cf119323cbd8aa4b695864756804e01f",
+          "topos/science.py": "591233ae349a34e3f07dfc1cc8052f0128ca52d98486acf2a3b36c60fdca1069",
+          "topos/scientific_references.py": "0a32a81878ff1ff90e10c1c2ffacf06534507a687a176bd2eab47bb738517637",
+          "topos/storage.py": "284cf1021104bf4089d9dcf5bebf1d4c57114693611a9b25c9733b3583b22732",
+          "topos/streamlit_app.py": "14f0ed54f5f4421efc11041ef3a8c5f08e99b0767ac62e0cb9e107acf4a478f2",
+          "topos/symmetry.py": "9a5db0424a0d4a0cd93ffe3328f0fd94bffe0d29010a9077dabb9b316e5e3fd7",
+          "topos/thermochemistry.py": "de96551658e9f7b0fab5feda0625b94a8108e43270241c6306949c2f891ac736",
+          "topos/ui.py": "1f847636d41fecf49c12e7d044cd8d24fb346543f7c42d979b0bfab8469c6f86",
+          "topos/workflow.py": "7f23041e18ece5a17a55ea22f37b7e15ffc005311d04a51b69a4a36adca93ae0"
+        }
+      },
+      "citations": [
+        {
+          "kind": "software",
+          "title": "CoChem-TOPOS",
+          "version": "0.1.0",
+          "url": "https://github.com/ProfJJK-CoChem/CoChem-TOPOS",
+          "license": "Apache-2.0"
+        },
+        {
+          "kind": "data-software",
+          "title": "Mendeleev",
+          "url": "https://mendeleev.readthedocs.io/",
+          "role": "versioned element/isotope data; installed version in software provenance"
+        },
+        {
+          "kind": "documentation",
+          "title": "SciPy physical constants",
+          "url": "https://docs.scipy.org/doc/scipy/reference/constants.html",
+          "role": "units/constants; edition and installed version in derived-quantity provenance"
+        },
+        {
+          "kind": "software",
+          "title": "xTB",
+          "url": "https://github.com/grimme-lab/xtb",
+          "license": "LGPL-3.0-or-later",
+          "role": "external executable, not redistributed"
+        },
+        {
+          "kind": "peer-reviewed-software",
+          "title": "Extended tight-binding quantum chemistry methods",
+          "doi": "10.1002/wcms.1493",
+          "year": 2020,
+          "source": "https://github.com/grimme-lab/xtb/blob/main/assets/references.bib"
+        },
+        {
+          "kind": "peer-reviewed-method",
+          "method": "GFN2-xTB",
+          "title": "GFN2-xTB\u2014An Accurate and Broadly Parametrized Self-Consistent Tight-Binding Quantum Chemical Method with Multipole Electrostatics and Density-Dependent Dispersion Contributions",
+          "authors": [
+            "Christoph Bannwarth",
+            "Sebastian Ehlert",
+            "Stefan Grimme"
+          ],
+          "year": 2019,
+          "doi": "10.1021/acs.jctc.8b01176",
+          "source": "https://github.com/grimme-lab/xtb/blob/main/assets/references.bib",
+          "verification": "bibliographic metadata in official software bibliography"
+        }
+      ],
+      "capability_profile": {
+        "software": "CoChem-TOPOS",
+        "version": "0.1.0",
+        "schema_version": "topos/0.1.0",
+        "profile_revision": "topos-0.1.0-supported-profile-v1",
+        "full_method_matrix": {
+          "revision": "method-matrix-v4-2026-08-09",
+          "source_sha256": "d4b382c88d9734eef844e6dcaafdca06e5901c482fa0f4c17ca1efeb4f5c989d",
+          "rows": 140,
+          "owner_counts": {
+            "TOPOS": 44,
+            "TORQ": 96
+          },
+          "execution": "Use matrix planning for exact prerequisites; catalog membership does not establish an executable route."
+        },
+        "mandatory_ecosystem": {
+          "available": true,
+          "components": {
+            "CoChem-BASE": {
+              "available": true,
+              "kind": "installed",
+              "version": "1.1.0",
+              "path": "/workspace/.topos-compat/env/lib/python3.12/site-packages/cochem_base"
+            },
+            "CoChem-TOPOS": {
+              "available": true,
+              "kind": "installed",
+              "version": "0.1.0",
+              "path": "/workspace/.topos-compat/env/lib/python3.12/site-packages/topos/__init__.py"
+            },
+            "CoChem-TORQ": {
+              "available": true,
+              "kind": "verified-isolated-installation",
+              "installed": true,
+              "version": "0.1.0",
+              "path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/source",
+              "python_path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/env/bin/python",
+              "repository": "ProfJJK-CoChem/CoChem-TORQ",
+              "revision": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4",
+              "environment_sha256": "2fe66ef51effbc11951ba952f170ce08358cae2d4f627b7d3d09ab095341cc11",
+              "installation_receipt_sha256": "faacc9dfcaf22f2a098ffe2861240eff1c228f363f860013db2551022660ef75",
+              "sidecar_sha256": "01e3374f2746a3492a1f6847f9302a075c347eae5bb484ce9967e3bee5c1017f",
+              "consumer_ready": false,
+              "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"
+            }
+          },
+          "problems": []
+        },
+        "profiles": {
+          "screening-v1": {
+            "engine": "xtb",
+            "convergence": "native normal",
+            "purpose": "screening"
+          },
+          "xtb-tight-v1": {
+            "engine": "xtb",
+            "convergence": "native tight",
+            "purpose": "screening"
+          },
+          "xtb-vtight-v1": {
+            "engine": "xtb",
+            "convergence": "native vtight",
+            "purpose": "screening"
+          },
+          "xtb-extreme-v1": {
+            "engine": "xtb",
+            "convergence": "native extreme",
+            "purpose": "stationary derivative reference"
+          },
+          "orca-mapping-v4.2": {
+            "engine": "orca",
+            "convergence": "TightSCF; explicit ConvCheckMode 0 and SCF TolE 1e-10",
+            "purpose": "refinement",
+            "source": ".docs/TOPOS_SCF_V42_PROFILE_REVIEW.md",
+            "validation_scope": "genuine historical-source water consistency diagnostic; other routes require separate live acceptance",
+            "numerical_profile_sha256": "8c9647bfbea0f7e8728d4ea4ad05bb9c98cf8c0536e9bae799fea76f4e9341f0"
+          },
+          "orca-mapping-v4.1": {
+            "engine": "orca",
+            "convergence": "mapping-v4.1 explicit thresholds",
+            "purpose": "refinement",
+            "source": ".docs/method_matrix.md"
+          }
+        },
+        "engines": {
+          "xtb": {
+            "executable_discovered": true,
+            "methods": [
+              "GFN2-xTB"
+            ],
+            "device": "cpu",
+            "validation": "verify per execution"
+          },
+          "orca": {
+            "executable_discovered": false,
+            "methods": [
+              "HF-3c",
+              "r2SCAN-3c",
+              "HF",
+              "wB97X-V",
+              "wB97M-V",
+              "B3LYP-D4"
+            ],
+            "device": "cpu",
+            "validation": "verify per execution"
+          }
+        },
+        "supported_operations": [
+          "energy",
+          "gradient",
+          "optimize",
+          "search",
+          "frequency",
+          "thermochemistry",
+          "association",
+          "matrix"
+        ],
+        "search_algorithm": "seeded Cartesian or rigid-fragment jiggle\u2013quench",
+        "search_algorithms": [
+          "jiggle-quench",
+          "crest",
+          "union",
+          "abcluster"
+        ],
+        "samplers": {
+          "abcluster": {
+            "version": "3.4",
+            "program": "rigidmol",
+            "potential": "explicit atom-mapped charge/Lennard-Jones rigid intermolecular force field",
+            "requirements": "cited per-atom charge/epsilon/sigma, explicit closed-shell fragments and states, BASE-audited native binary",
+            "seed": "engine-controlled random packing; no numeric seed support",
+            "refinement": "classical scores are seed observations only; every candidate requires independent requested quantum refinement",
+            "exhaustiveness": "finishing requested generations is not proof of exhaustive sampling"
+          },
+          "crest": {
+            "version": "3.0.2",
+            "potential": "external xTB 6.7.1 GFN2-xTB",
+            "profiles": [
+              "crest-imtdgc-v1",
+              "crest-mquick-v1",
+              "crest-nci-v1"
+            ],
+            "nci": "explicit confinement for declared multifragment inputs; common-level unconfined refinement",
+            "seed": "engine-controlled; no numeric seed support",
+            "isotope_labelled_dynamics": "unsupported"
+          },
+          "goat": {
+            "version": "ORCA 6.1.1",
+            "interface": "explicit matrix recipes",
+            "potential": "native r2SCAN-3c or externally audited xTB; explicit ExtOpt model manifest where selected",
+            "refinement": "search ensembles require common-level refinement and TOPOS deduplication",
+            "availability": "requires BASE-authorized ORCA and every selected potential backend"
+          }
+        },
+        "conditional_adapters": {
+          "ML": {
+            "backends": [
+              "mace",
+              "aimnet2"
+            ],
+            "devices": [
+              "cpu",
+              "gpu"
+            ],
+            "requirements": "explicit checkpoint hashes/domain/head, audited isolated BASE interpreter, actual device and VRAM",
+            "evidence_scope": "model inference; uncalibrated committee spread is not DFT accuracy"
+          },
+          "CFOUR": {
+            "interface": "typed external_protocol in matrix requests",
+            "requirements": "licensed exact native version, GENBAS hash and BASE executable authority"
+          },
+          "Psi4": {
+            "method": "SAPT2+3",
+            "requirements": "explicit orbital/fitting bases, actual BASE-audited native installation"
+          },
+          "native_analytic_Hessian": {
+            "engine": "ORCA 6.1.1",
+            "requirements": "supported SCF method, physical .hess and separate stationarity gradient"
+          },
+          "native_VPT2": {
+            "engine": "ORCA 6.1.1",
+            "interface": "topos.anharmonic",
+            "requirements": "unconstrained nonlinear semirigid minimum; not a frozen-monomer R2 force field"
+          }
+        },
+        "execution_environment": {
+          "local": "Linux through the verified BASE registry and subprocess broker",
+          "github-actions": "Private default-branch TOPOS worker provisioned by BASE; requires configured credentials and deployed workflow",
+          "development": "Explicit numerical regression runtime, excluded from mandatory ecosystem acceptance"
+        },
+        "platform": {
+          "system": "Linux",
+          "cpu_count": 5,
+          "available_memory_mb": 31118
+        },
+        "conditional_unverified": [
+          "ORCA 6.1.1 integration without installed licensed executable",
+          "TOPOS request-correlated GitHub Actions execution requires a separately recorded live acceptance run",
+          "TORQ consumer readiness is distinct from mandatory package installation"
+        ],
+        "unavailable": [
+          "native Windows/macOS engine execution",
+          "HPC scheduler transport",
+          "Molpro F12 and MPQC native adapters",
+          "native VPT2 evaluated directly at a constrained frozen-monomer geometry",
+          "automatic kinetic grouping",
+          "automatic journal or repository deposition"
+        ],
+        "separate_module_requirements": [
+          "DVR and other TORQ-owned matrix algorithms require implemented TORQ consumers"
+        ],
+        "scientific_limits": [
+          "Finite search does not establish completeness.",
+          "Electronic-energy weights are not Gibbs populations.",
+          "Numerical convergence does not establish method accuracy.",
+          "Frozen monomer refinement validates only the allowed subspace."
+        ],
+        "deduplication": {
+          "profile": "topos-conservative-generation-v1",
+          "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6\u20137",
+          "criteria": "compatible protocol/state AND electronic energy AND equilibrium rotational constants AND proper-rotation graph-mapped RMSD",
+          "energy_kcal_mol": 0.05,
+          "rotational_fraction": 0.01,
+          "rmsd_angstrom": 0.125,
+          "limits": "fixed conservative rotational screen; not native CREGEN adaptive thresholds or spectroscopic identity"
+        }
+      },
+      "budget_scope": "workflow invocation; queue is local preparation before execution; execution includes chemistry preflight and intermediate commits; final evidence commit may outlive deadline",
+      "queue_time_in_budget": false,
+      "algorithm": "energy",
+      "sampling_complete": false,
+      "stationary_point_classification": "not-evaluated: no frequency Hessian",
+      "invocation_started_at": "2026-10-19T01:14:52.738151+00:00",
+      "execution_provider": "CoChem-BASE",
+      "execution_authority": {
+        "backend": "cochem-base",
+        "ecosystem": {
+          "available": true,
+          "components": {
+            "CoChem-BASE": {
+              "available": true,
+              "kind": "installed",
+              "version": "1.1.0",
+              "path": "/workspace/.topos-compat/env/lib/python3.12/site-packages/cochem_base"
+            },
+            "CoChem-TOPOS": {
+              "available": true,
+              "kind": "installed",
+              "version": "0.1.0",
+              "path": "/workspace/.topos-compat/env/lib/python3.12/site-packages/topos/__init__.py"
+            },
+            "CoChem-TORQ": {
+              "available": true,
+              "kind": "verified-isolated-installation",
+              "installed": true,
+              "version": "0.1.0",
+              "path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/source",
+              "python_path": "/workspace/.topos-compat/Modules/torq/4ce8eecba56e91e27c6abb32473b2ee4d44767c4/policies/888e239d4bd0eb7df1710ac31539c5f10e630e342e549ccdef10686db4dd294d/env/bin/python",
+              "repository": "ProfJJK-CoChem/CoChem-TORQ",
+              "revision": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4",
+              "environment_sha256": "2fe66ef51effbc11951ba952f170ce08358cae2d4f627b7d3d09ab095341cc11",
+              "installation_receipt_sha256": "faacc9dfcaf22f2a098ffe2861240eff1c228f363f860013db2551022660ef75",
+              "sidecar_sha256": "01e3374f2746a3492a1f6847f9302a075c347eae5bb484ce9967e3bee5c1017f",
+              "consumer_ready": false,
+              "execution": "Separate reviewed BASE module adapter; TORQ namespaces are not imported into TOPOS"
+            }
+          },
+          "problems": []
+        },
+        "registry_path": "/workspace/.topos-compat/artifacts/Registry/cochem_system_config.json",
+        "registry_sha256": "009f17963ddab44c5f6297bd31137306b8d0a45da340fab55698d16c9e2be232",
+        "registry_checksum": "5590156850c45d6ae7ef8087c42016ce64a191f002616805f5ca3c86d2197c1c"
+      },
+      "input_validation": {
+        "status": "valid",
+        "issues": [],
+        "provenance": {
+          "provider": "mendeleev",
+          "version": "1.3.0",
+          "radii": "Pyykko covalent_radius_pyykko, pm / 100 -> angstrom",
+          "mass_unit": "u",
+          "isotope_selection": "explicit mass number or recorded most-abundant isotope"
+        },
+        "contact_policy": "coincidence-1e-8A/radius-warning-0.35-v1"
+      },
+      "fragment_triage": {
+        "classification": "monomer",
+        "fragments": [
+          [
+            0,
+            1,
+            2
+          ]
+        ],
+        "graph_source": "distance-hypothesis/pyykko/scale-1.2",
+        "issues": []
+      },
+      "input_stereochemistry": {
+        "status": "preserved",
+        "centers": [],
+        "issues": [],
+        "scope": "atom-mapped-distinguishable-tetrahedral-orientation-v1",
+        "not_certified": [
+          "CIP-R/S",
+          "E/Z",
+          "axial",
+          "helical",
+          "coordination stereochemistry"
+        ],
+        "normalized_volume_tolerance": 0.001
+      },
+      "nested_budget_accounting": {
+        "invocation_started_at": "2026-10-19T01:14:52.738151+00:00",
+        "semantics": "new invocation allocations; completed validated subjobs are reused; final evidence commit is outside execution deadlines",
+        "ensemble": {
+          "requested_seconds": null,
+          "allocated_seconds": 20.672825830999955,
+          "started_at_execution_seconds": 9.327182178000385,
+          "scope": "sampling, refinements and comparison, bounded by workflow",
+          "elapsed_seconds": 1.1865588729997398,
+          "deadline_exhausted": false,
+          "status": "completed"
+        },
+        "geometries": [
+          {
+            "sample_index": 0,
+            "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+            "requested_seconds": null,
+            "allocated_seconds": 20.638153900999896,
+            "elapsed_seconds": 0.7267353070001263,
+            "status": "completed",
+            "scope": "one complete geometry operation, including all constrained optimizer gradients"
+          }
+        ]
+      },
+      "sample_plan": [
+        {
+          "molecule": {
+            "symbols": [
+              "O",
+              "H",
+              "H"
+            ],
+            "coordinates": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.9572,
+                0.0,
+                0.0
+              ],
+              [
+                -0.23999,
+                0.9273,
+                0.0
+              ]
+            ],
+            "coordinate_units": "angstrom",
+            "charge": 0,
+            "multiplicity": 1,
+            "isotopes": [
+              null,
+              null,
+              null
+            ],
+            "atom_ids": [
+              "atom-0",
+              "atom-1",
+              "atom-2"
+            ],
+            "fragments": [],
+            "fragment_states": [],
+            "bonds": [],
+            "stereochemistry": {},
+            "environment": {},
+            "name": null
+          },
+          "source": "INITIAL_SEED"
+        }
+      ],
+      "deduplication": {
+        "status": "completed",
+        "profile": "topos-conservative-generation-v1",
+        "stage": "generation",
+        "source": "wiki/Method_Matrix.md Appendix A.1; SRS chapters 6\u20137",
+        "energy_threshold_kcal_mol": 0.05,
+        "rotational_threshold_fraction": 0.01,
+        "rmsd_threshold_angstrom": 0.125,
+        "pair_comparisons": 0,
+        "inconclusive_comparisons": 0,
+        "enantiomers": "kept distinct; no inferred degeneracy",
+        "interpretation": "fixed conservative generation screen; not adaptive CREGEN or spectroscopic identity"
+      },
+      "search_summary": {
+        "requested_samples": 1,
+        "processed_samples": 1,
+        "completed_samples": 1,
+        "unique_eligible": 1,
+        "uniqueness": "retained by conservative tests; unresolved comparisons are kept separately",
+        "candidate_observations": 1,
+        "exhaustive": false
+      },
+      "electronic_weights_by_protocol": {
+        "fd5fbfaa9100ea10d1177a2436c1504e68413a6a6873af89489685d3defe96a8": {
+          "populations": {
+            "candidate_c4f3335afe7b41e68f1da32f76f265c8": 1.0
+          },
+          "ensemble_energy_hartree": -5.070371711236,
+          "weight_kind": "electronic-energy-weights-not-Gibbs-populations",
+          "comparison_protocol": "fd5fbfaa9100ea10d1177a2436c1504e68413a6a6873af89489685d3defe96a8",
+          "temperature_k": 298.15,
+          "degeneracy_convention": "explicit-not-already-in-member-energy",
+          "completeness": "not-certified",
+          "constants": {
+            "provider": "scipy.constants",
+            "version": "1.18.1",
+            "codata_edition": "CODATA 2022",
+            "bohr_angstrom": "0.5291772105439999",
+            "hartree_ev": "27.211386245981",
+            "hartree_j": "4.359744722206e-18"
+          }
+        }
+      },
+      "electronic_weights_status": "sampled-ensemble electronic weights; not Gibbs populations",
+      "nested_budget_history": [
+        {
+          "invocation_started_at": "2026-10-19T01:14:52.738151+00:00",
+          "semantics": "new invocation allocations; completed validated subjobs are reused; final evidence commit is outside execution deadlines",
+          "ensemble": {
+            "requested_seconds": null,
+            "allocated_seconds": 20.672825830999955,
+            "started_at_execution_seconds": 9.327182178000385,
+            "scope": "sampling, refinements and comparison, bounded by workflow",
+            "elapsed_seconds": 1.1865588729997398,
+            "deadline_exhausted": false,
+            "status": "completed"
+          },
+          "geometries": [
+            {
+              "sample_index": 0,
+              "attempt_id": "attempt_3f357dbc98844766b15498675d19ab61",
+              "requested_seconds": null,
+              "allocated_seconds": 20.638153900999896,
+              "elapsed_seconds": 0.7267353070001263,
+              "status": "completed",
+              "scope": "one complete geometry operation, including all constrained optimizer gradients"
+            }
+          ]
+        }
+      ],
+      "budget_accounting": {
+        "scope": "workflow",
+        "budget_seconds": 30.0,
+        "queue_time_in_budget": false,
+        "status": "completed",
+        "queue_seconds": 8.334041471999626,
+        "execution_seconds": 10.513809561000016,
+        "elapsed_seconds": 18.847851032999642,
+        "charged_seconds": 10.513809561000016,
+        "remaining_seconds": 0.0,
+        "clock": "monotonic; timestamps are process-local and not portable restart state"
+      },
+      "invocation_budget_history": [
+        {
+          "scope": "workflow",
+          "budget_seconds": 30.0,
+          "queue_time_in_budget": false,
+          "status": "completed",
+          "queue_seconds": 8.334041471999626,
+          "execution_seconds": 10.513809561000016,
+          "elapsed_seconds": 18.847851032999642,
+          "charged_seconds": 10.513809561000016,
+          "remaining_seconds": 0.0,
+          "clock": "monotonic; timestamps are process-local and not portable restart state"
+        }
+      ],
+      "queue_seconds": 8.334041471999626,
+      "elapsed_seconds": 10.513809561000016,
+      "total_invocation_seconds": 10.513809561000016,
+      "base_consumption": {
+        "schema_version": "topos-base-consumption/0.1.0",
+        "received_at": "2026-10-19T01:15:03.330292+00:00",
+        "handoff_id": "377720d62bdd4d188ea8950bfe339612",
+        "manifest_file_sha256": "21e841b4a2af75ca095997031a472cd915bbcaf0d6dc6ae6639e994c2692c7e2",
+        "artifact_sha256": "50e1525af07c25ed250639d6f14b09fa87739229b989e95efe15c7b2d6bfeb4d",
+        "declared_request_sha256": "18e82d91eb144f159e4124d985fa2be73c6757642c84914fe0137a8b88b3b6b0",
+        "execution_request_sha256": "680a45b08ce3ac7ac407c7758178dac4dcd592e8573308b5699c1de50b8d7022",
+        "run_id": "run_30df9b2485a54bf38078938347446711",
+        "status": "completed",
+        "validation_status": "human-review",
+        "execution_provider": "CoChem-BASE",
+        "source_snapshot_sha256": "5df478f93f8d47033c52041e9383210365673d95dd82fb33451b997d7da93f24"
+      }
+    }
+  }
+}

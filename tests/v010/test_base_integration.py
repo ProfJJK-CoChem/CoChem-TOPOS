@@ -56,6 +56,7 @@ def runtime(base_source, tmp_path):
 
 def test_missing_torq_is_not_replaced_by_base_bundled_namespace(base_source, monkeypatch):
     monkeypatch.delenv("COCHEM_TORQ_ROOT", raising=False)
+    monkeypatch.delenv("COCHEM_TORQ_SIDECAR", raising=False)
     import importlib.metadata
 
     original = importlib.metadata.distribution
@@ -72,6 +73,7 @@ def test_missing_torq_is_not_replaced_by_base_bundled_namespace(base_source, mon
 
 
 def test_explicit_torq_source_is_discovered_without_bootstrap(base_source, tmp_path, monkeypatch):
+    monkeypatch.delenv("COCHEM_TORQ_SIDECAR", raising=False)
     root = tmp_path / "torq"
     (root / "src/cochem_torq").mkdir(parents=True)
     (root / "pyproject.toml").write_text('[project]\nname="CoChem-TORQ"\nversion="0.1.0"\n')
@@ -330,6 +332,17 @@ def test_ml_gpu_requires_measured_authority_and_cpu_has_no_implicit_device(runti
         runtime.validate_resources(ResourceLimits(device="gpu"), engine="mace", gpu_index=0, gpu_memory_mb=128)
     with pytest.raises(BaseIntegrationError, match="implicit GPU"):
         runtime.validate_resources(ResourceLimits(), engine="mace", gpu_index=0)
+
+
+@pytest.mark.parametrize("count,vram_gb", [(None, 1), (1, None), (0, 1), (1, 0), (1, float("inf"))])
+def test_ml_gpu_rejects_unavailable_or_nonfinite_base_observations(runtime, count, vram_gb):
+    from cochem_base.cochem_core_registry_schema import GPUComputeSchema
+
+    # Explicit partial-observation fault fixture, never a measured GPU claim.
+    # Older supported BASE schemas reject None before reaching this boundary.
+    runtime.registry.hardware.gpu_compute_metrics = GPUComputeSchema.model_construct(device_count=count, vram_gb=vram_gb)
+    with pytest.raises(BaseIntegrationError, match="measured BASE GPU"):
+        runtime.validate_resources(ResourceLimits(device="gpu"), engine="mace", gpu_index=0, gpu_memory_mb=128)
 
 
 def test_python_ml_worker_cannot_claim_an_unaudited_silo(runtime, tmp_path):

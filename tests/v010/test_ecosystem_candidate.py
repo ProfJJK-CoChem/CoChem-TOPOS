@@ -12,6 +12,7 @@ import zipfile
 from pathlib import Path
 
 import pytest
+from packaging.requirements import Requirement
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(
@@ -286,10 +287,13 @@ def test_unreviewed_base_version_cannot_join_exact_1_0_1_release_set(inputs, old
         kit.verify_inputs(candidate, wheelhouse, installation)
 
 
-def test_exact_base_foundation_version_matches_dependency_and_download_paths():
-    """One exact reviewed version controls requirements, wheel and source roots."""
+def test_legacy_kit_exact_base_pin_stays_within_managed_dependency_range():
+    """The historical kit retains its exact source/wheel gates within the library range."""
     dependencies = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["dependencies"]
-    assert "CoChem-BASE==1.0.1" in dependencies
+    base = next(Requirement(item) for item in dependencies if Requirement(item).name == "CoChem-BASE")
+    assert str(base.specifier) == "<1.2,>=1.0.1"
+    assert all(version in base.specifier for version in ("1.0.1", "1.1.0"))
+    assert all(version not in base.specifier for version in ("1.0.0", "1.2.0"))
     assert kit.PROJECTS["base"] == kit.PACKAGE_VERSIONS["cochem-base"] == "1.0.1"
     assert "BASE 1.0.1" in kit.INSTALL_README
     assert "--base-root source/cochem_base-1.0.1" in kit.INSTALL_README

@@ -1,0 +1,104 @@
+{
+  "scope": "Local Linux CPU compatibility evidence; synthetic public water test input; no licensed engine or student-private data",
+  "base_source_revision": "b05f7b048eff39bedf63019c8f371bdde5b5579a",
+  "topos_parent_revision": "a6f763c5efce85b6cc3ed7870427f4a6686f3d5d",
+  "topos_source_sha256": {
+    "pyproject.toml": "87375f0ef832832fc7f96391b374606ecec6c21ba318b7b721b1aa482b2fa4b6",
+    "topos/base_integration.py": "d413749fa0f01aa41cbbf25db1ef7686214e6f8155c74e44fa833822fa07ff8b",
+    "topos/base_provider.py": "7e68f57d020b4dbd0e85562492572302b6f3d2c90ef576108882208b9665eb98",
+    "tests/v010/test_base_integration.py": "8dc950f9ae909b34ebc09650d8af93de8aa0253e0d636be8c6bef190c1f36c7c",
+    "tests/v010/test_torq_sidecar.py": "09dc8d369fe27f2048174f53369dafe3548941d7d31c47692c1c0dbdd3d85d30",
+    "tests/v010/test_cfour_dependencies.py": "10c8ecc077b6b26c4d8e1488dfc903e62822c3cea1142c1344ed8bd1ead6445f",
+    "tests/v010/test_ecosystem_candidate.py": "97de31bfa74dbc9183c7af32c79beacac4ceccfcbde338780bf55a18641382d1"
+  },
+  "torq_revision": "4ce8eecba56e91e27c6abb32473b2ee4d44767c4",
+  "topos_wheel_sha256": "08e034766230b34e512f999b061f08f732b18dca596c4d979828ec6710974c0c",
+  "python": "3.12.14",
+  "completed_checks": {
+    "final_genuine_boundary_checks": 11,
+    "affected_metadata_and_sidecar_tests": {
+      "passed": 66,
+      "failed": 0
+    },
+    "gpu_capability_tests": {
+      "passed": 11,
+      "failed": 0
+    },
+    "repository_ruff": "passed",
+    "pip_check": "passed"
+  },
+  "native_handoff": {
+    "status": "completed",
+    "validation_status": "human-review",
+    "energy_hartree": -5.070371711236,
+    "cancelled_status": "cancelled",
+    "snapshot_id": "95db4df381004b70d63b5fb0922ad5cc1de5dc3e4f5f54f0470022dadc8844ab",
+    "receipt": {
+      "schema_version": "topos-base-consumption/0.1.0",
+      "received_at": "2026-10-19T01:15:03.330292+00:00",
+      "handoff_id": "377720d62bdd4d188ea8950bfe339612",
+      "manifest_file_sha256": "21e841b4a2af75ca095997031a472cd915bbcaf0d6dc6ae6639e994c2692c7e2",
+      "artifact_sha256": "50e1525af07c25ed250639d6f14b09fa87739229b989e95efe15c7b2d6bfeb4d",
+      "declared_request_sha256": "18e82d91eb144f159e4124d985fa2be73c6757642c84914fe0137a8b88b3b6b0",
+      "execution_request_sha256": "680a45b08ce3ac7ac407c7758178dac4dcd592e8573308b5699c1de50b8d7022",
+      "run_id": "run_30df9b2485a54bf38078938347446711",
+      "status": "completed",
+      "validation_status": "human-review",
+      "execution_provider": "CoChem-BASE",
+      "source_snapshot_sha256": "5df478f93f8d47033c52041e9383210365673d95dd82fb33451b997d7da93f24"
+    }
+  },
+  "prior_full_profile": {
+    "passed": 2819,
+    "failed": 4,
+    "skipped": 43,
+    "failed_scope": "Four metadata assertions expected ordinary BASE==1.0.1/TORQ==0.1.0; updated to explicit isolated dependency contract; affected66-case follow-up passed",
+    "duration_seconds": 587.15
+  },
+  "final_full_profile": {
+    "status": "not-run-frozen-whole-candidate",
+    "reason": "Coordinated canonical structural ownership transfer will be followed by a frozen full profile; compatibility profile plus final11-case GPU follow-up retained above."
+  },
+  "limits": [
+    "ORCA/CFOUR executables unavailable; no licensed-engine calculation claimed",
+    "No actual student Codespace, account or browser acceptance",
+    "No Actions job execution claimed",
+    "BASE outer installer/adapter acceptance at final reviewed commit remains separate",
+    "Historical TOPOS coinstall helper/workflows not qualified for managed student deployment"
+  ],
+  "initial_focused_infrastructure_probe": {
+    "passed": 60,
+    "failed": 3,
+    "skipped": 1,
+    "failed_targets": [
+      "test_budget_and_precancel",
+      "test_cancellation_reaps_owned_process_and_keeps_logs",
+      "test_ml_gpu_requires_measured_authority_and_cpu_has_no_implicit_device"
+    ],
+    "scope": "Before complete Stage0; short-deadline start-log assertions retained unchanged. Missing GPU observation TypeError fixed; full profile later executed these assertions."
+  },
+  "second_full_profile": {
+    "status": "completed",
+    "tests": 2867,
+    "passed": 2824,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 43,
+    "duration_seconds": 785.027,
+    "junit_sha256": "7a5792ba12ff2549429158f61bad301bb0de39ea80d73765c9fa98d23d482bb6",
+    "production_runtime_sha256": "d413749fa0f01aa41cbbf25db1ef7686214e6f8155c74e44fa833822fa07ff8b",
+    "loaded_gpu_test_file_sha256": "b2d7e83ef85c800d48764a22de7a263006b839704f069002210d00f7aef865ae",
+    "fixture_edit": "Partial-observation fault fixture switched after collection to model_construct for older BASE schemas; no production code or numeric assertions changed during the profile.",
+    "final_gpu_follow_up": {
+      "passed": 11,
+      "failed": 0,
+      "junit_sha256": "5ecc461093b1f067d3f83c741758b52d21ce025f4be237061756deb3507a3b9b"
+    }
+  },
+  "skipped_capability_groups": {
+    "ABCluster": 5,
+    "ORCA": 3,
+    "Psi4": 1,
+    "ML_interpreters_models_or_training": 34
+  }
+}

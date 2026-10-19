@@ -1,8 +1,9 @@
 # Installing and upgrading the mandatory CoChem package
 
-TOPOS 0.1.0 build tooling produces a Python wheel and source archive. Its mandatory
-package versions are **CoChem-BASE 1.0.1, CoChem-TOPOS 0.1.0 and CoChem-TORQ
-0.1.0**, on Python 3.11 or newer. Native calculation acceptance currently targets
+TOPOS 0.1.0 build tooling produces a Python wheel and source archive. Its BASE
+dependency is **CoChem-BASE >=1.0.1,<1.2**, on Python 3.11 or newer. BASE selects
+the exact reviewed TOPOS and TORQ revisions and installs TORQ separately.
+Native calculation acceptance currently targets
 Linux CPU. Installing a package does not establish an audited engine allocation,
 complete method-matrix coverage, or downstream TORQ scientific readiness.
 
@@ -15,30 +16,30 @@ gate. Missing scientific evidence and source conflicts remain blockers.
 
 Use the [student deployment review](TOPOS_STUDENT_READINESS.md) and BASE's
 [installed dashboard guide](https://github.com/ProfJJK-CoChem/CoChem-BASE/blob/main/docs/topos_student_deployment.md).
-The coded student path is:
+The managed student path is:
 
-1. Obtain the instructor-reviewed complete ecosystem kit matching BASE's current
-   source/wheel/helper catalog. Extract it outside all source checkouts. The final
-   candidate's accompanying source and installation receipts identify the exact
-   compatible set; an arbitrary newer `main` or a standalone TOPOS wheel is not
-   that set.
-2. Open BASE's **Module installation and execution** panel. Choose
-   **CoChem-TOPOS**, set external **Module storage**, provide the **CoChem kit
-   directory**, and select **Install selected recipient**. BASE installs the
-   complete BASE/TOPOS/compatible-core-TORQ package into its independent
-   noneditable environment and audits its actual runtime.
-3. Refresh availability and select **Open complete TOPOS interface**. The
-   installed Streamlit application runs in that audited environment. Use the
-   provided local or Codespaces URL; keep a Codespaces forwarded port private.
+1. Obtain the instructor-approved BASE project. BASE owns downloading and
+   verifying its canonical TOPOS and TORQ sources; students do not obtain a
+   separate TOPOS checkout or install Python modules themselves.
+2. Complete BASE's guided setup. It installs the reviewed modules in separate
+   noneditable environments, verifies their source/wheel/installed identities,
+   and audits native engine availability. An arbitrary newer `main` is not a
+   replacement for the reviewed module catalog. ORCA and CFOUR are optional and
+   strongly recommended; their absence disables only operations that depend on them.
+3. Open the capabilities exposed by BASE's research interface. Its versioned
+   handoffs preserve requests and return inspectable provider evidence. Keep a
+   Codespaces forwarded port private.
 4. Select the scientific purpose or exact matrix recipe, chemical state,
    resources and inputs. Use **External starting states** for previous
    GOAT/CREST/XYZ work; its named intake stages retain original source bytes and
    require genuine target calculations before scientific review.
 
-This installation/launcher path is implemented. Its final source-bound clean
-installation, browser-service and student deployment receipts must accompany the
-candidate; this document does not assert that the current working changes have
-already been published or accepted on a student's machine.
+The [isolated compatibility record](TOPOS_ISOLATED_BASE_COMPATIBILITY.md)
+distinguishes the local installed-wheel checks from missing hosted and student
+deployment acceptance. Browser and genuine student deployment receipts must
+accompany the approved BASE candidate before calling it student-ready.
+
+## Historical complete-kit route
 
 The compatible-core TORQ line includes the reviewed `4f32380` importer milestone.
 That compatibility history does not make a later TORQ calculator interchangeable
@@ -47,7 +48,8 @@ isolated BASE module environment because shared Python/package paths can overlap
 Read the actual kit/catalog and TORQ deployment profile for their exact source
 identities; keep both module environments and their registries distinct.
 
-The equivalent installed BASE commands are:
+The commands below belong to the historical explicit complete-kit route. They
+are retained as developer reference and do not qualify the managed student route:
 
 ```bash
 python -I -B -m scripts.manage_modules install --modules topos \
