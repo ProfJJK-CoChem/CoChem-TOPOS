@@ -99,3 +99,30 @@ retire duplicate distributions. The four scientific assertions must remain
 upstream with this immutable provenance. The existing duplicate-alias byte test
 is an ownership check, not a physical threshold; built-wheel and sdist ownership
 tests replace that check at the BASE boundary.
+
+## Frozen repository profile
+
+The complete source profile at
+`eecff25b13343305a3f05310800503014667e80a` finished on October 19, 2026:
+**2850 passed, 43 skipped, zero failures or errors**, in 620.83 seconds.
+The [producer evidence and independent review](evidence/frozen-structural-profile-eecff25b/review.json)
+retain the original JUnit, log, command/environment, before/after inventories,
+owned-process cleanup and [artifact digests](evidence/frozen-structural-profile-eecff25b/SHA256.json).
+All 1093 inventoried files were unchanged during execution and still matched
+their recorded hashes when reviewed after resuming the workspace. The aggregate
+source hash is `e443be04b29cada1673c8d19f48abb519c5a9247e08d7e269562f27705d37af8`.
+The owned process boundary finished clean, with no remaining descendants.
+
+The 43 skipped cases remain unrun: five require ABCluster, three require licensed
+ORCA, one requires Psi4, and 34 require explicitly provisioned ML interpreters,
+models or the pinned MACE parser. Every exact case and reason is retained in the
+review. This profile uses the development execution backend with real xTB/CREST
+available; it is not full Method Matrix acceptance, a production authority test,
+student deployment, or complete SRS conformance. The separate installed-wheel
+structural proof and its limits above remain applicable.
+
+This follow-up adds evidence and documentation only; the tested source revision
+is the commit named above. Remote publication and the subsequent BASE managed
+installation still require verification. GitHub credentials were unavailable
+when this workspace resumed, so the review does not assert a successful fetch
+or push from the resumed environment.

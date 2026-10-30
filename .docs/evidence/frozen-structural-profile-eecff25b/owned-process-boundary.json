@@ -1,0 +1,180 @@
+{
+  "linux_subreaper_enabled": true,
+  "reaped_owned_children": [
+    {
+      "pid": 148373,
+      "wait_status": 0
+    },
+    {
+      "pid": 148383,
+      "wait_status": 0
+    },
+    {
+      "pid": 148391,
+      "wait_status": 0
+    },
+    {
+      "pid": 148405,
+      "wait_status": 0
+    },
+    {
+      "pid": 148413,
+      "wait_status": 0
+    },
+    {
+      "pid": 148427,
+      "wait_status": 0
+    },
+    {
+      "pid": 148435,
+      "wait_status": 0
+    },
+    {
+      "pid": 148445,
+      "wait_status": 0
+    },
+    {
+      "pid": 148453,
+      "wait_status": 0
+    },
+    {
+      "pid": 148463,
+      "wait_status": 0
+    },
+    {
+      "pid": 148471,
+      "wait_status": 0
+    },
+    {
+      "pid": 148481,
+      "wait_status": 0
+    },
+    {
+      "pid": 148489,
+      "wait_status": 0
+    },
+    {
+      "pid": 148502,
+      "wait_status": 0
+    },
+    {
+      "pid": 148510,
+      "wait_status": 0
+    },
+    {
+      "pid": 148522,
+      "wait_status": 0
+    },
+    {
+      "pid": 148530,
+      "wait_status": 0
+    },
+    {
+      "pid": 148540,
+      "wait_status": 0
+    },
+    {
+      "pid": 148548,
+      "wait_status": 0
+    },
+    {
+      "pid": 148560,
+      "wait_status": 0
+    },
+    {
+      "pid": 148568,
+      "wait_status": 0
+    },
+    {
+      "pid": 148712,
+      "wait_status": 0
+    },
+    {
+      "pid": 148718,
+      "wait_status": 0
+    },
+    {
+      "pid": 148738,
+      "wait_status": 15
+    },
+    {
+      "pid": 159320,
+      "wait_status": 0
+    },
+    {
+      "pid": 159328,
+      "wait_status": 0
+    },
+    {
+      "pid": 159336,
+      "wait_status": 0
+    },
+    {
+      "pid": 159344,
+      "wait_status": 0
+    },
+    {
+      "pid": 159352,
+      "wait_status": 0
+    },
+    {
+      "pid": 159360,
+      "wait_status": 0
+    },
+    {
+      "pid": 159368,
+      "wait_status": 0
+    },
+    {
+      "pid": 159376,
+      "wait_status": 0
+    },
+    {
+      "pid": 159388,
+      "wait_status": 0
+    },
+    {
+      "pid": 159398,
+      "wait_status": 0
+    },
+    {
+      "pid": 159409,
+      "wait_status": 0
+    },
+    {
+      "pid": 159420,
+      "wait_status": 0
+    },
+    {
+      "pid": 159428,
+      "wait_status": 0
+    },
+    {
+      "pid": 159436,
+      "wait_status": 0
+    },
+    {
+      "pid": 159444,
+      "wait_status": 0
+    },
+    {
+      "pid": 172103,
+      "wait_status": 9
+    },
+    {
+      "pid": 172106,
+      "wait_status": 9
+    },
+    {
+      "pid": 172108,
+      "wait_status": 9
+    },
+    {
+      "pid": 172111,
+      "wait_status": 9
+    }
+  ],
+  "leftovers_after_pytest_exit": [],
+  "remaining_after_cleanup": [],
+  "status": "clean"
+}

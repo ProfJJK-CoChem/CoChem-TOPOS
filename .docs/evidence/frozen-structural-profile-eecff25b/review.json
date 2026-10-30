@@ -1,0 +1,199 @@
+{
+  "schema": "cochem.topos.frozen-profile-review/1",
+  "reviewed_at_utc": "2026-10-30T19:04:28.601024+00:00",
+  "tested_revision": "eecff25b13343305a3f05310800503014667e80a",
+  "producer_started_at_utc": "2026-10-19T01:51:36.408623+00:00",
+  "producer_finished_at_utc": "2026-10-19T02:02:00.047532+00:00",
+  "tests": 2893,
+  "passed": 2850,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 43,
+  "pytest_reported_seconds": 620.83,
+  "source_members_verified": 1093,
+  "source_sha256": "e443be04b29cada1673c8d19f48abb519c5a9247e08d7e269562f27705d37af8",
+  "all_current_source_bytes_match_frozen_inventory": true,
+  "before_and_after_files_equal": true,
+  "owned_process_cleanup": "clean",
+  "skipped_cases": [
+    {
+      "case": "tests.v010.test_abcluster::test_genuine_neon_dimer_analytic_lj_limit_resume_and_tamper",
+      "reason": "native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+    },
+    {
+      "case": "tests.v010.test_abcluster::test_genuine_methanol_dimer_preserves_monomers_and_interleaved_atom_ids",
+      "reason": "native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+    },
+    {
+      "case": "tests.v010.test_abcluster::test_cancelled_search_retains_raw_evidence_then_can_retry",
+      "reason": "native ABCluster 3.4 rigidmol executable not explicitly provisioned"
+    },
+    {
+      "case": "tests.v010.test_abcluster_workflow::test_actual_abcluster_scores_are_never_quantum_candidate_energies",
+      "reason": "Actual ABCluster 3.4 and xTB 6.7.1 required"
+    },
+    {
+      "case": "tests.v010.test_abcluster_workflow::test_actual_abcluster_association_keeps_explicit_quantum_monomer_stages",
+      "reason": "Actual ABCluster and xTB required"
+    },
+    {
+      "case": "tests.v010.test_anharmonic::test_authentic_orca_vpt2_water_and_completed_recovery",
+      "reason": "licensed ORCA 6.1.1 must be provisioned explicitly"
+    },
+    {
+      "case": "tests.v010.test_external_matrix_workflow::test_genuine_psi4_public_matrix_request_and_verified_resume",
+      "reason": "Genuine optional Psi4 installation not configured; no simulated SAPT calculation"
+    },
+    {
+      "case": "tests.v010.test_ml::test_actual_aimnet_committee_derivative_and_rigid_invariance",
+      "reason": "Explicit AIMNet interpreter and official checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_actual_native_crest_reads_actual_mace_energy_and_gradient",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_actual_native_sampler_callback_bound_never_claims_completion",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_stock_native_crest_is_rejected_before_model_search",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[missing-manifest]",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[patch-bytes]",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_crest::test_actual_patched_binary_requires_matching_source_provenance[binary-binding]",
+      "reason": "explicit genuine CREST/MACE interpreter and checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_extopt::test_authentic_persistent_mace_extopt_callback_and_unit_conversion",
+      "reason": "explicit genuine ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_training::test_actual_installed_mace_0316_argument_parser_accepts_compiled_protocol",
+      "reason": "The actual pinned MACE parser is not installed"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_actual_committee_campaign_resumes_only_after_complete_evidence",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[True]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_actual_ml_cache_cannot_override_cancellation_or_deadline[False]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[empty-artifacts]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-converged]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-validated]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[not-real]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-receipt]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[missing-native]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[artifact-size]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[escape]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[parent-symlink]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[receipt-hash]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[published-quantity]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-derived]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[forged-frame]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[incomplete-frames]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[culling-claim]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_completed_cache_cannot_accept_damaged_genuine_campaign[gradient-shape]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[derived]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[receipt]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_failure_after_actual_inference_never_persists_completed_attempt[final-commit]",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_hdf5_failure_after_1000_actual_mace_points_is_not_completed",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_commit_acknowledgement_loss_recovers_the_verified_publication",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_ml_workflow::test_actual_surface_publication_and_semantic_hdf5_resume_validation",
+      "reason": "Explicit actual ML interpreter/checkpoint request required"
+    },
+    {
+      "case": "tests.v010.test_native_hessian::test_authentic_orca_native_hessian_and_verified_recovery",
+      "reason": "licensed ORCA execution must be provisioned explicitly"
+    },
+    {
+      "case": "tests.v010.test_reference_thermal::test_actual_licensed_orca_ordinary_thermal_reference_import",
+      "reason": "Licensed ORCA 6.1.1 must be provisioned explicitly for native thermal-reference acceptance"
+    }
+  ],
+  "limits": [
+    "43 checks remain unrun; no skipped check counts as a pass.",
+    "Full source profile uses the development execution backend and does not establish student deployment, hosted acceptance, all Method Matrix calculations, or full SRS conformance.",
+    "The installed-wheel structural receipt remains separate and asserts only actual bounded structural enumeration/conversion, not quantum energy or thermodynamic populations.",
+    "GitHub fetch and publication could not be performed in the resumed environment because supported GitHub credentials are unavailable; this review cannot establish current remote main.",
+    "BASE catalog pin and managed structural process integration remain independent pending gates."
+  ]
+}

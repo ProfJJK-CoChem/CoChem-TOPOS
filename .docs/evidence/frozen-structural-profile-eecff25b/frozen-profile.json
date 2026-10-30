@@ -1,0 +1,214 @@
+{
+  "command": [
+    "/workspace/.topos-compat/env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=/workspace/.topos-compat/frozen-eecff25b/frozen-full-tests.xml"
+  ],
+  "cwd": "/workspace/CoChem-TOPOS",
+  "profile": {
+    "COCHEM_ARTIFACT_DIR": "/workspace/.topos-compat/artifacts",
+    "COCHEM_CONFIG": "/workspace/.topos-compat/artifacts/Registry/cochem_system_config.json",
+    "COCHEM_TORQ_ROOT": "/workspace/CoChem-TORQ",
+    "COCHEM_BASE_ROOT": "/workspace/.topos-compat/base-source",
+    "TOPOS_XTB_EXECUTABLE": "/workspace/.topos-compat/tools/xtb/xtb",
+    "TOPOS_CREST_EXECUTABLE": "/workspace/.topos-compat/tools/crest/crest",
+    "TOPOS_REQUIRE_REAL_ENGINES": "1",
+    "TOPOS_REQUIRE_BASE": "1",
+    "TOPOS_EXECUTION_BACKEND": "development",
+    "COCHEM_HEADLESS": "1",
+    "QT_QPA_PLATFORM": "offscreen",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "XDG_CACHE_HOME": "/workspace/.topos-compat/cache",
+    "MPLCONFIGDIR": "/workspace/.topos-compat/matplotlib"
+  },
+  "returncode": 0,
+  "source_unchanged": true,
+  "expected_head": "eecff25b13343305a3f05310800503014667e80a",
+  "owned_process_boundary": {
+    "linux_subreaper_enabled": true,
+    "reaped_owned_children": [
+      {
+        "pid": 148373,
+        "wait_status": 0
+      },
+      {
+        "pid": 148383,
+        "wait_status": 0
+      },
+      {
+        "pid": 148391,
+        "wait_status": 0
+      },
+      {
+        "pid": 148405,
+        "wait_status": 0
+      },
+      {
+        "pid": 148413,
+        "wait_status": 0
+      },
+      {
+        "pid": 148427,
+        "wait_status": 0
+      },
+      {
+        "pid": 148435,
+        "wait_status": 0
+      },
+      {
+        "pid": 148445,
+        "wait_status": 0
+      },
+      {
+        "pid": 148453,
+        "wait_status": 0
+      },
+      {
+        "pid": 148463,
+        "wait_status": 0
+      },
+      {
+        "pid": 148471,
+        "wait_status": 0
+      },
+      {
+        "pid": 148481,
+        "wait_status": 0
+      },
+      {
+        "pid": 148489,
+        "wait_status": 0
+      },
+      {
+        "pid": 148502,
+        "wait_status": 0
+      },
+      {
+        "pid": 148510,
+        "wait_status": 0
+      },
+      {
+        "pid": 148522,
+        "wait_status": 0
+      },
+      {
+        "pid": 148530,
+        "wait_status": 0
+      },
+      {
+        "pid": 148540,
+        "wait_status": 0
+      },
+      {
+        "pid": 148548,
+        "wait_status": 0
+      },
+      {
+        "pid": 148560,
+        "wait_status": 0
+      },
+      {
+        "pid": 148568,
+        "wait_status": 0
+      },
+      {
+        "pid": 148712,
+        "wait_status": 0
+      },
+      {
+        "pid": 148718,
+        "wait_status": 0
+      },
+      {
+        "pid": 148738,
+        "wait_status": 15
+      },
+      {
+        "pid": 159320,
+        "wait_status": 0
+      },
+      {
+        "pid": 159328,
+        "wait_status": 0
+      },
+      {
+        "pid": 159336,
+        "wait_status": 0
+      },
+      {
+        "pid": 159344,
+        "wait_status": 0
+      },
+      {
+        "pid": 159352,
+        "wait_status": 0
+      },
+      {
+        "pid": 159360,
+        "wait_status": 0
+      },
+      {
+        "pid": 159368,
+        "wait_status": 0
+      },
+      {
+        "pid": 159376,
+        "wait_status": 0
+      },
+      {
+        "pid": 159388,
+        "wait_status": 0
+      },
+      {
+        "pid": 159398,
+        "wait_status": 0
+      },
+      {
+        "pid": 159409,
+        "wait_status": 0
+      },
+      {
+        "pid": 159420,
+        "wait_status": 0
+      },
+      {
+        "pid": 159428,
+        "wait_status": 0
+      },
+      {
+        "pid": 159436,
+        "wait_status": 0
+      },
+      {
+        "pid": 159444,
+        "wait_status": 0
+      },
+      {
+        "pid": 172103,
+        "wait_status": 9
+      },
+      {
+        "pid": 172106,
+        "wait_status": 9
+      },
+      {
+        "pid": 172108,
+        "wait_status": 9
+      },
+      {
+        "pid": 172111,
+        "wait_status": 9
+      }
+    ],
+    "leftovers_after_pytest_exit": [],
+    "remaining_after_cleanup": [],
+    "status": "clean"
+  },
+  "source_sha256_before": "e443be04b29cada1673c8d19f48abb519c5a9247e08d7e269562f27705d37af8",
+  "source_sha256_after": "e443be04b29cada1673c8d19f48abb519c5a9247e08d7e269562f27705d37af8",
+  "started_at": "2026-10-19T01:51:36.408623+00:00",
+  "finished_at": "2026-10-19T02:02:00.047532+00:00"
+}

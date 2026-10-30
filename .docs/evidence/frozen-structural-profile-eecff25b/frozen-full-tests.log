@@ -1,0 +1,63 @@
+.....................................................................sss [  2%]
+.......ss........................s...................................... [  4%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+...s.................................................................... [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+.........................................s.....................ssssss... [ 62%]
+...................s..........................s......................... [ 64%]
+.......sssssssssssssssssssssssss........................................ [ 67%]
+...........................................s............................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+.......................................s................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+.............                                                            [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/v010/test_abcluster.py:74: native ABCluster 3.4 rigidmol executable not explicitly provisioned
+SKIPPED [1] tests/v010/test_abcluster.py:126: native ABCluster 3.4 rigidmol executable not explicitly provisioned
+SKIPPED [1] tests/v010/test_abcluster.py:151: native ABCluster 3.4 rigidmol executable not explicitly provisioned
+SKIPPED [1] tests/v010/test_abcluster_workflow.py:66: Actual ABCluster 3.4 and xTB 6.7.1 required
+SKIPPED [1] tests/v010/test_abcluster_workflow.py:111: Actual ABCluster and xTB required
+SKIPPED [1] tests/v010/test_anharmonic.py:212: licensed ORCA 6.1.1 must be provisioned explicitly
+SKIPPED [1] tests/v010/test_external_matrix_workflow.py:119: Genuine optional Psi4 installation not configured; no simulated SAPT calculation
+SKIPPED [1] tests/v010/test_ml.py:134: Explicit AIMNet interpreter and official checkpoint request required
+SKIPPED [1] tests/v010/test_ml_crest.py:145: explicit genuine CREST/MACE interpreter and checkpoint request required
+SKIPPED [1] tests/v010/test_ml_crest.py:185: explicit genuine CREST/MACE interpreter and checkpoint request required
+SKIPPED [1] tests/v010/test_ml_crest.py:204: explicit genuine CREST/MACE interpreter and checkpoint request required
+SKIPPED [3] tests/v010/test_ml_crest.py:213: explicit genuine CREST/MACE interpreter and checkpoint request required
+SKIPPED [1] tests/v010/test_ml_extopt.py:257: explicit genuine ML interpreter/checkpoint request required
+SKIPPED [1] tests/v010/test_ml_training.py:240: The actual pinned MACE parser is not installed
+SKIPPED [1] tests/v010/test_ml_workflow.py:89: Explicit actual ML interpreter/checkpoint request required
+SKIPPED [2] tests/v010/test_ml_workflow.py:99: Explicit actual ML interpreter/checkpoint request required
+SKIPPED [16] tests/v010/test_ml_workflow.py:117: Explicit actual ML interpreter/checkpoint request required
+SKIPPED [6] tests/v010/test_ml_workflow.py:49: Explicit actual ML interpreter/checkpoint request required
+SKIPPED [1] tests/v010/test_native_hessian.py:84: licensed ORCA execution must be provisioned explicitly
+SKIPPED [1] tests/v010/test_reference_thermal.py:214: Licensed ORCA 6.1.1 must be provisioned explicitly for native thermal-reference acceptance
+2850 passed, 43 skipped in 620.83s (0:10:20)
