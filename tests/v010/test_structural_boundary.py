@@ -50,7 +50,28 @@ def installed_runtime(tmp_path_factory):
     purelib = Path(subprocess.check_output(
         [str(provider), "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"], text=True,
     ).strip())
-    dependency_paths = [str(Path(item).resolve()) for item in sys.path if item and Path(item).is_dir()]
+    source_root_resolved = source_root.resolve()
+    dependency_paths = [
+        str(Path(item).resolve())
+        for item in sys.path
+        if item and Path(item).is_dir() and Path(item).resolve() != source_root_resolved
+    ]
+    for dependency in ("cochem_base",):
+        try:
+            module = __import__(dependency)
+        except ImportError:
+            continue
+        candidate_parents: list[str] = []
+        module_file = getattr(module, "__file__", None)
+        if module_file:
+            candidate_parents.append(str(Path(module_file).resolve().parents[1]))
+        for entry in getattr(module, "__path__", ()):
+            entry_path = Path(entry)
+            if entry_path.is_dir():
+                candidate_parents.append(str(entry_path.resolve().parent))
+        for parent in candidate_parents:
+            if parent not in dependency_paths:
+                dependency_paths.append(parent)
     (purelib / "structural_test_dependencies.pth").write_text("\n".join(dependency_paths) + "\n")
     subprocess.run(
         [sys.executable, "-I", "-m", "pip", "install", "--no-deps", "--no-compile", "--target", str(purelib), str(next(dist.glob("*.whl")))],

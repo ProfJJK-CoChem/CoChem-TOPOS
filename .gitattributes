@@ -8,3 +8,5 @@
 .docs/evidence/TOPOS_ORCA_FOCUSED_37685531027/r2/ORIGINAL_FINAL_STDOUT_FRAME.txt -whitespace
 .docs/evidence/TOPOS_WORKER13_CI_48_20261007/*_ACTUAL_CHECKOUT.txt -whitespace
 .docs/evidence/TOPOS_WORKER13_CI_48_20261007/NATIVE_TEXT/**/*.stdout -whitespace
+# Retained native test fixtures have byte-exact SHA-256 assertions.
+tests/v010/fixtures/** -text

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import itertools
-import os
 import time
 from pathlib import Path
 from threading import Event
@@ -32,6 +31,7 @@ from .storage import (
     digest_json,
     file_digest,
     fsync_directory,
+    fsync_file,
     read_json,
 )
 
@@ -366,8 +366,7 @@ def execute_ml_matrix(workflow, record, store, deadline: float, cancel_event: Ev
                 dataset.attrs["units"] = "hartree/bohr"
                 handle.create_dataset("symbols", data=np.asarray(record.request.molecule.symbols, dtype=h5py.string_dtype()))
                 handle.flush()
-            with shard.open("rb") as stream:
-                os.fsync(stream.fileno())
+            fsync_file(shard)
             fsync_directory(folder)
         receipt = folder / "ml-campaign.json"
         atomic_json(receipt, {"schema_version": "topos-ml-campaign/0.1.0", "campaign_sha256": identity, "derived": derived,
