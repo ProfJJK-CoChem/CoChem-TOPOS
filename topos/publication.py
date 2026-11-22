@@ -33,6 +33,7 @@ from .storage import (
     digest_json,
     file_digest,
     fsync_directory,
+    fsync_file,
     json_bytes,
     read_json,
 )
@@ -504,8 +505,7 @@ def export_bundle(
                 _write_bytes(staging / "methods.md", _methods_text(record, ensemble, references).encode("utf-8"))
                 inventory = []
                 for path in sorted(p for p in staging.rglob("*") if p.is_file()):
-                    with path.open("rb") as handle:
-                        os.fsync(handle.fileno())
+                    fsync_file(path)
                     inventory.append({
                         "path": path.relative_to(staging).as_posix(),
                         "size_bytes": path.stat().st_size, "sha256": file_digest(path),

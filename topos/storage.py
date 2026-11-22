@@ -67,6 +67,17 @@ def fsync_directory(path: Path) -> None:
         os.close(descriptor)
 
 
+def fsync_file(path: Path) -> None:
+    """Flush a regular file to disk across POSIX and Windows.
+
+    Windows `_commit` requires a writable file descriptor (`"r+b"`), whereas
+    POSIX accepts `"rb"` even for read-only files.
+    """
+    mode = "r+b" if os.name == "nt" else "rb"
+    with path.open(mode) as handle:
+        os.fsync(handle.fileno())
+
+
 def atomic_json(path: Path, value: Any) -> None:
     """Write and fsync before publishing within the same filesystem."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -348,8 +359,7 @@ class RunStore:
                             "coordinates_angstrom", data=candidate["molecule"]["coordinates"], dtype="f8"
                         )
                     handle.flush()
-                with payload.open("rb") as handle:
-                    os.fsync(handle.fileno())
+                fsync_file(payload)
                 manifest = {
                     "schema_version": SNAPSHOT_SCHEMA, "run_id": value["run_id"],
                     "snapshot_id": snapshot_id, "record_sha256": record_hash,

@@ -33,6 +33,7 @@ from .storage import (
     digest_json,
     file_digest,
     fsync_directory,
+    fsync_file,
 )
 
 
@@ -205,8 +206,7 @@ def _surface_artifact(folder: Path, state: dict[str, Any], molecule: Molecule,
             handle.create_dataset("point_sha256", data=[p["point_sha256"] for p in points], dtype=string_type)
             handle.create_dataset("symbols", data=molecule.symbols, dtype=string_type)
             handle.flush()
-        with staging.open("rb") as handle:
-            os.fsync(handle.fileno())
+        fsync_file(staging)
         os.replace(staging, target)
         fsync_directory(folder)
     finally:
