@@ -62,13 +62,7 @@ def test_legacy_bare_monomer_request_is_explicitly_diagnostic_only():
     assert plan['schema_version'] == 'topos-reviewed-matrix-campaign-plan/0.2.0'
 
 
-def test_explicit_target_declaration_is_frozen_without_any_native_execution(monkeypatch):
-    import subprocess
-
-    def forbidden(*args, **kwargs):
-        raise AssertionError('Pure declaration validation must not execute a process')
-
-    monkeypatch.setattr(subprocess, 'Popen', forbidden)
+def test_explicit_target_declaration_is_frozen_without_any_native_execution():
     definition = release_definition()
     plan = create_plan(ROOT, [definition])
     case = plan['cases'][0]

@@ -6,7 +6,7 @@ from topos.models import Molecule, RunRecord, RunRequest
 from topos.storage import IntegrityError, RunStore, digest_json
 
 
-def test_new_optional_request_defaults_preserve_old_document_identity(tmp_path, monkeypatch):
+def test_new_optional_request_defaults_preserve_old_document_identity(tmp_path):
     record = RunRecord(request=RunRequest(molecule=Molecule(symbols=["He"], coordinates=[[0, 0, 0]])))
     record.metadata["request_sha256"] = digest_json({k: v for k, v in record.request.model_dump(mode="json").items()
                                                     if k != "dipole_method_error_debye"})
@@ -19,9 +19,11 @@ def test_new_optional_request_defaults_preserve_old_document_identity(tmp_path, 
 
     store = RunStore(tmp_path / record.run_id)
     # Emulate the prior schema writer, not damaged data with mismatched hashes.
-    with monkeypatch.context() as old:
-        old.setattr(storage, "record_dict", older_writer)
+    storage.record_dict = older_writer
+    try:
         before = store.commit(record)
+    finally:
+        storage.record_dict = canonical
     document = store.load()
     assert "dipole_method_error_debye" not in document["request"]
     assert digest_json(document) == before["record_sha256"]

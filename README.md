@@ -6,7 +6,9 @@ CoChem-TORQ form a mandatory installation package.** BASE supplies the audited
 engine registry and process execution authority; TOPOS supplies the scientific
 workflow. TORQ is a separate component whose implementation is still in progress.
 
-The [SRS](.docs/CoChem-TOPOS_SRS.md) defines the requirements, and the
+The [user guide](docs/USER_GUIDE.md) summarizes conformer search, NCI complex
+assembly, `cochem-topos` CLI usage, `Method_Matrix.md`, and downstream
+`CoChem-TORQ` / `CoChem-SPYFY` handoffs. The [SRS](.docs/CoChem-TOPOS_SRS.md) defines the requirements, and the
 [implementation record](.docs/TOPOS_0.1.0_IMPLEMENTATION.md) maps them to code and
 validation. Numerical completion does not establish exhaustive conformer sampling,
 experimental accuracy, or publication readiness.

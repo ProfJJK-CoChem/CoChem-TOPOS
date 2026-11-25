@@ -184,9 +184,16 @@ def test_missing_authentic_binary_never_substitutes_internal_dedup(frame, tmp_pa
     assert result.metadata["execution_kind"] == "not-executed"
 
 
-def test_default_execution_requires_mandatory_base_setup(frame, tmp_path, monkeypatch):
-    monkeypatch.setenv("COCHEM_BASE_ROOT", str(tmp_path / "absent-base-checkout"))
-    result = run_cregen([frame], ResourceLimits(), tmp_path / "run", comparison_protocol="common")
+def test_default_execution_requires_mandatory_base_setup(frame, tmp_path):
+    previous = os.environ.get("COCHEM_BASE_ROOT")
+    os.environ["COCHEM_BASE_ROOT"] = str(tmp_path / "absent-base-checkout")
+    try:
+        result = run_cregen([frame], ResourceLimits(), tmp_path / "run", comparison_protocol="common")
+    finally:
+        if previous is None:
+            os.environ.pop("COCHEM_BASE_ROOT", None)
+        else:
+            os.environ["COCHEM_BASE_ROOT"] = previous
     assert result.status == "unavailable"
     assert "COCHEM_BASE_ROOT" in result.diagnostics["reason"]
     assert result.metadata["execution_kind"] == "not-executed"

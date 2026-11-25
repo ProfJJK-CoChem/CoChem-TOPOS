@@ -1,6 +1,7 @@
 """Setup input/plan contracts. No mocked installation is reported as success."""
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -112,16 +113,27 @@ def test_command_plan_refreshes_dependencies_and_complete_setup(roots, tmp_path)
     assert commands["pip_check"][-2:] == ["pip", "check"]
 
 
-def test_environment_binds_manifest_registry_and_actual_base_xtb_path(roots, tmp_path, monkeypatch):
+def test_environment_binds_manifest_registry_and_actual_base_xtb_path(roots, tmp_path):
     resolved = layout(roots, tmp_path / "runtime")
     xtb = resolved.artifacts / "free-engines" / "xtb" / "xtb-dist" / "bin" / "xtb"
     xtb.parent.mkdir(parents=True)
     xtb.write_text("path fixture; not executed")
     crest = tmp_path / "explicit-crest"
-    monkeypatch.setenv("COCHEM_MANIFEST_PATH", "/stale/manifest.json")
-    monkeypatch.setenv("COCHEM_CONFIG", "/stale/registry.json")
-    monkeypatch.setenv("COCHEM_TORQ_ROOT", "/stale/torq")
-    env = setup.runtime_environment(resolved, crest)
+    overrides = {
+        "COCHEM_MANIFEST_PATH": "/stale/manifest.json",
+        "COCHEM_CONFIG": "/stale/registry.json",
+        "COCHEM_TORQ_ROOT": "/stale/torq",
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    os.environ.update(overrides)
+    try:
+        env = setup.runtime_environment(resolved, crest)
+    finally:
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
     assert env["COCHEM_MANIFEST_PATH"] == str(resolved.manifest)
     assert env["COCHEM_CONFIG"] == str(resolved.artifacts / "Registry" / "cochem_system_config.json")
     assert env["COCHEM_CREST_BIN"] == str(crest)

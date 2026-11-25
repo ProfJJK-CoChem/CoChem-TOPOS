@@ -6,10 +6,10 @@ no lower threshold, alternate functional or invented monomer can produce a pass.
 """
 from __future__ import annotations
 
+import contextlib
 import math
 import time
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 from scipy import constants
@@ -27,6 +27,22 @@ from topos.models import Molecule, ResourceLimits, RunRecord, RunRequest, utc_no
 from topos.science import geometry_digest
 from topos.storage import RunStore, atomic_json, digest_json, file_digest
 from topos.workflow import Workflow, software_provenance
+
+_MISSING = object()
+
+
+@contextlib.contextmanager
+def _scoped_attr(target: object, name: str, replacement: object):
+    """Temporarily wrap an attribute without unittest.mock."""
+    previous = getattr(target, name, _MISSING)
+    setattr(target, name, replacement)
+    try:
+        yield
+    finally:
+        if previous is _MISSING:
+            delattr(target, name)
+        else:
+            setattr(target, name, previous)
 
 
 def isolated_water_protocol() -> CorrelatedMethod:
@@ -245,7 +261,7 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
         correlated_input(monomer, protocol, remaining())
         atomic_json(folder / "isolated-water-request.json", {"molecule": monomer.model_dump(mode="json"),
                     "protocol": protocol.model_dump(mode="json"), "scope": "actual canonical frozen-core CCSD(T)/cc-pVTZ monomer optimization via AUTOCI"})
-        with patch.object(BaseRuntime, "run_process", counted_process), patch.object(BaseRuntime, "run_orca_utility", counted_utility):
+        with _scoped_attr(BaseRuntime, "run_process", counted_process), _scoped_attr(BaseRuntime, "run_orca_utility", counted_utility):
             # Verify the actual utility authority and exact H/O basis names
             # before spending the campaign budget on high-level geometry.
             # These are genuine exports, not substituted basis definitions.
@@ -290,7 +306,7 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
             raise RuntimeError("R2 acceptance lacks successful genuine native process execution")
         original_attempts = [a.model_dump(mode="json") for a in record.attempts]
         output_hash, call_count, utility_count = digest_json(output), len(calls), len(utility_calls)
-        with patch.object(BaseRuntime, "run_process", reject_replay_process), patch.object(BaseRuntime, "run_orca_utility", reject_replay_process):
+        with _scoped_attr(BaseRuntime, "run_process", reject_replay_process), _scoped_attr(BaseRuntime, "run_orca_utility", reject_replay_process):
             resumed = workflow.resume(store.run_dir, invocation_budget_seconds=remaining().budget_seconds)
             if resumed.model_dump(mode="json") != record.model_dump(mode="json"):
                 raise RuntimeError("Public completed-run recovery changed the persisted R2 record")

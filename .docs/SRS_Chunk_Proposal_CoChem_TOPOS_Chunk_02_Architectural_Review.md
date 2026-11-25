@@ -30,7 +30,7 @@
 ## 1. Executive Summary & Forensic Architectural Baseline [GOV] [M]
 
 ### 1.1 Subsystem Role & Architectural Context
-`CoChem-TOPOS` operates as the specialized conformational exploration, topological graph deconstruction, non-covalent intermolecular assembly, and quantum chemical cascade escalation subsystem within the CoChem computational chemistry ecosystem (`D:\__CoChem\GitHub-Repo\CoChem-TOPOS`). Operating alongside `CoChem-BASE` and `CoChem-SpycFit`, its mandate encompasses:
+`CoChem-TOPOS` operates as the specialized conformational exploration, topological graph deconstruction, non-covalent intermolecular assembly, and quantum chemical cascade escalation subsystem within the CoChem computational chemistry ecosystem (`D:\__CoChem\GitHub-Repo\CoChem-TOPOS`). Operating alongside `CoChem-BASE` and `CoChem-SPYFY`, its mandate encompasses:
 1. Automated potential energy surface (PES) exploration across complex molecular landscapes.
 2. Covalent and non-covalent topological graph partitioning.
 3. Rigid-monomer intermolecular docking and non-covalent cluster assembly (dimers, trimers, solvation shells).

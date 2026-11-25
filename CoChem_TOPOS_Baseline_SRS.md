@@ -702,7 +702,7 @@ All routines in CoChem-TOPOS must satisfy the following physical and methodologi
 3. **ABCluster 3.2+:** Rigid-body molecular cluster global optimizer. Native Python/NumPy vectorized implementation with optional subprocess hook to external C++ binary.
 4. **ASE (Atomic Simulation Environment):** Primary in-memory molecular data structure (`ase.Atoms`), geometry optimization driver (BFGS, FIRE, LBFGS), and calculator adapter.
 5. **RDKit:** Chemical informatics toolkit for bond perception, SMILES generation, and 2D/3D structure sanitization.
-6. **Pickett SPCAT / SpycFit:** Rotational spectroscopy simulation binaries consuming `.par` parameter files and producing `.cat` frequency predictions.
+6. **Pickett SPCAT / CoChem-SPYFY:** Rotational spectroscopy simulation binaries consuming `.par` parameter files and producing `.cat` frequency predictions.
 7. **NVIDIA CUDA & MPS:** Hardware acceleration layer for `gpu4pyscf` and PyTorch MLFF models, partitioned into isolated execution slices (33% thread percentage, 6 GB VRAM limit).
 
 ---

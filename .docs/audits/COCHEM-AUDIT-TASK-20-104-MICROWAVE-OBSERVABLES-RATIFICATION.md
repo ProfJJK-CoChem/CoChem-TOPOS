@@ -27,7 +27,7 @@
 | DYNAMIC MENDELEEV MANDATE   : 100% VERIFIED (Zero static mass tables; exact IUPAC isotopic masses dynamically loaded)  |
 | ASYMMETRIC QUARANTINE RUN   : 15/15 PASSED in 15.06s (Isolated Ephemeral Directory, Exit Code: 0)                      |
 | ARCHITECTURAL CONSTRAINTS   : 5/5 FULLY COMPLIANT                                                                      |
-| DUAL-TRACK NUMERICAL PARITY : VERIFIED (< 0.001 MHz residual between Pickett SPCAT and SpycFit Wang Diagonalizer)     |
+| DUAL-TRACK NUMERICAL PARITY : VERIFIED (< 0.001 MHz residual between Pickett SPCAT and CoChem-SPYFY Wang Diagonalizer)     |
 +========================================================================================================================+
 ```
 
@@ -150,7 +150,7 @@ INFO: Loaded 271 amnestied file entries from .anti_spoof_amnesty.json.
 
 ### 5.5 Constraint 5: Pickett SPCAT Synthesis & Dual-Track Numerical Parity
 - **Fixed-Width Pickett Deck Synthesis:** Generates valid Fortran fixed-column `.var`, `.par`, and `.int` files conforming to Pickett SPFIT/SPCAT standards. Employs exact parameter IDs (10000 for $A$, 20000 for $B$, 30000 for $C$, 200 for $-\Delta_J$, 1100 for $-\Delta_{JK}$, 2000 for $-\Delta_K$, 40100 for $-\delta_J$, 41000 for $-\delta_K$), scaled correctly to MHz.
-- **Dual-Track Execution:** Seamlessly executes Track 1 (Pickett SPCAT) and Track 2 (SpycFit / `AsymmetricTopDiagonalizer` in Wang symmetric rotor basis).
+- **Dual-Track Execution:** Seamlessly executes Track 1 (Pickett SPCAT) and Track 2 (CoChem-SPYFY / `AsymmetricTopDiagonalizer` in Wang symmetric rotor basis).
 - **Parity Verification:** Transition frequencies matched by $(J', K_a', K_c') \to (J'', K_a'', K_c'')$ quantum numbers confirm numerical parity with maximum residual $\le 0.001\text{ MHz}$.
 - **Verdict:** **COMPLIANT [PASS]**
 
