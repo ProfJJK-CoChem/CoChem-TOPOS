@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -83,15 +84,26 @@ def test_sidecar_rejects_redirected_installation_receipt(sidecar, tmp_path):
         base_integration._verified_torq_sidecar(path)
 
 
-def test_invalid_configured_sidecar_cannot_fall_back_to_source(sidecar, tmp_path, monkeypatch):
+def test_invalid_configured_sidecar_cannot_fall_back_to_source(sidecar, tmp_path):
     path, _payload, receipt = sidecar
     receipt.write_text('{"changed":true}\n')
     source = tmp_path / "otherwise-discoverable-torq"
     (source / "src/cochem_torq").mkdir(parents=True)
     (source / "pyproject.toml").write_text('[project]\nname="CoChem-TORQ"\n')
-    monkeypatch.setenv("COCHEM_TORQ_ROOT", str(source))
-    monkeypatch.setenv("COCHEM_TORQ_SIDECAR", str(path))
-    status = base_integration.inspect_ecosystem()
+    overrides = {
+        "COCHEM_TORQ_ROOT": str(source),
+        "COCHEM_TORQ_SIDECAR": str(path),
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    os.environ.update(overrides)
+    try:
+        status = base_integration.inspect_ecosystem()
+    finally:
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
     assert not status.available
     assert not status.components["CoChem-TORQ"]["available"]
     assert any("receipt changed" in problem for problem in status.problems)

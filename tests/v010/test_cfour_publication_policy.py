@@ -19,7 +19,7 @@ from topos.storage import IntegrityError, RunStore, file_digest
     ],
 )
 def test_publication_rejects_unqualified_cfour_snapshot_before_any_copy(
-    tmp_path, monkeypatch, name, engine
+    tmp_path, name, engine
 ):
     source = tmp_path / "source"
     source.mkdir()
@@ -45,12 +45,10 @@ def test_publication_rejects_unqualified_cfour_snapshot_before_any_copy(
     store = RunStore(source)
     original = store.commit(record)
     target = tmp_path / "publication"
-    monkeypatch.setattr(
-        "topos.publication.shutil.copytree",
-        lambda *args, **kwargs: pytest.fail("Unqualified scientific bytes must never be copied"),
-    )
+    before_entries = sorted(p.name for p in tmp_path.iterdir())
     with pytest.raises(IntegrityError, match="Licensed CFOUR|explicit scientific-only"):
         export_bundle(source, target)
     assert store.verify() == original
+    assert sorted(p.name for p in tmp_path.iterdir()) == before_entries
     assert not target.exists() and not list(tmp_path.glob(".publication.pending-*"))
     assert not list(tmp_path.rglob("snapshot"))

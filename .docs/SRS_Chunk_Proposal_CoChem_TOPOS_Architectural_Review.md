@@ -30,7 +30,7 @@
 ## 1. Executive Summary & Forensic Architectural Baseline [GOV] [M]
 
 ### 1.1 Subsystem Role & Core Mission
-`CoChem-TOPOS` serves as the high-performance conformational exploration, non-covalent intermolecular assembly, and quantum chemical cascade escalation subsystem within the CoChem computational chemistry ecosystem. Operating in tight coupling with `CoChem-BASE` and `CoChem-SpycFit`, its core mission is the automated exploration of complex potential energy surfaces (PES), the construction of multi-component non-covalent complexes (dimers, trimers, solvated clusters), and the rigorous execution of quantum chemical calculations spanning from semi-empirical tight-binding (`GFN2-xTB`) to complete-basis-set extrapolated coupled-cluster single-point benchmarks (`CCSD(T)/CBS`).
+`CoChem-TOPOS` serves as the high-performance conformational exploration, non-covalent intermolecular assembly, and quantum chemical cascade escalation subsystem within the CoChem computational chemistry ecosystem. Operating in tight coupling with `CoChem-BASE` and `CoChem-SPYFY`, its core mission is the automated exploration of complex potential energy surfaces (PES), the construction of multi-component non-covalent complexes (dimers, trimers, solvated clusters), and the rigorous execution of quantum chemical calculations spanning from semi-empirical tight-binding (`GFN2-xTB`) to complete-basis-set extrapolated coupled-cluster single-point benchmarks (`CCSD(T)/CBS`).
 
 ### 1.2 Remediated Historical Anti-Patterns
 Pursuant to the forensic baseline audit and Council Summit Session 099, this specification formally remediates four historical anti-patterns:

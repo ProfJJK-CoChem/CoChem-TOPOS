@@ -63,11 +63,15 @@ def test_initial_budget_allocation_preserves_request_and_bounds_cancelled_invoca
     assert RunStore(tmp_path / record.run_id).load()["request"] == original
 
 
-def test_expired_initial_allocation_never_reaches_execution_and_keeps_original_budget(tmp_path, monkeypatch):
+def test_expired_initial_allocation_never_reaches_execution_and_keeps_original_budget(tmp_path):
     selected = request()
     original = selected.model_dump(mode="json")
-    monkeypatch.setattr(Workflow, "_execute", lambda *args, **kwargs: pytest.fail("Expired invocation cannot launch"))
-    record = Workflow(tmp_path).run(selected, invocation_budget_seconds=0)
+
+    class _GuardedWorkflow(Workflow):
+        def _execute(self, *args, **kwargs):
+            pytest.fail("Expired invocation cannot launch")
+
+    record = _GuardedWorkflow(tmp_path).run(selected, invocation_budget_seconds=0)
     assert record.status == "timed-out" and not record.attempts and not record.candidates
     assert record.request.model_dump(mode="json") == original
     assert record.metadata["request_sha256"] == digest_json(original)
