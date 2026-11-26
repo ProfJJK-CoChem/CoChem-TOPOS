@@ -79,11 +79,25 @@ def _validate_completed_leg(entry, job, basis, method, folder):
             or not match or abs(float(match[-1].replace("D", "E").replace("d", "e")) - calculation.energy_hartree) > 1e-10):
         raise IntegrityError("Counterpoise energy is inconsistent with the retained converged native output")
     deck = stdout.parent / "job.inp"
+    recovery = calculation.metadata.get("cosx_grid_recovery")
+    used_cosx_tight_grid = (
+        isinstance(recovery, dict)
+        and recovery.get("triggered") is True
+        and recovery.get("intaccx") == "6,6,7"
+    )
+    if used_cosx_tight_grid:
+        initial_stdout = stdout.parent.parent / "engine.stdout"
+        if (stdout.parent.name != "cosx-grid-retry"
+                or str(initial_stdout.resolve()) not in inventory
+                or not re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE",
+                                 initial_stdout.read_text(errors="replace"), re.I)):
+            raise IntegrityError("Counterpoise COSX grid recovery lacks retained initial SCF convergence failure evidence")
     expected = _orca_input(Molecule.model_validate(job["molecule"]), method,
                            ResourceLimits.model_validate(calculation.metadata["resources"]), "energy",
                            ghost_atom_indices=job["ghost_atom_indices"],
                            ghost_electronic_state=tuple(job["ghost_electronic_state"]) if job["ghost_electronic_state"] else None,
-                           basis_files={kind: f"{kind}.bas" for kind in basis})
+                           basis_files={kind: f"{kind}.bas" for kind in basis},
+                           cosx_tight_grid=used_cosx_tight_grid)
     if str(deck.resolve()) not in inventory or deck.read_text() != expected:
         raise IntegrityError("Counterpoise native deck does not match its immutable method, state and basis centers")
     for kind, description in basis.items():

@@ -91,9 +91,12 @@ def observe_scf_numerical_profile(raw: str) -> dict:
     active = transitions[-1][1] if transitions else None
     # When Auto-TRAH enters TRAH-SCF and converges immediately on TRAH Iter 0
     # without taking an orbital step (Orbital Rotation == 0.0), ORCA 6.1.1
-    # leaves E_prev uninitialized at 0.0 and prints Last Energy change = E_trah0.
-    # Require Orbital Rotation == 0.0, sentinel match to E_trah0, pre-TRAH
-    # energy continuity (if pre-TRAH SCF rows exist), and BOTH density criteria.
+    # leaves E_prev uninitialized at 0.0 (printing Last Energy change = E_trah0)
+    # and retains stale pre-TRAH density buffer rows in SCF CONVERGENCE.
+    # Require Orbital Rotation == 0.0, sentinel match to E_trah0, and EITHER
+    # pre-TRAH energy continuity + achieved last pre-TRAH RMS-DP/MAX-DP rows
+    # (when pre-TRAH SCF rows exist) OR achieved summary density rows (when no
+    # pre-TRAH SCF rows exist).
     trah_iter0_uninit = False
     if active == "TRAH-SCF" and trah_headers:
         last_trah_header = trah_headers[-1]
@@ -113,13 +116,35 @@ def observe_scf_numerical_profile(raw: str) -> dict:
                 and abs(ec_row["value"] - e_trah0) <= 1e-2 * max(1.0, abs(e_trah0))
             )
             pre_trah_rows = re.findall(
-                r"(?m)^\s*\d+\s+([-+]\d+\.\d+)(?:\s+" + _FLOAT + r"){2,}\s*$",
+                r"(?m)^[ \t]*(\d+)[ \t]+([-+]\d+\.\d+)[ \t]+("
+                + _FLOAT
+                + r")[ \t]+("
+                + _FLOAT
+                + r")[ \t]+("
+                + _FLOAT
+                + r")(?:[ \t]+"
+                + _FLOAT
+                + r")*[ \t]*\r?$",
                 final_iteration[:last_trah_header.start()],
             )
-            pre_trah_ok = True
             if pre_trah_rows:
-                e_last_pre_trah = float(pre_trah_rows[-1].replace("D", "E").replace("d", "e"))
-                pre_trah_ok = math.isfinite(e_last_pre_trah) and abs(e_trah0 - e_last_pre_trah) <= 1e-6
+                _, e_str, _, rms_dp_str, max_dp_str = pre_trah_rows[-1]
+                e_last_pre_trah = float(e_str.replace("D", "E").replace("d", "e"))
+                rms_dp = float(rms_dp_str.replace("D", "E").replace("d", "e"))
+                max_dp = float(max_dp_str.replace("D", "E").replace("d", "e"))
+                pre_trah_ok = (
+                    math.isfinite(e_last_pre_trah)
+                    and math.isfinite(rms_dp)
+                    and math.isfinite(max_dp)
+                    and abs(e_trah0 - e_last_pre_trah) <= 1e-6
+                    and 0.0 <= rms_dp <= targets["RMS-Density change"]
+                    and 0.0 <= max_dp <= targets["MAX-Density change"]
+                )
+            else:
+                pre_trah_ok = bool(
+                    rows.get("MAX-Density change", {}).get("achieved")
+                    and rows.get("RMS-Density change", {}).get("achieved")
+                )
             if rot_zero and sentinel_match and pre_trah_ok:
                 trah_iter0_uninit = True
     settings_start = raw.rfind("SCF SETTINGS", 0, final.start()) if final else -1
@@ -131,7 +156,7 @@ def observe_scf_numerical_profile(raw: str) -> dict:
                              if final and lean_start >= 0 and settings_start > previous_lean else "")
     if active == "TRAH-SCF":
         if trah_iter0_uninit:
-            required = {"Orbital Gradient", "Orbital Rotation", "MAX-Density change", "RMS-Density change"}
+            required = {"Orbital Gradient", "Orbital Rotation"}
         else:
             required = {"Energy change", "Orbital Gradient", "Orbital Rotation"}
     elif active == "S-O-S-C-F":
@@ -158,8 +183,8 @@ def observe_scf_numerical_profile(raw: str) -> dict:
             "final_native_checks": final_checks, "final_scf_cycles": int(final.group(1)) if final else None,
             "DIIS_residual_mandatory": active == "D-I-I-S",
             "inactive_DIIS_residual_retained": active in {"S-O-S-C-F", "TRAH-SCF"},
-            "density_residuals_mandatory": active != "TRAH-SCF" or trah_iter0_uninit,
-            "inactive_density_residuals_retained": active == "TRAH-SCF" and not trah_iter0_uninit,
+            "density_residuals_mandatory": active != "TRAH-SCF",
+            "inactive_density_residuals_retained": active == "TRAH-SCF",
             "trah_iter0_energy_change_uninitialized": trah_iter0_uninit,
             "failures": failures, "passed": not failures}
 

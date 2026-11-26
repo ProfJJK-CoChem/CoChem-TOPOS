@@ -750,7 +750,8 @@ def _method_problem(method: MethodSpec, resources: ResourceLimits, operation: st
 def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimits, operation: str,
                 *, ghost_atom_indices: list[int] | None = None,
                 ghost_electronic_state: tuple[int, int] | None = None,
-                basis_files: dict[str, str] | None = None) -> str:
+                basis_files: dict[str, str] | None = None,
+                cosx_tight_grid: bool = False) -> str:
     strict_vpt2 = method.profile_id == "orca-vpt2-reference-v1"
     keywords = [ORCA_METHODS[method.method], "ExtremeSCF" if strict_vpt2 else "TightSCF", "DEFGRID3"]
     if method.dispersion == "D4":
@@ -774,8 +775,13 @@ def _orca_input(molecule: Molecule, method: MethodSpec, resources: ResourceLimit
     # ORCA MaxCore is per worker; reserve 25% for unaccounted structures/driver.
     lines = ["! " + " ".join(keywords), f"%pal nprocs {resources.threads} end",
              f"%maxcore {max(16, int(resources.memory_mb * 0.75 / resources.threads))}"]
+    method_lines: list[str] = []
     if strict_vpt2:
-        lines.extend(["%method", "  Z_Tol 1e-14", "end"])
+        method_lines.append("  Z_Tol 1e-14")
+    if cosx_tight_grid and "RIJCOSX" in keywords:
+        method_lines.append("  IntAccX 6,6,7")
+    if method_lines:
+        lines.extend(["%method", *method_lines, "end"])
     if operation == "optimize":
         # ORCA's default step-overachievement shortcut can stop while a
         # required gradient criterion still fails. The documented optimizer
@@ -854,6 +860,38 @@ def _orca_refinement_needed(result: EngineResult) -> bool:
                  or result.diagnostics.get("independent_stationarity", {}).get("passed") is False))
 
 
+_ORCA_SCF_FAILURE_RE = re.compile(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE", re.I)
+
+
+def _orca_cosx_scf_failed(result: EngineResult, method: MethodSpec, cosx_tight_grid: bool) -> bool:
+    """Return True when a default-grid ORCA RIJCOSX run failed SCF convergence."""
+    if (method.engine != "orca" or cosx_tight_grid or result.status != "failed"
+            or result.metadata.get("exchange_approximation") != "RIJCOSX"):
+        return False
+    stdout_path = result.diagnostics.get("process", {}).get("stdout_path")
+    if not stdout_path:
+        return False
+    path = Path(stdout_path)
+    if not path.is_file() or path.is_symlink():
+        return False
+    try:
+        raw = path.read_text(errors="replace")
+    except OSError:
+        return False
+    return bool(_ORCA_SCF_FAILURE_RE.search(raw))
+
+
+def _orca_intermediate_molecule(stage_folder: Path, fallback: Molecule) -> Molecule:
+    """Return parsed intermediate job.xyz when valid with matching symbols, else fallback."""
+    xyz_path = stage_folder / "job.xyz"
+    if xyz_path.is_file() and not xyz_path.is_symlink():
+        try:
+            return read_xyz(xyz_path, fallback)
+        except (EngineParseError, OSError, ValueError):
+            return fallback
+    return fallback
+
+
 def run_engine(
     molecule: Molecule, method: MethodSpec, resources: ResourceLimits, workdir: str | Path,
     operation: Literal["energy", "gradient", "optimize"] = "optimize",
@@ -861,6 +899,7 @@ def run_engine(
     process_runner: Callable[..., Any] | None = None,
     ghost_atom_indices: list[int] | None = None, ghost_electronic_state: tuple[int, int] | None = None,
     orbital_basis_file: str | Path | None = None, auxiliary_basis_file: str | Path | None = None,
+    cosx_tight_grid: bool = False,
 ) -> EngineResult:
     """Run genuine stages within one budget, refining ORCA's early-stop shortcut.
 
@@ -874,15 +913,53 @@ def run_engine(
 
     started = time.monotonic()
     folder = Path(workdir).resolve()
+    used_cosx_tight_grid = cosx_tight_grid
+    cosx_recovery_record: dict[str, Any] | None = None
+    stage_input, stage_directory, stage_resources = molecule, ".", resources
     arguments = dict(operation=operation, cancel_event=cancel_event, executable=executable,
                      process_runner=process_runner, ghost_atom_indices=ghost_atom_indices,
                      ghost_electronic_state=ghost_electronic_state,
-                     orbital_basis_file=orbital_basis_file, auxiliary_basis_file=auxiliary_basis_file)
+                     orbital_basis_file=orbital_basis_file, auxiliary_basis_file=auxiliary_basis_file,
+                     cosx_tight_grid=used_cosx_tight_grid)
     current = _run_engine_once(molecule, method, resources, folder, **arguments)
+    if _orca_cosx_scf_failed(current, method, used_cosx_tight_grid):
+        remaining = resources.budget_seconds - (time.monotonic() - started)
+        cancelled = cancel_event is not None and cancel_event.is_set()
+        if remaining > 0 and not cancelled:
+            retry_molecule = _orca_intermediate_molecule(folder, molecule) if operation == "optimize" else molecule
+            used_cosx_tight_grid = True
+            arguments["cosx_tight_grid"] = True
+            retry_resources = resources.model_copy(update={"budget_seconds": remaining})
+            cosx_recovery_record = {
+                "triggered": True,
+                "intaccx": "6,6,7",
+                "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+            }
+            current = _run_engine_once(retry_molecule, method, retry_resources,
+                                       folder / "cosx-grid-retry", **arguments)
+            current.metadata["cosx_grid_recovery"] = dict(cosx_recovery_record)
+            stage_input, stage_directory, stage_resources = retry_molecule, "cosx-grid-retry", retry_resources
     if not _orca_refinement_needed(current):
+        if stage_directory != ".":
+            if current.metadata.get("final_gradient_verification"):
+                current.metadata["final_gradient_verification"]["directory"] = (
+                    stage_directory + "/" + current.metadata["final_gradient_verification"]["directory"]
+                )
+            if current.metadata.get("dipole_provenance"):
+                current.metadata["dipole_provenance"]["raw_output"] = (
+                    stage_directory + "/" + current.metadata["dipole_provenance"]["raw_output"]
+                )
+            try:
+                current.artifacts = artifact_inventory(folder)
+            except (OSError, EngineParseError) as exc:
+                current.status, current.converged = "failed", False
+                current.diagnostics["artifact_error"] = str(exc)
+            current.elapsed_seconds = time.monotonic() - started
+            if (cancel_event is not None and cancel_event.is_set()) or current.elapsed_seconds >= resources.budget_seconds:
+                current.status, current.converged = "cancelled" if cancel_event is not None and cancel_event.is_set() else "timed-out", False
+                current.diagnostics["reason"] = "COSX grid recovery ended after the original budget or cancellation"
         return current
     stages = []
-    stage_input, stage_directory, stage_resources = molecule, ".", resources
     initial_identity = [current.engine_version, current.metadata.get("executable_sha256")]
     for stage_index in range(ORCA_OPTIMIZATION_MAX_RESTARTS + 1):
         receipt = folder / f"optimization-stage-{stage_index}.json"
@@ -897,7 +974,7 @@ def run_engine(
         stage_gradient = (dict(current.metadata["final_gradient_verification"])
                           if current.metadata.get("final_gradient_verification") else None)
         if stage_gradient is not None and stage_directory != ".":
-            stage_gradient["directory"] = stage_directory + "/final-gradient"
+            stage_gradient["directory"] = stage_directory + "/" + stage_gradient["directory"]
         stages.append({"stage_directory": stage_directory, "input_molecule": stage_input.model_dump(mode="json"),
             "output_molecule": current.molecule.model_dump(mode="json") if current.molecule else None,
             "status": current.status, "converged": current.converged, "command": current.command,
@@ -926,6 +1003,23 @@ def run_engine(
         stage_directory = f"optimization-refinement-{stage_index+1}"
         stage_resources = resources.model_copy(update={"budget_seconds": remaining})
         current = _run_engine_once(stage_input, method, stage_resources, folder / stage_directory, **arguments)
+        if _orca_cosx_scf_failed(current, method, used_cosx_tight_grid):
+            retry_remaining = resources.budget_seconds - (time.monotonic() - started)
+            retry_cancelled = cancel_event is not None and cancel_event.is_set()
+            if retry_remaining > 0 and not retry_cancelled:
+                stage_input = _orca_intermediate_molecule(folder / stage_directory, stage_input)
+                used_cosx_tight_grid = True
+                arguments["cosx_tight_grid"] = True
+                stage_directory = f"{stage_directory}/cosx-grid-retry"
+                stage_resources = resources.model_copy(update={"budget_seconds": retry_remaining})
+                cosx_recovery_record = {
+                    "triggered": True,
+                    "intaccx": "6,6,7",
+                    "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+                }
+                current = _run_engine_once(stage_input, method, stage_resources, folder / stage_directory, **arguments)
+    if cosx_recovery_record is not None:
+        current.metadata["cosx_grid_recovery"] = dict(cosx_recovery_record)
     current.metadata["optimization_refinement"] = {
         "schema": "topos-orca-optimization-refinement/1", "maximum_restarts": ORCA_OPTIMIZATION_MAX_RESTARTS,
         "attempt_root": str(folder), "accepted_stage_directory": stage_directory if current.status == "completed" else None,
@@ -935,9 +1029,13 @@ def run_engine(
         "budget_scope": "one original attempt wall budget including all native stages"}
     if stage_directory != ".":
         if current.metadata.get("final_gradient_verification"):
-            current.metadata["final_gradient_verification"]["directory"] = stage_directory + "/final-gradient"
+            current.metadata["final_gradient_verification"]["directory"] = (
+                stage_directory + "/" + current.metadata["final_gradient_verification"]["directory"]
+            )
         if current.metadata.get("dipole_provenance"):
-            current.metadata["dipole_provenance"]["raw_output"] = stage_directory + "/" + current.metadata["dipole_provenance"]["raw_output"]
+            current.metadata["dipole_provenance"]["raw_output"] = (
+                stage_directory + "/" + current.metadata["dipole_provenance"]["raw_output"]
+            )
     try:
         current.artifacts = artifact_inventory(folder)
     except (OSError, EngineParseError) as exc:
@@ -966,6 +1064,7 @@ def _run_engine_once(
     ghost_electronic_state: tuple[int, int] | None = None,
     orbital_basis_file: str | Path | None = None,
     auxiliary_basis_file: str | Path | None = None,
+    cosx_tight_grid: bool = False,
 ) -> EngineResult:
     """Run an isolated real attempt; failures keep artifacts and optional quantities null."""
     start = time.monotonic()
@@ -1178,7 +1277,8 @@ def _run_engine_once(
                     "manual": "https://www.faccts.de/docs/orca/6.1/manual/contents/structurereactivity/goat.html",
                 }
             (folder / "job.inp").write_text(_orca_input(molecule, method, resources, operation,
-                ghost_atom_indices=ghosts, ghost_electronic_state=ghost_electronic_state, basis_files=basis_files))
+                ghost_atom_indices=ghosts, ghost_electronic_state=ghost_electronic_state,
+                basis_files=basis_files, cosx_tight_grid=cosx_tight_grid))
             command = [str(Path(binary).resolve()), "job.inp"]
             # %pal accounts for total workers; prevent nested OpenMP oversubscription.
             runtime_resources = resources.model_copy(update={"budget_seconds": remaining})
@@ -1275,7 +1375,8 @@ def _run_engine_once(
                         return result
                     final = run_engine(output_molecule, method, resources.model_copy(update={"budget_seconds": remaining}),
                                        folder / "final-gradient", operation="gradient", cancel_event=cancel_event,
-                                       executable=binary, process_runner=execute_process)
+                                       executable=binary, process_runner=execute_process,
+                                       cosx_tight_grid=cosx_tight_grid)
                     result.diagnostics["final_gradient"] = {"status": final.status, "diagnostics": final.diagnostics,
                         "command": final.command, "elapsed_seconds": final.elapsed_seconds}
                     if (final.status != "completed" or final.converged is not True
@@ -1315,21 +1416,28 @@ def _run_engine_once(
                         "passed": stationary,
                         "scope": "independent final EnGrad projected orthogonal to rigid translations and rotations; no Hessian classification"}
                     result.converged = result.converged and stationary
+                    final_grad_dir = (
+                        Path(final.diagnostics["process"]["stdout_path"]).parent
+                        if final.metadata.get("cosx_grid_recovery", {}).get("triggered")
+                        and final.diagnostics.get("process", {}).get("stdout_path")
+                        else folder / "final-gradient"
+                    )
+                    final_grad_rel = final_grad_dir.relative_to(folder).as_posix()
                     result.metadata["final_gradient_verification"] = {
                         "execution_kind": "real", "method": method.model_dump(mode="json"),
-                        "directory": "final-gradient", "energy_hartree": final.energy_hartree,
+                        "directory": final_grad_rel, "energy_hartree": final.energy_hartree,
                         "energy_difference_hartree": final.energy_hartree - energy,
                         "engine": final.engine, "engine_version": final.engine_version,
                         "executable_sha256": final.metadata["executable_sha256"],
                         "command": final.command, "resources": final.metadata["resources"],
                         "input_molecule_sha256": digest_json(output_molecule.model_dump(mode="json")),
                         "native_files_sha256": {
-                            name: hashlib.sha256((folder / "final-gradient" / name).read_bytes()).hexdigest()
+                            name: hashlib.sha256((final_grad_dir / name).read_bytes()).hexdigest()
                             for name in ("job.inp", "engine.stdout", "job.engrad")},
                         "budget_scope": "remaining original attempt wall budget"}
             else:
                 result.converged = True
-        dipole_output = (folder / "final-gradient" / "engine.stdout"
+        dipole_output = (folder / result.metadata["final_gradient_verification"]["directory"] / "engine.stdout"
                          if result.metadata.get("final_gradient_verification") else Path(process.stdout_path))
         dipole = parse_cartesian_dipole(dipole_output.read_text(errors="replace"), method.engine)
         if dipole is not None:

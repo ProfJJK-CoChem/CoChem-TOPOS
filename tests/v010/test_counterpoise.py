@@ -394,3 +394,75 @@ def test_historical_counterpoise_leg_without_invocation_timing_stays_undated():
     legacy = EngineResult(status="unavailable", engine="orca", method="HF", operation="energy")
     assert _leg_execution_timing(legacy) == (None, None)
     assert "execution_timing" not in legacy.metadata
+
+
+def test_counterpoise_leg_validation_accepts_verified_cosx_grid_recovery_and_rejects_unbacked_claim(tmp_path):
+    """_validate_completed_leg accepts authentic cosx-grid-retry decks and fails closed if initial failure is absent."""
+    from topos.counterpoise import _validate_completed_leg
+    from topos.engines import artifact_inventory
+
+    cp_method = method()
+    molecule = hydrogen_pair()
+    plan = counterpoise_plan(molecule, cp_method)
+    job = plan[0]
+    files = basis_files(tmp_path)
+    basis = {
+        "orbital": {"sha256": file_digest(files["orbital_basis_file"])},
+        "auxiliary": {"sha256": file_digest(files["auxiliary_basis_file"])},
+    }
+    binary = tmp_path / "inert-orca"
+    binary.write_text("INERT ORCHESTRATION FIXTURE: never executed", encoding="utf-8")
+
+    leg_root = tmp_path / "cp" / "leg-0-attempt-0"
+    retry_dir = leg_root / "cosx-grid-retry"
+    retry_dir.mkdir(parents=True)
+    initial_stdout = leg_root / "engine.stdout"
+    initial_stdout.write_text("Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\n", encoding="utf-8")
+    for kind, key in (("orbital", "orbital_basis_file"), ("auxiliary", "auxiliary_basis_file")):
+        (retry_dir / f"{kind}.bas").write_bytes(files[key].read_bytes())
+    res = ResourceLimits()
+    (retry_dir / "job.inp").write_text(
+        _orca_input(
+            molecule, cp_method, res, "energy",
+            ghost_atom_indices=[], ghost_electronic_state=None,
+            basis_files={"orbital": "orbital.bas", "auxiliary": "auxiliary.bas"},
+            cosx_tight_grid=True,
+        ),
+        encoding="utf-8",
+    )
+    retry_stdout = retry_dir / "engine.stdout"
+    retry_stdout.write_text(
+        "Program Version 6.1.1\nSCF CONVERGED AFTER 35 CYCLES\n"
+        "FINAL SINGLE POINT ENERGY -1.0000\nORCA TERMINATED NORMALLY\n",
+        encoding="utf-8",
+    )
+    calc = EngineResult(
+        status="completed", converged=True, engine="orca", method=cp_method.method,
+        operation="energy", energy_hartree=-1.0, molecule=molecule,
+        engine_version="6.1.1", command=[str(binary), "job.inp"],
+        metadata={
+            "execution_kind": "real",
+            "executable_sha256": file_digest(binary),
+            "resources": res.model_dump(mode="json"),
+            "external_basis": basis,
+            "cosx_grid_recovery": {
+                "triggered": True,
+                "intaccx": "6,6,7",
+                "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+            },
+        },
+        diagnostics={"process": {"stdout_path": str(retry_stdout)}},
+        artifacts=artifact_inventory(leg_root),
+    )
+    payload = calc.model_dump(mode="json")
+    entry = {"role": job["role"], "result": payload, "result_sha256": digest_json(payload)}
+    validated = _validate_completed_leg(entry, job, basis, cp_method, tmp_path / "cp")
+    assert validated.energy_hartree == -1.0
+
+    # Without an actual initial SCF failure in parent engine.stdout, cosx_grid_recovery MUST fail closed.
+    initial_stdout.write_text("Program Version 6.1.1\nORCA TERMINATED NORMALLY\n", encoding="utf-8")
+    calc_unbacked = calc.model_copy(update={"artifacts": artifact_inventory(leg_root)})
+    payload_unbacked = calc_unbacked.model_dump(mode="json")
+    entry_unbacked = {"role": job["role"], "result": payload_unbacked, "result_sha256": digest_json(payload_unbacked)}
+    with pytest.raises(IntegrityError, match="initial SCF convergence failure"):
+        _validate_completed_leg(entry_unbacked, job, basis, cp_method, tmp_path / "cp")
