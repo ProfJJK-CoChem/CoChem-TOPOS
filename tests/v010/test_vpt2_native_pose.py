@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from topos.anharmonic import (
+    VPT2_GRADIENT_THRESHOLD,
     parse_orca_vpt2_geometry,
     verify_vpt2_native_frame_reference,
     vpt2_native_reference_pose,
@@ -97,9 +98,43 @@ def test_policy_enters_component_identity_and_does_not_enter_method_keywords():
     assert digest_json(native) != digest_json(legacy)
     assert protocol.native_method() == spec
     assert native['reference_validation_policy'] == vpt2_reference_policy()['policy_id']
-    assert vpt2_reference_policy()['gradient_threshold_hartree_per_bohr'] == 1e-4
+    assert VPT2_GRADIENT_THRESHOLD == 2e-5
+    assert vpt2_reference_policy()['gradient_threshold_hartree_per_bohr'] == 2e-5
     assert vpt2_reference_policy()['hessian_atol_hartree_per_bohr2'] == 1e-7
     assert vpt2_reference_policy()['hessian_rtol'] == 1e-6
+
+
+def test_vpt2_gradient_threshold_accepts_within_2e5_and_rejects_above():
+    from topos.models import Molecule
+    from topos.science import harmonic_analysis, project_internal_gradient
+
+    assert VPT2_GRADIENT_THRESHOLD == 2e-5
+    molecule = Molecule(symbols=['O', 'H', 'H'], coordinates=[[0.0, 0.0, 0.0], [0.9572, 0.0, 0.0], [-0.23999, 0.9273, 0.0]])
+    xyz = np.asarray(molecule.coordinates, dtype=float)
+    centered = xyz - xyz.mean(axis=0)
+    rigid_torque = np.cross(np.array([2.5e-5, -1.5e-5, 1.0e-5]), centered)
+
+    raw_internal_dir = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]])
+    unit_internal, _ = project_internal_gradient(molecule, raw_internal_dir)
+    unit_internal = unit_internal / np.max(np.abs(unit_internal))
+
+    # Projected internal gradient <= 2e-5 (with rigid DFT grid torque superimposed) passes
+    within_grad = 1.5e-5 * unit_internal + rigid_torque
+    within_int, _ = project_internal_gradient(molecule, within_grad)
+    assert np.max(np.abs(within_int)) == pytest.approx(1.5e-5, rel=1e-12)
+    accepted = harmonic_analysis(molecule, np.eye(9), gradient_hartree_per_bohr=within_grad,
+                                 gradient_threshold=VPT2_GRADIENT_THRESHOLD)
+    assert accepted['stationary'] is True
+    assert accepted['validity'] == 'harmonic-minimum-within-thresholds'
+
+    # Projected internal gradient > 2e-5 (even well below legacy 1e-4) is strictly rejected
+    above_grad = 2.5e-5 * unit_internal + rigid_torque
+    above_int, _ = project_internal_gradient(molecule, above_grad)
+    assert np.max(np.abs(above_int)) == pytest.approx(2.5e-5, rel=1e-12)
+    rejected = harmonic_analysis(molecule, np.eye(9), gradient_hartree_per_bohr=above_grad,
+                                 gradient_threshold=VPT2_GRADIENT_THRESHOLD)
+    assert rejected['stationary'] is False
+    assert rejected['validity'] == 'nonstationary'
 
 
 def test_legacy_recovery_manifest_cannot_gain_native_pose_validation_silently(tmp_path):

@@ -48,11 +48,12 @@ _FLOAT = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?'
 VPT2_REFERENCE_POLICY_ID = 'orca-vpt2-same-native-pose-reference-v1'
 # ORCA 6.1.1 DEFGRID3+RIJCOSX numerical grids are not rotationally invariant;
 # rotating a tightly converged minimum into ORCA's principal-axis VPT2 pose
-# introduces ~5e-6 to 5e-5 Eh/bohr grid orientation noise on general molecules.
-# Checking rigid-motion-projected internal gradients against 1e-4 Eh/bohr
-# (ORCA TightOpt ceiling) accepts genuine DFT minima across all elements while
-# strictly rejecting nonstationary geometries.
-VPT2_GRADIENT_THRESHOLD = 1e-4
+# introduces ~5e-6 Eh/bohr internal DFT grid orientation noise alongside pure
+# rigid-body torques removed by rigid-motion projection. Checking projected
+# internal gradients against 2e-5 Eh/bohr (2x above TolMaxG 1e-5) accepts
+# genuine DFT minima cleanly above numerical grid noise while strictly rejecting
+# nonstationary geometries.
+VPT2_GRADIENT_THRESHOLD = 2e-5
 
 
 def vpt2_reference_policy() -> dict[str, Any]:

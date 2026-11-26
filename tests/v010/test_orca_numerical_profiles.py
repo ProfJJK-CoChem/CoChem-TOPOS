@@ -252,6 +252,7 @@ def test_trah_scf_converger_accepts_achieved_orbital_criteria_and_rejects_failur
     assert evidence["inactive_DIIS_residual_retained"] is True
     assert evidence["density_residuals_mandatory"] is False
     assert evidence["inactive_density_residuals_retained"] is True
+    assert evidence["trah_iter0_energy_change_uninitialized"] is False
 
     # Active TRAH-SCF criteria (Energy change, Orbital Gradient, Orbital Rotation) must still be strictly enforced.
     for label, bad_value in [
@@ -266,11 +267,104 @@ def test_trah_scf_converger_accepts_achieved_orbital_criteria_and_rejects_failur
         )
         failed = observe_scf_numerical_profile(failed_raw)
         assert failed["passed"] is False
+        assert failed["trah_iter0_energy_change_uninitialized"] is False
         assert f"active final criterion not achieved: {label}" in failed["failures"]
+
+    # Multi-step TRAH with sentinel-like unachieved Energy change and zero rotation must still fail.
+    multistep_bad_ec = re.sub(
+        r"(Last Energy change\s*\.\.\.\s*)\S+",
+        r"\g<1>-2.0102e+02",
+        re.sub(r"(Last Orbital Rotation\s*\.\.\.\s*)\S+", r"\g<1>0.0000e+00", trah_raw),
+    )
+    multistep_bad_ev = observe_scf_numerical_profile(multistep_bad_ec)
+    assert multistep_bad_ev["passed"] is False
+    assert multistep_bad_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in multistep_bad_ev["failures"]
 
     # Without TRAH-SCF (pure SOSCF), stale density residuals must still be rejected.
     bad_soscf = re.sub(r"(Last MAX-Density change\s*\.\.\.\s*)\S+", r"\g<1>6.3142e-01", base)
     bad_soscf_ev = observe_scf_numerical_profile(bad_soscf)
     assert bad_soscf_ev["passed"] is False
     assert bad_soscf_ev["final_active_converger"] == "S-O-S-C-F"
+    assert bad_soscf_ev["trah_iter0_energy_change_uninitialized"] is False
     assert "active final criterion not achieved: MAX-Density change" in bad_soscf_ev["failures"]
+
+
+def test_trah_scf_iter0_uninitialized_energy_change_accepts_strict_density_and_rejects_failures():
+    """TRAH Iter-0 immediate convergence accepts uninitialized Energy change only under strict guards."""
+    base = actual_text("positive-cold.stdout")
+    conv_idx = base.rfind("SCF CONVERGED AFTER")
+    assert conv_idx != -1
+
+    def make_trah_iter0(energy_str: str = "-76.434622047478", tag: str = "(TRAH MAcro)",
+                        energy_change: str = "-7.6435e+01", rotation: str = "0.0000e+00",
+                        strip_pre_trah_rows: bool = False) -> str:
+        prefix = base[:conv_idx]
+        if strip_pre_trah_rows:
+            lean_idx = prefix.rfind("ORCA LEAN-SCF")
+            assert lean_idx != -1
+            prefix = prefix[:lean_idx] + re.sub(
+                r"(?m)^\s*\d+\s+[-+]\d+\.\d+.*$\n?",
+                "",
+                prefix[lean_idx:],
+            )
+        trah_block = (
+            "\n       ******************************************************************************\n"
+            "       ***                               Auto-TRAH                                ***\n"
+            "       ***               Leaving SCF to start the TRAH-SCF procedure              ***\n"
+            "       ******************************************************************************\n"
+            " --------------------------------------------------------------------------------------------\n"
+            "   Iter.        energy            ||Error||_2        Shift      TRadius  Mac/Mic        Rej.\n"
+            " --------------------------------------------------------------------------------------------\n"
+            f"    0       {energy_str}     1.160900e-09                           {tag}\n\n"
+        )
+        raw = prefix + trah_block + base[conv_idx:]
+        raw = re.sub(r"(Last Energy change\s*\.\.\.\s*)\S+", rf"\g<1>{energy_change}", raw)
+        raw = re.sub(r"(Last Orbital Rotation\s*\.\.\.\s*)\S+", rf"\g<1>{rotation}", raw)
+        return raw
+
+    # Authentic TRAH Iter-0 immediate convergence (both TRAH MAcro and NR MAcro, with or without pre-TRAH rows)
+    for tag, strip_rows in [("(TRAH MAcro)", False), ("(NR   MAcro)", False), ("(TRAH MAcro)", True)]:
+        ev = observe_scf_numerical_profile(make_trah_iter0(tag=tag, strip_pre_trah_rows=strip_rows))
+        assert ev["passed"] is True, ev["failures"]
+        assert ev["final_active_converger"] == "TRAH-SCF"
+        assert ev["trah_iter0_energy_change_uninitialized"] is True
+        assert ev["density_residuals_mandatory"] is True
+        assert ev["inactive_density_residuals_retained"] is False
+        assert ev["DIIS_residual_mandatory"] is False
+        assert ev["inactive_DIIS_residual_retained"] is True
+
+    valid_iter0 = make_trah_iter0()
+
+    # Unconverged TRAH Iter-0: bad density change or bad orbital gradient must FAIL
+    for label, bad_value in [
+        ("MAX-Density change", "6.3142e-01"),
+        ("RMS-Density change", "2.5480e-02"),
+        ("Orbital Gradient", "5.0000e-04"),
+    ]:
+        bad_raw = re.sub(rf"(Last {re.escape(label)}\s*\.\.\.\s*)\S+", rf"\g<1>{bad_value}", valid_iter0)
+        bad_ev = observe_scf_numerical_profile(bad_raw)
+        assert bad_ev["passed"] is False
+        assert bad_ev["trah_iter0_energy_change_uninitialized"] is True
+        assert f"active final criterion not achieved: {label}" in bad_ev["failures"]
+
+    # Nonzero Orbital Rotation (even within 1e-5 tolerance) disqualifies Iter-0 uninitialized bypass
+    nonzero_rot = make_trah_iter0(rotation="4.4137e-10")
+    nonzero_rot_ev = observe_scf_numerical_profile(nonzero_rot)
+    assert nonzero_rot_ev["passed"] is False
+    assert nonzero_rot_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in nonzero_rot_ev["failures"]
+
+    # Real non-sentinel Energy change fails sentinel check and fails Energy change criterion
+    real_ec = make_trah_iter0(energy_change="-5.0000e-09")
+    real_ec_ev = observe_scf_numerical_profile(real_ec)
+    assert real_ec_ev["passed"] is False
+    assert real_ec_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in real_ec_ev["failures"]
+
+    # Large energy discontinuity |E_trah0 - E_last_pre_trah| > 1e-6 disqualifies Iter-0 bypass
+    jumped = make_trah_iter0(energy_str="-76.430000000000", energy_change="-7.6430e+01")
+    jumped_ev = observe_scf_numerical_profile(jumped)
+    assert jumped_ev["passed"] is False
+    assert jumped_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in jumped_ev["failures"]
