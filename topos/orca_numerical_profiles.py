@@ -29,7 +29,7 @@ def numerical_profile_receipt(profile_id: str) -> dict | None:
         "unchanged_scf_targets": {"MAX-Density change": 1e-7, "RMS-Density change": 5e-9,
                                   "DIIS Error": 5e-7, "Orbital Gradient": 1e-5,
                                   "Orbital Rotation": 1e-5},
-        "final_scf_policy": "All printed targets must match; all active final criteria must be achieved; DIIS residual is inactive after a native SOSCF switch",
+        "final_scf_policy": "All printed targets must match; all active final criteria must be achieved; DIIS residual is inactive after a native SOSCF switch; DIIS and density-change residuals are inactive after a native TRAH-SCF switch",
         "grid_keyword": "DEFGRID3", "hamiltonian_changed": False,
         "optimizer_targets": {"TolE": 1e-7, "TolMaxG": 1e-5, "TolRMSG": 3e-6,
                               "TolRMSD": 5e-5, "TolMaxD": 1e-4},
@@ -71,8 +71,22 @@ def observe_scf_numerical_profile(raw: str) -> dict:
     lean_start = raw.rfind("ORCA LEAN-SCF", 0, final.start()) if final else -1
     iteration_start = max(previous_end, lean_start)
     final_iteration = raw[iteration_start:final.start()] if final else ""
-    headers = re.findall(r"(?m)^-+(D-I-I-S|S-O-S-C-F)-+\s*$", final_iteration)
-    active = headers[-1] if headers else None
+    transitions: list[tuple[int, str]] = [
+        (match.start(), match.group(1))
+        for match in re.finditer(r"(?m)^-+(D-I-I-S|S-O-S-C-F)-+\s*$", final_iteration)
+    ]
+    # ORCA 6.1.1 Auto-TRAH exits the density-difference DIIS/SOSCF loop into
+    # the second-order TRAH-SCF / Newton-Raphson orbital solver, where Energy
+    # change, Orbital Gradient, and Orbital Rotation are the active criteria
+    # and DIIS/density-change summary rows retain stale pre-TRAH residuals.
+    for match in re.finditer(
+        r"(?m)^\s*Iter\.\s+energy\s+\|\|Error\|\|_2\s+Shift\s+TRadius\s+Mac/Mic\s+Rej\.\s*$",
+        final_iteration,
+    ):
+        if re.search(r"\((?:TRAH|NR)\s+MAcro\)", final_iteration[match.end():]):
+            transitions.append((match.start(), "TRAH-SCF"))
+    transitions.sort(key=lambda item: item[0])
+    active = transitions[-1][1] if transitions else None
     settings_start = raw.rfind("SCF SETTINGS", 0, final.start()) if final else -1
     previous_lean = raw.rfind("ORCA LEAN-SCF", 0, lean_start) if lean_start >= 0 else -1
     # ORCA prints settings before its LEAN-SCF heading, once per solver stage.
@@ -80,14 +94,19 @@ def observe_scf_numerical_profile(raw: str) -> dict:
     final_checks = re.findall(r"(?m)^\s*Convergence Check Mode\s+ConvCheckMode\s+\.{3,4}\s*(.+)$",
                              raw[settings_start:final.start()]
                              if final and lean_start >= 0 and settings_start > previous_lean else "")
-    required = set(targets) - {"DIIS Error"} if active == "S-O-S-C-F" else set(targets)
+    if active == "TRAH-SCF":
+        required = {"Energy change", "Orbital Gradient", "Orbital Rotation"}
+    elif active == "S-O-S-C-F":
+        required = set(targets) - {"DIIS Error"}
+    else:
+        required = set(targets)
     failures = []
     if (not checks or any(check.strip() != "All-Criteria" for check in checks)
             or len(final_checks) != 1 or final_checks[0].strip() != "All-Criteria"):
         failures.append("native ConvCheckMode is not the declared All-Criteria mode")
     if final is None or summary is None or "ORCA LEAN-SCF" in raw[final.end():]:
         failures.append("final native SCF convergence marker and summary are not bound")
-    if active not in {"D-I-I-S", "S-O-S-C-F"}:
+    if active not in {"D-I-I-S", "S-O-S-C-F", "TRAH-SCF"}:
         failures.append("final active native converger is not established")
     for label in targets:
         if label not in rows:
@@ -99,8 +118,10 @@ def observe_scf_numerical_profile(raw: str) -> dict:
     return {"profile_id": MAPPING_V42, "raw_stdout_sha256": hashlib.sha256(raw.encode()).hexdigest(),
             "native_checks": checks, "final_active_converger": active, "final_printed_rows": rows,
             "final_native_checks": final_checks, "final_scf_cycles": int(final.group(1)) if final else None,
-            "DIIS_residual_mandatory": active != "S-O-S-C-F",
-            "inactive_DIIS_residual_retained": active == "S-O-S-C-F",
+            "DIIS_residual_mandatory": active == "D-I-I-S",
+            "inactive_DIIS_residual_retained": active in {"S-O-S-C-F", "TRAH-SCF"},
+            "density_residuals_mandatory": active != "TRAH-SCF",
+            "inactive_density_residuals_retained": active == "TRAH-SCF",
             "failures": failures, "passed": not failures}
 
 

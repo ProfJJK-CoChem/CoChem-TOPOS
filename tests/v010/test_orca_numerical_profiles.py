@@ -210,3 +210,67 @@ def test_multiblock_native_negative_tamper_cannot_borrow_prior_scf_evidence(miss
     # This is an explicit negative parser control; the retained genuine bytes
     # are never changed, executed, or accepted as a native result.
     assert actual_text('positive-optimization.stdout') == raw
+
+
+def test_trah_scf_converger_accepts_achieved_orbital_criteria_and_rejects_failures():
+    """ORCA 6.1.1 Auto-TRAH/TRAH-SCF checks Energy, Orbital Gradient, and Orbital Rotation."""
+    base = actual_text("positive-cold.stdout")
+    trah_block = (
+        "\n       ******************************************************************************\n"
+        "       ***                               Auto-TRAH                                ***\n"
+        "       ***               Leaving SCF to start the TRAH-SCF procedure              ***\n"
+        "       ******************************************************************************\n"
+        " --------------------------------------------------------------------------------------------\n"
+        "   Iter.        energy            ||Error||_2        Shift      TRadius  Mac/Mic        Rej.\n"
+        " --------------------------------------------------------------------------------------------\n"
+        "    0       -200.000000000000     1.200000e-01                     0.400 (TRAH MAcro)   No\n"
+        "    1       -201.015987893435     2.131203e-07                           (NR   MAcro)\n\n"
+    )
+    conv_idx = base.rfind("SCF CONVERGED AFTER")
+    assert conv_idx != -1
+    trah_raw = base[:conv_idx] + trah_block + base[conv_idx:]
+    # Simulate stale pre-TRAH density-change and DIIS residuals in SCF CONVERGENCE summary
+    trah_raw = re.sub(
+        r"(Last MAX-Density change\s*\.\.\.\s*)\S+",
+        r"\g<1>6.3142e-01",
+        trah_raw,
+    )
+    trah_raw = re.sub(
+        r"(Last RMS-Density change\s*\.\.\.\s*)\S+",
+        r"\g<1>2.5480e-02",
+        trah_raw,
+    )
+    trah_raw = re.sub(
+        r"(Last DIIS Error\s*\.\.\.\s*)\S+",
+        r"\g<1>2.1154e-03",
+        trah_raw,
+    )
+    evidence = observe_scf_numerical_profile(trah_raw)
+    assert evidence["passed"] is True, evidence["failures"]
+    assert evidence["final_active_converger"] == "TRAH-SCF"
+    assert evidence["DIIS_residual_mandatory"] is False
+    assert evidence["inactive_DIIS_residual_retained"] is True
+    assert evidence["density_residuals_mandatory"] is False
+    assert evidence["inactive_density_residuals_retained"] is True
+
+    # Active TRAH-SCF criteria (Energy change, Orbital Gradient, Orbital Rotation) must still be strictly enforced.
+    for label, bad_value in [
+        ("Energy change", "5.0000e-09"),
+        ("Orbital Gradient", "5.0000e-04"),
+        ("Orbital Rotation", "5.0000e-04"),
+    ]:
+        failed_raw = re.sub(
+            rf"(Last {re.escape(label)}\s*\.\.\.\s*)\S+",
+            rf"\g<1>{bad_value}",
+            trah_raw,
+        )
+        failed = observe_scf_numerical_profile(failed_raw)
+        assert failed["passed"] is False
+        assert f"active final criterion not achieved: {label}" in failed["failures"]
+
+    # Without TRAH-SCF (pure SOSCF), stale density residuals must still be rejected.
+    bad_soscf = re.sub(r"(Last MAX-Density change\s*\.\.\.\s*)\S+", r"\g<1>6.3142e-01", base)
+    bad_soscf_ev = observe_scf_numerical_profile(bad_soscf)
+    assert bad_soscf_ev["passed"] is False
+    assert bad_soscf_ev["final_active_converger"] == "S-O-S-C-F"
+    assert "active final criterion not achieved: MAX-Density change" in bad_soscf_ev["failures"]

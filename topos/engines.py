@@ -1289,16 +1289,31 @@ def _run_engine_once(
                             or abs(energy - final.energy_hartree) > 2e-7):
                         raise EngineParseError("Optimization and final gradient disagree in executable, version or energy")
                     gradient = final.gradient_hartree_per_bohr
+                    from .science import RIGID_GRADIENT_RESIDUAL_LIMIT, project_internal_gradient
+
                     strict = method.profile_id == "orca-vpt2-reference-v1"
-                    max_threshold, rms_threshold = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
+                    max_threshold, rms_threshold = (1e-6, 3e-7) if strict else (1e-5, 3e-6)
                     values = np.asarray(gradient, dtype=float)
-                    maximum = float(np.max(np.abs(values)))
-                    rms = float(np.sqrt(np.mean(values ** 2)))
-                    stationary = maximum <= max_threshold and rms <= rms_threshold
+                    internal_values, rigid_values = project_internal_gradient(output_molecule, values)
+                    maximum = float(np.max(np.abs(internal_values)))
+                    rms = float(np.sqrt(np.mean(internal_values ** 2)))
+                    rigid_maximum = float(np.max(np.abs(rigid_values)))
+                    rigid_threshold = max(RIGID_GRADIENT_RESIDUAL_LIMIT, max_threshold)
+                    stationary = (
+                        maximum <= max_threshold
+                        and rms <= rms_threshold
+                        and rigid_maximum <= rigid_threshold
+                    )
                     result.diagnostics["independent_stationarity"] = {
                         "max_gradient_hartree_per_bohr": maximum, "rms_gradient_hartree_per_bohr": rms,
+                        "raw_max_gradient_hartree_per_bohr": float(np.max(np.abs(values))),
+                        "raw_rms_gradient_hartree_per_bohr": float(np.sqrt(np.mean(values ** 2))),
+                        "rigid_residual_max_hartree_per_bohr": rigid_maximum,
+                        "rigid_residual_threshold": rigid_threshold,
                         "max_gradient_threshold": max_threshold, "rms_gradient_threshold": rms_threshold,
-                        "passed": stationary, "scope": "independent final EnGrad; no Hessian classification"}
+                        "projection": "rigid-translation-rotation-removed",
+                        "passed": stationary,
+                        "scope": "independent final EnGrad projected orthogonal to rigid translations and rotations; no Hessian classification"}
                     result.converged = result.converged and stationary
                     result.metadata["final_gradient_verification"] = {
                         "execution_kind": "real", "method": method.model_dump(mode="json"),

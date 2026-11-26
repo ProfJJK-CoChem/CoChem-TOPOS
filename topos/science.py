@@ -606,6 +606,37 @@ def counterpoise_interaction(energy_ab_ab: float, energy_a_ab: float, energy_b_a
             "additive_cp_correction_hartree": corrected - raw}
 
 
+RIGID_GRADIENT_RESIDUAL_LIMIT = 5e-4
+
+
+def project_internal_gradient(molecule: Molecule, gradient_hartree_per_bohr: Any) -> tuple[np.ndarray, np.ndarray]:
+    """Decompose a Cartesian gradient into internal and rigid translation/rotation parts.
+
+    Finite DFT/COSX integration grids break rotational invariance of E(R), leaving
+    pure rigid-body torques (~1e-5 to 1e-4 Eh/bohr) even at tightly converged
+    internal minima. Projecting orthogonal to the infinitesimal rigid-motion
+    subspace isolates true internal molecular forces while retaining the rigid
+    residual separately for sanity verification.
+    """
+    n = len(molecule.symbols)
+    validate_derivatives(gradient=gradient_hartree_per_bohr, natoms=n)
+    xyz = np.asarray(molecule.coordinates, dtype=np.float64)
+    xyz = xyz - xyz.mean(axis=0)
+    rigid_columns = []
+    for axis in np.eye(3):
+        rigid_columns.append(np.tile(axis, n))
+        rotation = np.cross(axis, xyz).ravel()
+        if np.linalg.norm(rotation) > 1e-12:
+            rigid_columns.append(rotation)
+    rigid = np.column_stack([v / np.linalg.norm(v) for v in rigid_columns])
+    u, singular, _ = np.linalg.svd(rigid, full_matrices=False)
+    basis_rigid = u[:, singular > 1e-10 * singular[0]]
+    flat = np.asarray(gradient_hartree_per_bohr, dtype=np.float64).ravel()
+    rigid_component = (basis_rigid @ (basis_rigid.T @ flat)).reshape(n, 3)
+    internal_component = flat.reshape(n, 3) - rigid_component
+    return internal_component, rigid_component
+
+
 def harmonic_analysis(molecule: Molecule, hessian_hartree_per_bohr2: Any, *,
                       gradient_hartree_per_bohr: Any = None,
                       gradient_threshold: float = 1e-5,
@@ -648,7 +679,15 @@ def harmonic_analysis(molecule: Molecule, hessian_hartree_per_bohr2: Any, *,
     eigenvalues = np.linalg.eigvalsh(basis.T @ weighted @ basis)
     signed_cm1 = np.sign(eigenvalues) * np.sqrt(np.abs(eigenvalues)) / (2 * np.pi * constants.c * 100)
     unstable = bool(np.any(signed_cm1 < -imaginary_tolerance_cm1))
-    stationary = None if gradient_hartree_per_bohr is None else bool(np.max(np.abs(gradient_hartree_per_bohr)) <= gradient_threshold)
+    if gradient_hartree_per_bohr is None:
+        stationary = None
+    else:
+        internal_grad, rigid_grad = project_internal_gradient(molecule, gradient_hartree_per_bohr)
+        rigid_limit = max(RIGID_GRADIENT_RESIDUAL_LIMIT, gradient_threshold)
+        stationary = bool(
+            np.max(np.abs(internal_grad)) <= gradient_threshold
+            and np.max(np.abs(rigid_grad)) <= rigid_limit
+        )
     if stationary is False:
         validity = "nonstationary"
     elif unstable:

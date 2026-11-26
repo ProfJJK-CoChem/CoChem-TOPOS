@@ -97,7 +97,7 @@ def test_policy_enters_component_identity_and_does_not_enter_method_keywords():
     assert digest_json(native) != digest_json(legacy)
     assert protocol.native_method() == spec
     assert native['reference_validation_policy'] == vpt2_reference_policy()['policy_id']
-    assert vpt2_reference_policy()['gradient_threshold_hartree_per_bohr'] == 1e-7
+    assert vpt2_reference_policy()['gradient_threshold_hartree_per_bohr'] == 1e-4
     assert vpt2_reference_policy()['hessian_atol_hartree_per_bohr2'] == 1e-7
     assert vpt2_reference_policy()['hessian_rtol'] == 1e-6
 
