@@ -6,7 +6,6 @@ no lower threshold, alternate functional or invented monomer can produce a pass.
 """
 from __future__ import annotations
 
-import contextlib
 import math
 import time
 from pathlib import Path
@@ -28,21 +27,43 @@ from topos.science import geometry_digest
 from topos.storage import RunStore, atomic_json, digest_json, file_digest
 from topos.workflow import Workflow, software_provenance
 
-_MISSING = object()
+class _ObservedRuntime:
+    """Delegate unchanged to BASE authority while counting calls and gating replay."""
 
+    def __init__(self, runtime: BaseRuntime, remaining_fn, calls: list[dict], utility_calls: list[dict]):
+        self._runtime = runtime
+        self._remaining = remaining_fn
+        self._calls = calls
+        self._utility_calls = utility_calls
+        self.reject_execution = False
 
-@contextlib.contextmanager
-def _scoped_attr(target: object, name: str, replacement: object):
-    """Temporarily wrap an attribute and restore it on exit."""
-    previous = getattr(target, name, _MISSING)
-    setattr(target, name, replacement)
-    try:
-        yield
-    finally:
-        if previous is _MISSING:
-            delattr(target, name)
-        else:
-            setattr(target, name, previous)
+    def __getattr__(self, name: str):
+        return getattr(self._runtime, name)
+
+    def run_process(self, command, workdir, limits, **kwargs):
+        if self.reject_execution:
+            raise RuntimeError("Verified completed R2 replay attempted a new native process or basis export")
+        bounded = limits.model_copy(update={"budget_seconds": min(limits.budget_seconds, self._remaining().budget_seconds)})
+        process = self._runtime.run_process(command, workdir, bounded, **kwargs)
+        self._calls.append({"command": list(command), "workdir": str(workdir), "resources": bounded.model_dump(mode="json"),
+                            "log_prefix": kwargs.get("log_prefix"), "result": process.to_dict()})
+        return process
+
+    def run_orca_utility(self, arguments, workdir, limits, **kwargs):
+        if self.reject_execution:
+            raise RuntimeError("Verified completed R2 replay attempted a new native process or basis export")
+        bounded = limits.model_copy(update={"budget_seconds": min(limits.budget_seconds, self._remaining().budget_seconds)})
+        result = self._runtime.run_orca_utility(arguments, workdir, bounded, **kwargs)
+        self._utility_calls.append({"command": list(arguments), "workdir": str(workdir), "result": result})
+        return result
+
+    def export_orca_basis(self, basis, elements, workdir, limits, **kwargs):
+        if self.reject_execution:
+            raise RuntimeError("Verified completed R2 replay attempted a new native process or basis export")
+        bounded = limits.model_copy(update={"budget_seconds": min(limits.budget_seconds, self._remaining().budget_seconds)})
+        result = self._runtime.export_orca_basis(basis, elements, workdir, bounded, **kwargs)
+        self._utility_calls.append({"command": ["-b", basis, "-a", *sorted(set(elements))], "workdir": str(workdir), "result": result})
+        return result
 
 
 def isolated_water_protocol() -> CorrelatedMethod:
@@ -226,7 +247,6 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
     progress = {"schema": "topos-r2-native-acceptance-progress/1", "status": "running", "started_at": utc_now(),
         "source": software_provenance(), "helper_sha256": file_digest(Path(__file__)), "stages": []}
     calls, utility_calls = [], []
-    original_process, original_utility = BaseRuntime.run_process, BaseRuntime.run_orca_utility
 
     def remaining():
         seconds = deadline-time.monotonic()
@@ -234,87 +254,73 @@ def r2_composite_case(runtime: BaseRuntime, folder: Path, resources: ResourceLim
             raise TimeoutError("R2 acceptance aggregate deadline exhausted")
         return resources.model_copy(update={"budget_seconds": seconds})
 
-    def counted_process(owner, command, workdir, limits, **kwargs):
-        limits = limits.model_copy(update={"budget_seconds": min(limits.budget_seconds, remaining().budget_seconds)})
-        process = original_process(owner, command, workdir, limits, **kwargs)
-        calls.append({"command": list(command), "workdir": str(workdir), "resources": limits.model_dump(mode="json"),
-                      "log_prefix": kwargs.get("log_prefix"), "result": process.to_dict()})
-        return process
-
-    def counted_utility(owner, command, workdir, limits, **kwargs):
-        limits = limits.model_copy(update={"budget_seconds": min(limits.budget_seconds, remaining().budget_seconds)})
-        result = original_utility(owner, command, workdir, limits, **kwargs)
-        utility_calls.append({"command": list(command), "workdir": str(workdir), "result": result})
-        return result
-
-    def reject_replay_process(*args, **kwargs):
-        raise RuntimeError("Verified completed R2 replay attempted a new native process or basis export")
+    observed = _ObservedRuntime(runtime, remaining, calls, utility_calls)
 
     try:
-        runtime.validate_resources(resources)
-        binary = Path(runtime.resolve_executable("orca"))
+        observed.validate_resources(resources)
+        binary = Path(observed.resolve_executable("orca"))
         binary_hash = file_digest(binary)
-        progress.update(orca_executable_sha256=binary_hash, base=runtime.provenance())
+        progress.update(orca_executable_sha256=binary_hash, base=observed.provenance())
         atomic_json(folder / "progress.json", progress)
         monomer = Molecule(symbols=["O", "H", "H"], coordinates=[[0., 0., 0.], [.97, 0., 0.], [-.25, .94, 0.]])
         protocol = isolated_water_protocol()
         correlated_input(monomer, protocol, remaining())
         atomic_json(folder / "isolated-water-request.json", {"molecule": monomer.model_dump(mode="json"),
                     "protocol": protocol.model_dump(mode="json"), "scope": "actual canonical frozen-core CCSD(T)/cc-pVTZ monomer optimization via AUTOCI"})
-        with _scoped_attr(BaseRuntime, "run_process", counted_process), _scoped_attr(BaseRuntime, "run_orca_utility", counted_utility):
-            # Verify the actual utility authority and exact H/O basis names
-            # before spending the campaign budget on high-level geometry.
-            # These are genuine exports, not substituted basis definitions.
-            basis_preflight = {}
-            for role, basis in counterpoise_protocol().basis_names().items():
-                receipt = runtime.export_orca_basis(basis, sorted(set(monomer.symbols)),
-                    folder / "basis-preflight" / role, remaining().model_copy(update={"threads": 1}))
-                exported = Path(receipt.get("output_path", ""))
-                if (receipt.get("status") != "completed" or receipt.get("orca_version") != "6.1.1"
-                        or receipt.get("orca_sha256") != binary_hash or receipt.get("basis") != basis
-                        or not exported.is_file() or exported.is_symlink()
-                        or file_digest(exported) != receipt.get("output_sha256")):
-                    raise RuntimeError(f"Native R2 basis-export preflight failed for {basis}")
-                basis_preflight[role] = receipt
-            atomic_json(folder / "basis-preflight.json", basis_preflight)
-            progress["stages"].append({"stage": "native-basis-export-preflight", "status": "completed",
-                "receipt_sha256": file_digest(folder / "basis-preflight.json"),
-                "scope": "Actual exact-basis export availability; native calculation compatibility remains checked by each real leg"})
-            atomic_json(folder / "progress.json", progress)
-            high_level = run_correlated(monomer, protocol, remaining(), folder / "isolated-water",
-                                       executable=binary, process_runner=runtime.run_process)
-            atomic_json(folder / "isolated-water-result.json", high_level.model_dump(mode="json"))
-            _verify_native(high_level, folder / "isolated-water", binary_hash)
-            source = ("Actual retained AUTOCI canonical fc-CCSD(T)/cc-pVTZ optimization: "
-                + str(folder / "isolated-water-result.json") + " sha256=" + file_digest(folder / "isolated-water-result.json"))
-            request, transformations = acceptance_request(remaining(), high_level.molecule, source)
-            atomic_json(folder / "monomer-placement.json", {"transformations": transformations,
-                "scope": "two exact native monomer shapes under proper rigid transformations and explicit atom-ID remapping"})
-            progress["stages"].append({"stage": "native-high-level-monomer", "status": "completed",
-                "result_sha256": file_digest(folder / "isolated-water-result.json")})
-            atomic_json(folder / "progress.json", progress)
-            workflow = Workflow(folder / "runs", config=SystemConfig(execution_backend="base", base_registry_path=runtime.registry_path))
-            # Reduce the public request budget by any time spent serializing its
-            # immutable inputs; no fresh budget is granted to the R2 campaign.
-            request.budget_seconds = remaining().budget_seconds
-            atomic_json(folder / "request.json", request.model_dump(mode="json"))
-            record = workflow.run(request)
-            store = RunStore(record.metadata["run_dir"])
-            store.verify()
-            output = _verify_r2(record, binary_hash)
+        # Verify the actual utility authority and exact H/O basis names
+        # before spending the campaign budget on high-level geometry.
+        # These are genuine exports, not substituted basis definitions.
+        basis_preflight = {}
+        for role, basis in counterpoise_protocol().basis_names().items():
+            receipt = observed.export_orca_basis(basis, sorted(set(monomer.symbols)),
+                folder / "basis-preflight" / role, remaining().model_copy(update={"threads": 1}))
+            exported = Path(receipt.get("output_path", ""))
+            if (receipt.get("status") != "completed" or receipt.get("orca_version") != "6.1.1"
+                    or receipt.get("orca_sha256") != binary_hash or receipt.get("basis") != basis
+                    or not exported.is_file() or exported.is_symlink()
+                    or file_digest(exported) != receipt.get("output_sha256")):
+                raise RuntimeError(f"Native R2 basis-export preflight failed for {basis}")
+            basis_preflight[role] = receipt
+        atomic_json(folder / "basis-preflight.json", basis_preflight)
+        progress["stages"].append({"stage": "native-basis-export-preflight", "status": "completed",
+            "receipt_sha256": file_digest(folder / "basis-preflight.json"),
+            "scope": "Actual exact-basis export availability; native calculation compatibility remains checked by each real leg"})
+        atomic_json(folder / "progress.json", progress)
+        high_level = run_correlated(monomer, protocol, remaining(), folder / "isolated-water",
+                                   executable=binary, process_runner=observed.run_process)
+        atomic_json(folder / "isolated-water-result.json", high_level.model_dump(mode="json"))
+        _verify_native(high_level, folder / "isolated-water", binary_hash)
+        source = ("Actual retained AUTOCI canonical fc-CCSD(T)/cc-pVTZ optimization: "
+            + str(folder / "isolated-water-result.json") + " sha256=" + file_digest(folder / "isolated-water-result.json"))
+        request, transformations = acceptance_request(remaining(), high_level.molecule, source)
+        atomic_json(folder / "monomer-placement.json", {"transformations": transformations,
+            "scope": "two exact native monomer shapes under proper rigid transformations and explicit atom-ID remapping"})
+        progress["stages"].append({"stage": "native-high-level-monomer", "status": "completed",
+            "result_sha256": file_digest(folder / "isolated-water-result.json")})
+        atomic_json(folder / "progress.json", progress)
+        workflow = Workflow(folder / "runs", config=SystemConfig(execution_backend="base", base_registry_path=observed.registry_path),
+                            base_runtime=observed)
+        # Reduce the public request budget by any time spent serializing its
+        # immutable inputs; no fresh budget is granted to the R2 campaign.
+        request.budget_seconds = remaining().budget_seconds
+        atomic_json(folder / "request.json", request.model_dump(mode="json"))
+        record = workflow.run(request)
+        store = RunStore(record.metadata["run_dir"])
+        store.verify()
+        output = _verify_r2(record, binary_hash)
         if not calls or any(call["result"]["status"] != "completed" for call in calls):
             raise RuntimeError("R2 acceptance lacks successful genuine native process execution")
         original_attempts = [a.model_dump(mode="json") for a in record.attempts]
         output_hash, call_count, utility_count = digest_json(output), len(calls), len(utility_calls)
-        with _scoped_attr(BaseRuntime, "run_process", reject_replay_process), _scoped_attr(BaseRuntime, "run_orca_utility", reject_replay_process):
-            resumed = workflow.resume(store.run_dir, invocation_budget_seconds=remaining().budget_seconds)
-            if resumed.model_dump(mode="json") != record.model_dump(mode="json"):
-                raise RuntimeError("Public completed-run recovery changed the persisted R2 record")
-            # Re-enter the compiled recipe too, exercising actual child/CP/DFT/
-            # VPT2 cache verification instead of only the completed-run shortcut.
-            recovered = RunRecord.model_validate(store.load())
-            execute_matrix(workflow, recovered, store, deadline, None)
-            replay = _verify_r2(recovered, binary_hash)
+        observed.reject_execution = True
+        resumed = workflow.resume(store.run_dir, invocation_budget_seconds=remaining().budget_seconds)
+        if resumed.model_dump(mode="json") != record.model_dump(mode="json"):
+            raise RuntimeError("Public completed-run recovery changed the persisted R2 record")
+        # Re-enter the compiled recipe too, exercising actual child/CP/DFT/
+        # VPT2 cache verification instead of only the completed-run shortcut.
+        recovered = RunRecord.model_validate(store.load())
+        execute_matrix(workflow, recovered, store, deadline, None)
+        replay = _verify_r2(recovered, binary_hash)
         if (digest_json(replay) != output_hash or [a.model_dump(mode="json") for a in recovered.attempts] != original_attempts
                 or len(calls) != call_count or len(utility_calls) != utility_count):
             raise RuntimeError("Persisted R2 replay changed native components or its result")

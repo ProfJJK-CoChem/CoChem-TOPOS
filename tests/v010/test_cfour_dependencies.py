@@ -170,19 +170,21 @@ def test_each_uncached_native_evaluation_rechecks_parser_before_staging(tmp_path
     basis.write_text("H:PVTZ\nUnexecuted transport marker; no basis coefficients\n")
     _, molecule, selected = inputs("external")
     selected = selected.model_copy(update={"genbas_path": str(basis), "genbas_sha256": file_digest(basis)})
-    calls = []
-    def preflight():
-        calls.append("check")
-        if len(calls) > 1:
-            raise EngineParseError("CFOUR parser dependency changed before evaluation")
-        return dependencies.require_cfour_parsers()
+    actual_version = dependencies.version
+    qcengine_checks = []
+    def changing_version(name):
+        if name == "qcengine":
+            qcengine_checks.append(name)
+            if len(qcengine_checks) > 1:
+                raise PackageNotFoundError("qcengine")
+        return actual_version(name)
     def forbidden(*args, **kwargs):
         pytest.fail("The dependency failed before any native process may launch")
     folder = tmp_path / "attempt"
-    with _scoped_attr(adapter, "require_cfour_parsers", preflight):
+    with _scoped_attr(dependencies, "version", changing_version):
         result = adapter.run_external(molecule, selected, ResourceLimits(), folder, executable=binary, process_runner=forbidden)
-    assert len(calls) == 2
+    assert len(qcengine_checks) == 2
     assert result.status == "unsupported" and result.metadata["execution_kind"] == "not-executed"
     assert result.energy_hartree is None and result.command == []
-    assert "dependency changed before evaluation" in result.diagnostics["reason"]
+    assert "CFOUR parser dependency qcengine==0.51.0 is missing" in result.diagnostics["reason"]
     assert not (folder / "evaluation-00000").exists()

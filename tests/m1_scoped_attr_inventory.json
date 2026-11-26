@@ -1,0 +1,519 @@
+{
+  "schema_version": "cochem-topos-m1-scoped-attr-inventory/1",
+  "decision_ids": [
+    "own-1126-84f4",
+    "swarm-1126-9fc4"
+  ],
+  "blind_set_v_a6_exclusion_note": "Tests using _scoped_attr (and _scoped_attrs) are strictly excluded from Blind Set / V-A6 authentic-engine evidence. Zero scientific engine modules (energy, gradient, frequency, counterpoise, spectroscopy, fitting, orca/cfour/pyscf runners) are substituted.",
+  "outside_tests_count": 0,
+  "scientific_engine_callable_swaps": 0,
+  "total_call_count": 61,
+  "total_definition_count": 16,
+  "total_import_count": 1,
+  "classification_summary": {
+    "CONFIG": 2,
+    "CALLABLE": 59,
+    "scientific_engine_callable_swaps": 0
+  },
+  "plural_scoped_attrs_note": {
+    "outside_tests_count": 0,
+    "tests_definition_count": 4,
+    "tests_call_count": 6,
+    "files": [
+      "tests/v010/test_budget.py",
+      "tests/v010/test_correlated_workflow.py",
+      "tests/v010/test_matrix_ml_training.py",
+      "tests/v010/test_ml_workflow.py"
+    ]
+  },
+  "call_sites": [
+    {
+      "file": "tests/test_external_ingestion.py",
+      "line": 460,
+      "target": "remote_workflow.ActionDispatchClient",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/test_external_ingestion.py",
+      "line": 485,
+      "target": "remote_workflow.ActionDispatchClient",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_anharmonic.py",
+      "line": 80,
+      "target": "engines_mod.available_cpu_count",
+      "classification": "CALLABLE",
+      "boundary_category": "host_resource_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_anharmonic.py",
+      "line": 108,
+      "target": "engines_mod.available_cpu_count",
+      "classification": "CALLABLE",
+      "boundary_category": "host_resource_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_anharmonic.py",
+      "line": 111,
+      "target": "engines_mod.available_cpu_count",
+      "classification": "CALLABLE",
+      "boundary_category": "host_resource_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_anharmonic.py",
+      "line": 347,
+      "target": "anharmonic.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_integration.py",
+      "line": 105,
+      "target": "importlib.metadata.distribution",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_integration.py",
+      "line": 621,
+      "target": "engine_environment.engine_runtime_environment",
+      "classification": "CALLABLE",
+      "boundary_category": "env_config_spy",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 178,
+      "target": "base_provider.utc_now",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 180,
+      "target": "base_provider.utc_now",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 192,
+      "target": "base_provider.utc_now",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 230,
+      "target": "base_provider.utc_now",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 232,
+      "target": "Workflow._execute",
+      "classification": "CALLABLE",
+      "boundary_category": "expired_budget_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_base_provider.py",
+      "line": 269,
+      "target": "base_provider.utc_now",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 98,
+      "target": "dependencies.version",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 101,
+      "target": "dependencies.version",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 108,
+      "target": "dependencies.import_module",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 120,
+      "target": "module.shutil.which",
+      "classification": "CALLABLE",
+      "boundary_category": "path_lookup_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 147,
+      "target": "dependencies.import_module",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_dependencies.py",
+      "line": 184,
+      "target": "dependencies.version",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_native_transport_repair.py",
+      "line": 123,
+      "target": "Path.open",
+      "classification": "CALLABLE",
+      "boundary_category": "filesystem_io_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_native_transport_repair.py",
+      "line": 171,
+      "target": "Path.open",
+      "classification": "CALLABLE",
+      "boundary_category": "filesystem_io_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_runtime_integrity.py",
+      "line": 145,
+      "target": "matrix_components._verified_component",
+      "classification": "CALLABLE",
+      "boundary_category": "ledger_bookkeeping_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_runtime_integrity.py",
+      "line": 169,
+      "target": "matrix_components.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_runtime_integrity.py",
+      "line": 170,
+      "target": "matrix_components._verified_component",
+      "classification": "CALLABLE",
+      "boundary_category": "ledger_bookkeeping_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_runtime_integrity.py",
+      "line": 220,
+      "target": "matrix_components._completed_result",
+      "classification": "CALLABLE",
+      "boundary_category": "ledger_bookkeeping_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_cfour_runtime_integrity.py",
+      "line": 221,
+      "target": "matrix_components._verified_component",
+      "classification": "CALLABLE",
+      "boundary_category": "ledger_bookkeeping_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_completion_io.py",
+      "line": 233,
+      "target": "Path.open",
+      "classification": "CALLABLE",
+      "boundary_category": "filesystem_io_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_completion_io.py",
+      "line": 321,
+      "target": "base_provider.execute_handoff",
+      "classification": "CALLABLE",
+      "boundary_category": "cli_handoff_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_compute_worker.py",
+      "line": 202,
+      "target": "compute_worker.Workflow",
+      "classification": "CALLABLE",
+      "boundary_category": "worker_preflight_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_compute_worker.py",
+      "line": 243,
+      "target": "_GitHubTransport.request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_compute_worker.py",
+      "line": 245,
+      "target": "compute_worker.Workflow",
+      "classification": "CALLABLE",
+      "boundary_category": "worker_preflight_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_compute_worker.py",
+      "line": 318,
+      "target": "method_matrix.resolved_recipe",
+      "classification": "CALLABLE",
+      "boundary_category": "matrix_classifier_error_fixture",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_hosted_worker.py",
+      "line": 310,
+      "target": "worker.verify_evidence",
+      "classification": "CALLABLE",
+      "boundary_category": "worker_finalization_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_interfaces.py",
+      "line": 63,
+      "target": "subprocess.run",
+      "classification": "CALLABLE",
+      "boundary_category": "cli_process_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_interfaces.py",
+      "line": 336,
+      "target": "cli.main",
+      "classification": "CALLABLE",
+      "boundary_category": "cli_launcher_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_native_derivative_stopping.py",
+      "line": 45,
+      "target": "native_hessian.shutil.which",
+      "classification": "CALLABLE",
+      "boundary_category": "path_lookup_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_native_derivative_stopping.py",
+      "line": 87,
+      "target": "native_hessian.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_native_derivative_stopping.py",
+      "line": 112,
+      "target": "anharmonic.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_native_hessian.py",
+      "line": 174,
+      "target": "native_hessian.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_orca_install.py",
+      "line": 143,
+      "target": "installer._catalogue",
+      "classification": "CALLABLE",
+      "boundary_category": "installer_archive_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_orca_install.py",
+      "line": 200,
+      "target": "installer.shutil.disk_usage",
+      "classification": "CALLABLE",
+      "boundary_category": "host_resource_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_orca_install.py",
+      "line": 322,
+      "target": "installer.time.monotonic",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_orca_install.py",
+      "line": 529,
+      "target": "installer._catalogue",
+      "classification": "CALLABLE",
+      "boundary_category": "installer_archive_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_release.py",
+      "line": 477,
+      "target": "module.sys.base_prefix",
+      "classification": "CONFIG",
+      "boundary_category": "path_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_release.py",
+      "line": 477,
+      "target": "module.sys.prefix",
+      "classification": "CONFIG",
+      "boundary_category": "path_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_release.py",
+      "line": 479,
+      "target": "module.importlib.metadata.distribution",
+      "classification": "CALLABLE",
+      "boundary_category": "package_metadata_preflight",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_release.py",
+      "line": 479,
+      "target": "module.subprocess.run",
+      "classification": "CALLABLE",
+      "boundary_category": "cli_process_guard",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_release.py",
+      "line": 627,
+      "target": "matrix.execution_support_report",
+      "classification": "CALLABLE",
+      "boundary_category": "release_gate_report_fixture",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_dispatch.py",
+      "line": 434,
+      "target": "transport.request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_dispatch.py",
+      "line": 467,
+      "target": "client.dispatch_request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_dispatch.py",
+      "line": 467,
+      "target": "remote_workflow.ActionDispatchClient",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_dispatch.py",
+      "line": 494,
+      "target": "urllib.request.build_opener",
+      "classification": "CALLABLE",
+      "boundary_category": "http_redirect_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_dispatch.py",
+      "line": 515,
+      "target": "urllib.request.build_opener",
+      "classification": "CALLABLE",
+      "boundary_category": "http_redirect_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 42,
+      "target": "remote_workflow.ActionDispatchClient",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 50,
+      "target": "client.wait_for_result",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 152,
+      "target": "client.dispatch_request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 203,
+      "target": "RunStore.commit",
+      "classification": "CALLABLE",
+      "boundary_category": "storage_commit_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 264,
+      "target": "transport.request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 287,
+      "target": "transport.request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_remote_recovery.py",
+      "line": 322,
+      "target": "client.dispatch_request",
+      "classification": "CALLABLE",
+      "boundary_category": "hosted_transport_boundary",
+      "scientific_engine_swap": false
+    }
+  ]
+}

@@ -51,31 +51,40 @@ def test_pre_cancelled_call_preserves_existing_files_without_process_or_binary_l
     assert marker.read_bytes() == before
 
 
+class _DeferredCancelEvent(Event):
+    """Trigger cancellation on the Nth is_set() check without patching engine modules."""
+
+    def __init__(self, trigger_on_check: int) -> None:
+        super().__init__()
+        self._trigger_on_check = trigger_on_check
+        self._checks = 0
+
+    def is_set(self) -> bool:
+        self._checks += 1
+        if self._checks >= self._trigger_on_check:
+            self.set()
+        return super().is_set()
+
+
 @pytest.mark.parametrize('stop_kind', ['cancelled', 'timed-out'])
 def test_hessian_stops_after_empty_cache_scan_without_a_native_launch(tmp_path, stop_kind):
     from topos import native_hessian
 
     molecule, method, resources = inputs()
-    cancel = Event()
-    clock = {'value': 0.0}
-    original = native_hessian._read_completed
+    # In run_orca_hessian: check #1 is pre-input, #2 is post-protocol.json, #3 is post-_read_completed.
+    cancel = _DeferredCancelEvent(trigger_on_check=3) if stop_kind == 'cancelled' else Event()
+    clock_ticks = {'count': 0}
 
-    def scan_then_stop(receipt, root):
-        # Read the real empty cache. No completed result or native output is made.
-        actual = original(receipt, root)
-        assert actual is None
-        if stop_kind == 'cancelled':
-            cancel.set()
-        else:
-            clock['value'] = resources.budget_seconds + 1
-        return actual
+    def stepping_monotonic() -> float:
+        clock_ticks['count'] += 1
+        # Call #1 captures started; #2 is pre-input; #3 is post-protocol.json; #4+ is post-_read_completed.
+        if stop_kind == 'timed-out' and clock_ticks['count'] >= 4:
+            return resources.budget_seconds + 1.0
+        return 0.0
 
     # This real file is only a prelaunch identity operand. It never executes,
     # produces ORCA output, or becomes a positive scientific fixture.
-    with (
-        _scoped_attr(native_hessian.time, 'monotonic', lambda: clock['value']),
-        _scoped_attr(native_hessian, '_read_completed', scan_then_stop),
-    ):
+    with _scoped_attr(native_hessian.time, 'monotonic', stepping_monotonic):
         result = run_orca_hessian(molecule, method, resources, tmp_path, executable=sys.executable,
                                   process_runner=forbidden_process, cancel_event=cancel)
     assert result.status == stop_kind and result.converged is False
@@ -89,23 +98,18 @@ def test_vpt2_stops_after_real_deck_preparation_before_reference_execution(tmp_p
     from topos import anharmonic
 
     molecule, method, resources = inputs()
-    cancel = Event()
-    clock = {'value': 0.0}
-    original = anharmonic.orca_vpt2_input
+    # In run_orca_vpt2: check #1 is pre-deck, #2 is inside remaining() before run_orca_hessian.
+    cancel = _DeferredCancelEvent(trigger_on_check=2) if stop_kind == 'cancelled' else Event()
+    clock_ticks = {'count': 0}
 
-    def prepare_then_stop(*args, **kwargs):
-        deck = original(*args, **kwargs)
-        if stop_kind == 'cancelled':
-            cancel.set()
-        else:
-            clock['value'] = resources.budget_seconds + 1
-        return deck
+    def stepping_monotonic() -> float:
+        clock_ticks['count'] += 1
+        # Call #1 captures started; #2 is pre-deck; #3+ is inside remaining() before run_orca_hessian.
+        if stop_kind == 'timed-out' and clock_ticks['count'] >= 3:
+            return resources.budget_seconds + 1.0
+        return 0.0
 
-    with (
-        _scoped_attr(anharmonic.time, 'monotonic', lambda: clock['value']),
-        _scoped_attr(anharmonic, 'orca_vpt2_input', prepare_then_stop),
-        _scoped_attr(anharmonic, 'run_orca_hessian', forbidden_process),
-    ):
+    with _scoped_attr(anharmonic.time, 'monotonic', stepping_monotonic):
         result = run_orca_vpt2(molecule, method, resources, tmp_path, executable='/absent-orca',
                                process_runner=forbidden_process, cancel_event=cancel, semirigid_modes=True)
     assert result.status == stop_kind and result.converged is False

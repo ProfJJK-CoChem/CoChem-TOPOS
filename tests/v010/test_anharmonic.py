@@ -332,25 +332,19 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
         finally:
             completed.write_bytes(original_bytes)
         assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
-    actual_verify = anharmonic.verify_vpt2_native_frame_reference
     for stop_kind in ('cancelled', 'timed-out'):
         cancel = Event()
-        clock = {'value': 0.0}
+        clock_ticks = {'count': 0}
+        if stop_kind == 'cancelled':
+            cancel.set()
 
-        def verify_then_stop(*args, stop_kind=stop_kind, cancel=cancel, clock=clock, **kwargs):
-            association = actual_verify(*args, **kwargs)
-            # Use the real completed cache and actual physical derivatives,
-            # then stop after its final native-pose scientific verification.
-            if stop_kind == 'cancelled':
-                cancel.set()
-            else:
-                clock['value'] = resources.budget_seconds + 1
-            return association
+        def stepping_monotonic(*, stop_kind=stop_kind, clock_ticks=clock_ticks):
+            clock_ticks['count'] += 1
+            if stop_kind == 'timed-out' and clock_ticks['count'] >= 2:
+                return resources.budget_seconds + 1.0
+            return 0.0
 
-        with (
-            _scoped_attr(anharmonic, 'verify_vpt2_native_frame_reference', verify_then_stop),
-            _scoped_attr(anharmonic.time, 'monotonic', lambda clock=clock: clock['value']),
-        ):
+        with _scoped_attr(anharmonic.time, 'monotonic', stepping_monotonic):
             stopped = run_orca_vpt2(optimized.molecule, method(), resources, folder,
                                     executable=binary, semirigid_modes=True,
                                     process_runner=no_new_process, cancel_event=cancel)
