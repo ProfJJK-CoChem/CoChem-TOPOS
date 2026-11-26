@@ -73,7 +73,10 @@ PROHIBITED_SYMBOLS = frozenset(
         "NonCallableMock",
         "mock_open",
         "monkeypatch",
+        "MonkeyPatch",
         "mocker",
+        "MockerFixture",
+        "MockFixture",
         "requests_mock",
     }
 )
@@ -90,6 +93,7 @@ PROHIBITED_EXACT_NAMES = frozenset(
         "COLAB_WORKER_FAKE_GPU_NAME",
         "simulated_temp",
         "dummy_force",
+        "true_heavy_computation",
     }
 )
 
@@ -97,6 +101,10 @@ SCOPED_ATTR_NAMES = frozenset({"_scoped_attr", "_scoped_attrs"})
 NON_TEST_EXPLICIT_TARGETS = ("topos", "src", "scripts", "cochem_topos_web.py")
 
 SIMULATION_MODE_PATTERN = re.compile(r"""\bmode\s*=\s*(['"])simulation\1""")
+FABRICATED_SCF_PATTERN = re.compile(
+    r"Final System Energy Metric|SCF Optimization Complete.*a\.u\.",
+    re.IGNORECASE,
+)
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 MOCKUP_TEXT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -296,6 +304,129 @@ def scan_python_source(source: str, filename: str = "<memory>") -> list[str]:
             f"{filename}:{lineno}: prohibited simulation mode literal '{match.group(0)}'"
         )
 
+    for match in FABRICATED_SCF_PATTERN.finditer(source):
+        lineno = source.count("\n", 0, match.start()) + 1
+        findings.append(
+            f"{filename}:{lineno}: prohibited fabricated SCF marker '{match.group(0)}'"
+        )
+
+    return findings
+
+
+def _strip_ipython_magic_lines(source: str) -> str:
+    """Strip IPython line/shell magics preserving line numbers; skip cell-magic bodies."""
+    lines = source.splitlines(keepends=True)
+    for line in lines:
+        stripped = line.lstrip()
+        if not stripped:
+            continue
+        if stripped.startswith("%%"):
+            return ""
+        break
+    cleaned: list[str] = []
+    for line in lines:
+        stripped = line.lstrip()
+        if stripped.startswith(("%", "!", "?")):
+            cleaned.append("\n" if line.endswith("\n") else "")
+        else:
+            cleaned.append(line)
+    return "".join(cleaned)
+
+
+def _extract_notebook_output_texts(cell: dict) -> list[str]:
+    texts: list[str] = []
+    for output in cell.get("outputs", []) or []:
+        if not isinstance(output, dict):
+            continue
+        raw_text = output.get("text")
+        if isinstance(raw_text, list):
+            texts.append("".join(str(x) for x in raw_text))
+        elif isinstance(raw_text, str):
+            texts.append(raw_text)
+        data = output.get("data")
+        if isinstance(data, dict):
+            plain = data.get("text/plain")
+            if isinstance(plain, list):
+                texts.append("".join(str(x) for x in plain))
+            elif isinstance(plain, str):
+                texts.append(plain)
+    return texts
+
+
+def _iter_tracked_notebooks(repo_root: Path) -> list[Path]:
+    """List tracked .ipynb files via git ls-files, falling back to os.walk for non-git trees."""
+    if (repo_root / ".git").exists():
+        proc = subprocess.run(
+            ["git", "-C", str(repo_root), "ls-files", "-z", "--", "*.ipynb"],
+            capture_output=True,
+            check=False,
+        )
+        if proc.returncode == 0:
+            notebooks: list[Path] = []
+            for entry in proc.stdout.split(b"\x00"):
+                if not entry:
+                    continue
+                rel_str = entry.decode("utf-8", errors="surrogateescape")
+                candidate = repo_root / rel_str
+                if candidate.is_file():
+                    notebooks.append(candidate)
+            return sorted(set(notebooks))
+    discovered: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(repo_root):
+        dirnames[:] = sorted(
+            d
+            for d in dirnames
+            if d not in EXCLUDED_DIRS and not d.endswith(".egg-info")
+        )
+        root_path = Path(dirpath)
+        for filename in sorted(filenames):
+            if filename.endswith(".ipynb"):
+                discovered.append(root_path / filename)
+    return discovered
+
+
+def scan_notebook_source(raw_json: str, filename: str) -> list[str]:
+    """Parse a Jupyter notebook JSON payload and AST/regex-scan every code cell and output."""
+    try:
+        notebook = json.loads(raw_json)
+    except Exception as exc:
+        return [f"{filename}:1: invalid notebook JSON ({exc})"]
+
+    cells = notebook.get("cells")
+    if not isinstance(cells, list):
+        return [f"{filename}:1: notebook missing 'cells' list"]
+
+    findings: list[str] = []
+    for idx, cell in enumerate(cells):
+        if not isinstance(cell, dict) or cell.get("cell_type") != "code":
+            continue
+        raw_src = cell.get("source", [])
+        cell_src = "".join(str(x) for x in raw_src) if isinstance(raw_src, list) else str(raw_src)
+        cell_label = f"{filename}#cell[{idx}]"
+
+        for match in FABRICATED_SCF_PATTERN.finditer(cell_src):
+            lineno = cell_src.count("\n", 0, match.start()) + 1
+            findings.append(
+                f"{cell_label}:{lineno}: prohibited fabricated SCF marker '{match.group(0)}'"
+            )
+        for out_text in _extract_notebook_output_texts(cell):
+            for match in FABRICATED_SCF_PATTERN.finditer(out_text):
+                findings.append(
+                    f"{cell_label}:output: prohibited fabricated SCF output '{match.group(0)}'"
+                )
+
+        cleaned = _strip_ipython_magic_lines(cell_src)
+        if cleaned.strip():
+            findings.extend(scan_python_source(cleaned, filename=cell_label))
+    return sorted(set(findings))
+
+
+def scan_repository_notebooks(repo_root: Path = REPO_ROOT) -> list[str]:
+    """Scan all tracked .ipynb files in repo_root for prohibited mocks and fabricated SCF cells."""
+    findings: list[str] = []
+    for nb_path in _iter_tracked_notebooks(repo_root):
+        rel = nb_path.relative_to(repo_root).as_posix()
+        findings.extend(scan_notebook_source(nb_path.read_text(encoding="utf-8-sig"), filename=rel))
     return findings
 
 
@@ -312,6 +443,23 @@ def _extract_scoped_attr_target(call: ast.Call) -> str:
     else:
         attr = "<unknown>"
     return f"{obj}.{attr}"
+
+
+def _extract_scoped_attrs_target(call: ast.Call) -> str:
+    parts: list[str] = []
+    for arg in call.args:
+        if isinstance(arg, ast.Tuple) and len(arg.elts) >= 2:
+            obj = ast.unparse(arg.elts[0])
+            if isinstance(arg.elts[1], ast.Constant) and isinstance(arg.elts[1].value, str):
+                attr = arg.elts[1].value
+            else:
+                attr = ast.unparse(arg.elts[1])
+            parts.append(f"{obj}.{attr}")
+        elif isinstance(arg, ast.Starred):
+            parts.append(f"*{ast.unparse(arg.value)}")
+        else:
+            parts.append(ast.unparse(arg))
+    return ", ".join(parts) if parts else "<unknown>"
 
 
 def scan_scoped_attr_outside_tests(repo_root: Path) -> list[str]:
@@ -390,8 +538,43 @@ def scan_test_scoped_attr_calls(repo_root: Path) -> list[dict[str, object]]:
     return sites
 
 
+def scan_test_scoped_attrs_calls(repo_root: Path) -> list[dict[str, object]]:
+    """Collect every plural _scoped_attrs call site under tests/ via AST."""
+    tests_root = repo_root / "tests"
+    if not tests_root.is_dir():
+        return []
+    sites: list[dict[str, object]] = []
+    for py_file in sorted(tests_root.rglob("*.py")):
+        rel_parts = py_file.relative_to(repo_root).parts
+        if any(part in EXCLUDED_DIRS for part in rel_parts):
+            continue
+        rel = py_file.relative_to(repo_root).as_posix()
+        if rel == SELF_REL_PATH or py_file.resolve() == SELF_PATH:
+            continue
+        source = py_file.read_text(encoding="utf-8-sig", errors="replace")
+        if "_scoped_attrs" not in source:
+            continue
+        tree = ast.parse(source, filename=rel)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                fn = node.func
+                is_sa = (isinstance(fn, ast.Name) and fn.id == "_scoped_attrs") or (
+                    isinstance(fn, ast.Attribute) and fn.attr == "_scoped_attrs"
+                )
+                if is_sa:
+                    sites.append(
+                        {
+                            "file": rel,
+                            "line": node.lineno,
+                            "target": _extract_scoped_attrs_target(node),
+                        }
+                    )
+    sites.sort(key=lambda item: (str(item["file"]), int(item["line"]), str(item["target"])))
+    return sites
+
+
 def validate_scoped_attr_inventory(repo_root: Path, inventory_path: Path) -> list[str]:
-    """Verify tests/ _scoped_attr calls never exceed or diverge from the frozen M1 inventory."""
+    """Verify tests/ _scoped_attr and plural _scoped_attrs calls match the frozen M1 inventory."""
     findings: list[str] = []
     if not inventory_path.is_file():
         return [f"Missing frozen M1 inventory file: {inventory_path}"]
@@ -462,6 +645,71 @@ def validate_scoped_attr_inventory(repo_root: Path, inventory_path: Path) -> lis
             findings.append(
                 f"{f_rel}: _scoped_attr target '{target}' count ({obs_count}) exceeds frozen cap ({cap})"
             )
+
+    # NB-2: Enforce exact plural _scoped_attrs inventory and cap
+    plural_sites = data.get("plural_call_sites")
+    frozen_plural_total = data.get("plural_call_count")
+    if not isinstance(plural_sites, list):
+        findings.append("m1_scoped_attr_inventory.json: 'plural_call_sites' must be a list")
+    else:
+        if frozen_plural_total != len(plural_sites):
+            findings.append(
+                f"m1_scoped_attr_inventory.json: plural_call_count ({frozen_plural_total}) != len(plural_call_sites) ({len(plural_sites)})"
+            )
+        plural_note = data.get("plural_scoped_attrs_note")
+        if isinstance(plural_note, dict):
+            note_count = plural_note.get("tests_call_count")
+            if note_count != frozen_plural_total:
+                findings.append(
+                    f"m1_scoped_attr_inventory.json: plural_scoped_attrs_note.tests_call_count ({note_count}) != plural_call_count ({frozen_plural_total})"
+                )
+
+        allowed_plural_files: set[str] = set()
+        allowed_plural_exact: set[tuple[str, int, str]] = set()
+        allowed_plural_counts: Counter[tuple[str, str]] = Counter()
+        for entry in plural_sites:
+            if entry.get("scientific_engine_swap") is not False:
+                findings.append(
+                    f"m1_scoped_attr_inventory.json: plural entry {entry!r} must declare scientific_engine_swap=false"
+                )
+            if not entry.get("classification"):
+                findings.append(
+                    f"m1_scoped_attr_inventory.json: plural entry {entry!r} missing classification"
+                )
+            f_rel = str(entry["file"])
+            line = int(entry["line"])
+            target = str(entry["target"])
+            allowed_plural_files.add(f_rel)
+            allowed_plural_exact.add((f_rel, line, target))
+            allowed_plural_counts[(f_rel, target)] += 1
+
+        observed_plural = scan_test_scoped_attrs_calls(repo_root)
+        if isinstance(frozen_plural_total, int) and len(observed_plural) > frozen_plural_total:
+            findings.append(
+                f"tests/ _scoped_attrs call count ({len(observed_plural)}) exceeds frozen M1 plural cap ({frozen_plural_total})"
+            )
+
+        observed_plural_counts: Counter[tuple[str, str]] = Counter()
+        for site in observed_plural:
+            f_rel = str(site["file"])
+            line = int(site["line"])
+            target = str(site["target"])
+            observed_plural_counts[(f_rel, target)] += 1
+            if f_rel not in allowed_plural_files:
+                findings.append(
+                    f"{f_rel}:{line}: new file using _scoped_attrs not in frozen M1 inventory ({target})"
+                )
+            elif (f_rel, line, target) not in allowed_plural_exact:
+                findings.append(
+                    f"{f_rel}:{line}: _scoped_attrs site ({target}) not listed in frozen M1 inventory"
+                )
+
+        for (f_rel, target), obs_count in observed_plural_counts.items():
+            cap = allowed_plural_counts[(f_rel, target)]
+            if obs_count > cap:
+                findings.append(
+                    f"{f_rel}: _scoped_attrs target '{target}' count ({obs_count}) exceeds frozen plural cap ({cap})"
+                )
 
     return findings
 
@@ -639,7 +887,7 @@ def _build_minimal_png(extra_chunks: list[tuple[bytes, bytes]]) -> bytes:
 
 
 def test_zero_mock_and_no_sim_ast_gate() -> None:
-    """Repository must contain zero mock/monkeypatch/fake/simulation patterns."""
+    """Repository must contain zero mock/monkeypatch/fake/simulation patterns across .py and .ipynb."""
     all_violations: list[str] = []
     py_files = _iter_repo_python_files(REPO_ROOT)
     assert py_files, "Expected at least one Python file to scan in repository"
@@ -647,6 +895,7 @@ def test_zero_mock_and_no_sim_ast_gate() -> None:
         rel = py_file.relative_to(REPO_ROOT).as_posix()
         source = py_file.read_text(encoding="utf-8-sig", errors="replace")
         all_violations.extend(scan_python_source(source, filename=rel))
+    all_violations.extend(scan_repository_notebooks(REPO_ROOT))
     assert not all_violations, (
         f"Zero-mock/zero-sim CI gate failed with {len(all_violations)} violation(s):\n"
         + "\n".join(all_violations)
@@ -700,14 +949,25 @@ def test_m1_scoped_attr_gate_catches_seeded_violations(tmp_path: Path) -> None:
                 "outside_tests_count": 0,
                 "scientific_engine_callable_swaps": 0,
                 "total_call_count": 0,
+                "plural_call_count": 0,
                 "blind_set_v_a6_exclusion_note": "Excluded from Blind Set / V-A6.",
                 "call_sites": [],
+                "plural_call_sites": [],
             }
         ),
         encoding="utf-8",
     )
     assert validate_scoped_attr_inventory(tmp_path, inv), (
         "Failed to reject unauthorized test _scoped_attr call site"
+    )
+
+    (tmp_path / "tests" / "test_new.py").write_text(
+        "def test_plural():\n    with _scoped_attrs((obj, 'flag', True)):\n        pass\n",
+        encoding="utf-8",
+    )
+    plural_hits = validate_scoped_attr_inventory(tmp_path, inv)
+    assert any("_scoped_attrs" in hit for hit in plural_hits), (
+        "Failed to reject unauthorized test _scoped_attrs call site"
     )
 
 
@@ -848,3 +1108,80 @@ def test_mockup_leak_firewall_rejects_seeded_png_and_pdf(tmp_path: Path) -> None
     for filename, payload in seeded_cases.items():
         detected = scan_mockup_bytes(payload, filename=filename)
         assert detected, f"Mockup-leak firewall missed seeded artifact '{filename}'"
+
+
+def test_tracked_notebooks_zero_mock_and_no_fabricated_scf() -> None:
+    """Enforce AST zero-mock and zero fabricated SCF checks across all tracked .ipynb notebooks."""
+    findings = scan_repository_notebooks(REPO_ROOT)
+    assert not findings, (
+        "Notebook zero-mock / anti-spoof gate failed:\n" + "\n".join(findings)
+    )
+
+
+def test_seeded_ipynb_fake_scf_and_mock_canaries(tmp_path: Path) -> None:
+    """Seeded .ipynb canary test proving fake-SCF cells and mocked notebook cells are caught."""
+    clean_nb = {
+        "nbformat": 4,
+        "nbformat_minor": 4,
+        "metadata": {},
+        "cells": [
+            {"cell_type": "markdown", "metadata": {}, "source": ["# Clean Notebook\n"]},
+            {
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "outputs": [],
+                "source": ["%matplotlib inline\n", "import math\n", "val = math.sqrt(4.0)\n"],
+            },
+        ],
+    }
+    clean_path = tmp_path / "clean.ipynb"
+    clean_path.write_text(json.dumps(clean_nb), encoding="utf-8")
+    assert scan_repository_notebooks(tmp_path) == []
+
+    fake_scf_nb = {
+        "nbformat": 4,
+        "nbformat_minor": 4,
+        "metadata": {},
+        "cells": [
+            {
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": 1,
+                "outputs": [
+                    {
+                        "name": "stdout",
+                        "output_type": "stream",
+                        "text": ["SCF Optimization Complete. Final System Energy Metric: -0.054944 a.u.\n"],
+                    }
+                ],
+                "source": [
+                    "import math\n",
+                    "def true_heavy_computation():\n",
+                    "    return sum(math.sin(i * i) for i in range(50))\n",
+                    "energy = true_heavy_computation()\n",
+                    "print(f'SCF Optimization Complete. Final System Energy Metric: {energy:.6f} a.u.')\n",
+                ],
+            }
+        ],
+    }
+    scf_hits = scan_notebook_source(json.dumps(fake_scf_nb), filename="fake_scf.ipynb")
+    assert any("true_heavy_computation" in h for h in scf_hits)
+    assert any("fabricated SCF" in h for h in scf_hits)
+
+    mock_nb = {
+        "nbformat": 4,
+        "nbformat_minor": 4,
+        "metadata": {},
+        "cells": [
+            {
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "outputs": [],
+                "source": ["%time\n", "from unittest import mock as m\n", "x = m.MagicMock()\n"],
+            }
+        ],
+    }
+    mock_hits = scan_notebook_source(json.dumps(mock_nb), filename="mock_cell.ipynb")
+    assert mock_hits, "Notebook AST gate failed to catch aliased mock inside code cell"

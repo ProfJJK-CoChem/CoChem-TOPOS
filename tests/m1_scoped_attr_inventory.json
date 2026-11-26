@@ -15,6 +15,7 @@
     "CALLABLE": 59,
     "scientific_engine_callable_swaps": 0
   },
+  "plural_call_count": 6,
   "plural_scoped_attrs_note": {
     "outside_tests_count": 0,
     "tests_definition_count": 4,
@@ -26,6 +27,64 @@
       "tests/v010/test_ml_workflow.py"
     ]
   },
+  "plural_call_sites": [
+    {
+      "file": "tests/v010/test_budget.py",
+      "line": 289,
+      "target": "workflow_module.RunStore, workflow_module.ExecutionBudget",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_and_storage_config",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_budget.py",
+      "line": 362,
+      "target": "module.time, advanced_workflow.time, module.ExecutionBudget, module.run_engine",
+      "classification": "CALLABLE",
+      "boundary_category": "clock_and_timing_spy",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_correlated_workflow.py",
+      "line": 347,
+      "target": "*bindings",
+      "resolved_targets": [
+        "matrix._execute_matrix",
+        "components.atomic_json"
+      ],
+      "classification": "CALLABLE",
+      "boundary_category": "storage_failure_injection_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_matrix_ml_training.py",
+      "line": 168,
+      "target": "ml_crest.validate_crest_ml_distribution, matrix_ml_training._verified_cached, matrix_ml_training._verified_checkpoint, matrix_ml_training.run_mace_finetuning",
+      "classification": "CALLABLE",
+      "boundary_category": "preflight_and_stop_guard_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_ml_workflow.py",
+      "line": 217,
+      "target": "*bindings",
+      "resolved_targets": [
+        "ml_workflow._derived_campaign",
+        "ml_workflow.atomic_json"
+      ],
+      "classification": "CALLABLE",
+      "boundary_category": "post_inference_publication_failure_boundary",
+      "scientific_engine_swap": false
+    },
+    {
+      "file": "tests/v010/test_ml_workflow.py",
+      "line": 240,
+      "target": "ml_workflow.h5py.File",
+      "classification": "CALLABLE",
+      "boundary_category": "hdf5_publication_failure_boundary",
+      "scientific_engine_swap": false
+    }
+  ],
   "call_sites": [
     {
       "file": "tests/test_external_ingestion.py",
