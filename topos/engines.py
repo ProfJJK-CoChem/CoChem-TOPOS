@@ -8,10 +8,15 @@ ORCA 6.1.1 is a conditional adapter requiring a licensed installation.
 from __future__ import annotations
 
 import hashlib
+import importlib.util
+import json
 import math
 import os
 import re
 import shutil
+import signal
+import subprocess
+import sys
 import time
 from pathlib import Path
 from threading import Event
@@ -21,7 +26,7 @@ import numpy as np
 from pydantic import Field
 
 from .models import Artifact, Contract, ExecutionStatus, MethodSpec, Molecule, ResourceLimits
-from .runtime import available_cpu_count, run_process
+from .runtime import ProcessResult, available_cpu_count, run_process
 from .storage import digest_json
 
 _FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
@@ -35,6 +40,438 @@ ORCA_METHODS = {"B3LYP": "B3LYP", "HF-3c": "HF-3c", "r2SCAN-3c": "r2SCAN-3c",
                 "wB97X-V": "wB97X-V", "wB97M-V": "wB97M-V"}
 ORCA_BASES = {"def2-SVP", "def2-TZVP", "def2-TZVPP", "def2-QZVPP", "jun-cc-pVTZ"}
 ORCA_VERSION = "6.1.1"
+DEFAULT_GPU4PYSCF_AUXBASIS = "def2-universal-jkfit"
+GPU4PYSCF_XC_GRID: tuple[int, int] = (99, 590)
+GPU4PYSCF_VV10_NLC_GRID: tuple[int, int] = (50, 194)
+GPU4PYSCF_VV10_FUNCTIONALS = frozenset({"wb97x_v", "wb97m_v"})
+GPU4PYSCF_METHODS: dict[str, str] = {
+    "wb97x-v": "wb97x_v",
+    "wb97x_v": "wb97x_v",
+    "wb97m-v": "wb97m_v",
+    "wb97m_v": "wb97m_v",
+    "b3lyp": "b3lyp",
+    "pbe0": "pbe0",
+    "pbe": "pbe",
+    "r2scan": "r2scan",
+    "m06-2x": "m062x",
+    "m062x": "m062x",
+    "m06_2x": "m062x",
+    "hf": "hf",
+    "rhf": "hf",
+    "uhf": "hf",
+}
+GPU4PYSCF_PROFILES = frozenset({
+    "screening-v1",
+    "gpu4pyscf-fp64-v1",
+    "gpu4pyscf-vv10-v1",
+    "orca-mapping-v4.1",
+    "orca-mapping-v4.2",
+})
+_SAFE_BASIS_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9+*()._/-]{0,79}\Z")
+
+
+def _is_gpu_device(device: str) -> bool:
+    """Return True for explicit CUDA/GPU device selectors ('cuda', 'gpu', 'cuda:<n>')."""
+    return device in {"cuda", "gpu"} or re.fullmatch(r"cuda:\d+", device) is not None
+
+
+def _gpu_device_index(device: str) -> int | None:
+    match = re.fullmatch(r"cuda:(\d+)", device)
+    return int(match.group(1)) if match else None
+
+
+def _normalize_gpu4pyscf_method(method: str) -> str | None:
+    return GPU4PYSCF_METHODS.get(method.strip().lower())
+
+
+def resolve_gpu4pyscf_python(executable: str | Path | None = None) -> Path | None:
+    """Resolve an authentic GPU4PySCF Python interpreter without falling back to CPU.
+
+    Uses ``os.path.abspath`` rather than ``Path.resolve()`` so virtual-environment
+    ``bin/python`` symlinks keep their ``pyvenv.cfg`` site-packages intact.
+    """
+    if executable is not None:
+        candidate = Path(executable).expanduser()
+        if candidate.is_file():
+            return Path(os.path.abspath(candidate))
+        found = shutil.which(str(executable))
+        return Path(os.path.abspath(found)) if found else None
+
+    for env_key in ("TOPOS_GPU4PYSCF_PYTHON", "COCHEM_GPU4PYSCF_PYTHON"):
+        configured = os.environ.get(env_key, "").strip()
+        if configured:
+            candidate = Path(configured).expanduser()
+            if candidate.is_file():
+                return Path(os.path.abspath(candidate))
+            found = shutil.which(configured)
+            if found:
+                return Path(os.path.abspath(found))
+            return None
+
+    wrapper = shutil.which("cochem-gpu4pyscf-python")
+    if wrapper:
+        return Path(os.path.abspath(wrapper))
+
+    home = Path.home()
+    for candidate in (
+        home / "CoChem_Workstation_Direct" / "bin" / "cochem-gpu4pyscf-python",
+        Path("/home/ansac/.venvs/gpu4pyscf/bin/python"),
+        home / ".venvs" / "gpu4pyscf" / "bin" / "python",
+    ):
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return Path(os.path.abspath(candidate))
+
+    if importlib.util.find_spec("gpu4pyscf") is not None and importlib.util.find_spec("cupy") is not None:
+        return Path(os.path.abspath(sys.executable))
+
+    return None
+
+
+def gpu4pyscf_driver_source(
+    molecule: Molecule,
+    *,
+    method: str,
+    basis: str,
+    auxbasis: str = DEFAULT_GPU4PYSCF_AUXBASIS,
+    operation: Literal["energy", "gradient", "optimize"] = "energy",
+    conv_tol: float = 1e-10,
+    max_cycle: int = 200,
+    max_opt_iter: int = 200,
+    grad_max_tol: float = 1e-5,
+    grad_rms_tol: float = 3e-6,
+    expected_version: str | None = None,
+) -> str:
+    """Generate a fixed FP64 GPU4PySCF driver script (caller data is JSON-serialized)."""
+    xc = _normalize_gpu4pyscf_method(method)
+    if xc is None:
+        raise ValueError(f"Unsupported GPU4PySCF method: {method!r}")
+    if not _SAFE_BASIS_RE.fullmatch(basis):
+        raise ValueError(f"Invalid GPU4PySCF orbital basis name: {basis!r}")
+    if not _SAFE_BASIS_RE.fullmatch(auxbasis):
+        raise ValueError(f"Invalid GPU4PySCF auxiliary basis name: {auxbasis!r}")
+    if operation not in {"energy", "gradient", "optimize"}:
+        raise ValueError(f"Unsupported GPU4PySCF operation: {operation!r}")
+
+    payload = {
+        "symbols": list(molecule.symbols),
+        "coordinates": [[float(v) for v in row] for row in molecule.coordinates],
+        "charge": int(molecule.charge),
+        "multiplicity": int(molecule.multiplicity),
+        "method": method,
+        "xc": xc,
+        "basis": basis,
+        "auxbasis": auxbasis,
+        "operation": operation,
+        "conv_tol": float(conv_tol),
+        "max_cycle": int(max_cycle),
+        "max_opt_iter": int(max_opt_iter),
+        "grad_max_tol": float(grad_max_tol),
+        "grad_rms_tol": float(grad_rms_tol),
+        "xc_grid": list(GPU4PYSCF_XC_GRID),
+        "nlc_grid": list(GPU4PYSCF_VV10_NLC_GRID) if xc in GPU4PYSCF_VV10_FUNCTIONALS else None,
+        "expected_version": expected_version,
+    }
+    return (
+        "import hashlib\n"
+        "import json\n"
+        "import math\n"
+        "import os\n"
+        "import sys\n"
+        "from pathlib import Path\n"
+        "\n"
+        f"CONFIG = json.loads({json.dumps(payload, allow_nan=False)!r})\n"
+        "BOHR_ANGSTROM = 0.529177210903\n"
+        "\n"
+        "try:\n"
+        "    import numpy as np\n"
+        "    import cupy\n"
+        "    import pyscf\n"
+        "    import gpu4pyscf\n"
+        "    from pyscf import gto\n"
+        "    from gpu4pyscf import dft as gpu_dft\n"
+        "    from gpu4pyscf import scf as gpu_scf\n"
+        "except Exception as exc:\n"
+        "    sys.stderr.write(f'GPU4PYSCF_UNAVAILABLE: {exc}\\n')\n"
+        "    raise SystemExit(2)\n"
+        "\n"
+        "try:\n"
+        "    dev_count = int(cupy.cuda.runtime.getDeviceCount())\n"
+        "    if dev_count < 1:\n"
+        "        raise RuntimeError('Zero CUDA devices visible')\n"
+        "    dev_idx = int(cupy.cuda.runtime.getDevice())\n"
+        "    props = cupy.cuda.runtime.getDeviceProperties(dev_idx)\n"
+        "    raw_name = props['name']\n"
+        "    gpu_name = raw_name.decode('utf-8', errors='replace') if isinstance(raw_name, bytes) else str(raw_name)\n"
+        "    total_mem_mb = int(props['totalGlobalMem']) // (1024 * 1024)\n"
+        "    cc_major = int(props['major'])\n"
+        "    cc_minor = int(props['minor'])\n"
+        "    cuda_rt = int(cupy.cuda.runtime.runtimeGetVersion())\n"
+        "    cuda_ver = f'{cuda_rt // 1000}.{(cuda_rt % 1000) // 10}'\n"
+        "except Exception as exc:\n"
+        "    sys.stderr.write(f'CUDA_UNAVAILABLE: {exc}; CPU fallback is strictly disabled\\n')\n"
+        "    raise SystemExit(3)\n"
+        "\n"
+        "if CONFIG['expected_version'] is not None and gpu4pyscf.__version__ != CONFIG['expected_version']:\n"
+        "    sys.stderr.write(f\"GPU4PYSCF_VERSION_MISMATCH: expected {CONFIG['expected_version']}, found {gpu4pyscf.__version__}\\n\")\n"
+        "    raise SystemExit(4)\n"
+        "\n"
+        "gpu_banner = (\n"
+        "    f\"GPU4PySCF {gpu4pyscf.__version__} / PySCF {pyscf.__version__} / \"\n"
+        "    f\"CuPy {cupy.__version__} / CUDA {cuda_ver} on {gpu_name} \"\n"
+        "    f\"({total_mem_mb} MiB, CC {cc_major}.{cc_minor})\"\n"
+        ")\n"
+        "print(gpu_banner, flush=True)\n"
+        "\n"
+        "def build_mf(coords_angstrom):\n"
+        "    atoms = [(sym, tuple(float(v) for v in xyz)) for sym, xyz in zip(CONFIG['symbols'], coords_angstrom, strict=True)]\n"
+        "    mol = gto.M(\n"
+        "        atom=atoms,\n"
+        "        basis=CONFIG['basis'],\n"
+        "        charge=CONFIG['charge'],\n"
+        "        spin=CONFIG['multiplicity'] - 1,\n"
+        "        unit='Angstrom',\n"
+        "        verbose=4,\n"
+        "    )\n"
+        "    xc = CONFIG['xc']\n"
+        "    if xc == 'hf':\n"
+        "        mf = gpu_scf.RHF(mol) if CONFIG['multiplicity'] == 1 else gpu_scf.UHF(mol)\n"
+        "    else:\n"
+        "        mf = gpu_dft.RKS(mol, xc=xc) if CONFIG['multiplicity'] == 1 else gpu_dft.UKS(mol, xc=xc)\n"
+        "    mf = mf.density_fit(auxbasis=CONFIG['auxbasis'])\n"
+        "    mf.conv_tol = float(CONFIG['conv_tol'])\n"
+        "    mf.max_cycle = int(CONFIG['max_cycle'])\n"
+        "    if xc != 'hf':\n"
+        "        mf.grids.atom_grid = tuple(CONFIG['xc_grid'])\n"
+        "        if CONFIG['nlc_grid'] is not None:\n"
+        "            mf.nlcgrids.atom_grid = tuple(CONFIG['nlc_grid'])\n"
+        "    return mol, mf\n"
+        "\n"
+        "def eval_point(coords_angstrom, need_grad):\n"
+        "    mol, mf = build_mf(coords_angstrom)\n"
+        "    energy = float(np.float64(mf.kernel()))\n"
+        "    if not mf.converged or not math.isfinite(energy):\n"
+        "        raise RuntimeError(f'GPU4PySCF SCF failed to converge (energy={energy})')\n"
+        "    grad = None\n"
+        "    if need_grad:\n"
+        "        raw_grad = mf.nuc_grad_method().kernel()\n"
+        "        if hasattr(raw_grad, 'get'):\n"
+        "            raw_grad = raw_grad.get()\n"
+        "        grad = np.asarray(raw_grad, dtype=np.float64)\n"
+        "        if grad.shape != (len(CONFIG['symbols']), 3) or not np.all(np.isfinite(grad)):\n"
+        "            raise RuntimeError('GPU4PySCF analytical nuclear gradient is invalid or nonfinite')\n"
+        "    dipole_debye = None\n"
+        "    try:\n"
+        "        dip = mf.dip_moment(unit='Debye', verbose=0)\n"
+        "        if hasattr(dip, 'get'):\n"
+        "            dip = dip.get()\n"
+        "        dip_arr = np.asarray(dip, dtype=np.float64).ravel()\n"
+        "        if dip_arr.shape == (3,) and np.all(np.isfinite(dip_arr)):\n"
+        "            dipole_debye = dip_arr.tolist()\n"
+        "    except Exception:\n"
+        "        dipole_debye = None\n"
+        "    return energy, grad, dipole_debye\n"
+        "\n"
+        "operation = CONFIG['operation']\n"
+        "final_coords = np.asarray(CONFIG['coordinates'], dtype=np.float64)\n"
+        "opt_info = None\n"
+        "eval_counter = [0]\n"
+        "\n"
+        "if operation == 'optimize':\n"
+        "    from scipy.optimize import minimize\n"
+        "    cache = {}\n"
+        "    def obj(x_bohr):\n"
+        "        key = tuple(np.round(x_bohr, 14).tolist())\n"
+        "        if key not in cache:\n"
+        "            coords_ang = (x_bohr.reshape(-1, 3) * BOHR_ANGSTROM).tolist()\n"
+        "            e_val, g_val, dip_val = eval_point(coords_ang, need_grad=True)\n"
+        "            eval_counter[0] += 1\n"
+        "            cache[key] = (e_val, g_val, dip_val, coords_ang)\n"
+        "        e_val, g_val, _, _ = cache[key]\n"
+        "        return e_val, g_val.ravel()\n"
+        "    x0 = final_coords.ravel() / BOHR_ANGSTROM\n"
+        "    opt = minimize(\n"
+        "        obj, x0, jac=True, method='L-BFGS-B',\n"
+        "        options={'maxiter': CONFIG['max_opt_iter'], 'maxls': 30, 'ftol': 1e-15,\n"
+        "                 'gtol': min(CONFIG['grad_max_tol'], CONFIG['grad_rms_tol'])},\n"
+        "    )\n"
+        "    final_coords = np.asarray(opt.x, dtype=np.float64).reshape(-1, 3) * BOHR_ANGSTROM\n"
+        "    energy, grad, dipole_debye = eval_point(final_coords.tolist(), need_grad=True)\n"
+        "    eval_counter[0] += 1\n"
+        "    max_g = float(np.max(np.abs(grad)))\n"
+        "    rms_g = float(np.sqrt(np.mean(grad ** 2)))\n"
+        "    converged = bool(max_g <= CONFIG['grad_max_tol'] and rms_g <= CONFIG['grad_rms_tol'])\n"
+        "    opt_info = {\n"
+        "        'driver': 'TOPOS/scipy-L-BFGS-B with authentic GPU4PySCF analytical nuclear gradients',\n"
+        "        'iterations': int(opt.nit),\n"
+        "        'evaluations': int(eval_counter[0]),\n"
+        "        'max_gradient_hartree_per_bohr': max_g,\n"
+        "        'rms_gradient_hartree_per_bohr': rms_g,\n"
+        "        'message': str(opt.message),\n"
+        "    }\n"
+        "else:\n"
+        "    energy, grad, dipole_debye = eval_point(final_coords.tolist(), need_grad=(operation == 'gradient'))\n"
+        "    eval_counter[0] = 1\n"
+        "    converged = True\n"
+        "\n"
+        "evaluations = eval_counter[0]\n"
+        "\n"
+        "py_path = Path(os.path.abspath(sys.executable))\n"
+        "with py_path.open('rb') as py_fh:\n"
+        "    py_sha = hashlib.file_digest(py_fh, 'sha256').hexdigest()\n"
+        "\n"
+        "result = {\n"
+        "    'schema': 'topos-gpu4pyscf-result/1',\n"
+        "    'precision': 'float64',\n"
+        "    'pyscf_version': pyscf.__version__,\n"
+        "    'gpu4pyscf_version': gpu4pyscf.__version__,\n"
+        "    'cupy_version': cupy.__version__,\n"
+        "    'cuda_runtime_version': cuda_ver,\n"
+        "    'gpu_device_name': gpu_name,\n"
+        "    'gpu_device_index': dev_idx,\n"
+        "    'gpu_total_memory_mb': total_mem_mb,\n"
+        "    'gpu_compute_capability': f'{cc_major}.{cc_minor}',\n"
+        "    'gpu_banner': gpu_banner,\n"
+        "    'python_executable': str(py_path),\n"
+        "    'python_executable_sha256': py_sha,\n"
+        "    'method': CONFIG['method'],\n"
+        "    'xc': CONFIG['xc'],\n"
+        "    'basis': CONFIG['basis'],\n"
+        "    'auxbasis': CONFIG['auxbasis'],\n"
+        "    'density_fitting': True,\n"
+        "    'xc_grid': CONFIG['xc_grid'] if CONFIG['xc'] != 'hf' else None,\n"
+        "    'nlc_grid': CONFIG['nlc_grid'],\n"
+        "    'operation': operation,\n"
+        "    'converged': converged,\n"
+        "    'energy_hartree': float(energy),\n"
+        "    'gradient_hartree_per_bohr': grad.tolist() if grad is not None else None,\n"
+        "    'coordinates_angstrom': final_coords.tolist(),\n"
+        "    'dipole_cartesian_debye': dipole_debye,\n"
+        "    'evaluations': evaluations,\n"
+        "    'optimization': opt_info,\n"
+        "}\n"
+        "Path('gpu4pyscf-result.json').write_text(json.dumps(result, indent=2, allow_nan=False), encoding='utf-8')\n"
+    )
+
+
+def _run_gpu_process(
+    command: list[str],
+    workdir: str | Path,
+    resources: ResourceLimits,
+    *,
+    cancel_event: Event | None = None,
+    log_prefix: str = "engine",
+) -> ProcessResult:
+    """Run an authentic CUDA GPU subprocess with wall-budget enforcement and intact CUDA VM space."""
+    if not command or any(not isinstance(arg, str) or "\x00" in arg for arg in command):
+        raise ValueError("command must contain non-NUL string arguments")
+    if Path(log_prefix).name != log_prefix or not log_prefix:
+        raise ValueError("log prefix must be a basename")
+
+    folder = Path(workdir).resolve()
+    folder.mkdir(parents=True, exist_ok=True)
+    stdout_path = folder / f"{log_prefix}.stdout"
+    stderr_path = folder / f"{log_prefix}.stderr"
+    if stdout_path.exists() or stderr_path.exists():
+        raise FileExistsError("raw logs already exist; use a new attempt directory")
+
+    env = os.environ.copy()
+    threads = str(max(1, int(resources.threads)))
+    for key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        env[key] = threads
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    dev_idx = _gpu_device_index(resources.device)
+    if dev_idx is not None:
+        env["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+
+    start = time.monotonic()
+    status, reason = "completed", None
+    returncode: int | None = None
+
+    popen_kwargs: dict[str, Any] = {
+        "cwd": str(folder),
+        "env": env,
+        "stdin": subprocess.DEVNULL,
+    }
+    if os.name == "posix":
+        popen_kwargs["start_new_session"] = True
+    elif os.name == "nt":
+        popen_kwargs["creationflags"] = 0x08000000
+
+    with stdout_path.open("xb") as stdout_fh, stderr_path.open("xb") as stderr_fh:
+        if cancel_event is not None and cancel_event.is_set():
+            return ProcessResult(command, "cancelled", None, 0.0, 0.0,
+                                 str(stdout_path), str(stderr_path), "cancelled before launch")
+        try:
+            proc = subprocess.Popen(command, stdout=stdout_fh, stderr=stderr_fh, **popen_kwargs)
+        except OSError as exc:
+            return ProcessResult(command, "failed", None, time.monotonic() - start, 0.0,
+                                 str(stdout_path), str(stderr_path), f"launch failed: {exc}")
+        try:
+            while proc.poll() is None:
+                if cancel_event is not None and cancel_event.is_set():
+                    status, reason = "cancelled", "cancellation requested"
+                elif time.monotonic() - start >= resources.budget_seconds:
+                    status, reason = "timed-out", "attempt wall-clock budget exhausted"
+                else:
+                    time.sleep(0.02)
+                    continue
+                if os.name == "posix":
+                    try:
+                        os.killpg(proc.pid, signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+                    time.sleep(0.2)
+                    if proc.poll() is None:
+                        try:
+                            os.killpg(proc.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                else:
+                    proc.terminate()
+                    time.sleep(0.2)
+                    if proc.poll() is None:
+                        proc.kill()
+                break
+            returncode = proc.wait(timeout=5.0)
+            if returncode != 0 and status == "completed":
+                status, reason = "failed", f"GPU4PySCF process exited with code {returncode}"
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait(timeout=5.0)
+
+    return ProcessResult(command, status, returncode, time.monotonic() - start, 0.0,
+                         str(stdout_path), str(stderr_path), reason)
+
+
+def _parse_gpu4pyscf_output(raw: str, molecule: Molecule, operation: str) -> dict[str, Any]:
+    """Validate and parse structured FP64 GPU4PySCF output JSON."""
+    data = json.loads(raw)
+    if not isinstance(data, dict) or data.get("schema") != "topos-gpu4pyscf-result/1":
+        raise EngineParseError("GPU4PySCF result payload schema is missing or invalid")
+    if data.get("precision") != "float64":
+        raise EngineParseError("GPU4PySCF execution did not establish float64 precision")
+    gpu_name = str(data.get("gpu_device_name") or "").strip()
+    gpu_banner = str(data.get("gpu_banner") or "").strip()
+    if not gpu_name or not gpu_banner:
+        raise EngineParseError("GPU4PySCF result lacks real CUDA GPU device name or banner")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(data.get("python_executable_sha256", ""))):
+        raise EngineParseError("GPU4PySCF result lacks valid interpreter SHA-256 provenance")
+    energy = _number(str(data["energy_hartree"]))
+    coords = data.get("coordinates_angstrom")
+    if not isinstance(coords, list) or len(coords) != len(molecule.symbols) or any(len(r) != 3 for r in coords):
+        raise EngineParseError("GPU4PySCF output coordinates are incomplete")
+    coords_clean = [[_number(str(v)) for v in row] for row in coords]
+    gradient = None
+    if operation in {"gradient", "optimize"}:
+        raw_grad = data.get("gradient_hartree_per_bohr")
+        if not isinstance(raw_grad, list) or len(raw_grad) != len(molecule.symbols) or any(len(r) != 3 for r in raw_grad):
+            raise EngineParseError("GPU4PySCF analytical nuclear gradient is missing or malformed")
+        gradient = [[_number(str(v)) for v in row] for row in raw_grad]
+    data["energy_hartree"] = energy
+    data["coordinates_angstrom"] = coords_clean
+    data["gradient_hartree_per_bohr"] = gradient
+    return data
 
 
 class EngineResult(Contract):
@@ -250,6 +687,27 @@ def _method_problem(method: MethodSpec, resources: ResourceLimits, operation: st
                     *, check_cpu_affinity: bool = True) -> str | None:
     if operation not in {"energy", "gradient", "optimize"}:
         return f"operation {operation!r} has no validated adapter"
+    if method.engine == "gpu4pyscf":
+        if not _is_gpu_device(resources.device):
+            return "GPU4PySCF adapter requires an explicit CUDA/GPU device; CPU fallback is strictly disabled"
+        if check_cpu_affinity and resources.threads > available_cpu_count():
+            return "requested total worker count exceeds available CPU affinity"
+        if method.constraints:
+            return "native constraints not supported; use explicit TOPOS constrained-gradient protocol"
+        if method.solvent:
+            return "solvation requires a version-specific model/solvent profile; no implicit model chosen"
+        xc = _normalize_gpu4pyscf_method(method.method)
+        if xc is None:
+            return f"GPU4PySCF method {method.method!r} is outside the validated FP64 Hamiltonian registry"
+        if method.dispersion:
+            return "explicit empirical dispersion overrides are not enabled for GPU4PySCF; VV10 is built into wB97X-V/wB97M-V"
+        if not method.basis or not _SAFE_BASIS_RE.fullmatch(method.basis):
+            return "explicit supported orbital basis required for GPU4PySCF method"
+        if method.auxiliary_basis is not None and not _SAFE_BASIS_RE.fullmatch(method.auxiliary_basis):
+            return "invalid explicit GPU4PySCF auxiliary density-fitting basis"
+        if method.profile_id not in GPU4PYSCF_PROFILES:
+            return "unresolved GPU4PySCF numerical profile"
+        return None
     if resources.device != "cpu":
         return "native xTB/ORCA adapter supports CPU; requested GPU cannot be silently substituted"
     if check_cpu_affinity and resources.threads > available_cpu_count():
@@ -577,6 +1035,25 @@ def _run_engine_once(
         if molecule.environment != {"phase": "gas"}:
             result.diagnostics["reason"] = "explicit environment is unsupported by gas-phase adapter"
             return result
+    if method.engine == "gpu4pyscf":
+        if ghosts or ghost_electronic_state is not None:
+            result.diagnostics["reason"] = "Ghost basis centers require explicit ORCA energy-only fragment state"
+            return result
+        if external_basis:
+            result.diagnostics["reason"] = "Shared external basis files apply only to noncomposite ORCA energy calculations"
+            return result
+        return _run_gpu4pyscf_engine(
+            molecule=molecule,
+            method=method,
+            resources=resources,
+            workdir=workdir,
+            operation=operation,
+            cancel_event=cancel_event,
+            executable=executable,
+            process_runner=process_runner,
+            result=result,
+            start=start,
+        )
     from .chemistry import atomic_number
     if method.engine == "xtb" and any(atomic_number(s) > 86 for s in molecule.symbols):
         result.diagnostics["reason"] = "GFN2-xTB parameterization does not cover elements beyond radon"
@@ -869,6 +1346,141 @@ def _run_engine_once(
         result.metadata["stationary_point_classification"] = "unclassified; no frequency Hessian"
         return result
     except (EngineParseError, OSError, ValueError) as exc:
+        result.status = "failed"
+        result.converged = False
+        result.diagnostics["reason"] = str(exc)
+        return result
+    finally:
+        result.elapsed_seconds = time.monotonic() - start
+        try:
+            result.artifacts = artifact_inventory(folder)
+        except (OSError, EngineParseError) as exc:
+            result.status = "failed"
+            result.converged = False
+            result.diagnostics["artifact_error"] = str(exc)
+
+
+def _run_gpu4pyscf_engine(
+    *,
+    molecule: Molecule,
+    method: MethodSpec,
+    resources: ResourceLimits,
+    workdir: str | Path,
+    operation: Literal["energy", "gradient", "optimize"],
+    cancel_event: Event | None,
+    executable: str | Path | None,
+    process_runner: Callable[..., Any] | None,
+    result: EngineResult,
+    start: float,
+) -> EngineResult:
+    """Execute authentic FP64 GPU4PySCF on CUDA; fail closed if GPU or gpu4pyscf is absent."""
+    python_binary = resolve_gpu4pyscf_python(executable)
+    if python_binary is None:
+        result.status = "unavailable"
+        result.diagnostics["reason"] = (
+            "GPU4PySCF Python interpreter unavailable; set TOPOS_GPU4PYSCF_PYTHON / COCHEM_GPU4PYSCF_PYTHON "
+            "or install cochem-gpu4pyscf-python (CPU fallback is strictly disabled)"
+        )
+        result.elapsed_seconds = time.monotonic() - start
+        return result
+
+    folder = Path(workdir).resolve()
+    if folder.exists() and any(folder.iterdir()):
+        result.status = "failed"
+        result.diagnostics["reason"] = "attempt directory is not empty; stale outputs cannot be reused"
+        result.elapsed_seconds = time.monotonic() - start
+        return result
+    folder.mkdir(parents=True, exist_ok=True)
+
+    auxbasis = method.auxiliary_basis or DEFAULT_GPU4PYSCF_AUXBASIS
+    result.metadata["executable"] = str(python_binary)
+    result.metadata["executable_sha256"] = hashlib.sha256(python_binary.read_bytes()).hexdigest()
+    result.metadata["device"] = resources.device
+    result.metadata["resolved_auxiliary_basis"] = auxbasis
+    result.metadata["density_fitting"] = True
+
+    try:
+        write_xyz(molecule, folder / "input.xyz")
+        driver_code = gpu4pyscf_driver_source(
+            molecule,
+            method=method.method,
+            basis=str(method.basis),
+            auxbasis=auxbasis,
+            operation=operation,
+            expected_version=method.engine_version,
+        )
+        driver_path = folder / "job.py"
+        driver_path.write_text(driver_code, encoding="utf-8")
+        result.metadata["driver_script_sha256"] = hashlib.sha256(driver_path.read_bytes()).hexdigest()
+
+        command = [str(python_binary), "job.py"]
+        result.command = command
+        execute_gpu = process_runner or _run_gpu_process
+        process = execute_gpu(command, folder, resources, cancel_event=cancel_event, log_prefix="engine")
+        result.diagnostics["process"] = process.to_dict()
+
+        stderr_text = Path(process.stderr_path).read_text(errors="replace") if Path(process.stderr_path).is_file() else ""
+        if process.status != "completed":
+            if "CUDA_UNAVAILABLE:" in stderr_text or "GPU4PYSCF_UNAVAILABLE:" in stderr_text:
+                result.status = "unavailable"
+                result.metadata["execution_kind"] = "not-executed"
+                result.diagnostics["reason"] = stderr_text.strip() or process.reason
+            elif "GPU4PYSCF_VERSION_MISMATCH:" in stderr_text:
+                result.status = "unsupported"
+                result.metadata["execution_kind"] = "not-executed"
+                result.diagnostics["reason"] = stderr_text.strip()
+            else:
+                result.status = process.status
+                result.metadata["execution_kind"] = "real"
+                result.diagnostics["reason"] = stderr_text.strip() or process.reason
+            return result
+
+        result_file = folder / "gpu4pyscf-result.json"
+        if not result_file.is_file():
+            raise EngineParseError("GPU4PySCF worker completed without producing gpu4pyscf-result.json")
+        observed = _parse_gpu4pyscf_output(result_file.read_text(encoding="utf-8"), molecule, operation)
+
+        result.metadata["execution_kind"] = "real"
+        result.metadata["adapter_validation"] = "live-tested"
+        result.metadata["result_json_sha256"] = hashlib.sha256(result_file.read_bytes()).hexdigest()
+        result.metadata["gpu_device_name"] = observed["gpu_device_name"]
+        result.metadata["gpu_device_index"] = observed["gpu_device_index"]
+        result.metadata["gpu_total_memory_mb"] = observed["gpu_total_memory_mb"]
+        result.metadata["gpu_compute_capability"] = observed["gpu_compute_capability"]
+        result.metadata["gpu_banner"] = observed["gpu_banner"]
+        result.metadata["pyscf_version"] = observed["pyscf_version"]
+        result.metadata["gpu4pyscf_version"] = observed["gpu4pyscf_version"]
+        result.metadata["cupy_version"] = observed["cupy_version"]
+        result.metadata["cuda_runtime_version"] = observed["cuda_runtime_version"]
+        result.metadata["python_executable"] = observed["python_executable"]
+        result.metadata["python_executable_sha256"] = observed["python_executable_sha256"]
+        result.metadata["resolved_xc"] = observed["xc"]
+        result.metadata["resolved_basis"] = observed["basis"]
+        result.metadata["xc_grid"] = observed["xc_grid"]
+        result.metadata["nlc_grid"] = observed["nlc_grid"]
+        if observed.get("dipole_cartesian_debye") is not None:
+            result.metadata["dipole_cartesian_debye"] = observed["dipole_cartesian_debye"]
+        if observed.get("optimization") is not None:
+            result.diagnostics["optimization"] = observed["optimization"]
+
+        output_molecule = (
+            Molecule.model_validate({**molecule.model_dump(), "coordinates": observed["coordinates_angstrom"]})
+            if operation == "optimize" else molecule
+        )
+        result.engine_version = observed["gpu4pyscf_version"]
+        result.energy_hartree = observed["energy_hartree"]
+        result.gradient_hartree_per_bohr = observed["gradient_hartree_per_bohr"] if operation != "energy" else None
+        result.molecule = output_molecule
+        result.converged = bool(observed["converged"])
+        result.status = "completed" if result.converged else "partial"
+        if not result.converged:
+            result.diagnostics["reason"] = "requested GPU4PySCF optimization convergence was not established"
+        result.metadata["gradient_units"] = "hartree/bohr" if result.gradient_hartree_per_bohr is not None else None
+        result.metadata["energy_definition"] = "electronic potential energy; no thermochemical correction"
+        result.metadata["convergence_scope"] = "geometry and electronic" if operation == "optimize" else "electronic only"
+        result.metadata["stationary_point_classification"] = "unclassified; no frequency Hessian"
+        return result
+    except (EngineParseError, OSError, ValueError, json.JSONDecodeError) as exc:
         result.status = "failed"
         result.converged = False
         result.diagnostics["reason"] = str(exc)
