@@ -33,7 +33,7 @@ _MISSING = object()
 
 @contextlib.contextmanager
 def _scoped_attr(target: object, name: str, replacement: object):
-    """Temporarily wrap an attribute without unittest.mock."""
+    """Temporarily wrap an attribute and restore it on exit."""
     previous = getattr(target, name, _MISSING)
     setattr(target, name, replacement)
     try:
