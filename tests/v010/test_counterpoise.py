@@ -680,6 +680,7 @@ def test_counterpoise_uniform_cosx_resume_after_recovery_interrupt_reruns_cached
 def test_counterpoise_mixed_cosx_grids_fail_closed(tmp_path):
     """Mixed default/tight COSX grids and unbacked uniform tight-grid claims must always fail closed."""
     import json
+
     import topos.counterpoise as module
 
     cp_method = method()

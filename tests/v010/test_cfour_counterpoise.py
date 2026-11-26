@@ -310,7 +310,6 @@ def test_real_process_boundary_rejects_input_or_executable_mutation(tmp_path, ch
     """/bin/true is a transport-only process; no electronic calculation is claimed."""
     import shutil
 
-    import topos.cfour_counterpoise as module
     from topos.runtime import run_process
 
     installation = tmp_path / 'transport-fixture'

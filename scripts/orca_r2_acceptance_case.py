@@ -27,6 +27,7 @@ from topos.science import geometry_digest
 from topos.storage import RunStore, atomic_json, digest_json, file_digest
 from topos.workflow import Workflow, software_provenance
 
+
 class _ObservedRuntime:
     """Delegate unchanged to BASE authority while counting calls and gating replay."""
 
