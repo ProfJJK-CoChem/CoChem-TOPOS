@@ -54,7 +54,22 @@ def _verify_artifacts(artifacts, folder):
             raise IntegrityError("Counterpoise retained artifact is missing, changed or outside its work directory")
 
 
-def _validate_completed_leg(entry, job, basis, method, folder):
+def _leg_used_tight_cosx(calculation: EngineResult) -> bool:
+    """Return True when a counterpoise leg ran with the tightened IntAccX 6,6,7 COSX grid."""
+    recovery = calculation.metadata.get("cosx_grid_recovery")
+    if isinstance(recovery, dict) and recovery.get("triggered") is True:
+        return True
+    return calculation.metadata.get("cosx_uniform_tight_grid") is True
+
+
+def _assert_uniform_cosx_grid(used_tight_by_role: dict[str, bool], expected_roles: list[str]) -> bool:
+    """Verify all counterpoise legs used one identical COSX integration grid; return True if tight."""
+    if set(used_tight_by_role) != set(expected_roles) or len(set(used_tight_by_role.values())) != 1:
+        raise IntegrityError("Counterpoise legs used inconsistent COSX integration grids")
+    return next(iter(used_tight_by_role.values()))
+
+
+def _validate_completed_leg(entry, job, basis, method, folder, *, allow_uniform_tight_cosx: bool = False):
     """Re-read native evidence before either caching or using a completed energy."""
     if entry.get("result_sha256") != digest_json(entry.get("result")):
         raise IntegrityError("Counterpoise leg result digest changed")
@@ -80,24 +95,27 @@ def _validate_completed_leg(entry, job, basis, method, folder):
         raise IntegrityError("Counterpoise energy is inconsistent with the retained converged native output")
     deck = stdout.parent / "job.inp"
     recovery = calculation.metadata.get("cosx_grid_recovery")
-    used_cosx_tight_grid = (
-        isinstance(recovery, dict)
-        and recovery.get("triggered") is True
-        and recovery.get("intaccx") == "6,6,7"
-    )
-    if used_cosx_tight_grid:
+    used_recovery_tight = isinstance(recovery, dict) and recovery.get("triggered") is True
+    used_uniform_tight = calculation.metadata.get("cosx_uniform_tight_grid") is True
+    if used_uniform_tight and not allow_uniform_tight_cosx:
+        raise IntegrityError("Counterpoise uniform tight COSX grid requires verified sibling COSX recovery")
+    if used_recovery_tight:
         initial_stdout = stdout.parent.parent / "engine.stdout"
-        if (stdout.parent.name != "cosx-grid-retry"
+        if (recovery.get("intaccx") != "6,6,7"
+                or stdout.parent.name != "cosx-grid-retry"
                 or str(initial_stdout.resolve()) not in inventory
                 or not re.search(r"SCF NOT CONVERGED|SCF CONVERGENCE FAILURE",
                                  initial_stdout.read_text(errors="replace"), re.I)):
             raise IntegrityError("Counterpoise COSX grid recovery lacks retained initial SCF convergence failure evidence")
+    used_cosx_tight_grid = used_recovery_tight or (allow_uniform_tight_cosx and used_uniform_tight)
     expected = _orca_input(Molecule.model_validate(job["molecule"]), method,
                            ResourceLimits.model_validate(calculation.metadata["resources"]), "energy",
                            ghost_atom_indices=job["ghost_atom_indices"],
                            ghost_electronic_state=tuple(job["ghost_electronic_state"]) if job["ghost_electronic_state"] else None,
                            basis_files={kind: f"{kind}.bas" for kind in basis},
                            cosx_tight_grid=used_cosx_tight_grid)
+    if used_cosx_tight_grid and "IntAccX 6,6,7" not in expected:
+        raise IntegrityError("Counterpoise COSX tight grid is only valid for RIJCOSX methods")
     if str(deck.resolve()) not in inventory or deck.read_text() != expected:
         raise IntegrityError("Counterpoise native deck does not match its immutable method, state and basis centers")
     for kind, description in basis.items():
@@ -279,17 +297,36 @@ def execute_counterpoise(
     }
     result["comparison_protocol"] = digest_json(result["comparison_protocol_definition"])
     cached = {}
+    has_verified_cosx_recovery = False
     if previous is not None:
         for field in ("schema_version", "geometry_sha256", "method", "basis", "plan"):
             if previous.get(field) != result[field]:
                 raise IntegrityError(f"Counterpoise resume changes immutable {field}")
         _verify_artifacts(previous["artifacts"], folder)
         plan_by_role = {job["role"]: job for job in plan}
-        for entry in previous["jobs"]:
+        latest_completed_idx: dict[str, int] = {}
+        for idx, entry in enumerate(previous["jobs"]):
             if entry["result_sha256"] != digest_json(entry["result"]):
                 raise IntegrityError("Counterpoise checkpoint leg digest changed")
             if entry["result"]["status"] == "completed":
-                _validate_completed_leg(entry, plan_by_role[entry["role"]], basis, method, folder)
+                latest_completed_idx[entry["role"]] = idx
+        for idx, entry in enumerate(previous["jobs"]):
+            if entry["result"]["status"] == "completed":
+                metadata = entry["result"].get("metadata") or {}
+                if metadata.get("cosx_uniform_tight_grid") is not True:
+                    validated = _validate_completed_leg(entry, plan_by_role[entry["role"]], basis, method, folder)
+                    recovery = validated.metadata.get("cosx_grid_recovery")
+                    if (latest_completed_idx.get(entry["role"]) == idx
+                            and isinstance(recovery, dict) and recovery.get("triggered") is True):
+                        has_verified_cosx_recovery = True
+        for entry in previous["jobs"]:
+            if entry["result"]["status"] == "completed":
+                metadata = entry["result"].get("metadata") or {}
+                if metadata.get("cosx_uniform_tight_grid") is True:
+                    _validate_completed_leg(
+                        entry, plan_by_role[entry["role"]], basis, method, folder,
+                        allow_uniform_tight_cosx=has_verified_cosx_recovery,
+                    )
                 cached[entry["role"]] = entry
         result["jobs"] = previous["jobs"]
         result["artifacts"] = previous["artifacts"]
@@ -350,6 +387,8 @@ def execute_counterpoise(
             return finish("unavailable", str(exc))
     identity = None
     values = {}
+    used_tight_by_role: dict[str, bool] = {}
+    uniform_tight_cosx = has_verified_cosx_recovery
     for index, job in enumerate(plan):
         if cancel_event is not None and cancel_event.is_set():
             return finish("cancelled", "Counterpoise cancelled before the next energy leg")
@@ -374,7 +413,10 @@ def execute_counterpoise(
                 ghost_atom_indices=job["ghost_atom_indices"],
                 ghost_electronic_state=tuple(job["ghost_electronic_state"]) if job["ghost_electronic_state"] else None,
                 orbital_basis_file=basis_paths["orbital"], auxiliary_basis_file=basis_paths.get("auxiliary"),
+                cosx_tight_grid=uniform_tight_cosx,
             )
+            if uniform_tight_cosx:
+                calculation.metadata["cosx_uniform_tight_grid"] = True
             calculation.metadata["execution_timing"] = {
                 "started_at": leg_started_at, "finished_at": utc_now(), "scope": EXECUTION_TIMING_SCOPE}
             payload = calculation.model_dump(mode="json")
@@ -386,7 +428,10 @@ def execute_counterpoise(
             return finish(calculation.status if calculation.status != "completed" else "failed",
                           f"Counterpoise leg did not supply converged energy: {job['role']}")
         try:
-            _validate_completed_leg(entry, job, basis, method, folder)
+            _validate_completed_leg(
+                entry, job, basis, method, folder,
+                allow_uniform_tight_cosx=uniform_tight_cosx,
+            )
         except (IntegrityError, OSError, ValueError, KeyError, TypeError) as exc:
             return finish("failed", str(exc))
         actual_identity = (calculation.engine_version, calculation.metadata.get("executable_sha256"))
@@ -396,6 +441,66 @@ def execute_counterpoise(
             return finish("failed", "Counterpoise legs used different engine versions or executables")
         identity = actual_identity
         values[job["role"]] = calculation.energy_hartree
+        used_tight = _leg_used_tight_cosx(calculation)
+        used_tight_by_role[job["role"]] = used_tight
+        if used_tight:
+            uniform_tight_cosx = True
+    if uniform_tight_cosx:
+        for index, job in enumerate(plan):
+            if used_tight_by_role.get(job["role"]) is not False:
+                continue
+            if cancel_event is not None and cancel_event.is_set():
+                return finish("cancelled", "Counterpoise cancelled before uniform tight-COSX leg rerun")
+            remaining = resources.budget_seconds - (time.monotonic() - started)
+            if remaining <= 0:
+                return finish("timed-out", "Counterpoise total budget exhausted")
+            for name, path in basis_paths.items():
+                if file_digest(path) != basis[name]["sha256"]:
+                    return finish("failed", "Shared basis changed between counterpoise legs")
+            retries = sum(entry["role"] == job["role"] for entry in result["jobs"])
+            while (folder / f"leg-{index}-attempt-{retries}").exists():
+                retries += 1
+            leg_started_at = utc_now()
+            calculation = run_engine(
+                Molecule.model_validate(job["molecule"]), method,
+                resources.model_copy(update={"budget_seconds": remaining}), folder / f"leg-{index}-attempt-{retries}",
+                operation="energy", executable=executable, process_runner=process_runner, cancel_event=cancel_event,
+                ghost_atom_indices=job["ghost_atom_indices"],
+                ghost_electronic_state=tuple(job["ghost_electronic_state"]) if job["ghost_electronic_state"] else None,
+                orbital_basis_file=basis_paths["orbital"], auxiliary_basis_file=basis_paths.get("auxiliary"),
+                cosx_tight_grid=True,
+            )
+            calculation.metadata["cosx_uniform_tight_grid"] = True
+            calculation.metadata["execution_timing"] = {
+                "started_at": leg_started_at, "finished_at": utc_now(), "scope": EXECUTION_TIMING_SCOPE}
+            payload = calculation.model_dump(mode="json")
+            entry = {"role": job["role"], "result": payload, "result_sha256": digest_json(payload)}
+            result["jobs"].append(entry)
+            result["artifacts"].extend(payload["artifacts"])
+            finish("running")
+            if calculation.status != "completed" or calculation.converged is not True or calculation.energy_hartree is None:
+                return finish(calculation.status if calculation.status != "completed" else "failed",
+                              f"Counterpoise leg did not supply converged energy: {job['role']}")
+            try:
+                _validate_completed_leg(
+                    entry, job, basis, method, folder,
+                    allow_uniform_tight_cosx=True,
+                )
+            except (IntegrityError, OSError, ValueError, KeyError, TypeError) as exc:
+                return finish("failed", str(exc))
+            actual_identity = (calculation.engine_version, calculation.metadata.get("executable_sha256"))
+            if executable is not None and file_digest(Path(executable).resolve()) != actual_identity[1]:
+                return finish("failed", "Counterpoise cached execution differs from the currently authorized executable")
+            if identity is not None and actual_identity != identity:
+                return finish("failed", "Counterpoise legs used different engine versions or executables")
+            identity = actual_identity
+            values[job["role"]] = calculation.energy_hartree
+            used_tight_by_role[job["role"]] = _leg_used_tight_cosx(calculation)
+    try:
+        any_tight = _assert_uniform_cosx_grid(used_tight_by_role, [job["role"] for job in plan])
+    except IntegrityError as exc:
+        return finish("failed", str(exc))
+    result["provenance"]["cosx_grid_policy"] = "uniform_intaccx_6_6_7" if any_tight else "uniform_default"
     energies = counterpoise_interaction(
         values["complex-in-complex-basis"], values["fragment-0-in-complex-basis"],
         values["fragment-1-in-complex-basis"], values["fragment-0-in-own-basis"],

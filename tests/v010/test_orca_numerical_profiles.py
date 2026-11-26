@@ -417,12 +417,16 @@ def test_trah_scf_iter0_uninitialized_energy_change_accepts_strict_density_and_r
     assert real_ec_ev["trah_iter0_energy_change_uninitialized"] is False
     assert "active final criterion not achieved: Energy change" in real_ec_ev["failures"]
 
-    # Large energy discontinuity |E_trah0 - E_last_pre_trah| > 1e-6 disqualifies Iter-0 bypass
-    jumped = make_trah_iter0(energy_str="-76.430000000000", energy_change="-7.6430e+01")
-    jumped_ev = observe_scf_numerical_profile(jumped)
-    assert jumped_ev["passed"] is False
-    assert jumped_ev["trah_iter0_energy_change_uninitialized"] is False
-    assert "active final criterion not achieved: Energy change" in jumped_ev["failures"]
+    # Energy discontinuities |E_trah0 - E_last_pre_trah| > 1e-8 disqualify Iter-0 bypass
+    for jumped_energy, jumped_ec in [
+        ("-76.430000000000", "-7.6430e+01"),
+        ("-76.434622097478", "-7.6435e+01"),
+    ]:
+        jumped = make_trah_iter0(energy_str=jumped_energy, energy_change=jumped_ec)
+        jumped_ev = observe_scf_numerical_profile(jumped)
+        assert jumped_ev["passed"] is False
+        assert jumped_ev["trah_iter0_energy_change_uninitialized"] is False
+        assert "active final criterion not achieved: Energy change" in jumped_ev["failures"]
 
 
 def test_orca_input_cosx_tight_grid_preserves_frozen_default_and_emits_intaccx():

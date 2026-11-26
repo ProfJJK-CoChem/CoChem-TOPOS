@@ -136,7 +136,7 @@ def observe_scf_numerical_profile(raw: str) -> dict:
                     math.isfinite(e_last_pre_trah)
                     and math.isfinite(rms_dp)
                     and math.isfinite(max_dp)
-                    and abs(e_trah0 - e_last_pre_trah) <= 1e-6
+                    and abs(e_trah0 - e_last_pre_trah) <= 1e-8
                     and 0.0 <= rms_dp <= targets["RMS-Density change"]
                     and 0.0 <= max_dp <= targets["MAX-Density change"]
                 )
