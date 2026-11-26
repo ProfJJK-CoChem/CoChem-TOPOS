@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import time
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from threading import Event
@@ -301,14 +302,25 @@ def test_postprocessing_topology_corruption_of_real_optimization_is_rejected(gen
     assert saved.status == 'failed' and saved.attempts[-1].validation_status == 'rejected'
 
 
+@contextmanager
+def _scoped_attrs(*bindings):
+    originals = [(obj, name, getattr(obj, name)) for obj, name, _ in bindings]
+    for obj, name, value in bindings:
+        setattr(obj, name, value)
+    try:
+        yield
+    finally:
+        for obj, name, original in reversed(originals):
+            setattr(obj, name, original)
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize('failure', ['receipt', 'commit'])
-def test_post_native_storage_failure_never_publishes_complete_component(genuine_component, monkeypatch, failure):
+def test_post_native_storage_failure_never_publishes_complete_component(genuine_component, failure):
     import topos.matrix_components as components
     import topos.matrix_workflow as matrix
 
     workflow, record, store, _ = genuine_component
-    real_commit = store.commit
     triggered = []
 
     def fail_receipt(path, payload):
@@ -316,23 +328,24 @@ def test_post_native_storage_failure_never_publishes_complete_component(genuine_
         triggered.append(True)
         raise OSError('Injected result receipt storage failure')
 
-    def fail_commit(value):
-        attempt = value.attempts[-1]
-        if attempt.metadata.get('component_key') == 'storage-failure' and attempt.status == 'completed' and not triggered:
-            triggered.append(True)
-            raise OSError('Injected final component commit failure')
-        return real_commit(value)
-
-    if failure == 'receipt':
-        monkeypatch.setattr(components, 'atomic_json', fail_receipt)
-    else:
-        monkeypatch.setattr(store, 'commit', fail_commit)
+    class _CommitFailStore(RunStore):
+        def commit(self, value):
+            attempt = value.attempts[-1]
+            if attempt.metadata.get('component_key') == 'storage-failure' and attempt.status == 'completed' and not triggered:
+                triggered.append(True)
+                raise OSError('Injected final component commit failure')
+            return super().commit(value)
 
     def actual_component(w, r, s, deadline, event):
         components.run_component(w, r, s, 'storage-failure', water(), xtb_method(), execute_xtb, deadline, event)
 
-    monkeypatch.setattr(matrix, '_execute_matrix', actual_component)
-    matrix.execute_matrix(workflow, record, store, time.monotonic()+30, None)
+    active_store = _CommitFailStore(store.run_dir) if failure == 'commit' else store
+    bindings = [(matrix, '_execute_matrix', actual_component)]
+    if failure == 'receipt':
+        bindings.append((components, 'atomic_json', fail_receipt))
+
+    with _scoped_attrs(*bindings):
+        matrix.execute_matrix(workflow, record, active_store, time.monotonic()+30, None)
     saved = RunRecord.model_validate(store.load())
     assert triggered and saved.status == 'partial'
     attempt = saved.attempts[-1]
@@ -371,22 +384,23 @@ def test_completed_component_requires_bound_receipt_and_requested_protocol(genui
 
 @pytest.mark.integration
 @pytest.mark.parametrize('outcome', ['completed', 'unavailable'])
-def test_component_commit_acknowledgement_loss_preserves_verified_publication(genuine_component, monkeypatch, outcome):
+def test_component_commit_acknowledgement_loss_preserves_verified_publication(genuine_component, outcome):
     workflow, record, store, _ = genuine_component
-    real_commit, acknowledged = store.commit, []
+    acknowledged = []
     if outcome == 'unavailable':
         workflow.config.executables['xtb'] = '/missing/real-xtb'
 
-    def lose_ack(value):
-        answer = real_commit(value)
-        attempt = value.attempts[-1]
-        if attempt.metadata.get('component_key') == 'lost-ack' and attempt.status == outcome and not acknowledged:
-            acknowledged.append(True)
-            raise OSError('Injected lost acknowledgement after successful durable commit')
-        return answer
+    class _LostAckStore(RunStore):
+        def commit(self, value):
+            answer = super().commit(value)
+            attempt = value.attempts[-1]
+            if attempt.metadata.get('component_key') == 'lost-ack' and attempt.status == outcome and not acknowledged:
+                acknowledged.append(True)
+                raise OSError('Injected lost acknowledgement after successful durable commit')
+            return answer
 
-    monkeypatch.setattr(store, 'commit', lose_ack)
-    result = run_component(workflow, record, store, 'lost-ack', water(), xtb_method(), execute_xtb,
+    fault_store = _LostAckStore(store.run_dir)
+    result = run_component(workflow, record, fault_store, 'lost-ack', water(), xtb_method(), execute_xtb,
                            time.monotonic()+30, None)
     saved = RunRecord.model_validate(store.load())
     assert acknowledged and saved.attempts[-1].status == outcome

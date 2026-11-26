@@ -125,19 +125,18 @@ def test_native_union_candidate_commits_and_reuses_without_mutating_component(hi
 
 
 @pytest.mark.parametrize("published", [False, True])
-def test_native_union_recovers_atomic_attribution_after_commit_failure(historical_component, monkeypatch, published):
+def test_native_union_recovers_atomic_attribution_after_commit_failure(historical_component, published):
     workflow, record, store, source, native, spec = historical_component
-    real_commit = store.commit
 
-    def interrupted(value):
-        if published:
-            real_commit(value)
-        raise RuntimeError("Injected publication acknowledgement interruption")
+    class _InterruptedCommitStore(RunStore):
+        def commit(self, value):
+            if published:
+                super().commit(value)
+            raise RuntimeError("Injected publication acknowledgement interruption")
 
-    monkeypatch.setattr(store, "commit", interrupted)
+    fault_store = _InterruptedCommitStore(store.run_dir)
     with pytest.raises(RuntimeError, match="acknowledgement"):
-        attribute(historical_component)
-    monkeypatch.setattr(store, "commit", real_commit)
+        attribute((workflow, record, fault_store, source, native, spec))
     restored = RunRecord.model_validate(store.recover())
     restored_source = next(a for a in restored.attempts if a.attempt_id == source.attempt_id)
     candidate = attribute((workflow, restored, store, restored_source, native, spec))

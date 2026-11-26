@@ -8,17 +8,29 @@ from __future__ import annotations
 import copy
 import shutil
 import time
+from contextlib import contextmanager
 from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
 
 import pytest
 
+from topos import matrix_components
 from topos.engines import artifact_inventory
 from topos.external_engines import ExternalProtocol
 from topos.matrix_components import run_component, verify_cfour_runtime_receipts
 from topos.models import Attempt, Molecule, RunRecord, RunRequest
 from topos.storage import IntegrityError, RunStore, atomic_json, digest_json, file_digest, read_json
+
+
+@contextmanager
+def _scoped_attr(target, name, value):
+    original = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, original)
 
 
 @pytest.fixture
@@ -119,7 +131,7 @@ def ledger_bookkeeping(tmp_path, authority, *, retain_authority=True):
 
 
 @pytest.mark.parametrize('state', ['legacy-base', 'unsealed-record', 'changed-current', 'changed-during-reuse'])
-def test_reuse_reauthorizes_before_any_cached_scientific_result(tmp_path, state, monkeypatch):
+def test_reuse_reauthorizes_before_any_cached_scientific_result(tmp_path, state):
     authority = {'runtime_seal_sha256': 'a' * 64, 'executable': '/bookkeeping/no-engine', 'binary_sha256': 'b' * 64}
     record, store, key, molecule, protocol = ledger_bookkeeping(tmp_path, authority, retain_authority=state != 'unsealed-record')
     calls = []
@@ -130,22 +142,21 @@ def test_reuse_reauthorizes_before_any_cached_scientific_result(tmp_path, state,
 
     runtime = SimpleNamespace() if state == 'legacy-base' else SimpleNamespace(cfour_runtime_identity=current)
     workflow = SimpleNamespace(base_runtime=runtime)
-    monkeypatch.setattr('topos.matrix_components._verified_component', lambda *args: pytest.fail('Must reject before cached science'))
-    with pytest.raises(IntegrityError, match='CFOUR|runtime seal'):
-        run_component(workflow, record, store, key, molecule, protocol,
-                      lambda *args, **kwargs: pytest.fail('Must not execute'), time.monotonic() + 30, None)
+    with _scoped_attr(matrix_components, '_verified_component', lambda *args: pytest.fail('Must reject before cached science')):
+        with pytest.raises(IntegrityError, match='CFOUR|runtime seal'):
+            run_component(workflow, record, store, key, molecule, protocol,
+                          lambda *args, **kwargs: pytest.fail('Must not execute'), time.monotonic() + 30, None)
     assert len(record.attempts) == 1
 
 
 @pytest.mark.parametrize('stop', ['cancel', 'deadline'])
-def test_reuse_checks_stop_after_authority_and_artifacts(tmp_path, monkeypatch, stop):
+def test_reuse_checks_stop_after_authority_and_artifacts(tmp_path, stop):
     """Opaque cached sentinel tests control flow, without inventing an EngineResult."""
     authority = {'runtime_seal_sha256': 'a' * 64, 'executable': '/bookkeeping/no-engine', 'binary_sha256': 'b' * 64}
     record, store, key, molecule, protocol = ledger_bookkeeping(tmp_path, authority)
     workflow = SimpleNamespace(base_runtime=SimpleNamespace(cfour_runtime_identity=lambda: authority))
     cancel = Event()
     clock = [100.]
-    monkeypatch.setattr('topos.matrix_components.time.monotonic', lambda: clock[0])
 
     def checked_evidence(*args):
         if stop == 'cancel':
@@ -154,25 +165,37 @@ def test_reuse_checks_stop_after_authority_and_artifacts(tmp_path, monkeypatch, 
             clock[0] = 102.
         return object()
 
-    monkeypatch.setattr('topos.matrix_components._verified_component', checked_evidence)
-    result = run_component(workflow, record, store, key, molecule, protocol,
-                           lambda *args, **kwargs: pytest.fail('Must not execute'), 101., cancel)
+    with (
+        _scoped_attr(matrix_components.time, 'monotonic', lambda: clock[0]),
+        _scoped_attr(matrix_components, '_verified_component', checked_evidence),
+    ):
+        result = run_component(workflow, record, store, key, molecule, protocol,
+                               lambda *args, **kwargs: pytest.fail('Must not execute'), 101., cancel)
     assert result is None and record.status == ('cancelled' if stop == 'cancel' else 'timed-out')
 
 
 @pytest.mark.parametrize('change_after_publish', [False, True])
-def test_lost_commit_acknowledgement_rechecks_current_seal(tmp_path, monkeypatch, change_after_publish):
+def test_lost_commit_acknowledgement_rechecks_current_seal(tmp_path, change_after_publish):
     """Pure ledger control flow using an opaque result, without any EngineResult.
 
     Scientific verification is explicitly bypassed in this bookkeeping test;
     no native stdout, energy, gradient, or physical acceptance is fabricated.
     """
     authority = {'runtime_seal_sha256': 'a' * 64, 'executable': '/bookkeeping/no-engine', 'binary_sha256': 'b' * 64}
-    record, store, key, molecule, protocol = ledger_bookkeeping(tmp_path, authority)
+    record, _initial_store, key, molecule, protocol = ledger_bookkeeping(tmp_path, authority)
     record.attempts.clear()
-    store = RunStore(tmp_path / 'fresh-ledger')
-    store.commit(record)
     state = {'changed': False, 'published': False, 'verifications': 0}
+
+    class _InterruptedCommitStore(RunStore):
+        def commit(self, value):
+            result = super().commit(value)
+            if value.attempts and value.attempts[-1].status == 'completed' and not state['published']:
+                state.update(published=True, changed=change_after_publish)
+                raise RuntimeError('Bookkeeping publication acknowledgement lost')
+            return result
+
+    store = _InterruptedCommitStore(tmp_path / 'fresh-ledger')
+    store.commit(record)
 
     def current():
         return {**authority, 'runtime_seal_sha256': 'c' * 64 if state['changed'] else 'a' * 64}
@@ -186,17 +209,6 @@ def test_lost_commit_acknowledgement_rechecks_current_seal(tmp_path, monkeypatch
         state['verifications'] += 1
         return opaque
 
-    monkeypatch.setattr('topos.matrix_components._completed_result', lambda *args: (False, None))
-    monkeypatch.setattr('topos.matrix_components._verified_component', verify_bookkeeping)
-    original_commit = store.commit
-
-    def interrupted_commit(value):
-        original_commit(value)
-        if value.attempts and value.attempts[-1].status == 'completed' and not state['published']:
-            state.update(published=True, changed=change_after_publish)
-            raise RuntimeError('Bookkeeping publication acknowledgement lost')
-
-    monkeypatch.setattr(store, 'commit', interrupted_commit)
     ledger_only = SimpleNamespace(command=['bookkeeping-no-native-launch'], engine_version=None, diagnostics={},
         metadata={'scope': 'Opaque ledger control only; no native result'}, model_dump=lambda **kwargs: {'scope': 'no science'},
         status='completed', artifacts=[], molecule=None, converged=True, energy_hartree=None, gradient_hartree_per_bohr=None)
@@ -204,14 +216,18 @@ def test_lost_commit_acknowledgement_rechecks_current_seal(tmp_path, monkeypatch
     def executor(*args, **kwargs):
         return ledger_only
 
-    if change_after_publish:
-        with pytest.raises(IntegrityError, match='recovery rejected.*runtime changed'):
-            run_component(workflow, record, store, key, molecule, protocol, executor, time.monotonic() + 30, None)
-        retained = RunRecord.model_validate(store.load())
-        assert retained.status == 'failed' and retained.attempts[-1].status == 'completed'
-        assert retained.attempts[-1].metadata['scope'] == 'Opaque ledger control only; no native result'
-        assert state['verifications'] == 1
-    else:
-        assert run_component(workflow, record, store, key, molecule, protocol, executor, time.monotonic() + 30, None) is opaque
-        assert state['verifications'] == 2
+    with (
+        _scoped_attr(matrix_components, '_completed_result', lambda *args: (False, None)),
+        _scoped_attr(matrix_components, '_verified_component', verify_bookkeeping),
+    ):
+        if change_after_publish:
+            with pytest.raises(IntegrityError, match='recovery rejected.*runtime changed'):
+                run_component(workflow, record, store, key, molecule, protocol, executor, time.monotonic() + 30, None)
+            retained = RunRecord.model_validate(store.load())
+            assert retained.status == 'failed' and retained.attempts[-1].status == 'completed'
+            assert retained.attempts[-1].metadata['scope'] == 'Opaque ledger control only; no native result'
+            assert state['verifications'] == 1
+        else:
+            assert run_component(workflow, record, store, key, molecule, protocol, executor, time.monotonic() + 30, None) is opaque
+            assert state['verifications'] == 2
     assert state['published']

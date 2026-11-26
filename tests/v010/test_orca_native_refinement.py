@@ -97,7 +97,7 @@ def test_genuine_hosted_centered_hessian_reconstructs_stationary_native_water():
         parse_orca_hessian(FIXTURES/'b3lyp-frequency.hess',changed)
 
 
-def run_dispatch_replay(monkeypatch,tmp_path,*,event=None,mode='exhaust'):
+def run_dispatch_replay(tmp_path,*,event=None,mode='exhaust'):
     # Infrastructure-only dispatch replay of an already rejected genuine job.
     # It never asserts that ORCA ran here or that any chemistry converged.
     historical=historical_partial()
@@ -115,17 +115,23 @@ def run_dispatch_replay(monkeypatch,tmp_path,*,event=None,mode='exhaust'):
             clock[0]+=11
         return result
     clock=[100.]
-    monkeypatch.setattr(engines,'_run_engine_once',stage)
+    original_once=engines._run_engine_once
+    original_monotonic=engines.time.monotonic
+    engines._run_engine_once=stage
     if mode=='deadline':
-        monkeypatch.setattr(engines.time,'monotonic',lambda:clock[0])
-    molecule=historical.molecule
-    result=engines.run_engine(molecule,MethodSpec.model_validate(historical.metadata['requested_method']),
-                              ResourceLimits(budget_seconds=10),tmp_path/'native',cancel_event=event)
+        engines.time.monotonic=lambda:clock[0]
+    try:
+        molecule=historical.molecule
+        result=engines.run_engine(molecule,MethodSpec.model_validate(historical.metadata['requested_method']),
+                                  ResourceLimits(budget_seconds=10),tmp_path/'native',cancel_event=event)
+    finally:
+        engines._run_engine_once=original_once
+        engines.time.monotonic=original_monotonic
     return result,calls
 
 
-def test_native_continuations_exhaust_finite_limit_preserve_partial_and_receipts(monkeypatch,tmp_path):
-    result,calls=run_dispatch_replay(monkeypatch,tmp_path)
+def test_native_continuations_exhaust_finite_limit_preserve_partial_and_receipts(tmp_path):
+    result,calls=run_dispatch_replay(tmp_path)
     assert result.status=='partial' and result.converged is False
     assert len(calls)==4
     assert all(0<new[1]<=old[1] for old,new in zip(calls[:-1],calls[1:],strict=True))
@@ -145,29 +151,39 @@ def test_native_continuations_exhaust_finite_limit_preserve_partial_and_receipts
 
 
 @pytest.mark.parametrize('mode,expected',[('cancel','cancelled'),('deadline','timed-out'),('changed-binary','failed')])
-def test_refinement_never_restarts_after_cancel_deadline_or_identity_change(monkeypatch,tmp_path,mode,expected):
-    result,calls=run_dispatch_replay(monkeypatch,tmp_path,event=Event(),mode=mode)
+def test_refinement_never_restarts_after_cancel_deadline_or_identity_change(tmp_path,mode,expected):
+    result,calls=run_dispatch_replay(tmp_path,event=Event(),mode=mode)
     assert result.status==expected and result.converged is False
     assert len(calls)==(2 if mode=='changed-binary' else 1)
     assert result.metadata['optimization_refinement']['accepted_stage_directory'] is None
 
 
-def test_refinement_receipt_failure_cannot_start_an_unrecorded_stage(monkeypatch,tmp_path):
+def test_refinement_receipt_failure_cannot_start_an_unrecorded_stage(tmp_path):
+    import topos.storage as storage
+
     def blocked_receipt(*args,**kwargs):
         raise OSError('receipt storage unavailable')
-    monkeypatch.setattr('topos.storage.atomic_json',blocked_receipt)
-    result,calls=run_dispatch_replay(monkeypatch,tmp_path)
+    original=storage.atomic_json
+    storage.atomic_json=blocked_receipt
+    try:
+        result,calls=run_dispatch_replay(tmp_path)
+    finally:
+        storage.atomic_json=original
     assert result.status=='failed' and result.converged is False
     assert len(calls)==1
     assert 'receipt could not be retained' in result.diagnostics['reason']
     assert result.metadata['optimization_refinement']['accepted_stage_directory'] is None
 
 
-def test_refinement_rejects_unverifiable_artifact_inventory(monkeypatch,tmp_path):
+def test_refinement_rejects_unverifiable_artifact_inventory(tmp_path):
     def bad_inventory(*args,**kwargs):
         raise engines.EngineParseError('engine artifact symlinks are not accepted')
-    monkeypatch.setattr(engines,'artifact_inventory',bad_inventory)
-    result,_=run_dispatch_replay(monkeypatch,tmp_path)
+    original=engines.artifact_inventory
+    engines.artifact_inventory=bad_inventory
+    try:
+        result,_=run_dispatch_replay(tmp_path)
+    finally:
+        engines.artifact_inventory=original
     assert result.status=='failed' and result.converged is False
     assert 'symlinks' in result.diagnostics['artifact_error']
     assert result.metadata['optimization_refinement']['accepted_stage_directory'] is None

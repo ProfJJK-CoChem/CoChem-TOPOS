@@ -5,6 +5,7 @@ exercise containment and byte preservation and do not simulate a QM engine.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -23,16 +24,53 @@ from topos.base_integration import (
 from topos.models import ResourceLimits
 
 
+@contextlib.contextmanager
+def _scoped_env(**updates: str | None):
+    previous = {key: os.environ.get(key) for key in updates}
+    for key, value in updates.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextlib.contextmanager
+def _scoped_sys_path(entry: str):
+    previous = list(sys.path)
+    sys.path.insert(0, entry)
+    try:
+        yield
+    finally:
+        sys.path[:] = previous
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
+
+
 @pytest.fixture
-def base_source(monkeypatch):
+def base_source():
     root = Path(os.environ.get("COCHEM_BASE_ROOT", Path(__file__).resolve().parents[3] / "CoChem-BASE"))
     if not (root / "src/cochem_base/core_engine/execution_authority.py").is_file():
         if os.environ.get("TOPOS_REQUIRE_BASE") == "1":
             pytest.fail("Mandatory BASE acceptance requires the actual CoChem-BASE source installation")
         pytest.skip("Requires the mandatory CoChem-BASE installation with execution_authority")
-    monkeypatch.setenv("COCHEM_BASE_ROOT", str(root))
-    monkeypatch.syspath_prepend(str(root / "src"))
-    return root
+    with _scoped_env(COCHEM_BASE_ROOT=str(root)), _scoped_sys_path(str(root / "src")):
+        yield root
 
 
 @pytest.fixture
@@ -54,9 +92,7 @@ def runtime(base_source, tmp_path):
     return BaseRuntime(path, require_torq=False)
 
 
-def test_missing_torq_is_not_replaced_by_base_bundled_namespace(base_source, monkeypatch):
-    monkeypatch.delenv("COCHEM_TORQ_ROOT", raising=False)
-    monkeypatch.delenv("COCHEM_TORQ_SIDECAR", raising=False)
+def test_missing_torq_is_not_replaced_by_base_bundled_namespace(base_source):
     import importlib.metadata
 
     original = importlib.metadata.distribution
@@ -66,20 +102,21 @@ def test_missing_torq_is_not_replaced_by_base_bundled_namespace(base_source, mon
             raise importlib.metadata.PackageNotFoundError(name)
         return original(name)
 
-    monkeypatch.setattr(importlib.metadata, "distribution", distributions)
-    status = inspect_ecosystem()
+    with _scoped_env(COCHEM_TORQ_ROOT=None, COCHEM_TORQ_SIDECAR=None), _scoped_attr(
+        importlib.metadata, "distribution", distributions
+    ):
+        status = inspect_ecosystem()
     assert not status.available
     assert not status.components["CoChem-TORQ"]["available"]
 
 
-def test_explicit_torq_source_is_discovered_without_bootstrap(base_source, tmp_path, monkeypatch):
-    monkeypatch.delenv("COCHEM_TORQ_SIDECAR", raising=False)
+def test_explicit_torq_source_is_discovered_without_bootstrap(base_source, tmp_path):
     root = tmp_path / "torq"
     (root / "src/cochem_torq").mkdir(parents=True)
     (root / "pyproject.toml").write_text('[project]\nname="CoChem-TORQ"\nversion="0.1.0"\n')
     (root / "src/cochem_torq/__init__.py").write_text('raise RuntimeError("bootstrap must not execute")\n')
-    monkeypatch.setenv("COCHEM_TORQ_ROOT", str(root))
-    assert inspect_ecosystem().available
+    with _scoped_env(COCHEM_TORQ_SIDECAR=None, COCHEM_TORQ_ROOT=str(root)):
+        assert inspect_ecosystem().available
 
 
 def test_registry_checksum_and_executable_hash_enforced(runtime):
@@ -96,8 +133,7 @@ def test_no_unregistered_executable_fallback(runtime):
         runtime.resolve_executable("orca")
 
 
-def test_native_bytes_and_sidecars_and_cwd_are_preserved(runtime, tmp_path, monkeypatch):
-    monkeypatch.setenv("GH_TOKEN", "must-not-reach-calculation")
+def test_native_bytes_and_sidecars_and_cwd_are_preserved(runtime, tmp_path):
     folder = tmp_path / "attempt"
     folder.mkdir()
     (folder / "input.dat").write_bytes(b"native-input\n")
@@ -106,7 +142,8 @@ def test_native_bytes_and_sidecars_and_cwd_are_preserved(runtime, tmp_path, monk
                "assert os.environ['OMP_NUM_THREADS']=='1'; "
                "pathlib.Path('sidecar.dat').write_bytes(pathlib.Path('input.dat').read_bytes()); "
                "os.write(1,b'\\xffnative\\x00output\\n'); os.write(2,b'warning\\n')"]
-    result = runtime.run_process(command, folder, ResourceLimits(memory_mb=256, budget_seconds=10))
+    with _scoped_env(GH_TOKEN="must-not-reach-calculation"):
+        result = runtime.run_process(command, folder, ResourceLimits(memory_mb=256, budget_seconds=10))
     assert result.status == "completed", result
     assert Path(result.stdout_path).read_bytes() == b"\xffnative\x00output\n"
     assert Path(result.stderr_path).read_bytes() == b"warning\n"
@@ -231,7 +268,7 @@ def test_orca_deck_cannot_escape_attempt(tmp_path):
 
 
 @pytest.fixture
-def utility_distribution(runtime, base_source, tmp_path, monkeypatch):
+def utility_distribution(runtime, base_source, tmp_path):
     """File-integrity fixture only: never executes or simulates ORCA output."""
     from cochem_base.cochem_core_registry_schema import CoChemSystemConfig
     from cochem_base.core.cochem_core_registry_manager import save_system_config
@@ -251,14 +288,14 @@ def utility_distribution(runtime, base_source, tmp_path, monkeypatch):
                             for path in install.iterdir()}}
     provenance_path = install / "cochem-orca-provenance.json"
     provenance_path.write_text(json.dumps(provenance))
-    monkeypatch.setenv("COCHEM_ORCA_PROVENANCE", str(provenance_path))
     config = CoChemSystemConfig.model_validate({
         "hardware": runtime.registry.model_dump(mode="json")["hardware"],
         "engines": {"orca": {"status": "found", "path": str(install / "orca"),
                               "hash": hashlib.sha256((install / "orca").read_bytes()).hexdigest()}},
     })
     save_system_config(config, runtime.registry_path)
-    return BaseRuntime(runtime.registry_path, require_torq=False), install, provenance_path
+    with _scoped_env(COCHEM_ORCA_PROVENANCE=str(provenance_path)):
+        yield BaseRuntime(runtime.registry_path, require_torq=False), install, provenance_path
 
 
 def test_export_utility_authority_binds_parent_helper_and_pinned_distribution(utility_distribution):
@@ -297,7 +334,7 @@ def test_export_utility_rejects_noncanonical_arguments_before_execution(runtime,
 
 @pytest.mark.parametrize("requested_mb,expected_mb,expected_maxcore", [(256, 256, 192), (4096, 2730, 2047)])
 def test_serial_basis_utility_cannot_inherit_excessive_mpi_campaign_memory(
-    utility_distribution, tmp_path, monkeypatch, requested_mb, expected_mb, expected_maxcore,
+    utility_distribution, tmp_path, requested_mb, expected_mb, expected_maxcore,
 ):
     """Real BASE authority, stopped before execution; no ORCA output is produced."""
     runtime, _, _ = utility_distribution
@@ -305,18 +342,19 @@ def test_serial_basis_utility_cannot_inherit_excessive_mpi_campaign_memory(
     class InspectedBeforeLaunch(RuntimeError):
         pass
 
-    def inspect(command, folder, effective, authority, **kwargs):
-        assert effective.memory_mb == expected_mb
-        assert effective.threads == authority.cores == 1
-        assert authority.maxcore_mb == expected_maxcore <= runtime.registry.hardware.maxcore_mb
-        assert effective.budget_seconds == 123
-        assert kwargs["threads_per_process"] == 1
-        raise InspectedBeforeLaunch
+    class _InspectingBaseRuntime(BaseRuntime):
+        def _execute_authorized(self, command, folder, effective, authority, **kwargs):
+            assert effective.memory_mb == expected_mb
+            assert effective.threads == authority.cores == 1
+            assert authority.maxcore_mb == expected_maxcore <= self.registry.hardware.maxcore_mb
+            assert effective.budget_seconds == 123
+            assert kwargs["threads_per_process"] == 1
+            raise InspectedBeforeLaunch
 
-    monkeypatch.setattr(runtime, "_execute_authorized", inspect)
+    inspected_runtime = _InspectingBaseRuntime(runtime.registry_path, require_torq=False)
     requested = ResourceLimits(threads=1, memory_mb=requested_mb, budget_seconds=123)
     with pytest.raises(InspectedBeforeLaunch):
-        runtime.export_orca_basis("cc-pVDZ-F12", ["H", "O"], tmp_path / "utility", requested)
+        inspected_runtime.export_orca_basis("cc-pVDZ-F12", ["H", "O"], tmp_path / "utility", requested)
     assert requested.memory_mb == requested_mb
     assert not (tmp_path / "utility").exists()
 
@@ -441,13 +479,13 @@ def test_training_cannot_silently_fall_back_to_cpu(runtime, tmp_path):
         )
 
 
-def test_export_manifest_is_found_for_actual_base_namespace_package(utility_distribution, monkeypatch):
+def test_export_manifest_is_found_for_actual_base_namespace_package(utility_distribution):
     runtime, install, _ = utility_distribution
-    monkeypatch.delenv("COCHEM_BASE_ROOT", raising=False)
-    assert runtime._orca_distribution_utility()[0] == install / "orca_exportbasis"
+    with _scoped_env(COCHEM_BASE_ROOT=None):
+        assert runtime._orca_distribution_utility()[0] == install / "orca_exportbasis"
 
 
-def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime, tmp_path, monkeypatch):
+def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime, tmp_path):
     """Real Python/true probe validates launch environment, not ORCA chemistry."""
     import shutil
 
@@ -464,36 +502,42 @@ def test_orca_environment_adds_reauthorized_mpi_outside_controller_path(runtime,
                                      "hash": hashlib.sha256(mpi.read_bytes()).hexdigest()}
     save_system_config(CoChemSystemConfig.model_validate(config), runtime.registry_path)
     runtime = BaseRuntime(runtime.registry_path, require_torq=False)
-    monkeypatch.setenv("PATH", "/usr/bin:/bin")
-    monkeypatch.setenv("COCHEM_CPU_ALLOCATION_POLICY", "github_hosted_vcpus")
-    monkeypatch.setenv("GITHUB_ACTIONS", "true")
-    monkeypatch.setenv("RUNNER_ENVIRONMENT", "github-hosted")
-    monkeypatch.setenv("OMPI_unrelated_token", "must-not-leak")
-    authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
-                                   cores=2, maxcore_mb=64)
-    command = [str(Path(sys.executable).absolute()), "-c",
-               "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS']); "
-               "print(os.environ['OMPI_MCA_rmaps_base_mapping_policy']); "
-               "assert 'OMPI_unrelated_token' not in os.environ"]
-    resources = ResourceLimits(threads=2, memory_mb=256, budget_seconds=10)
-    result = runtime._execute_authorized(command, tmp_path / "mpi-path-probe", resources,
-                                         authority, engine="orca")
-    assert result.status == "completed", result
-    assert Path(result.stdout_path).read_text().splitlines() == [str(mpi), "1", "hwthread:NOOVERSUBSCRIBE"]
-    mpi.write_bytes(b"altered infrastructure executable")
-    with pytest.raises(BaseIntegrationError, match="MPI launcher"):
-        runtime._execute_authorized(command, tmp_path / "changed-mpi", resources,
-                                    authority, engine="orca")
+    with _scoped_env(
+        PATH="/usr/bin:/bin",
+        COCHEM_CPU_ALLOCATION_POLICY="github_hosted_vcpus",
+        GITHUB_ACTIONS="true",
+        RUNNER_ENVIRONMENT="github-hosted",
+        OMPI_unrelated_token="must-not-leak",
+    ):
+        authority = runtime._authorize("infrastructure-python", registry_path=runtime.registry_path,
+                                       cores=2, maxcore_mb=64)
+        command = [str(Path(sys.executable).absolute()), "-c",
+                   "import shutil,os; print(shutil.which('mpirun')); print(os.environ['OMP_NUM_THREADS']); "
+                   "print(os.environ['OMPI_MCA_rmaps_base_mapping_policy']); "
+                   "assert 'OMPI_unrelated_token' not in os.environ"]
+        resources = ResourceLimits(threads=2, memory_mb=256, budget_seconds=10)
+        result = runtime._execute_authorized(command, tmp_path / "mpi-path-probe", resources,
+                                             authority, engine="orca")
+        assert result.status == "completed", result
+        assert Path(result.stdout_path).read_text().splitlines() == [str(mpi), "1", "hwthread:NOOVERSUBSCRIBE"]
+        mpi.write_bytes(b"altered infrastructure executable")
+        with pytest.raises(BaseIntegrationError, match="MPI launcher"):
+            runtime._execute_authorized(command, tmp_path / "changed-mpi", resources,
+                                        authority, engine="orca")
 
 
-def test_training_engine_guard_uses_actual_base_dictionary_schema(runtime, tmp_path, monkeypatch):
+def test_training_engine_guard_uses_actual_base_dictionary_schema(runtime, tmp_path):
     # Resource authorization is an infrastructure double here; this test must
     # reject a missing package record before any worker or science can launch.
-    monkeypatch.setattr(runtime, "validate_resources", lambda *args, **kwargs: None)
+    class _AuthorizedTrainingRuntime(BaseRuntime):
+        def validate_resources(self, *args, **kwargs):
+            return None
+
+    guarded = _AuthorizedTrainingRuntime(runtime.registry_path, require_torq=False)
     with pytest.raises(BaseIntegrationError, match="actually audited"):
-        runtime.run_mace_training_process([], tmp_path, ResourceLimits(device="gpu"),
-                                         package_version="0.3.16", input_files={},
-                                         gpu_index=0, gpu_memory_mb=128)
+        guarded.run_mace_training_process([], tmp_path, ResourceLimits(device="gpu"),
+                                          package_version="0.3.16", input_files={},
+                                          gpu_index=0, gpu_memory_mb=128)
     assert not (tmp_path / "training-worker-request.json").exists()
 
 
@@ -531,7 +575,7 @@ def test_cfour_authorization_contract_rejects_changed_bookkeeping(change):
 
 
 @pytest.mark.parametrize('post_change', ['seal', 'input', 'none'])
-def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runtime, tmp_path, monkeypatch, post_change):
+def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runtime, tmp_path, post_change):
     """An exit-4 shell is transport evidence only, under explicit bookkeeping authority.
 
     This does not simulate successful CFOUR output or certify a runtime seal.
@@ -552,7 +596,6 @@ def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runti
                     for name in ('GENBAS', 'ECPDATA')}
     record = {'path': authority.executable, 'hash': authority.binary_sha256, 'runtime_seal_sha256': 'a' * 64,
               'runtime_metadata': {'basis': dependencies}}
-    monkeypatch.setattr(runtime, 'registry', SimpleNamespace(model_dump=lambda **kwargs: {'engines': {'cfour': record}}))
     calls = []
     original_environment = engine_environment.engine_runtime_environment
 
@@ -560,19 +603,25 @@ def test_cfour_broker_failed_infrastructure_transport_keeps_postrun_checks(runti
         calls.append(engine)
         return original_environment(engine, environment, **kwargs)
 
-    monkeypatch.setattr(engine_environment, 'engine_runtime_environment', recorded_environment)
-
     def post_authority(engine, **kwargs):
         assert engine == 'cfour' and kwargs['command'] == [str(script)]
         return SimpleNamespace(**{**vars(authority), 'runtime_seal_sha256': 'c' * 64 if post_change == 'seal' else 'a' * 64})
 
-    monkeypatch.setattr(runtime, '_authorize', post_authority)
+    class _CfourPostCheckRuntime(BaseRuntime):
+        def __init__(self, registry_path):
+            super().__init__(registry_path, require_torq=False)
+            self._authorize = post_authority
+            self.registry = SimpleNamespace(model_dump=lambda **kwargs: {'engines': {'cfour': record}})
+
+    checked_runtime = _CfourPostCheckRuntime(runtime.registry_path)
     folder = tmp_path / 'failed-transport'
     folder.mkdir()
     for name in ('ZMAT', 'GENBAS'):
         (folder / name).write_text('Bookkeeping input; never a scientific calculation\n')
-    result = runtime._execute_authorized([str(script)], folder, ResourceLimits(threads=2, memory_mb=256, budget_seconds=10),
-                                         authority, engine='cfour')
+    with _scoped_attr(engine_environment, 'engine_runtime_environment', recorded_environment):
+        result = checked_runtime._execute_authorized([str(script)], folder,
+                                                     ResourceLimits(threads=2, memory_mb=256, budget_seconds=10),
+                                                     authority, engine='cfour')
     assert result.status == 'failed' and result.returncode == 4
     assert calls == ['cfour']
     assert Path(result.stdout_path).read_text() == '2 1 1\n'

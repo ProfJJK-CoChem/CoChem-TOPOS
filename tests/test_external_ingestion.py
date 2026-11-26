@@ -1,6 +1,7 @@
 """Actual retained native text and starting-state integrity; no replay physics claims."""
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
@@ -405,7 +406,35 @@ def test_cli_preview_and_queued_import_share_the_backend(tmp_path, water, capsys
     assert staged["status"] == "queued" and not staged["attempts"]
 
 
-def test_pristine_hosted_import_serializes_all_frames_once_and_retains_original_bytes(tmp_path, water, monkeypatch):
+@contextlib.contextmanager
+def _scoped_env(**updates: str | None):
+    previous = {key: os.environ.get(key) for key in updates}
+    for key, value in updates.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
+
+
+def test_pristine_hosted_import_serializes_all_frames_once_and_retains_original_bytes(tmp_path, water):
     from topos import remote_workflow
 
     path = tmp_path / "student-combined-native-frames.txt"
@@ -428,23 +457,23 @@ def test_pristine_hosted_import_serializes_all_frames_once_and_retains_original_
                                   base_commit=config.remote_base_commit,
                                   details="Transport unit fixture: no hosted job was submitted")
 
-    monkeypatch.setattr(remote_workflow, "ActionDispatchClient", lambda **kwargs: UnavailableTransport())
-    result = execute_external(record.metadata["run_dir"], config=config)
-    assert result.status == "unavailable" and not result.attempts
-    assert len(calls) == 1 and len(calls[0]["starting_geometries"]) == 2
-    assert calls[0]["metadata"]["external_starting_states"][0]["source_sha256"] == file_digest(path)
-    store = RunStore(record.metadata["run_dir"])
-    assert (store.snapshot_path() / "artifacts/external-inputs/input-0001.txt").read_bytes() == path.read_bytes()
-    assert original_snapshot.exists()
-    assert execute_external(record.metadata["run_dir"], config=config).status == "unavailable"
-    assert len(calls) == 1
-    workflow = Workflow(tmp_path / "runs", config=config)
-    with pytest.raises(IntegrityError, match="pristine"):
-        remote_workflow.run_remote(workflow, record.request, staged_record=record)
-    assert len(calls) == 1
+    with _scoped_attr(remote_workflow, "ActionDispatchClient", lambda **kwargs: UnavailableTransport()):
+        result = execute_external(record.metadata["run_dir"], config=config)
+        assert result.status == "unavailable" and not result.attempts
+        assert len(calls) == 1 and len(calls[0]["starting_geometries"]) == 2
+        assert calls[0]["metadata"]["external_starting_states"][0]["source_sha256"] == file_digest(path)
+        store = RunStore(record.metadata["run_dir"])
+        assert (store.snapshot_path() / "artifacts/external-inputs/input-0001.txt").read_bytes() == path.read_bytes()
+        assert original_snapshot.exists()
+        assert execute_external(record.metadata["run_dir"], config=config).status == "unavailable"
+        assert len(calls) == 1
+        workflow = Workflow(tmp_path / "runs", config=config)
+        with pytest.raises(IntegrityError, match="pristine"):
+            remote_workflow.run_remote(workflow, record.request, staged_record=record)
+        assert len(calls) == 1
 
 
-def test_changed_import_manifest_is_rejected_before_hosted_submission(tmp_path, water, monkeypatch):
+def test_changed_import_manifest_is_rejected_before_hosted_submission(tmp_path, water):
     from topos import remote_workflow
 
     record = stage_external(NATIVE_GOAT, specification(water),
@@ -453,13 +482,13 @@ def test_changed_import_manifest_is_rejected_before_hosted_submission(tmp_path, 
     store = RunStore(record.metadata["run_dir"])
     manifest = store.snapshot_path() / "artifacts/external-inputs/manifest.json"
     manifest.write_bytes(manifest.read_bytes() + b"changed")
-    monkeypatch.setattr(remote_workflow, "ActionDispatchClient",
-                        lambda **kwargs: pytest.fail("changed imported evidence attempted hosted transport"))
-    with pytest.raises(IntegrityError, match="checksum"):
-        execute_external(record.metadata["run_dir"], config=SystemConfig(remote_repository="lab/controller"))
+    with _scoped_attr(remote_workflow, "ActionDispatchClient",
+                      lambda **kwargs: pytest.fail("changed imported evidence attempted hosted transport")):
+        with pytest.raises(IntegrityError, match="checksum"):
+            execute_external(record.metadata["run_dir"], config=SystemConfig(remote_repository="lab/controller"))
 
 
-def test_cli_execute_honestly_records_a_missing_engine_without_source_energy_substitution(tmp_path, water, capsys, monkeypatch):
+def test_cli_execute_honestly_records_a_missing_engine_without_source_energy_substitution(tmp_path, water, capsys):
     spec = tmp_path / "spec.json"
     spec.write_text(specification(water).model_dump_json())
     request = tmp_path / "request.json"
@@ -467,9 +496,9 @@ def test_cli_execute_honestly_records_a_missing_engine_without_source_energy_sub
     config = tmp_path / "config.json"
     config.write_text(json.dumps({"execution_backend": "development",
                                   "executables": {"xtb": str(tmp_path / "missing-native-xtb")}}))
-    monkeypatch.setenv("TOPOS_CONFIG", str(config))
-    assert main(["ingest", "--input", str(NATIVE_GOAT), "--spec", str(spec), "--request", str(request),
-                 "--output-root", str(tmp_path / "runs"), "--execute"]) == 3
+    with _scoped_env(TOPOS_CONFIG=str(config)):
+        assert main(["ingest", "--input", str(NATIVE_GOAT), "--spec", str(spec), "--request", str(request),
+                     "--output-root", str(tmp_path / "runs"), "--execute"]) == 3
     record = json.loads(capsys.readouterr().out)
     assert record["status"] == "unavailable"
     assert record["attempts"][0]["engine"] == "xtb"

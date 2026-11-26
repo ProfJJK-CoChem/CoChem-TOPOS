@@ -212,7 +212,7 @@ def test_named_acceptance_tests_require_actual_passing_parameterizations():
             _reference_acceptance_test_coverage(coverage, actual)
 
 
-def test_legacy_campaign_pass_flag_cannot_clear_release_condition(tmp_path, monkeypatch):
+def test_legacy_campaign_pass_flag_cannot_clear_release_condition(tmp_path):
     import topos.scientific_references as references
 
     path = tmp_path/'unscoped-report.json'
@@ -221,8 +221,12 @@ def test_legacy_campaign_pass_flag_cannot_clear_release_condition(tmp_path, monk
     path.write_text(json.dumps(claim))
     # Negative release-boundary control: even a legacy verifier's broad pass
     # cannot replace the new independently required coverage inventory.
-    monkeypatch.setattr(references, 'verify_report', lambda *args: claim)
-    result = release_gate(ROOT, scientific_reference_campaign=path)
+    original_verify = references.verify_report
+    references.verify_report = lambda *args: claim
+    try:
+        result = release_gate(ROOT, scientific_reference_campaign=path)
+    finally:
+        references.verify_report = original_verify
     assert result['release_certified'] is False
     assert any('Complete reviewed per-requirement' in reason for reason in result['blockers'])
 

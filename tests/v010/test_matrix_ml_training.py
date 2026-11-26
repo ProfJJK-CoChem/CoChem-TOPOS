@@ -1,4 +1,5 @@
 """Campaign persistence contracts; these tests do not simulate native chemistry."""
+from contextlib import contextmanager
 from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
@@ -121,8 +122,20 @@ def test_retained_checkpoint_does_not_pretend_heldout_completion(tmp_path):
         _verified_checkpoint(record, store, "identity")
 
 
+@contextmanager
+def _scoped_attrs(*bindings):
+    originals = [(obj, name, getattr(obj, name)) for obj, name, _ in bindings]
+    for obj, name, value in bindings:
+        setattr(obj, name, value)
+    try:
+        yield
+    finally:
+        for obj, name, original in reversed(originals):
+            setattr(obj, name, original)
+
+
 @pytest.mark.parametrize("stop", ["cancel-before", "deadline-before", "cancel-during-verification"])
-def test_compound_stop_never_restores_cached_success_or_launches_training(tmp_path, monkeypatch, stop):
+def test_compound_stop_never_restores_cached_success_or_launches_training(tmp_path, stop):
     """Control-flow fixture only; no native process or successful science result exists."""
     import time
 
@@ -141,9 +154,6 @@ def test_compound_stop_never_restores_cached_success_or_launches_training(tmp_pa
         ml_search_allocation=SimpleNamespace(model_dump=lambda: dict(ml_threads=1, orca_threads=1,
                                                                     ml_memory_mb=256, orca_memory_mb=256)),
         ml_gpu_index=0, ml_gpu_memory_mb=512, ml_search_seeds=[])
-    # Only the unrelated installation preflight is replaced. No executor or native
-    # output is simulated; the test must stop before cached-result acceptance.
-    monkeypatch.setattr(ml_crest, "validate_crest_ml_distribution", lambda path: None)
     workflow = SimpleNamespace(base_runtime=SimpleNamespace(resolve_executable=lambda engine: "/not-executed/"+engine))
     visited = []
 
@@ -153,11 +163,16 @@ def test_compound_stop_never_restores_cached_success_or_launches_training(tmp_pa
         event.set()
         return None
 
-    monkeypatch.setattr(matrix_ml_training, "_verified_cached", cache_boundary)
-    monkeypatch.setattr(matrix_ml_training, "_verified_checkpoint", lambda *args: pytest.fail("Stopped invocation cannot restore a checkpoint"))
-    monkeypatch.setattr(matrix_ml_training, "run_mace_finetuning", lambda *args, **kwargs: pytest.fail("Stopped invocation cannot train"))
-    assert execute_ml_training(workflow, record, store, inputs, None,
-        0 if stop == "deadline-before" else time.monotonic()+30, event) is False
+    # Only the unrelated installation preflight and stage boundaries are scoped.
+    # No executor or native output is simulated; the test must stop before cached-result acceptance.
+    with _scoped_attrs(
+        (ml_crest, "validate_crest_ml_distribution", lambda path: None),
+        (matrix_ml_training, "_verified_cached", cache_boundary),
+        (matrix_ml_training, "_verified_checkpoint", lambda *args: pytest.fail("Stopped invocation cannot restore a checkpoint")),
+        (matrix_ml_training, "run_mace_finetuning", lambda *args, **kwargs: pytest.fail("Stopped invocation cannot train")),
+    ):
+        assert execute_ml_training(workflow, record, store, inputs, None,
+            0 if stop == "deadline-before" else time.monotonic()+30, event) is False
     assert record.status == ("timed-out" if stop == "deadline-before" else "cancelled")
     assert bool(visited) == (stop == "cancel-during-verification")
     assert not record.attempts and "experimental_trained_model" not in record.metadata

@@ -222,7 +222,9 @@ def test_missing_cfour_is_unavailable_not_a_fake_success(tmp_path):
 
 
 @pytest.mark.parametrize("corrupt_staged_basis", [False, True])
-def test_native_timeout_preserves_status_without_scientific_values(tmp_path, monkeypatch, corrupt_staged_basis):
+def test_native_timeout_preserves_status_without_scientific_values(tmp_path, corrupt_staged_basis):
+    import topos.external_engines as adapter
+
     binary = tmp_path / "install" / "bin" / "xcfour"
     binary.parent.mkdir(parents=True)
     binary.write_text("#!/bin/sh\nexit 1\n")
@@ -232,16 +234,11 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path, mon
     p = protocol(genbas_path=str(genbas), genbas_sha256=hashlib.sha256(genbas.read_bytes()).hexdigest())
     _, molecule, _ = native_fixture()
 
-    if corrupt_staged_basis:
-        import topos.external_engines as adapter
+    original_copy = adapter.shutil.copyfile
 
-        original_copy = adapter.shutil.copyfile
-
-        def changed_basis(source, destination):
-            original_copy(source, destination)
-            destination.write_text("Changed native basis library during staging\n")
-
-        monkeypatch.setattr(adapter.shutil, "copyfile", changed_basis)
+    def changed_basis(source, destination):
+        original_copy(source, destination)
+        destination.write_text("Changed native basis library during staging\n")
 
     def infrastructure_timeout(command, folder, resources, **kwargs):
         assert not corrupt_staged_basis, "An altered native basis must be rejected before launch"
@@ -251,8 +248,13 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path, mon
         err.write_text("")
         return ProcessResult(command, "timed-out", -15, .02, 0, str(out), str(err), "test budget")
 
-    result = run_external(molecule, p, ResourceLimits(budget_seconds=20), tmp_path / "attempt",
-                          executable=binary, process_runner=infrastructure_timeout)
+    if corrupt_staged_basis:
+        adapter.shutil.copyfile = changed_basis
+    try:
+        result = run_external(molecule, p, ResourceLimits(budget_seconds=20), tmp_path / "attempt",
+                              executable=binary, process_runner=infrastructure_timeout)
+    finally:
+        adapter.shutil.copyfile = original_copy
     assert result.status == ("unsupported" if corrupt_staged_basis else "timed-out")
     assert result.energy_hartree is None and result.artifacts
     if corrupt_staged_basis:
@@ -260,7 +262,7 @@ def test_native_timeout_preserves_status_without_scientific_values(tmp_path, mon
 
 
 @pytest.mark.parametrize("termination", ["converged", "deadline", "cancelled"])
-def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_path, monkeypatch, termination):
+def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_path, termination):
     """Analytical harmonic-function fixture; explicitly not a CFOUR calculation."""
     from threading import Event
 
@@ -275,7 +277,6 @@ def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_pat
     p = protocol(operation="optimize", genbas_path=str(genbas), genbas_sha256=hashlib.sha256(genbas.read_bytes()).hexdigest())
     molecule = Molecule(symbols=["H", "H"], coordinates=[[0, 0, 0], [0, 0, 1.2]])
     event, calls, clock = Event(), [], [1000.]
-    monkeypatch.setattr(adapter.time, "monotonic", lambda: clock[0])
 
     def callback_fixture(raw, current, selected, **kwargs):
         xyz = np.asarray(current.coordinates) / BOHR_ANGSTROM
@@ -284,8 +285,6 @@ def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_pat
         derivative = (distance - 1.5) * vector / distance
         return {"energy_hartree": .5 * (distance - 1.5)**2,
                 "gradient_hartree_per_bohr": [(-derivative).tolist(), derivative.tolist()], "engine_version": "1.2"}
-
-    monkeypatch.setattr(adapter, "parse_cfour_output", callback_fixture)
 
     def native_fixture_runner(command, folder, resources, **kwargs):
         calls.append(resources.budget_seconds)
@@ -297,8 +296,16 @@ def test_optimizer_uses_actual_gradient_callback_and_one_campaign_budget(tmp_pat
         err.write_text("")
         return ProcessResult(command, "completed", 0, .1, 0, str(out), str(err))
 
-    result = run_external(molecule, p, ResourceLimits(budget_seconds=2), tmp_path / "run", executable=binary,
-                          process_runner=native_fixture_runner, cancel_event=event)
+    original_monotonic = adapter.time.monotonic
+    original_parse = adapter.parse_cfour_output
+    adapter.time.monotonic = lambda: clock[0]
+    adapter.parse_cfour_output = callback_fixture
+    try:
+        result = run_external(molecule, p, ResourceLimits(budget_seconds=2), tmp_path / "run", executable=binary,
+                              process_runner=native_fixture_runner, cancel_event=event)
+    finally:
+        adapter.time.monotonic = original_monotonic
+        adapter.parse_cfour_output = original_parse
     if termination == "converged":
         assert result.status == "completed" and result.converged and len(calls) >= 2
         assert result.energy_hartree == pytest.approx(0, abs=1e-14)

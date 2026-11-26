@@ -1,6 +1,7 @@
 """Remote transport/recovery regressions; no fixture is scientific evidence."""
 from __future__ import annotations
 
+import contextlib
 import json
 from pathlib import Path
 from threading import Event
@@ -16,37 +17,48 @@ from topos.storage import IntegrityError, RunStore, atomic_json, digest_json, fi
 from topos.workflow import Workflow
 
 
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
+
+
+class _GuardedRemoteWorkflow(Workflow):
+    def _execute(self, *args, **kwargs):
+        pytest.fail("remote recovery executed locally")
+
+
 @pytest.fixture
-def owned_remote(tmp_path, monkeypatch):
+def owned_remote(tmp_path):
     transport = GitHubFixture()
     client = ActionDispatchClient(target_repo="owner/controller", transport=transport)
-    monkeypatch.setattr(remote_workflow, "ActionDispatchClient", lambda **kwargs: client)
     request = RunRequest(molecule=Molecule(symbols=["He"], coordinates=[[0, 0, 0]]),
                          calculation_environment="github-actions", purpose="energy")
-    workflow = Workflow(tmp_path / "reviews", config=SystemConfig(remote_repository="owner/controller"))
-    monkeypatch.setattr(workflow, "_execute", lambda *args, **kwargs: pytest.fail("remote recovery executed locally"))
-    return workflow, request, client, transport
+    workflow = _GuardedRemoteWorkflow(tmp_path / "reviews", config=SystemConfig(remote_repository="owner/controller"))
+    with _scoped_attr(remote_workflow, "ActionDispatchClient", lambda **kwargs: client):
+        yield workflow, request, client, transport
 
 
-def interrupted_submission(workflow, request, client, monkeypatch):
-    original = client.wait_for_result
-
+def interrupted_submission(workflow, request, client):
     def interrupted(*args, **kwargs):
         raise KeyboardInterrupt("explicit client interruption after durable dispatch commit")
 
-    monkeypatch.setattr(client, "wait_for_result", interrupted)
-    with pytest.raises(KeyboardInterrupt):
-        workflow.run(request)
+    with _scoped_attr(client, "wait_for_result", interrupted):
+        with pytest.raises(KeyboardInterrupt):
+            workflow.run(request)
     folder, = workflow.output_root.iterdir()
     record = RunStore(folder).load()
     receipt = DispatchResult(**record["metadata"]["remote_dispatch"], inputs=record["request"])
-    monkeypatch.setattr(client, "wait_for_result", original)
     return folder, receipt
 
 
-def test_interrupted_remote_resume_retrieves_same_job_without_dispatch(owned_remote, tmp_path, monkeypatch):
+def test_interrupted_remote_resume_retrieves_same_job_without_dispatch(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, receipt = interrupted_submission(workflow, request, client)
     stored = RunStore(folder).load()
     assert stored["metadata"]["request_sha256"] == digest_json(request.model_dump(mode="json"))
     assert stored["metadata"]["input_sha256"] == digest_json(request.molecule.model_dump(mode="json"))
@@ -72,10 +84,10 @@ def test_interrupted_remote_resume_retrieves_same_job_without_dispatch(owned_rem
     assert continuation["scientific_budget_seconds"] == request.budget_seconds
 
 
-def test_queue_budget_import_preserves_distinct_caller_and_worker_identities(owned_remote, tmp_path, monkeypatch):
+def test_queue_budget_import_preserves_distinct_caller_and_worker_identities(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
     request = request.model_copy(update={"include_queue_in_budget": True, "budget_seconds": 120})
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, receipt = interrupted_submission(workflow, request, client)
     original = make_evidence(tmp_path / "queue-transport-fixture", transport, receipt)
     result = workflow.resume(folder)
     assert original.request.budget_seconds == 90
@@ -95,9 +107,9 @@ def test_queue_budget_import_preserves_distinct_caller_and_worker_identities(own
     {"remote_base_commit": "b" * 40},
     {"remote_controller_profile": "legacy-topos-orca"},
 ])
-def test_recovery_rejects_changed_controller_configuration_before_network(owned_remote, configuration, monkeypatch):
+def test_recovery_rejects_changed_controller_configuration_before_network(owned_remote, configuration):
     workflow, request, client, transport = owned_remote
-    folder, _ = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, _ = interrupted_submission(workflow, request, client)
     for key, value in configuration.items():
         setattr(workflow.config, key, value)
     transport.calls.clear()
@@ -111,9 +123,9 @@ def test_recovery_rejects_changed_controller_configuration_before_network(owned_
     ("dispatch_id", "topos_unowned"), ("workflow_name", "other.yml"),
     ("base_commit", "b" * 40),
 ])
-def test_recovery_rejects_inconsistent_saved_ownership_before_network(owned_remote, monkeypatch, key, value):
+def test_recovery_rejects_inconsistent_saved_ownership_before_network(owned_remote, key, value):
     workflow, request, client, transport = owned_remote
-    folder, _ = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, _ = interrupted_submission(workflow, request, client)
     record = RunRecord.model_validate(RunStore(folder).load())
     record.metadata["remote_dispatch"][key] = value
     RunStore(folder).commit(record)
@@ -123,9 +135,9 @@ def test_recovery_rejects_inconsistent_saved_ownership_before_network(owned_remo
     assert transport.calls == []
 
 
-def test_remote_missing_identity_never_falls_back_to_local_or_redispatch(owned_remote, monkeypatch):
+def test_remote_missing_identity_never_falls_back_to_local_or_redispatch(owned_remote):
     workflow, request, client, transport = owned_remote
-    folder, _ = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, _ = interrupted_submission(workflow, request, client)
     record = RunRecord.model_validate(RunStore(folder).load())
     record.metadata.pop("request_sha256")
     RunStore(folder).commit(record)
@@ -135,28 +147,33 @@ def test_remote_missing_identity_never_falls_back_to_local_or_redispatch(owned_r
     assert transport.calls == []
 
 
-def test_unavailable_or_precancelled_remote_resume_never_submits(owned_remote, monkeypatch):
+def test_unavailable_or_precancelled_remote_resume_never_submits(owned_remote):
     workflow, request, client, transport = owned_remote
-    monkeypatch.setattr(client, "dispatch_request", lambda *args, **kwargs: DispatchResult(
-        "topos_" + "a" * 32, "topos_compute.yml", "owner/controller", request.model_dump(mode="json"),
-        "main", request_sha256=digest_json(request.model_dump(mode="json")), details="credential absent"))
-    unavailable = workflow.run(request)
-    assert unavailable.status == "unavailable"
-    cancelled_event = Event()
-    cancelled_event.set()
-    cancelled = workflow.run(request, cancel_event=cancelled_event)
-    assert cancelled.status == "cancelled"
-    transport.calls.clear()
-    for record in (unavailable, cancelled):
-        before = digest_json(RunStore(record.metadata["run_dir"]).load())
-        assert workflow.resume(record.metadata["run_dir"]).model_dump(mode="json") == record.model_dump(mode="json")
-        assert digest_json(RunStore(record.metadata["run_dir"]).load()) == before
-    assert transport.calls == []
+    with _scoped_attr(
+        client,
+        "dispatch_request",
+        lambda *args, **kwargs: DispatchResult(
+            "topos_" + "a" * 32, "topos_compute.yml", "owner/controller", request.model_dump(mode="json"),
+            "main", request_sha256=digest_json(request.model_dump(mode="json")), details="credential absent",
+        ),
+    ):
+        unavailable = workflow.run(request)
+        assert unavailable.status == "unavailable"
+        cancelled_event = Event()
+        cancelled_event.set()
+        cancelled = workflow.run(request, cancel_event=cancelled_event)
+        assert cancelled.status == "cancelled"
+        transport.calls.clear()
+        for record in (unavailable, cancelled):
+            before = digest_json(RunStore(record.metadata["run_dir"]).load())
+            assert workflow.resume(record.metadata["run_dir"]).model_dump(mode="json") == record.model_dump(mode="json")
+            assert digest_json(RunStore(record.metadata["run_dir"]).load()) == before
+        assert transport.calls == []
 
 
-def test_resume_cancellation_only_requests_owned_job_and_can_later_retrieve(owned_remote, tmp_path, monkeypatch):
+def test_resume_cancellation_only_requests_owned_job_and_can_later_retrieve(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, receipt = interrupted_submission(workflow, request, client)
     event = Event()
     event.set()
     transport.calls.clear()
@@ -172,9 +189,9 @@ def test_resume_cancellation_only_requests_owned_job_and_can_later_retrieve(owne
     assert terminal.metadata["remote_completion_confirmed"] is True
 
 
-def test_resume_after_import_commit_interruption_reauthenticates_same_job(owned_remote, tmp_path, monkeypatch):
+def test_resume_after_import_commit_interruption_reauthenticates_same_job(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, receipt = interrupted_submission(workflow, request, client)
     make_evidence(tmp_path / "import-result-fixture", transport, receipt)
     original_commit = RunStore.commit
 
@@ -183,13 +200,12 @@ def test_resume_after_import_commit_interruption_reauthenticates_same_job(owned_
             raise KeyboardInterrupt("interrupted before local result publication")
         return original_commit(self, record)
 
-    monkeypatch.setattr(RunStore, "commit", interrupted_commit)
-    with pytest.raises(KeyboardInterrupt):
-        workflow.resume(folder)
+    with _scoped_attr(RunStore, "commit", interrupted_commit):
+        with pytest.raises(KeyboardInterrupt):
+            workflow.resume(folder)
     assert RunStore(folder).load()["metadata"]["remote_completion_confirmed"] is False
     assert (folder / "remote-evidence").is_dir()
     worker_record_digest = file_digest(folder / "remote-worker-record.json")
-    monkeypatch.setattr(RunStore, "commit", original_commit)
     transport.calls.clear()
     result = workflow.resume(folder)
     assert result.metadata["remote_completion_confirmed"] is True
@@ -198,9 +214,9 @@ def test_resume_after_import_commit_interruption_reauthenticates_same_job(owned_
     assert not any(path.endswith("/dispatches") for _, path, _ in transport.calls)
 
 
-def test_terminal_claim_without_frozen_worker_proof_is_rejected(owned_remote, monkeypatch):
+def test_terminal_claim_without_frozen_worker_proof_is_rejected(owned_remote):
     workflow, request, client, transport = owned_remote
-    folder, _ = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, _ = interrupted_submission(workflow, request, client)
     record = RunRecord.model_validate(RunStore(folder).load())
     record.metadata["remote_completion_confirmed"] = True
     RunStore(folder).commit(record)
@@ -210,9 +226,9 @@ def test_terminal_claim_without_frozen_worker_proof_is_rejected(owned_remote, mo
     assert transport.calls == []
 
 
-def test_interrupted_import_never_replaces_different_existing_proof(owned_remote, tmp_path, monkeypatch):
+def test_interrupted_import_never_replaces_different_existing_proof(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
+    folder, receipt = interrupted_submission(workflow, request, client)
     make_evidence(tmp_path / "conflict-result-fixture", transport, receipt)
     atomic_json(folder / "remote-worker-record.json", {"source": "different"})
     result = workflow.resume(folder)
@@ -235,7 +251,7 @@ def test_remote_import_copy_rejects_symlink_parent(tmp_path):
     assert not (outside / "artifact").exists()
 
 
-def test_accepted_dispatch_with_lost_response_keeps_pinned_owned_receipt(owned_remote, tmp_path, monkeypatch):
+def test_accepted_dispatch_with_lost_response_keeps_pinned_owned_receipt(owned_remote, tmp_path):
     workflow, request, client, transport = owned_remote
     original_request = transport.request
 
@@ -245,21 +261,21 @@ def test_accepted_dispatch_with_lost_response_keeps_pinned_owned_receipt(owned_r
             raise RemoteExecutionError("transport response timed out")
         return result
 
-    monkeypatch.setattr(transport, "request", lost_post_response)
-    folder, receipt = interrupted_submission(workflow, request, client, monkeypatch)
-    assert receipt.status == "submission-unconfirmed"
-    assert receipt.commit_sha == transport.run["head_sha"]
-    assert receipt.dispatch_id == transport.run["display_title"]
-    assert "no acceptance or calculation completion is claimed" in receipt.details
-    make_evidence(tmp_path / "lost-response-result-fixture", transport, receipt)
-    transport.calls.clear()
-    recovered = workflow.resume(folder)
+    with _scoped_attr(transport, "request", lost_post_response):
+        folder, receipt = interrupted_submission(workflow, request, client)
+        assert receipt.status == "submission-unconfirmed"
+        assert receipt.commit_sha == transport.run["head_sha"]
+        assert receipt.dispatch_id == transport.run["display_title"]
+        assert "no acceptance or calculation completion is claimed" in receipt.details
+        make_evidence(tmp_path / "lost-response-result-fixture", transport, receipt)
+        transport.calls.clear()
+        recovered = workflow.resume(folder)
     assert recovered.metadata["remote_completion_confirmed"] is True
     assert recovered.metadata["remote_dispatch"]["dispatch_id"] == receipt.dispatch_id
     assert not any(path.endswith("/dispatches") for _, path, _ in transport.calls)
 
 
-def test_submission_unconfirmed_does_not_claim_job_exists(owned_remote, monkeypatch):
+def test_submission_unconfirmed_does_not_claim_job_exists(owned_remote):
     _, request, client, transport = owned_remote
     original_request = transport.request
 
@@ -268,18 +284,18 @@ def test_submission_unconfirmed_does_not_claim_job_exists(owned_remote, monkeypa
             raise RemoteExecutionError("request delivery failed")
         return original_request(method, path, payload)
 
-    monkeypatch.setattr(transport, "request", failed_post)
-    receipt = client.dispatch_request(request)
-    assert receipt.status == "submission-unconfirmed"
-    assert receipt.remote_job_id is None and receipt.record is None
-    assert receipt.commit_sha is not None
-    polled = client.poll(receipt)
+    with _scoped_attr(transport, "request", failed_post):
+        receipt = client.dispatch_request(request)
+        assert receipt.status == "submission-unconfirmed"
+        assert receipt.remote_job_id is None and receipt.record is None
+        assert receipt.commit_sha is not None
+        polled = client.poll(receipt)
     assert polled.remote_job_id is None
     assert polled.status == "submitted"
     assert polled.record is None
 
 
-def test_initial_external_dispatch_retains_distinct_caller_and_worker_inputs(owned_remote, tmp_path, monkeypatch):
+def test_initial_external_dispatch_retains_distinct_caller_and_worker_inputs(owned_remote, tmp_path):
     from topos.chemistry import to_xyz
     from topos.ingestion import ExternalImportSpec, ExternalSource, stage_external
 
@@ -303,8 +319,8 @@ def test_initial_external_dispatch_retains_distinct_caller_and_worker_inputs(own
         make_evidence(tmp_path / "external-worker-transport-fixture", transport, receipt, retain_inputs=True)
         return receipt
 
-    monkeypatch.setattr(client, "dispatch_request", submit_and_retain_failure)
-    result = remote_workflow.run_remote(workflow, staged.request, staged_record=staged)
+    with _scoped_attr(client, "dispatch_request", submit_and_retain_failure):
+        result = remote_workflow.run_remote(workflow, staged.request, staged_record=staged)
     assert result.run_id == staged.run_id and result.status == "failed"
     assert result.metadata["remote_completion_confirmed"] is True
     assert (folder / "request.json").read_bytes() == original_request

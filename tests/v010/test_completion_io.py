@@ -5,6 +5,7 @@ boundary: actual errno handling, not a claim of full-filesystem/power-loss testi
 """
 from __future__ import annotations
 
+import contextlib
 import errno
 import json
 import subprocess
@@ -206,30 +207,44 @@ def test_orca_data_restrictions_and_required_citation_are_execution_aware():
     assert any(c["kind"] == "preprint-method" for c in method_references("xtb", "GFN0-xTB"))
 
 
-def _redirect_one_staging_write_to_kernel_full(monkeypatch, predicate):
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
+
+
+@contextlib.contextmanager
+def _redirect_one_staging_write_to_kernel_full(predicate):
     if not Path("/dev/full").exists():
         pytest.skip("Actual ENOSPC errno device is available only on supported Unix hosts")
     original = Path.open
     redirected = []
+
     def open_file(path, mode="r", *args, **kwargs):
         if mode == "xb" and predicate(path):
             redirected.append(str(path))
             return original(Path("/dev/full"), "wb", buffering=0)
         return original(path, mode, *args, **kwargs)
-    monkeypatch.setattr(Path, "open", open_file)
-    return redirected
+
+    with _scoped_attr(Path, "open", open_file):
+        yield redirected
 
 
-def test_actual_kernel_enospc_during_snapshot_write_preserves_committed_evidence(tmp_path, monkeypatch):
+def test_actual_kernel_enospc_during_snapshot_write_preserves_committed_evidence(tmp_path):
     record = make_record(tmp_path)
     store = RunStore(tmp_path)
     before = store.commit(record)
     pointer = store.current.read_bytes()
     record.metadata["next"] = True
-    redirected = _redirect_one_staging_write_to_kernel_full(
-        monkeypatch, lambda path: ".pending-" in str(path) and "/artifacts/" in str(path))
-    with pytest.raises(OSError) as error:
-        store.commit(record)
+    with _redirect_one_staging_write_to_kernel_full(
+        lambda path: ".pending-" in str(path) and "/artifacts/" in str(path)
+    ) as redirected:
+        with pytest.raises(OSError) as error:
+            store.commit(record)
     assert error.value.errno == errno.ENOSPC
     assert redirected
     assert store.current.read_bytes() == pointer
@@ -237,14 +252,15 @@ def test_actual_kernel_enospc_during_snapshot_write_preserves_committed_evidence
     assert not list(store.snapshots.glob(".pending-*"))
 
 
-def test_actual_kernel_enospc_during_export_never_publishes_partial_bundle(tmp_path, monkeypatch):
+def test_actual_kernel_enospc_during_export_never_publishes_partial_bundle(tmp_path):
     run_dir = tmp_path / "run"
     reviewed(run_dir)
     before = RunStore(run_dir).verify()
-    redirected = _redirect_one_staging_write_to_kernel_full(
-        monkeypatch, lambda path: ".bundle.pending-" in str(path) and path.name == "run.json")
-    with pytest.raises(OSError) as error:
-        export_bundle(run_dir, tmp_path / "bundle")
+    with _redirect_one_staging_write_to_kernel_full(
+        lambda path: ".bundle.pending-" in str(path) and path.name == "run.json"
+    ) as redirected:
+        with pytest.raises(OSError) as error:
+            export_bundle(run_dir, tmp_path / "bundle")
     assert error.value.errno == errno.ENOSPC
     assert redirected
     assert not (tmp_path / "bundle").exists()
@@ -293,15 +309,17 @@ def test_cli_matrix_uses_source_rows_and_explicit_hardware_capability_gates(tmp_
 
 
 @pytest.mark.parametrize("status,expected", [("completed", 0), ("failed", 3), ("cancelled", 3)])
-def test_base_receiver_cli_preserves_execution_status_and_passes_cancellation(tmp_path, capsys, monkeypatch, status, expected):
+def test_base_receiver_cli_preserves_execution_status_and_passes_cancellation(tmp_path, capsys, status, expected):
+    from topos import base_provider
     from topos.cli import main
 
     def receiver(path, output_root, *, cancel_event):
         assert path == tmp_path / "handoff.json" and output_root == tmp_path / "runs"
         assert not cancel_event.is_set()
         return {"receipt": {"status": status}, "record": {"status": status}}
-    monkeypatch.setattr("topos.base_provider.execute_handoff", receiver)
-    assert main(["receive-base", str(tmp_path / "handoff.json"), "--output-root", str(tmp_path / "runs")]) == expected
+
+    with _scoped_attr(base_provider, "execute_handoff", receiver):
+        assert main(["receive-base", str(tmp_path / "handoff.json"), "--output-root", str(tmp_path / "runs")]) == expected
     assert json.loads(capsys.readouterr().out)["record"]["status"] == status
 
 

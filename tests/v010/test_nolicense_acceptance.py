@@ -101,24 +101,29 @@ def test_real_flexible_ethanol_jiggle_quench_retains_chemistry_and_logs(tmp_path
 
 
 @pytest.mark.integration
-def test_real_cancel_after_committed_result_then_resume_preserves_evidence(tmp_path, monkeypatch):
+def test_real_cancel_after_committed_result_then_resume_preserves_evidence(tmp_path):
+    from topos import workflow as workflow_module
+
     workflow = Workflow(tmp_path, config=SystemConfig(executables={"xtb": _native("xtb")}))
     event = Event()
-    commit = RunStore.commit
     committed_candidate_ids = []
 
-    def cancel_after_real_commit(store, record):
-        result = commit(store, record)
-        if not event.is_set():
-            completed = [c for c in record.candidates if c.metadata.get("calculation_completed")]
-            if completed:
-                committed_candidate_ids.extend(c.candidate_id for c in completed)
-                event.set()
-        return result
+    class _CancelAfterCommitStore(RunStore):
+        def commit(self, record):
+            result = super().commit(record)
+            if not event.is_set():
+                completed = [c for c in record.candidates if c.metadata.get("calculation_completed")]
+                if completed:
+                    committed_candidate_ids.extend(c.candidate_id for c in completed)
+                    event.set()
+            return result
 
-    with monkeypatch.context() as context:
-        context.setattr(RunStore, "commit", cancel_after_real_commit)
+    original_store = workflow_module.RunStore
+    workflow_module.RunStore = _CancelAfterCommitStore
+    try:
         interrupted = workflow.run(_request(), cancel_event=event)
+    finally:
+        workflow_module.RunStore = original_store
 
     assert interrupted.status == "cancelled"
     assert len(committed_candidate_ids) == 1
@@ -188,20 +193,21 @@ def test_real_union_missing_crest_preserves_jiggle_then_extends_on_resume(tmp_pa
 
 
 @pytest.mark.integration
-def test_invalid_proposal_is_processed_without_claiming_an_engine_calculation(tmp_path, monkeypatch):
+def test_invalid_proposal_is_processed_without_claiming_an_engine_calculation(tmp_path):
     molecule = Molecule(symbols=["O", "H", "H"],
                         coordinates=[[0, 0, 0], [0.9572, 0, 0], [-0.23999, 0.9273, 0]])
     invalid = molecule.model_copy(deep=True)
     invalid.coordinates[1] = list(invalid.coordinates[0])
 
-    def malformed_seed(request, index):
-        assert index == 1
-        return invalid
-
     # Only the proposed input is malformed; the initial seed still executes a
-    # genuine xTB optimization. No solver result is supplied by this hook.
-    monkeypatch.setattr(Workflow, "_seed", staticmethod(malformed_seed))
-    workflow = Workflow(tmp_path, config=SystemConfig(executables={"xtb": _native("xtb")}))
+    # genuine xTB optimization. No solver result is supplied by this subclass.
+    class _MalformedSeedWorkflow(Workflow):
+        @staticmethod
+        def _seed(request, index):
+            assert index == 1
+            return invalid
+
+    workflow = _MalformedSeedWorkflow(tmp_path, config=SystemConfig(executables={"xtb": _native("xtb")}))
     record = workflow.run(_request(molecule=molecule, n_candidates=2))
     assert record.status == "completed"
     assert len(record.attempts) == 1

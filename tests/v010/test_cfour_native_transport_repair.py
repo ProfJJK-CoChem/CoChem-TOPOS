@@ -4,6 +4,7 @@ The retained failure is unchanged genuine CFOUR output. Artifact bookkeeping
 fixtures are not energies, gradients, solver completion or provider authority.
 """
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -19,6 +20,16 @@ from topos.storage import file_digest
 
 FIXTURE = Path(__file__).parent/'fixtures/cfour_failed_first_order'
 RESOURCES = ResourceLimits(threads=2, memory_mb=2048, budget_seconds=3600)
+
+
+@contextmanager
+def _scoped_attr(target, name, value):
+    original = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, original)
 
 
 def protocol(**updates):
@@ -90,7 +101,7 @@ def test_scalar_controls_preserve_exact_hamiltonian_and_basis(relativistic):
     assert values['DBOC'] == 'OFF' and values['DERIV_LEVEL'] == 'ZERO'
 
 
-def test_native_scratch_links_are_recorded_without_reading_targets(tmp_path, monkeypatch):
+def test_native_scratch_links_are_recorded_without_reading_targets(tmp_path):
     folder=tmp_path/'attempt'
     folder.mkdir()
     (folder/'engine.stdout').write_bytes((FIXTURE/'output.stdout').read_bytes())
@@ -107,10 +118,10 @@ def test_native_scratch_links_are_recorded_without_reading_targets(tmp_path, mon
     def reject_target(self,*args,**kwargs):
         assert self not in {external,external_directory/'secret'}, 'Symlink target was opened'
         return original(self,*args,**kwargs)
-    monkeypatch.setattr(Path,'open',reject_target)
     result=EngineResult(status='failed',engine='cfour',method='CCSD(T)',operation='first-order-properties',
         diagnostics={'reason':'genuine native xjoda status 256; keyword value missing'})
-    finalize_artifacts(result,folder)
+    with _scoped_attr(Path,'open',reject_target):
+        finalize_artifacts(result,folder)
     assert result.status == 'failed' and result.diagnostics['reason'].startswith('genuine native xjoda')
     assert {Path(a.path).name for a in result.artifacts} == {'engine.stdout','engine.stderr','cfour-evidence-policy.json'}
     assert len(result.diagnostics['artifact_links']) == 3 and 'artifact_error' not in result.diagnostics
@@ -147,7 +158,7 @@ def test_native_reader_rejects_wrong_directory_and_missing_required_file(tmp_pat
 
 
 
-def test_collection_io_error_is_secondary_and_keeps_other_regular_evidence(tmp_path, monkeypatch):
+def test_collection_io_error_is_secondary_and_keeps_other_regular_evidence(tmp_path):
     (tmp_path/'engine.stdout').write_bytes((FIXTURE/'output.stdout').read_bytes())
     (tmp_path/'protocol.json').write_text('{}')
     original = Path.open
@@ -155,10 +166,10 @@ def test_collection_io_error_is_secondary_and_keeps_other_regular_evidence(tmp_p
         if self == tmp_path/'engine.stdout':
             raise PermissionError('injected read failure')
         return original(self, *args, **kwargs)
-    monkeypatch.setattr(Path, 'open', denied)
     result = EngineResult(status='failed', engine='cfour', method='HF', operation='energy',
                           diagnostics={'reason':'original solver failure'})
-    finalize_artifacts(result, tmp_path)
+    with _scoped_attr(Path, 'open', denied):
+        finalize_artifacts(result, tmp_path)
     assert result.status == 'failed' and result.diagnostics['reason'] == 'original solver failure'
     assert 'injected read failure' in result.diagnostics['artifact_error']
     assert [Path(a.path).name for a in result.artifacts] == ['cfour-evidence-policy.json', 'protocol.json']

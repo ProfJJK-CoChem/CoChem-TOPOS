@@ -107,7 +107,7 @@ def test_geometry_cancel_and_missing_licensed_engine_never_produce_quantities(tm
     assert not record.attempts[0].quantities and not record.metadata.get('matrix_correlated')
 
 
-def test_public_revised_route_retains_binding_and_rejects_changed_revision_on_resume(tmp_path,monkeypatch):
+def test_public_revised_route_retains_binding_and_rejects_changed_revision_on_resume(tmp_path):
     import topos.method_matrix as matrix
 
     native=protocol()
@@ -118,11 +118,14 @@ def test_public_revised_route_retains_binding_and_rejects_changed_revision_on_re
     assert result.status=='unavailable' and not result.candidates
     assert result.metadata['matrix_plan']['reviewed_revision']['variant']==native.convention
     original=dict(matrix.REVIEWED_RECIPES[native.convention])
-    monkeypatch.setitem(matrix.REVIEWED_RECIPES,native.convention,{**original,'title':'changed scientific protocol'})
     from topos.storage import IntegrityError
 
-    with pytest.raises(IntegrityError,match='Reviewed matrix revision changed'):
-        workflow.resume(tmp_path/result.run_id,invocation_budget_seconds=30)
+    matrix.REVIEWED_RECIPES[native.convention]={**original,'title':'changed scientific protocol'}
+    try:
+        with pytest.raises(IntegrityError,match='Reviewed matrix revision changed'):
+            workflow.resume(tmp_path/result.run_id,invocation_budget_seconds=30)
+    finally:
+        matrix.REVIEWED_RECIPES[native.convention]=original
 
 
 @pytest.mark.integration

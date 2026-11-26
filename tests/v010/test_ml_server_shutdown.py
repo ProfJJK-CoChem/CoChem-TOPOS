@@ -1,4 +1,5 @@
 """Control-plane regressions; the supervisor double emits no chemistry."""
+import socket
 from pathlib import Path
 
 import pytest
@@ -31,23 +32,24 @@ class CompletionCollection:
             0 if self.native_status == 'completed' else 7, 0.0, 0.0, 'unused.stdout', 'unused.stderr')
 
 
-def closing_server(tmp_path: Path, monkeypatch, **options):
+def closing_server(tmp_path: Path, **options):
+    tmp_path.chmod(0o700)
+    socket_path = tmp_path / 's'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
+        listener.bind(str(socket_path))
+        socket_path.chmod(0o600)
+    # Listener is closed while socket inode remains; connect_server hits real OS ConnectionRefusedError.
     server = ml_extopt.PersistentMLServer(None, None, None, ResourceLimits(), tmp_path)
     server.ready = {'manifest_sha256': 'bound-model'}
     server.binding = {'manifest_sha256': 'bound-model'}
     future = CompletionCollection(server, **options)
     server._future = future
-
-    def closed_socket(*args, **kwargs):
-        raise ConnectionRefusedError('native worker reached its request limit')
-
-    monkeypatch.setattr(ml_extopt, 'connect_server', closed_socket)
     return server, future
 
 
 @pytest.mark.parametrize('native_status', ['completed', 'failed'])
-def test_closed_stop_socket_preserves_collected_native_status(tmp_path, monkeypatch, native_status):
-    server, future = closing_server(tmp_path, monkeypatch, native_status=native_status)
+def test_closed_stop_socket_preserves_collected_native_status(tmp_path, native_status):
+    server, future = closing_server(tmp_path, native_status=native_status)
     result = server.close()
     assert result.status == native_status
     assert future.cancellation_at_collection == [False]
@@ -55,14 +57,14 @@ def test_closed_stop_socket_preserves_collected_native_status(tmp_path, monkeypa
     assert server.close() is result
 
 
-def test_explicit_cancellation_is_not_reclassified_as_clean_exit(tmp_path, monkeypatch):
-    server, future = closing_server(tmp_path, monkeypatch)
+def test_explicit_cancellation_is_not_reclassified_as_clean_exit(tmp_path):
+    server, future = closing_server(tmp_path)
     assert server.close(cancel=True).status == 'cancelled'
     assert future.cancellation_at_collection == [True]
 
 
-def test_closed_socket_with_unresponsive_process_still_cancels_after_bounded_wait(tmp_path, monkeypatch):
-    server, future = closing_server(tmp_path, monkeypatch, first_wait_times_out=True)
+def test_closed_socket_with_unresponsive_process_still_cancels_after_bounded_wait(tmp_path):
+    server, future = closing_server(tmp_path, first_wait_times_out=True)
     assert server.close().status == 'cancelled'
     assert future.cancellation_at_collection == [False, True]
     assert future.waits == [10, 10]

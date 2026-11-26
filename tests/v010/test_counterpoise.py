@@ -142,7 +142,7 @@ def test_cp_cancellation_does_not_produce_partial_sum(tmp_path):
     assert result["status"] == "cancelled" and not result["jobs"] and result["energies"] is None
 
 
-def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path, monkeypatch):
+def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path):
     """A parser fixture result is deliberately refused as chemical evidence."""
     import topos.counterpoise as module
 
@@ -150,9 +150,13 @@ def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path, m
         return EngineResult(status="completed", converged=True, engine="orca", method="wB97M-V",
                             operation="energy", energy_hartree=-1, engine_version="6.1.1",
                             metadata={"execution_kind": "unit-test-fixture"})
-    monkeypatch.setattr(module, "run_engine", fixture)
-    result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp",
-                                  **basis_files(tmp_path), process_runner=lambda *a, **kw: None)
+    original = module.run_engine
+    module.run_engine = fixture
+    try:
+        result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp",
+                                      **basis_files(tmp_path), process_runner=lambda *a, **kw: None)
+    finally:
+        module.run_engine = original
     assert result["status"] == "failed" and result["energies"] is None
     assert "actual versioned engine execution" in result["reason"]
 
@@ -279,7 +283,7 @@ def test_ghost_physical_fragment_preserves_declared_internal_bonds(tmp_path, fra
     assert result.metadata["physical_molecule"] == counterpoise_plan(molecule, method())[2]["physical_molecule"]
 
 
-def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, monkeypatch):
+def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path):
     """Synthetic parser/orchestration fixtures; no native execution or chemistry validation."""
     import topos.counterpoise as module
     from topos.engines import artifact_inventory
@@ -320,26 +324,30 @@ def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, 
                                       "resources": resources.model_dump(mode="json"), "external_basis": basis},
                             diagnostics={"process": {"stdout_path": str(output)}}, artifacts=artifact_inventory(folder))
 
-    monkeypatch.setattr(module, "run_engine", parser_fixture)
     options = {**basis_files(tmp_path), "executable": binary, "process_runner": lambda *a, **kw: None,
                "cancel_event": cancel}
-    interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
-    assert interrupted["status"] == "cancelled" and interrupted["energies"] is None and len(calls) == 2
-    original_jobs = deepcopy(interrupted["jobs"])
-    for entry, observed in zip(original_jobs, observed_calls, strict=True):
-        first, last = _leg_execution_timing(EngineResult.model_validate(entry["result"]))
-        assert datetime.fromisoformat(first) <= datetime.fromisoformat(observed) <= datetime.fromisoformat(last)
-        assert entry["result_sha256"] == digest_json(entry["result"])
-    cancel.clear()
-    resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
-    assert resumed["status"] == "completed" and len(calls) == 5
-    assert resumed["resumed_completed_roles"] == ["complex-in-complex-basis", "fragment-0-in-own-basis"]
-    assert resumed["validation_status"] == "human-review"  # arbitrary basis files never satisfy the matrix
-    assert resumed["jobs"][:2] == original_jobs  # Resume retains actual original invocation times.
-    output = Path(resumed["jobs"][0]["result"]["diagnostics"]["process"]["stdout_path"])
-    output.write_text(output.read_text().replace("-1.0000", "-2.0000"))
-    with pytest.raises(IntegrityError, match="retained artifact"):
-        execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+    original = module.run_engine
+    module.run_engine = parser_fixture
+    try:
+        interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert interrupted["status"] == "cancelled" and interrupted["energies"] is None and len(calls) == 2
+        original_jobs = deepcopy(interrupted["jobs"])
+        for entry, observed in zip(original_jobs, observed_calls, strict=True):
+            first, last = _leg_execution_timing(EngineResult.model_validate(entry["result"]))
+            assert datetime.fromisoformat(first) <= datetime.fromisoformat(observed) <= datetime.fromisoformat(last)
+            assert entry["result_sha256"] == digest_json(entry["result"])
+        cancel.clear()
+        resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert resumed["status"] == "completed" and len(calls) == 5
+        assert resumed["resumed_completed_roles"] == ["complex-in-complex-basis", "fragment-0-in-own-basis"]
+        assert resumed["validation_status"] == "human-review"  # arbitrary basis files never satisfy the matrix
+        assert resumed["jobs"][:2] == original_jobs  # Resume retains actual original invocation times.
+        output = Path(resumed["jobs"][0]["result"]["diagnostics"]["process"]["stdout_path"])
+        output.write_text(output.read_text().replace("-1.0000", "-2.0000"))
+        with pytest.raises(IntegrityError, match="retained artifact"):
+            execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+    finally:
+        module.run_engine = original
 
 
 def test_unavailable_cp_leg_retains_dated_invocation_without_native_execution_claim(tmp_path):

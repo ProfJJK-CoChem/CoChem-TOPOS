@@ -112,10 +112,16 @@ def test_orca_diagnostic_is_a_separate_serial_input():
 
 
 @pytest.mark.parametrize("cores,memory,reason", [(2, 1024, "CPU affinity"), (4, 64, "per-worker MaxCore")])
-def test_orca_total_workers_cannot_bypass_resource_limits(water, tmp_path, monkeypatch, cores, memory, reason):
-    monkeypatch.setattr("topos.engines.available_cpu_count", lambda: cores)
-    method = MethodSpec(engine="orca", method="HF-3c", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
-    result = run_engine(water, method, ResourceLimits(threads=4, memory_mb=memory), tmp_path / "attempt")
+def test_orca_total_workers_cannot_bypass_resource_limits(water, tmp_path, cores, memory, reason):
+    import topos.engines as engines_module
+
+    original = engines_module.available_cpu_count
+    engines_module.available_cpu_count = lambda: cores
+    try:
+        method = MethodSpec(engine="orca", method="HF-3c", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
+        result = run_engine(water, method, ResourceLimits(threads=4, memory_mb=memory), tmp_path / "attempt")
+    finally:
+        engines_module.available_cpu_count = original
     assert result.status == "unsupported" and reason in result.diagnostics["reason"]
     assert result.energy_hartree is None
 
@@ -134,7 +140,7 @@ def test_orca_header_parser_does_not_erase_version_suffix(header, expected):
     ("completed", "Program Version 6.0.1", "unsupported"),
     ("completed", "Program Version 6.1.1-f.3", "unsupported"),
 ])
-def test_orca_probe_fixture_failure_blocks_main_job(water, tmp_path, monkeypatch, probe_status, header, expected):
+def test_orca_probe_fixture_failure_blocks_main_job(water, tmp_path, probe_status, header, expected):
     # Explicit subprocess-contract fixture: no ORCA calculation is performed,
     # and no fixture energy is ever accepted as a molecular scientific result.
     calls = []
@@ -150,10 +156,9 @@ def test_orca_probe_fixture_failure_blocks_main_job(water, tmp_path, monkeypatch
         return ProcessResult(command, probe_status, 0 if probe_status == "completed" else 1,
                              0.01, 1.0, str(stdout), str(stderr), "contract fixture")
 
-    monkeypatch.setattr("topos.engines.run_process", probe_fixture)
     method = MethodSpec(engine="orca", method="HF-3c", profile_id="orca-mapping-v4.1", engine_version="6.1.1")
     result = run_engine(water, method, ResourceLimits(), tmp_path / "attempt",
-                        executable=sys.executable)
+                        executable=sys.executable, process_runner=probe_fixture)
     assert result.status == expected
     assert len(calls) == 1 and calls[0][-1] == "version.inp"
     assert "--version" not in calls[0]

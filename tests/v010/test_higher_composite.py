@@ -181,7 +181,7 @@ def test_step_instability_and_fabricated_nonfinite_energies_rejected():
         numerical(maximum_step_disagreement_hartree_per_bohr=1e-5)
 
 
-def test_numerical_optimizer_against_explicit_isotropic_harmonic_bond_model(tmp_path, monkeypatch):
+def test_numerical_optimizer_against_explicit_isotropic_harmonic_bond_model(tmp_path):
     # Mathematical callback fixture only. It bypasses the electronic engine and
     # never writes a fabricated CFOUR output or passes the native ledger gate.
     import topos.higher_composite as module
@@ -199,9 +199,13 @@ def test_numerical_optimizer_against_explicit_isotropic_harmonic_bond_model(tmp_
                                engine_version="2.1", metadata={"executable_sha256": "a"*64,
                                                               "basis_library": {"sha256": "b"*64}})
 
-    monkeypatch.setattr(module, "run_component", model_component)
-    molecule, diagnostic, identities = _numerical_optimize(None, record, store,
-        specification().protocols()["quadruples_full"], numerical(), time.monotonic()+30, None)
+    original = module.run_component
+    module.run_component = model_component
+    try:
+        molecule, diagnostic, identities = _numerical_optimize(None, record, store,
+            specification().protocols()["quadruples_full"], numerical(), time.monotonic()+30, None)
+    finally:
+        module.run_component = original
     assert np.linalg.norm(np.asarray(molecule.coordinates)[1]-molecule.coordinates[0]) == pytest.approx(.74, abs=1e-6)
     assert diagnostic["energy_geometries"] == len(set(sampled))
     assert not diagnostic["analytic_gradient"] and not diagnostic["minimum_hessian_verified"]
@@ -209,7 +213,7 @@ def test_numerical_optimizer_against_explicit_isotropic_harmonic_bond_model(tmp_
 
 
 @pytest.mark.parametrize("kind", ["cancel", "deadline"])
-def test_numerical_campaign_stops_before_any_component_when_cancelled_or_expired(tmp_path, monkeypatch, kind):
+def test_numerical_campaign_stops_before_any_component_when_cancelled_or_expired(tmp_path, kind):
     import topos.higher_composite as module
 
     record = RunRecord(request=RunRequest(molecule=diatomic(), purpose="matrix", matrix_row_id="T3C-1w"), status="running")
@@ -218,10 +222,14 @@ def test_numerical_campaign_stops_before_any_component_when_cancelled_or_expired
     event = Event()
     if kind == "cancel":
         event.set()
-    monkeypatch.setattr(module, "run_component", lambda *args: pytest.fail("No energy may be launched"))
-    with pytest.raises(_ComponentStop):
-        _numerical_optimize(None, record, store, specification().protocols()["quadruples_full"], numerical(),
-                            time.monotonic() + (30 if kind == "cancel" else -1), event)
+    original = module.run_component
+    module.run_component = lambda *args: pytest.fail("No energy may be launched")
+    try:
+        with pytest.raises(_ComponentStop):
+            _numerical_optimize(None, record, store, specification().protocols()["quadruples_full"], numerical(),
+                                time.monotonic() + (30 if kind == "cancel" else -1), event)
+    finally:
+        module.run_component = original
     assert record.status == ("cancelled" if kind == "cancel" else "timed-out")
 
 

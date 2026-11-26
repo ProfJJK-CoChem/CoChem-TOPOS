@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 import tomllib
+from contextlib import contextmanager
 from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 from types import SimpleNamespace
@@ -74,7 +75,18 @@ def inputs(kind):
     return run_default_mass_dboc, molecule, DefaultMassDBOCProtocol(contraction="GENERAL", mass_convention=MASS_CONVENTION, **common)
 
 
-def inject_dependency_failure(monkeypatch, failure):
+@contextmanager
+def _scoped_attr(target, name, value):
+    original = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, original)
+
+
+@contextmanager
+def inject_dependency_failure(failure):
     actual_version = dependencies.version
     actual_import = dependencies.import_module
     if failure.startswith("missing-"):
@@ -83,28 +95,30 @@ def inject_dependency_failure(monkeypatch, failure):
             if name == missing:
                 raise PackageNotFoundError(name)
             return actual_version(name)
-        monkeypatch.setattr(dependencies, "version", version)
+        with _scoped_attr(dependencies, "version", version):
+            yield
     elif failure == "wrong-version":
-        monkeypatch.setattr(dependencies, "version", lambda name: "0.50.0" if name == "qcengine" else actual_version(name))
+        with _scoped_attr(dependencies, "version", lambda name: "0.50.0" if name == "qcengine" else actual_version(name)):
+            yield
     else:
         def broken_import(name):
             if name == "qcengine.programs.cfour.harvester":
                 raise ImportError("Explicit negative parser dependency fixture")
             return actual_import(name)
-        monkeypatch.setattr(dependencies, "import_module", broken_import)
+        with _scoped_attr(dependencies, "import_module", broken_import):
+            yield
 
 
 @pytest.mark.parametrize("kind", ["external", "counterpoise", "scalar", "dboc"])
 @pytest.mark.parametrize("failure", ["missing-qcengine", "missing-qcelemental", "wrong-version", "broken-import"])
-def test_missing_or_broken_parser_stops_every_runner_before_resolution_or_native_launch(tmp_path, monkeypatch, kind, failure):
+def test_missing_or_broken_parser_stops_every_runner_before_resolution_or_native_launch(tmp_path, kind, failure):
     function, molecule, protocol = inputs(kind)
-    inject_dependency_failure(monkeypatch, failure)
     module = sys.modules[function.__module__]
     def forbidden(*args, **kwargs):
         pytest.fail("No native executable resolution or process launch is permitted before parser preflight")
-    monkeypatch.setattr(module.shutil, "which", forbidden)
     workdir = tmp_path / "unexecuted-attempt"
-    result = function(molecule, protocol, ResourceLimits(), workdir, executable="/unexecuted/xcfour", process_runner=forbidden)
+    with inject_dependency_failure(failure), _scoped_attr(module.shutil, "which", forbidden):
+        result = function(molecule, protocol, ResourceLimits(), workdir, executable="/unexecuted/xcfour", process_runner=forbidden)
     assert result.status == "unsupported"
     assert result.metadata["execution_kind"] == "not-executed"
     assert "CFOUR parser dependency" in result.diagnostics["reason"]
@@ -113,16 +127,16 @@ def test_missing_or_broken_parser_stops_every_runner_before_resolution_or_native
 
 
 @pytest.mark.parametrize("kind", ["external", "counterpoise"])
-def test_direct_parser_requires_dependencies_before_interpreting_any_text(monkeypatch, kind):
+def test_direct_parser_requires_dependencies_before_interpreting_any_text(kind):
     _, molecule, protocol = inputs(kind)
-    inject_dependency_failure(monkeypatch, "missing-qcengine")
     parser = parse_cfour_output if kind == "external" else parse_cfour_counterpoise_output
-    with pytest.raises(EngineParseError, match="dependency qcengine==0.51.0 is missing"):
-        parser("Not native output; preflight must reject before interpreting text", molecule, protocol)
+    with inject_dependency_failure("missing-qcengine"):
+        with pytest.raises(EngineParseError, match="dependency qcengine==0.51.0 is missing"):
+            parser("Not native output; preflight must reject before interpreting text", molecule, protocol)
 
 
 @pytest.mark.parametrize("problem", ["imported-version", "noncallable-harvester", "missing-harvester"])
-def test_distribution_metadata_cannot_hide_broken_imported_parser(monkeypatch, problem):
+def test_distribution_metadata_cannot_hide_broken_imported_parser(problem):
     actual_import = dependencies.import_module
     def changed(name):
         if problem == "imported-version" and name == "qcelemental":
@@ -130,19 +144,19 @@ def test_distribution_metadata_cannot_hide_broken_imported_parser(monkeypatch, p
         if problem != "imported-version" and name == "qcengine.programs.cfour.harvester":
             return SimpleNamespace(harvest_GRD=None, harvest_outfile_pass=None) if problem == "noncallable-harvester" else SimpleNamespace()
         return actual_import(name)
-    monkeypatch.setattr(dependencies, "import_module", changed)
-    with pytest.raises(EngineParseError):
-        dependencies.require_cfour_parsers()
+    with _scoped_attr(dependencies, "import_module", changed):
+        with pytest.raises(EngineParseError):
+            dependencies.require_cfour_parsers()
 
 
-def test_successful_preflight_is_not_cached_across_dependency_failure(monkeypatch):
+def test_successful_preflight_is_not_cached_across_dependency_failure():
     dependencies.require_cfour_parsers()
-    inject_dependency_failure(monkeypatch, "missing-qcelemental")
-    with pytest.raises(EngineParseError, match="qcelemental==0.51.2 is missing"):
-        dependencies.require_cfour_parsers()
+    with inject_dependency_failure("missing-qcelemental"):
+        with pytest.raises(EngineParseError, match="qcelemental==0.51.2 is missing"):
+            dependencies.require_cfour_parsers()
 
 
-def test_each_uncached_native_evaluation_rechecks_parser_before_staging(tmp_path, monkeypatch):
+def test_each_uncached_native_evaluation_rechecks_parser_before_staging(tmp_path):
     from topos import external_engines as adapter
     from topos.storage import file_digest
 
@@ -164,9 +178,9 @@ def test_each_uncached_native_evaluation_rechecks_parser_before_staging(tmp_path
         return dependencies.require_cfour_parsers()
     def forbidden(*args, **kwargs):
         pytest.fail("The dependency failed before any native process may launch")
-    monkeypatch.setattr(adapter, "require_cfour_parsers", preflight)
     folder = tmp_path / "attempt"
-    result = adapter.run_external(molecule, selected, ResourceLimits(), folder, executable=binary, process_runner=forbidden)
+    with _scoped_attr(adapter, "require_cfour_parsers", preflight):
+        result = adapter.run_external(molecule, selected, ResourceLimits(), folder, executable=binary, process_runner=forbidden)
     assert len(calls) == 2
     assert result.status == "unsupported" and result.metadata["execution_kind"] == "not-executed"
     assert result.energy_hartree is None and result.command == []

@@ -98,22 +98,30 @@ def test_cfour_junchs_components_retain_exact_engine_and_native_library():
     ("junchs-same-basis-core-valence-v1", None, "CompositeCoordinateSet"),
     ("junchs-same-basis-core-valence-v1", {"coordinates": [], "cv_basis": "cc-pwCVTZ", "cv_resolution": "same-basis-ae-minus-fc"}, "coordinate"),
 ])
-def test_cfour_junchs_rejects_missing_resolution_or_incomplete_chart_before_compute(tmp_path, monkeypatch, resolution, coordinates, reason):
+def test_cfour_junchs_rejects_missing_resolution_or_incomplete_chart_before_compute(tmp_path, resolution, coordinates, reason):
+    import topos.external_matrix_workflow as emw
+
     workflow = Workflow(tmp_path / "runs", config=SystemConfig(execution_backend="development"))
     molecule = Molecule(symbols=["O", "H", "H"], coordinates=[[0, 0, 0], [.958, 0, 0], [-.24, .927, 0]])
     record = RunRecord(request=RunRequest(molecule=molecule, purpose="matrix", matrix_row_id="T3C-3d"), status="running")
     store = RunStore(workflow.output_root / record.run_id)
     store.commit(record)
-    monkeypatch.setattr("topos.external_matrix_workflow.run_component", lambda *a, **k: pytest.fail("No native execution before chart resolution"))
     inputs = MatrixInputs(external_protocol=cfour(orbital_basis="jun-cc-pVTZ"),
                           external_resolution="cfour-topos-cartesian-optimizer-v1",
                           correlated_resolution=resolution, composite_coordinates=coordinates)
-    assert not execute_external_recipe(workflow, record, store, inputs, time.monotonic() + 30, None)
+    original = emw.run_component
+    emw.run_component = lambda *a, **k: pytest.fail("No native execution before chart resolution")
+    try:
+        assert not execute_external_recipe(workflow, record, store, inputs, time.monotonic() + 30, None)
+    finally:
+        emw.run_component = original
     assert record.status == "unsupported" and not record.attempts
     assert reason.lower() in record.metadata["termination_reason"].lower()
 
 
-def test_genuine_psi4_public_matrix_request_and_verified_resume(tmp_path, monkeypatch):
+def test_genuine_psi4_public_matrix_request_and_verified_resume(tmp_path):
+    import topos.external_matrix_workflow as emw
+
     executable = os.environ.get("TOPOS_PSI4_EXECUTABLE")
     if not executable or not Path(executable).is_file():
         pytest.skip("Genuine optional Psi4 installation not configured; no simulated SAPT calculation")
@@ -136,6 +144,10 @@ def test_genuine_psi4_public_matrix_request_and_verified_resume(tmp_path, monkey
     def do_not_recompute(*args, **kwargs):
         pytest.fail("Verified completed native result must be reused, not recalculated")
 
-    monkeypatch.setattr("topos.external_matrix_workflow.run_external", do_not_recompute)
-    assert execute_external_recipe(workflow, record, store, MatrixInputs(external_protocol=sapt()), time.monotonic() + 20, None)
+    original = emw.run_external
+    emw.run_external = do_not_recompute
+    try:
+        assert execute_external_recipe(workflow, record, store, MatrixInputs(external_protocol=sapt()), time.monotonic() + 20, None)
+    finally:
+        emw.run_external = original
     assert [a.attempt_id for a in record.attempts if a.metadata.get("role") == "matrix-native-component"] == [native[0].attempt_id]

@@ -162,7 +162,7 @@ def test_executable_identity_requires_actual_executable_regular_file(tmp_path, c
 
 
 @pytest.mark.parametrize('case', ['bytes', 'alias'])
-def test_identity_rejects_binary_or_alias_replacement_during_hash_observation(tmp_path, monkeypatch, case):
+def test_identity_rejects_binary_or_alias_replacement_during_hash_observation(tmp_path, case):
     from topos import storage
 
     binary = _nonexecuted_hash_contract_file(tmp_path / 'native-hash-contract')
@@ -180,9 +180,12 @@ def test_identity_rejects_binary_or_alias_replacement_during_hash_observation(tm
             alias.symlink_to(replacement)
         return digest
 
-    monkeypatch.setattr(storage, 'file_digest', observe_then_change)
-    with pytest.raises(ValueError, match='changed during'):
-        orca_executable_identity(alias)
+    storage.file_digest = observe_then_change
+    try:
+        with pytest.raises(ValueError, match='changed during'):
+            orca_executable_identity(alias)
+    finally:
+        storage.file_digest = actual_digest
 
 
 @pytest.mark.parametrize('change', ['none', 'replace', 'delete'])

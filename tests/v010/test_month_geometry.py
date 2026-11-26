@@ -110,7 +110,7 @@ def test_unsupported_mass_rejected_before_high_level_component(tmp_path):
     assert 'explicit isotope' in run.metadata['termination_reason']
 
 
-def test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors(tmp_path, monkeypatch):
+def test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors(tmp_path):
     import topos.month_geometry as module
 
     run = record()
@@ -124,9 +124,13 @@ def test_per_geometry_budget_bounds_whole_compound_and_suppresses_rotors(tmp_pat
         current.status = 'partial'
         return None
 
-    monkeypatch.setattr(module, 'calculate_higher_geometry', interrupted_component)
-    before = time.monotonic()
-    assert not execute_month_geometry(None, run, store, inputs(), before+100, None)
+    original = module.calculate_higher_geometry
+    module.calculate_higher_geometry = interrupted_component
+    try:
+        before = time.monotonic()
+        assert not execute_month_geometry(None, run, store, inputs(), before+100, None)
+    finally:
+        module.calculate_higher_geometry = original
     assert before < observed['deadline'] <= time.monotonic()+.25
     assert observed['rotors'] is False
     assert not run.attempts and 'matrix_external' not in run.metadata

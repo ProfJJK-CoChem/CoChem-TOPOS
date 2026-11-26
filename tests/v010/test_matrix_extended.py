@@ -179,7 +179,7 @@ def test_ml_cache_requires_native_completion_and_confined_raw_evidence(tmp_path)
         _verified_sampling_cache(attempt, store)
 
 
-def test_ml_enumerator_forwards_and_hashes_native_randomness_option(tmp_path, monkeypatch):
+def test_ml_enumerator_forwards_and_hashes_native_randomness_option(tmp_path):
     """A nonexecuting availability stub checks wiring; no native result is fabricated."""
     from types import SimpleNamespace
 
@@ -190,20 +190,24 @@ def test_ml_enumerator_forwards_and_hashes_native_randomness_option(tmp_path, mo
         observed.append(kwargs['deterministic'])
         return SamplingResult(status='unavailable', metadata={'execution_kind':'not-executed'})
 
-    monkeypatch.setattr(module, 'run_goat_extopt', unavailable)
-    workflow = SimpleNamespace(base_runtime=None)
-    manifest = SimpleNamespace(backend='aimnet2', model_dump=lambda **kwargs: {'negative_wiring_test':True})
-    allocation = SimpleNamespace(model_dump=lambda: dict(ml_threads=1, ml_memory_mb=256, orca_threads=1, orca_memory_mb=256))
-    identities = []
-    for deterministic in (False, True):
-        record = RunRecord(request=RunRequest(molecule=water(), purpose='matrix', matrix_row_id='T1-30min', threads=2))
-        store = RunStore(tmp_path / record.run_id)
-        inputs = SimpleNamespace(ml_model=manifest, ml_search_allocation=allocation, ml_search_seeds=[],
-            goat_options=SimpleNamespace(deterministic=deterministic, max_global_iterations=3),
-            ml_max_requests=10, ml_receipt_mb=4, ml_gpu_index=None, ml_gpu_memory_mb=None)
-        assert not module.execute_ml_search(workflow, record, store, inputs, None, time.monotonic()+10, None)
-        assert record.status == 'unavailable' and not record.candidates
-        identities.append(record.attempts[0].metadata['matrix_ml_search_identity'])
+    original_run_goat_extopt = module.run_goat_extopt
+    module.run_goat_extopt = unavailable
+    try:
+        workflow = SimpleNamespace(base_runtime=None)
+        manifest = SimpleNamespace(backend='aimnet2', model_dump=lambda **kwargs: {'negative_wiring_test':True})
+        allocation = SimpleNamespace(model_dump=lambda: dict(ml_threads=1, ml_memory_mb=256, orca_threads=1, orca_memory_mb=256))
+        identities = []
+        for deterministic in (False, True):
+            record = RunRecord(request=RunRequest(molecule=water(), purpose='matrix', matrix_row_id='T1-30min', threads=2))
+            store = RunStore(tmp_path / record.run_id)
+            inputs = SimpleNamespace(ml_model=manifest, ml_search_allocation=allocation, ml_search_seeds=[],
+                goat_options=SimpleNamespace(deterministic=deterministic, max_global_iterations=3),
+                ml_max_requests=10, ml_receipt_mb=4, ml_gpu_index=None, ml_gpu_memory_mb=None)
+            assert not module.execute_ml_search(workflow, record, store, inputs, None, time.monotonic()+10, None)
+            assert record.status == 'unavailable' and not record.candidates
+            identities.append(record.attempts[0].metadata['matrix_ml_search_identity'])
+    finally:
+        module.run_goat_extopt = original_run_goat_extopt
     assert observed == [False, True] and identities[0] != identities[1]
 
 

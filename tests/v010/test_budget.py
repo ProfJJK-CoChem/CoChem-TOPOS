@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import replace
 from threading import Barrier
 
@@ -250,49 +251,63 @@ def test_competing_dispatchers_cannot_double_admit_or_oversubscribe(clock):
     assert scheduler.snapshot()["reserved_threads"] == 0
 
 
+@contextmanager
+def _scoped_attrs(*bindings):
+    originals = [(obj, name, getattr(obj, name)) for obj, name, _ in bindings]
+    for obj, name, value in bindings:
+        setattr(obj, name, value)
+    try:
+        yield
+    finally:
+        for obj, name, original in reversed(originals):
+            setattr(obj, name, original)
+
+
 @pytest.mark.parametrize("include_queue, preparation_seconds, expected", [(False, 6, "unsupported"), (True, 11, "timed-out")])
 def test_workflow_uses_measured_preparation_queue_without_starting_engines(
-    clock, tmp_path, monkeypatch, include_queue, preparation_seconds, expected,
+    clock, tmp_path, include_queue, preparation_seconds, expected,
 ):
     from topos import workflow as workflow_module
     from topos.config import SystemConfig
     from topos.models import Molecule, RunRequest
     from topos.storage import RunStore
 
-    original_commit = RunStore.commit
     commits = 0
 
-    def commit(store, record):
-        nonlocal commits
-        result = original_commit(store, record)
-        commits += 1
-        if commits == 1:
-            clock.advance(preparation_seconds)
-        return result
+    class _PreparationClockStore(RunStore):
+        def commit(self, record):
+            nonlocal commits
+            result = super().commit(record)
+            commits += 1
+            if commits == 1:
+                clock.advance(preparation_seconds)
+            return result
 
-    monkeypatch.setattr(RunStore, "commit", commit)
-    monkeypatch.setattr(workflow_module, "ExecutionBudget", lambda *args, **kwargs: ExecutionBudget(*args, **kwargs, clock=clock))
     molecule = Molecule(symbols=["He"], coordinates=[[0, 0, 0]])
     request = RunRequest(molecule=molecule, budget_seconds=10, device="cuda", include_queue_in_budget=include_queue)
     flow = workflow_module.Workflow(tmp_path, config=SystemConfig(execution_backend="development"))
-    result = flow.run(request)
-    assert result.status == expected
-    assert not result.attempts
-    accounting = result.metadata["budget_accounting"]
-    assert accounting["scope"] == "workflow"
-    assert accounting["queue_seconds"] == preparation_seconds
-    assert accounting["execution_seconds"] == 0
-    assert accounting["queue_time_in_budget"] is include_queue
-    assert accounting["charged_seconds"] == (preparation_seconds if include_queue else 0)
-    assert result.metadata["invocation_budget_history"] == [accounting]
-    stored = RunStore(tmp_path / result.run_id).load()
-    assert stored["metadata"]["budget_accounting"] == accounting
-    if not include_queue:
-        clock.advance(100)
-        resumed = flow.resume(tmp_path / result.run_id)
-        assert len(resumed.metadata["invocation_budget_history"]) == 2
-        assert resumed.metadata["invocation_budget_history"][0] == accounting
-        assert resumed.metadata["budget_accounting"]["queue_seconds"] == 0
+    with _scoped_attrs(
+        (workflow_module, "RunStore", _PreparationClockStore),
+        (workflow_module, "ExecutionBudget", lambda *args, **kwargs: ExecutionBudget(*args, **kwargs, clock=clock)),
+    ):
+        result = flow.run(request)
+        assert result.status == expected
+        assert not result.attempts
+        accounting = result.metadata["budget_accounting"]
+        assert accounting["scope"] == "workflow"
+        assert accounting["queue_seconds"] == preparation_seconds
+        assert accounting["execution_seconds"] == 0
+        assert accounting["queue_time_in_budget"] is include_queue
+        assert accounting["charged_seconds"] == (preparation_seconds if include_queue else 0)
+        assert result.metadata["invocation_budget_history"] == [accounting]
+        stored = RunStore(tmp_path / result.run_id).load()
+        assert stored["metadata"]["budget_accounting"] == accounting
+        if not include_queue:
+            clock.advance(100)
+            resumed = flow.resume(tmp_path / result.run_id)
+            assert len(resumed.metadata["invocation_budget_history"]) == 2
+            assert resumed.metadata["invocation_budget_history"][0] == accounting
+            assert resumed.metadata["budget_accounting"]["queue_seconds"] == 0
 
 
 def test_overall_budget_scope_remains_workflow_with_separate_nested_limits():
@@ -315,7 +330,8 @@ def test_nested_limits_reject_invalid_durations(field, value):
         RunRequest(molecule=Molecule(symbols=["He"], coordinates=[[0, 0, 0]]), **{field: value})
 
 
-def _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, engine_elapsed):
+@contextmanager
+def _genuine_nested_budget_workflow(tmp_path, clock, engine_elapsed, *, workflow_cls=None):
     """Control orchestration time only; every returned chemistry result is real xTB.
 
     A deterministic extra elapsed interval models scheduling/parsing work without
@@ -343,12 +359,15 @@ def _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, engine_elapsed
         clock.advance(engine_elapsed[len(calls) - 1])
         return actual
 
-    monkeypatch.setattr(module, "time", SimpleNamespace(monotonic=clock))
-    monkeypatch.setattr(advanced_workflow, "time", SimpleNamespace(monotonic=clock))
-    monkeypatch.setattr(module, "ExecutionBudget", lambda *a, **k: ExecutionBudget(*a, **k, clock=clock))
-    monkeypatch.setattr(module, "run_engine", measured_engine)
-    return module.Workflow(tmp_path, config=SystemConfig(
-        execution_backend="development", executables={"xtb": binary})), calls
+    with _scoped_attrs(
+        (module, "time", SimpleNamespace(monotonic=clock)),
+        (advanced_workflow, "time", SimpleNamespace(monotonic=clock)),
+        (module, "ExecutionBudget", lambda *a, **k: ExecutionBudget(*a, **k, clock=clock)),
+        (module, "run_engine", measured_engine),
+    ):
+        cls = workflow_cls or module.Workflow
+        yield cls(tmp_path, config=SystemConfig(
+            execution_backend="development", executables={"xtb": binary})), calls
 
 
 def _budget_water():
@@ -359,14 +378,14 @@ def _budget_water():
 
 
 @pytest.mark.integration
-def test_one_geometry_timeout_retains_real_evidence_and_allows_next_proposal(tmp_path, monkeypatch, clock):
+def test_one_geometry_timeout_retains_real_evidence_and_allows_next_proposal(tmp_path, clock):
     from topos.models import RunRequest
     from topos.storage import RunStore
 
-    flow, calls = _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, [11, .25])
-    result = flow.run(RunRequest(molecule=_budget_water(), budget_seconds=100,
-                                per_ensemble_budget_seconds=50, per_geometry_budget_seconds=10,
-                                profile_id="xtb-vtight-v1", n_candidates=2, perturbation_angstrom=.05))
+    with _genuine_nested_budget_workflow(tmp_path, clock, [11, .25]) as (flow, calls):
+        result = flow.run(RunRequest(molecule=_budget_water(), budget_seconds=100,
+                                    per_ensemble_budget_seconds=50, per_geometry_budget_seconds=10,
+                                    profile_id="xtb-vtight-v1", n_candidates=2, perturbation_angstrom=.05))
     assert result.status == "partial"
     assert len(calls) == 2 and all(c["raw_artifacts"] for c in calls)
     assert all(c["budget_seconds"] == 10 for c in calls)
@@ -384,21 +403,20 @@ def test_one_geometry_timeout_retains_real_evidence_and_allows_next_proposal(tmp
 
 
 @pytest.mark.integration
-def test_sampler_preparation_and_refinement_share_one_ensemble_deadline(tmp_path, monkeypatch, clock):
+def test_sampler_preparation_and_refinement_share_one_ensemble_deadline(tmp_path, clock):
     from topos.models import RunRequest
+    from topos.workflow import Workflow
 
-    flow, calls = _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, [3])
-    actual_plan = flow._sample_plan
+    class _DelayedPlanWorkflow(Workflow):
+        def _sample_plan(self, record, store, deadline, cancel_event):
+            plan = super()._sample_plan(record, store, deadline, cancel_event)
+            clock.advance(4)
+            return plan
 
-    def planned(record, store, deadline, cancel_event):
-        plan = actual_plan(record, store, deadline, cancel_event)
-        clock.advance(4)
-        return plan
-
-    monkeypatch.setattr(flow, "_sample_plan", planned)
-    result = flow.run(RunRequest(molecule=_budget_water(), budget_seconds=100,
-                                per_ensemble_budget_seconds=5, per_geometry_budget_seconds=10,
-                                profile_id="xtb-vtight-v1", n_candidates=2))
+    with _genuine_nested_budget_workflow(tmp_path, clock, [3], workflow_cls=_DelayedPlanWorkflow) as (flow, calls):
+        result = flow.run(RunRequest(molecule=_budget_water(), budget_seconds=100,
+                                    per_ensemble_budget_seconds=5, per_geometry_budget_seconds=10,
+                                    profile_id="xtb-vtight-v1", n_candidates=2))
     assert result.status == "timed-out"
     assert len(calls) == 1
     assert calls[0]["budget_seconds"] == 1
@@ -412,18 +430,18 @@ def test_sampler_preparation_and_refinement_share_one_ensemble_deadline(tmp_path
 
 
 @pytest.mark.integration
-def test_constrained_optimizer_all_gradients_share_geometry_budget(tmp_path, monkeypatch, clock):
+def test_constrained_optimizer_all_gradients_share_geometry_budget(tmp_path, clock):
     from topos.models import Molecule, RunRequest
 
-    flow, calls = _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, [4, 7])
     molecule = Molecule(symbols=["O", "H", "H"] * 2,
                         coordinates=[[0, 0, 0], [.9572, 0, 0], [-.23999, .9273, 0],
                                      [2.9, .1, .2], [3.3, .9, .5], [3.4, -.6, -.2]],
                         fragments=[[0, 1, 2], [3, 4, 5]])
-    result = flow.run(RunRequest(molecule=molecule, purpose="optimize", budget_seconds=100,
-                                per_geometry_budget_seconds=10, n_candidates=1,
-                                constraints={"kind": "frozen-monomers", "profile_id": "mapping-2026",
-                                             "reference_source": "test input; benchmark accuracy unverified"}))
+    with _genuine_nested_budget_workflow(tmp_path, clock, [4, 7]) as (flow, calls):
+        result = flow.run(RunRequest(molecule=molecule, purpose="optimize", budget_seconds=100,
+                                    per_geometry_budget_seconds=10, n_candidates=1,
+                                    constraints={"kind": "frozen-monomers", "profile_id": "mapping-2026",
+                                                 "reference_source": "test input; benchmark accuracy unverified"}))
     assert result.status == "timed-out"
     assert len(calls) == 2 and all(c["operation"] == "gradient" for c in calls)
     assert [c["budget_seconds"] for c in calls] == [10, 6]
@@ -433,13 +451,13 @@ def test_constrained_optimizer_all_gradients_share_geometry_budget(tmp_path, mon
 
 
 @pytest.mark.integration
-def test_physical_hessian_campaign_does_not_renew_geometry_budget_each_gradient(tmp_path, monkeypatch, clock):
+def test_physical_hessian_campaign_does_not_renew_geometry_budget_each_gradient(tmp_path, clock):
     from topos.models import RunRequest, ThermalOptions
 
-    flow, calls = _genuine_nested_budget_workflow(tmp_path, monkeypatch, clock, [4, 7])
-    result = flow.run(RunRequest(molecule=_budget_water(), purpose="frequency", budget_seconds=100,
-                                per_geometry_budget_seconds=10,
-                                thermochemistry_options=ThermalOptions(optimize_first=False)))
+    with _genuine_nested_budget_workflow(tmp_path, clock, [4, 7]) as (flow, calls):
+        result = flow.run(RunRequest(molecule=_budget_water(), purpose="frequency", budget_seconds=100,
+                                    per_geometry_budget_seconds=10,
+                                    thermochemistry_options=ThermalOptions(optimize_first=False)))
     assert result.status == "timed-out"
     assert len(calls) == 2
     assert [c["budget_seconds"] for c in calls] == [10, 6]
