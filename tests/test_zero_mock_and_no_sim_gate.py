@@ -39,6 +39,7 @@ EXCLUDED_DIRS = frozenset(
         ".ruff_cache",
         ".eggs",
         "node_modules",
+        ".cochem-dependencies",
     }
 )
 
