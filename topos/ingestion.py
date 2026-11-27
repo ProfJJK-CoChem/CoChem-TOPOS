@@ -474,4 +474,10 @@ def execute_external(run_dir: Path | str, *, cancel_event: Event | None = None,
         from .remote_workflow import run_remote
 
         return run_remote(workflow, record.request, cancel_event=cancel_event, staged_record=record)
+    if record.request.calculation_environment == "workstation" and "workstation_dispatch" not in record.metadata:
+        if record.status != "queued" or record.attempts or record.candidates:
+            raise IntegrityError("Only a pristine queued external import can be sent to the workstation")
+        from .workstation import run_workstation
+
+        return run_workstation(workflow, record.request, cancel_event=cancel_event, staged_record=record)
     return workflow.resume(store.run_dir, cancel_event=cancel_event)
