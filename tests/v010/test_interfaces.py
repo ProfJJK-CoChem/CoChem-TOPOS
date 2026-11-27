@@ -1,7 +1,9 @@
 """Interface routing and integrity tests; no test double is chemical evidence."""
 from __future__ import annotations
 
+import contextlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -13,6 +15,34 @@ from topos.cli import main
 from topos.models import Candidate, RunRecord, RunRequest
 from topos.storage import RunStore
 from topos.ui import parse_request_json, submit_request
+
+
+@contextlib.contextmanager
+def _scoped_env(**updates: str | None):
+    previous = {key: os.environ.get(key) for key in updates}
+    for key, value in updates.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
 
 
 def request_payload() -> dict:
@@ -29,11 +59,12 @@ def request_payload() -> dict:
     }
 
 
-def test_remote_compatibility_receipt_does_not_claim_submission_or_read_credentials(tmp_path, monkeypatch):
-    monkeypatch.setenv("GH_TOKEN", "environment-credential-must-not-be-read")
-    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: pytest.fail("No discovery or local fallback is allowed"))
-    client = ActionDispatchClient(repo_root=tmp_path, token="private-explicit-token", target_repo="alice/science")
-    result = client.dispatch_workflow("actual.yml", request_payload(), ref="review-branch").to_dict()
+def test_remote_compatibility_receipt_does_not_claim_submission_or_read_credentials(tmp_path):
+    with _scoped_env(GH_TOKEN="environment-credential-must-not-be-read"), _scoped_attr(
+        subprocess, "run", lambda *args, **kwargs: pytest.fail("No discovery or local fallback is allowed")
+    ):
+        client = ActionDispatchClient(repo_root=tmp_path, token="private-explicit-token", target_repo="alice/science")
+        result = client.dispatch_workflow("actual.yml", request_payload(), ref="review-branch").to_dict()
     assert result["status"] == "unavailable"
     assert result["validation_status"] == "not-evaluated"
     assert result["remote_job_id"] is None
@@ -258,10 +289,10 @@ def test_browser_preserves_explicit_search_and_deduplication_settings(tmp_path):
     assert job.record.status == "unavailable" and not job.record.attempts
 
 
-def test_browser_honors_configured_output_root_outside_repository(tmp_path, monkeypatch):
+def test_browser_honors_configured_output_root_outside_repository(tmp_path):
     testing = pytest.importorskip("streamlit.testing.v1", reason="optional browser adapter dependency")
-    monkeypatch.setenv("TOPOS_OUTPUT_ROOT", str(tmp_path / "configured-runs"))
-    app = testing.AppTest.from_file(str(Path(__file__).resolve().parents[2] / "cochem_topos_web.py")).run(timeout=20)
+    with _scoped_env(TOPOS_OUTPUT_ROOT=str(tmp_path / "configured-runs")):
+        app = testing.AppTest.from_file(str(Path(__file__).resolve().parents[2] / "cochem_topos_web.py")).run(timeout=20)
     assert not app.exception
     value = next(widget for widget in app.text_input if widget.label == "Output directory").value
     assert Path(value) == tmp_path / "configured-runs"
@@ -293,7 +324,7 @@ def test_base_preflight_revalidates_mutated_nested_models():
         validate_request(request)
 
 
-def test_ui_launcher_uses_packaged_app_and_explicit_loopback(monkeypatch):
+def test_ui_launcher_uses_packaged_app_and_explicit_loopback():
     cli = pytest.importorskip("streamlit.web.cli", reason="optional browser adapter dependency")
     from topos.ui import ui_main
     observed = {}
@@ -302,8 +333,8 @@ def test_ui_launcher_uses_packaged_app_and_explicit_loopback(monkeypatch):
         observed.update(kwargs)
         return 0
 
-    monkeypatch.setattr(cli, "main", capture)
-    assert ui_main(["--port", "8765"]) == 0
+    with _scoped_attr(cli, "main", capture):
+        assert ui_main(["--port", "8765"]) == 0
     arguments = observed["args"]
     assert arguments[0] == "run"
     assert Path(arguments[1]).name == "streamlit_app.py"

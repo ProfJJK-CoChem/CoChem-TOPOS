@@ -320,7 +320,7 @@ def test_complete_thermochemistry_workflow_has_reviewable_derivative_provenance(
 
 
 @pytest.mark.integration
-def test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes(tmp_path, monkeypatch):
+def test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes(tmp_path):
     from topos.config import SystemConfig
     from topos.storage import RunStore
     from topos.workflow import Workflow
@@ -329,20 +329,19 @@ def test_frequency_workflow_cancellation_keeps_partial_native_work_and_resumes(t
     if executable is None:
         pytest.skip("real xTB required for numerical derivative recovery")
     event = Event()
-    workflow = Workflow(tmp_path, config=SystemConfig(executables={"xtb": executable}, execution_backend="development"))
-    original = workflow._engine_attempt
     count = 0
 
-    def interrupt_after_three_gradients(*args, **kwargs):
-        nonlocal count
-        attempt, result = original(*args, **kwargs)
-        if result.operation == "gradient":
-            count += 1
-            if count == 3:
-                event.set()
-        return attempt, result
+    class _InterruptingWorkflow(Workflow):
+        def _engine_attempt(self, *args, **kwargs):
+            nonlocal count
+            attempt, result = super()._engine_attempt(*args, **kwargs)
+            if result.operation == "gradient":
+                count += 1
+                if count == 3:
+                    event.set()
+            return attempt, result
 
-    monkeypatch.setattr(workflow, "_engine_attempt", interrupt_after_three_gradients)
+    workflow = _InterruptingWorkflow(tmp_path, config=SystemConfig(executables={"xtb": executable}, execution_backend="development"))
     record = workflow.run(RunRequest(molecule=water(), purpose="frequency", budget_seconds=120,
                                     thermochemistry_options={"symmetry_number": 2}), cancel_event=event)
     assert record.status == "cancelled"

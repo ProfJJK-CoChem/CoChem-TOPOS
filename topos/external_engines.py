@@ -26,7 +26,19 @@ from .cfour_controls import native_control_value
 from .cfour_dependencies import require_cfour_parsers
 from .cfour_efg import parse_cfour_efg
 from .cfour_properties import CfourEfgConventionDeclaration
-from .engines import EngineParseError, EngineResult, _number, artifact_inventory
+from .engines import (
+    DEFAULT_GPU4PYSCF_AUXBASIS,
+    EngineParseError,
+    EngineResult,
+    _is_gpu_device,
+    _normalize_gpu4pyscf_method,
+    _number,
+    _parse_gpu4pyscf_output,
+    _run_gpu_process,
+    artifact_inventory,
+    gpu4pyscf_driver_source,
+    resolve_gpu4pyscf_python,
+)
 from .fragments import split_fragments
 from .models import Contract, Molecule, ResourceLimits
 from .science import BOHR_ANGSTROM
@@ -45,7 +57,7 @@ _CFOUR_METHODS = {"HF": "SCF", "MP2": "MP2", "CCSD": "CCSD", "CCSD(T)": "CCSD[T]
 
 
 class ExternalProtocol(Contract):
-    engine: Literal["cfour", "psi4", "molpro", "mpqc"]
+    engine: Literal["cfour", "psi4", "molpro", "mpqc", "gpu4pyscf"]
     engine_version: str = Field(min_length=1, max_length=40)
     operation: Literal["energy", "gradient", "optimize", "first-order-properties", "sapt-decomposition"]
     method: str
@@ -91,19 +103,29 @@ class ExternalProtocol(Contract):
                 raise ValueError("SAPT2+3 requires explicit SCF and SAPT fitting bases")
             if self.genbas_path is not None:
                 raise ValueError("GENBAS belongs only to CFOUR")
+        elif self.engine == "gpu4pyscf":
+            if self.operation not in {"energy", "gradient", "optimize"}:
+                raise ValueError("GPU4PySCF external protocol supports energy, gradient, and optimize operations")
+            if _normalize_gpu4pyscf_method(self.method) is None:
+                raise ValueError(f"Unsupported GPU4PySCF method {self.method!r}")
+            if self.genbas_path is not None or self.auxiliary_sapt_basis is not None:
+                raise ValueError("GENBAS and SAPT fitting bases do not apply to GPU4PySCF")
         elif self.genbas_path or self.auxiliary_scf_basis or self.auxiliary_sapt_basis:
             raise ValueError("Unresolved Molpro/MPQC protocols cannot borrow CFOUR/Psi4 options")
         return self
 
 
-def _physical_input(molecule: Molecule, resources: ResourceLimits) -> None:
+def _physical_input(molecule: Molecule, resources: ResourceLimits, *, engine: str | None = None) -> None:
     Molecule.model_validate(molecule.model_dump())
     ResourceLimits.model_validate(resources.model_dump())
     if molecule.multiplicity != 1:
         raise ValueError("The external profiles require closed-shell singlets; no open-shell substitution")
     if molecule.environment not in ({}, {"phase": "gas"}):
         raise ValueError("These external profiles specify gas phase only")
-    if resources.device != "cpu":
+    if engine == "gpu4pyscf":
+        if not _is_gpu_device(resources.device):
+            raise ValueError("GPU4PySCF external protocol requires an explicit CUDA/GPU device; CPU fallback is disabled")
+    elif resources.device != "cpu":
         raise ValueError("No GPU implementation is established for these explicit external profiles")
 
 
@@ -386,11 +408,39 @@ def _native_genbas(binary: Path, protocol: ExternalProtocol, molecule: Molecule)
     return source
 
 
+def gpu4pyscf_input(molecule: Molecule, protocol: ExternalProtocol, resources: ResourceLimits) -> str:
+    """Generate a fixed FP64 GPU4PySCF driver script; caller text is serialized JSON data."""
+    _physical_input(molecule, resources, engine="gpu4pyscf")
+    protocol = ExternalProtocol.model_validate(protocol.model_dump())
+    if protocol.engine != "gpu4pyscf":
+        raise ValueError("GPU4PySCF input requires a GPU4PySCF protocol")
+    return gpu4pyscf_driver_source(
+        molecule,
+        method=protocol.method,
+        basis=protocol.orbital_basis,
+        auxbasis=protocol.auxiliary_scf_basis or DEFAULT_GPU4PYSCF_AUXBASIS,
+        operation=protocol.operation,
+        conv_tol=10.0 ** -protocol.scf_convergence,
+        max_opt_iter=protocol.max_iterations,
+        grad_max_tol=protocol.gradient_max_hartree_per_bohr,
+        grad_rms_tol=protocol.gradient_rms_hartree_per_bohr,
+        expected_version=protocol.engine_version,
+    )
+
+
+def parse_gpu4pyscf_result(raw: str, molecule: Molecule, protocol: ExternalProtocol) -> dict[str, Any]:
+    """Parse and verify an authentic GPU4PySCF output artifact against the explicit protocol."""
+    observed = _parse_gpu4pyscf_output(raw, molecule, protocol.operation)
+    if observed.get("gpu4pyscf_version") != protocol.engine_version:
+        raise EngineParseError("GPU4PySCF version differs from the explicit external protocol")
+    return observed
+
+
 def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: ResourceLimits,
                  workdir: str | Path, *, executable: str | Path | None = None,
                  process_runner: Callable[..., Any] | None = None,
                  cancel_event: Event | None = None) -> EngineResult:
-    """Run exact native jobs through BASE; no unavailable-engine numerical fallback."""
+    """Run exact native jobs through BASE (or authentic CUDA GPU4PySCF); no unavailable-engine fallback."""
     started, folder = time.monotonic(), Path(workdir).resolve()
     result = EngineResult(status="unsupported", engine=protocol.engine, method=protocol.method,
                           operation=protocol.operation,
@@ -401,7 +451,7 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
                                     else "explicit caller-supplied development/test runner"})
     try:
         protocol = ExternalProtocol.model_validate(protocol.model_dump())
-        _physical_input(molecule, resources)
+        _physical_input(molecule, resources, engine=protocol.engine)
         if protocol.engine == "cfour":
             require_cfour_parsers()
         if protocol.engine == "cfour" and protocol.operation == "first-order-properties" and (
@@ -411,6 +461,82 @@ def run_external(molecule: Molecule, protocol: ExternalProtocol, resources: Reso
             raise ValueError("Molpro F12 requires a verified explicit F12 variant/gradient protocol; the MPQC source row conflicts with its ORCA track. Neither is an executable recipe yet")
         if folder.exists() and any(folder.iterdir()):
             raise ValueError("External attempts require a fresh directory; reuse belongs to the verified workflow ledger")
+        if protocol.engine == "gpu4pyscf":
+            binary = resolve_gpu4pyscf_python(executable)
+            if binary is None:
+                result.status = "unavailable"
+                result.diagnostics["reason"] = (
+                    "GPU4PySCF Python interpreter unavailable; CPU fallback is strictly disabled"
+                )
+                return result
+            folder.mkdir(parents=True, exist_ok=True)
+            atomic_json(folder / "protocol.json", protocol.model_dump(mode="json"))
+            driver_path = folder / "job.py"
+            driver_path.write_text(gpu4pyscf_input(molecule, protocol, resources), encoding="utf-8")
+            result.metadata.update(
+                executable=str(binary),
+                executable_sha256=file_digest(binary),
+                driver_script_sha256=file_digest(driver_path),
+                device=resources.device,
+                precision="float64",
+                density_fitting=True,
+                resolved_auxiliary_basis=protocol.auxiliary_scf_basis or DEFAULT_GPU4PYSCF_AUXBASIS,
+            )
+            result.command = [str(binary), "job.py"]
+            gpu_runner = process_runner or _run_gpu_process
+            process = gpu_runner(result.command, folder, resources, cancel_event=cancel_event, log_prefix="engine")
+            result.diagnostics["process"] = process.to_dict()
+            stderr_text = Path(process.stderr_path).read_text(errors="replace") if Path(process.stderr_path).is_file() else ""
+            if process.status != "completed":
+                if "CUDA_UNAVAILABLE:" in stderr_text or "GPU4PYSCF_UNAVAILABLE:" in stderr_text:
+                    result.status = "unavailable"
+                    result.metadata["execution_kind"] = "not-executed"
+                    result.diagnostics["reason"] = stderr_text.strip() or process.reason
+                elif "GPU4PYSCF_VERSION_MISMATCH:" in stderr_text:
+                    result.status = "unsupported"
+                    result.metadata["execution_kind"] = "not-executed"
+                    result.diagnostics["reason"] = stderr_text.strip()
+                else:
+                    result.status = process.status
+                    result.metadata["execution_kind"] = "real"
+                    result.diagnostics["reason"] = stderr_text.strip() or process.reason
+                return result
+            result_file = folder / "gpu4pyscf-result.json"
+            if not result_file.is_file():
+                raise EngineParseError("GPU4PySCF worker did not produce gpu4pyscf-result.json")
+            observed = parse_gpu4pyscf_result(result_file.read_text(encoding="utf-8"), molecule, protocol)
+            result.metadata["execution_kind"] = "real"
+            result.metadata["adapter_validation"] = "native-output-validated-for-this-execution"
+            result.metadata["result_json_sha256"] = file_digest(result_file)
+            result.metadata["gpu_device_name"] = observed["gpu_device_name"]
+            result.metadata["gpu_device_index"] = observed["gpu_device_index"]
+            result.metadata["gpu_total_memory_mb"] = observed["gpu_total_memory_mb"]
+            result.metadata["gpu_compute_capability"] = observed["gpu_compute_capability"]
+            result.metadata["gpu_banner"] = observed["gpu_banner"]
+            result.metadata["pyscf_version"] = observed["pyscf_version"]
+            result.metadata["gpu4pyscf_version"] = observed["gpu4pyscf_version"]
+            result.metadata["cupy_version"] = observed["cupy_version"]
+            result.metadata["cuda_runtime_version"] = observed["cuda_runtime_version"]
+            result.metadata["python_executable"] = observed["python_executable"]
+            result.metadata["python_executable_sha256"] = observed["python_executable_sha256"]
+            result.metadata["resolved_xc"] = observed["xc"]
+            result.metadata["resolved_basis"] = observed["basis"]
+            result.metadata["xc_grid"] = observed["xc_grid"]
+            result.metadata["nlc_grid"] = observed["nlc_grid"]
+            result.metadata["native_result"] = observed
+            if observed.get("optimization") is not None:
+                result.diagnostics["optimization"] = observed["optimization"]
+            output_molecule = (
+                Molecule.model_validate({**molecule.model_dump(), "coordinates": observed["coordinates_angstrom"]})
+                if protocol.operation == "optimize" else molecule
+            )
+            result.engine_version = observed["gpu4pyscf_version"]
+            result.energy_hartree = observed["energy_hartree"]
+            result.gradient_hartree_per_bohr = observed["gradient_hartree_per_bohr"] if protocol.operation != "energy" else None
+            result.molecule = output_molecule
+            result.converged = bool(observed["converged"])
+            result.status = "completed" if result.converged else "partial"
+            return result
         if process_runner is None:
             runtime = BaseRuntime()
             runtime.validate_resources(resources)

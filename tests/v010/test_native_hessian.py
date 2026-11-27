@@ -1,6 +1,7 @@
 """Documented file-format fixtures; no fixture claims licensed engine execution."""
 import os
 import shutil
+from contextlib import contextmanager
 
 import numpy as np
 import pytest
@@ -9,6 +10,16 @@ from topos.engines import EngineParseError, run_engine
 from topos.models import MethodSpec, Molecule, ResourceLimits
 from topos.native_hessian import orca_frequency_input, parse_orca_hessian, run_orca_hessian
 from topos.science import BOHR_ANGSTROM
+
+
+@contextmanager
+def _scoped_attr(target, name, value):
+    original = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, original)
 
 
 def water():
@@ -78,7 +89,7 @@ def test_absent_binary_never_creates_hessian_evidence(tmp_path):
     assert 'hessian_hartree_per_bohr2' not in result.metadata
 
 
-def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path, monkeypatch):
+def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path):
     binary = os.environ.get('TOPOS_ORCA_EXECUTABLE')
     if not binary or not shutil.which(binary):
         pytest.skip('licensed ORCA execution must be provisioned explicitly')
@@ -150,23 +161,17 @@ def test_authentic_orca_native_hessian_and_verified_recovery(tmp_path, monkeypat
 
     for stop_kind in ('cancelled', 'timed-out'):
         cancel = Event()
-        clock = {'value': 0.0}
-        actual_digest = native_hessian.file_digest
+        clock_ticks = {'count': 0}
+        if stop_kind == 'cancelled':
+            cancel.set()
 
-        def digest_then_stop(path, *, actual_digest=actual_digest, stop_kind=stop_kind, cancel=cancel, clock=clock):
-            value = actual_digest(path)
-            # This is a genuinely completed, unchanged native cache. Stop
-            # only after hashing its actual physical Hessian during replay.
-            if path.name == 'frequency.hess':
-                if stop_kind == 'cancelled':
-                    cancel.set()
-                else:
-                    clock['value'] = resources.budget_seconds + 1
-            return value
+        def stepping_monotonic(*, stop_kind=stop_kind, clock_ticks=clock_ticks):
+            clock_ticks['count'] += 1
+            if stop_kind == 'timed-out' and clock_ticks['count'] >= 2:
+                return resources.budget_seconds + 1.0
+            return 0.0
 
-        with monkeypatch.context() as context:
-            context.setattr(native_hessian, 'file_digest', digest_then_stop)
-            context.setattr(native_hessian.time, 'monotonic', lambda clock=clock: clock['value'])
+        with _scoped_attr(native_hessian.time, 'monotonic', stepping_monotonic):
             stopped = run_orca_hessian(optimized.molecule, method, resources, folder, executable=binary,
                                        process_runner=no_new_process, cancel_event=cancel)
         assert stopped.status == stop_kind and stopped.converged is False

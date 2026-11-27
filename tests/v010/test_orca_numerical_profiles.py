@@ -5,12 +5,15 @@ No engine executes and no completed native receipt is manufactured here.
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
+from threading import Event
 
 import pytest
+from scipy.constants import physical_constants
 
 from topos.anharmonic import orca_vpt2_input
-from topos.engines import _method_problem, _orca_input
+from topos.engines import _method_problem, _orca_input, run_engine, write_xyz
 from topos.method_matrix import CalibratedRuntimeEstimator, CalibrationKey, RuntimeSample
 from topos.models import MethodSpec, Molecule, ResourceLimits
 from topos.native_hessian import orca_frequency_input, run_orca_hessian
@@ -22,6 +25,7 @@ from topos.orca_numerical_profiles import (
     observe_scf_numerical_profile,
     verify_numerical_profile_receipt,
 )
+from topos.runtime import ProcessResult
 from topos.storage import digest_json
 
 FIXTURES = Path(__file__).parents[1] / "fixtures/orca61-scf-mode0-tole"
@@ -210,3 +214,525 @@ def test_multiblock_native_negative_tamper_cannot_borrow_prior_scf_evidence(miss
     # This is an explicit negative parser control; the retained genuine bytes
     # are never changed, executed, or accepted as a native result.
     assert actual_text('positive-optimization.stdout') == raw
+
+
+def test_trah_scf_converger_accepts_achieved_orbital_criteria_and_rejects_failures():
+    """ORCA 6.1.1 Auto-TRAH/TRAH-SCF checks Energy, Orbital Gradient, and Orbital Rotation."""
+    base = actual_text("positive-cold.stdout")
+    trah_block = (
+        "\n       ******************************************************************************\n"
+        "       ***                               Auto-TRAH                                ***\n"
+        "       ***               Leaving SCF to start the TRAH-SCF procedure              ***\n"
+        "       ******************************************************************************\n"
+        " --------------------------------------------------------------------------------------------\n"
+        "   Iter.        energy            ||Error||_2        Shift      TRadius  Mac/Mic        Rej.\n"
+        " --------------------------------------------------------------------------------------------\n"
+        "    0       -200.000000000000     1.200000e-01                     0.400 (TRAH MAcro)   No\n"
+        "    1       -201.015987893435     2.131203e-07                           (NR   MAcro)\n\n"
+    )
+    conv_idx = base.rfind("SCF CONVERGED AFTER")
+    assert conv_idx != -1
+    trah_raw = base[:conv_idx] + trah_block + base[conv_idx:]
+    # Simulate stale pre-TRAH density-change and DIIS residuals in SCF CONVERGENCE summary
+    trah_raw = re.sub(
+        r"(Last MAX-Density change\s*\.\.\.\s*)\S+",
+        r"\g<1>6.3142e-01",
+        trah_raw,
+    )
+    trah_raw = re.sub(
+        r"(Last RMS-Density change\s*\.\.\.\s*)\S+",
+        r"\g<1>2.5480e-02",
+        trah_raw,
+    )
+    trah_raw = re.sub(
+        r"(Last DIIS Error\s*\.\.\.\s*)\S+",
+        r"\g<1>2.1154e-03",
+        trah_raw,
+    )
+    evidence = observe_scf_numerical_profile(trah_raw)
+    assert evidence["passed"] is True, evidence["failures"]
+    assert evidence["final_active_converger"] == "TRAH-SCF"
+    assert evidence["DIIS_residual_mandatory"] is False
+    assert evidence["inactive_DIIS_residual_retained"] is True
+    assert evidence["density_residuals_mandatory"] is False
+    assert evidence["inactive_density_residuals_retained"] is True
+    assert evidence["trah_iter0_energy_change_uninitialized"] is False
+
+    # Active TRAH-SCF criteria (Energy change, Orbital Gradient, Orbital Rotation) must still be strictly enforced.
+    for label, bad_value in [
+        ("Energy change", "5.0000e-09"),
+        ("Orbital Gradient", "5.0000e-04"),
+        ("Orbital Rotation", "5.0000e-04"),
+    ]:
+        failed_raw = re.sub(
+            rf"(Last {re.escape(label)}\s*\.\.\.\s*)\S+",
+            rf"\g<1>{bad_value}",
+            trah_raw,
+        )
+        failed = observe_scf_numerical_profile(failed_raw)
+        assert failed["passed"] is False
+        assert failed["trah_iter0_energy_change_uninitialized"] is False
+        assert f"active final criterion not achieved: {label}" in failed["failures"]
+
+    # Multi-step TRAH with sentinel-like unachieved Energy change and zero rotation must still fail.
+    multistep_bad_ec = re.sub(
+        r"(Last Energy change\s*\.\.\.\s*)\S+",
+        r"\g<1>-2.0102e+02",
+        re.sub(r"(Last Orbital Rotation\s*\.\.\.\s*)\S+", r"\g<1>0.0000e+00", trah_raw),
+    )
+    multistep_bad_ev = observe_scf_numerical_profile(multistep_bad_ec)
+    assert multistep_bad_ev["passed"] is False
+    assert multistep_bad_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in multistep_bad_ev["failures"]
+
+    # Without TRAH-SCF (pure SOSCF), stale density residuals must still be rejected.
+    bad_soscf = re.sub(r"(Last MAX-Density change\s*\.\.\.\s*)\S+", r"\g<1>6.3142e-01", base)
+    bad_soscf_ev = observe_scf_numerical_profile(bad_soscf)
+    assert bad_soscf_ev["passed"] is False
+    assert bad_soscf_ev["final_active_converger"] == "S-O-S-C-F"
+    assert bad_soscf_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: MAX-Density change" in bad_soscf_ev["failures"]
+
+
+def test_trah_scf_iter0_uninitialized_energy_change_accepts_strict_density_and_rejects_failures():
+    """TRAH Iter-0 immediate convergence verifies pre-TRAH density rows even with stale summary rows."""
+    base = actual_text("positive-cold.stdout")
+    conv_idx = base.rfind("SCF CONVERGED AFTER")
+    assert conv_idx != -1
+
+    def make_trah_iter0(
+        energy_str: str = "-76.434622047478",
+        tag: str = "(TRAH MAcro)",
+        energy_change: str = "-7.6435e+01",
+        rotation: str = "0.0000e+00",
+        strip_pre_trah_rows: bool = False,
+        extra_pre_trah_rows: str = "",
+        summary_max_dp: str | None = None,
+        summary_rms_dp: str | None = None,
+    ) -> str:
+        prefix = base[:conv_idx]
+        if strip_pre_trah_rows:
+            lean_idx = prefix.rfind("ORCA LEAN-SCF")
+            assert lean_idx != -1
+            prefix = prefix[:lean_idx] + re.sub(
+                r"(?m)^\s*\d+\s+[-+]\d+\.\d+.*$\n?",
+                "",
+                prefix[lean_idx:],
+            )
+        if extra_pre_trah_rows:
+            prefix = prefix + extra_pre_trah_rows
+        trah_block = (
+            "\n       ******************************************************************************\n"
+            "       ***                               Auto-TRAH                                ***\n"
+            "       ***               Leaving SCF to start the TRAH-SCF procedure              ***\n"
+            "       ******************************************************************************\n"
+            " --------------------------------------------------------------------------------------------\n"
+            "   Iter.        energy            ||Error||_2        Shift      TRadius  Mac/Mic        Rej.\n"
+            " --------------------------------------------------------------------------------------------\n"
+            f"    0       {energy_str}     2.390000e-07                           {tag}\n\n"
+        )
+        raw = prefix + trah_block + base[conv_idx:]
+        raw = re.sub(r"(Last Energy change\s*\.\.\.\s*)\S+", rf"\g<1>{energy_change}", raw)
+        raw = re.sub(r"(Last Orbital Rotation\s*\.\.\.\s*)\S+", rf"\g<1>{rotation}", raw)
+        if summary_max_dp is not None:
+            raw = re.sub(r"(Last MAX-Density change\s*\.\.\.\s*)\S+", rf"\g<1>{summary_max_dp}", raw)
+        if summary_rms_dp is not None:
+            raw = re.sub(r"(Last RMS-Density change\s*\.\.\.\s*)\S+", rf"\g<1>{summary_rms_dp}", raw)
+        return raw
+
+    # Authentic TRAH Iter-0 immediate convergence (both TRAH MAcro and NR MAcro, with or without pre-TRAH rows)
+    for tag, strip_rows in [("(TRAH MAcro)", False), ("(NR   MAcro)", False), ("(TRAH MAcro)", True)]:
+        ev = observe_scf_numerical_profile(make_trah_iter0(tag=tag, strip_pre_trah_rows=strip_rows))
+        assert ev["passed"] is True, ev["failures"]
+        assert ev["final_active_converger"] == "TRAH-SCF"
+        assert ev["trah_iter0_energy_change_uninitialized"] is True
+        assert ev["density_residuals_mandatory"] is False
+        assert ev["inactive_density_residuals_retained"] is True
+        assert ev["DIIS_residual_mandatory"] is False
+        assert ev["inactive_DIIS_residual_retained"] is True
+
+    # DEF-S2-03: Converged pre-TRAH Cycle 50 (RMS-DP <= 5e-9, MAX-DP <= 1e-7) with consecutive
+    # unseparated pre-TRAH rows MUST PASS even when SCF CONVERGENCE summary retains stale density buffer rows.
+    stale_summary_converged_pre_trah = make_trah_iter0(
+        energy_str="-76.434622047990",
+        energy_change="-7.6435e+01",
+        extra_pre_trah_rows=(
+            "   49    -76.4346220475000000     1.20e-09  5.40e-09  1.03e-07  4.20e-07     0.5\n"
+            "   50    -76.4346220474030000    -9.70e-11  8.09e-10  1.84e-08  2.39e-07     0.5\n"
+        ),
+        summary_max_dp="1.0300e-07",
+        summary_rms_dp="5.4000e-09",
+    )
+    stale_ev = observe_scf_numerical_profile(stale_summary_converged_pre_trah)
+    assert stale_ev["passed"] is True, stale_ev["failures"]
+    assert stale_ev["final_active_converger"] == "TRAH-SCF"
+    assert stale_ev["trah_iter0_energy_change_uninitialized"] is True
+    assert stale_ev["density_residuals_mandatory"] is False
+    assert stale_ev["inactive_density_residuals_retained"] is True
+
+    # DEF-S2-03 fail-closed: If last pre-TRAH row exceeds RMS-DP (> 5e-9) or MAX-DP (> 1e-7),
+    # MUST FAIL CLOSED even when SCF CONVERGENCE summary rows look achieved.
+    for bad_rms, bad_max in [("5.40e-09", "1.84e-08"), ("8.09e-10", "1.03e-07"), ("2.55e-02", "6.31e-01")]:
+        bad_pre_trah = make_trah_iter0(
+            energy_str="-76.434622047403",
+            extra_pre_trah_rows=(
+                "   49    -76.4346220474000000     1.00e-11  1.00e-10  1.00e-09  1.00e-09     0.5\n"
+                f"   50    -76.4346220474030000    -3.00e-12  {bad_rms}  {bad_max}  2.39e-07     0.5\n"
+            ),
+            summary_max_dp="1.7468e-09",
+            summary_rms_dp="1.7473e-10",
+        )
+        bad_pre_ev = observe_scf_numerical_profile(bad_pre_trah)
+        assert bad_pre_ev["passed"] is False
+        assert bad_pre_ev["trah_iter0_energy_change_uninitialized"] is False
+        assert "active final criterion not achieved: Energy change" in bad_pre_ev["failures"]
+
+    # Without pre-TRAH rows, unachieved summary MAX-Density or RMS-Density MUST FAIL CLOSED.
+    for kwargs in [{"summary_max_dp": "6.3142e-01"}, {"summary_rms_dp": "2.5480e-02"}]:
+        no_rows_bad = make_trah_iter0(strip_pre_trah_rows=True, **kwargs)
+        no_rows_ev = observe_scf_numerical_profile(no_rows_bad)
+        assert no_rows_ev["passed"] is False
+        assert no_rows_ev["trah_iter0_energy_change_uninitialized"] is False
+        assert "active final criterion not achieved: Energy change" in no_rows_ev["failures"]
+
+    # Bad Orbital Gradient must still FAIL even when trah_iter0_uninit holds.
+    valid_iter0 = make_trah_iter0()
+    bad_grad_raw = re.sub(r"(Last Orbital Gradient\s*\.\.\.\s*)\S+", r"\g<1>5.0000e-04", valid_iter0)
+    bad_grad_ev = observe_scf_numerical_profile(bad_grad_raw)
+    assert bad_grad_ev["passed"] is False
+    assert bad_grad_ev["trah_iter0_energy_change_uninitialized"] is True
+    assert "active final criterion not achieved: Orbital Gradient" in bad_grad_ev["failures"]
+
+    # Nonzero Orbital Rotation (even within 1e-5 tolerance) disqualifies Iter-0 uninitialized bypass
+    nonzero_rot = make_trah_iter0(rotation="4.4137e-10")
+    nonzero_rot_ev = observe_scf_numerical_profile(nonzero_rot)
+    assert nonzero_rot_ev["passed"] is False
+    assert nonzero_rot_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in nonzero_rot_ev["failures"]
+
+    # Real non-sentinel Energy change fails sentinel check and fails Energy change criterion
+    real_ec = make_trah_iter0(energy_change="-5.0000e-09")
+    real_ec_ev = observe_scf_numerical_profile(real_ec)
+    assert real_ec_ev["passed"] is False
+    assert real_ec_ev["trah_iter0_energy_change_uninitialized"] is False
+    assert "active final criterion not achieved: Energy change" in real_ec_ev["failures"]
+
+    # Energy discontinuities |E_trah0 - E_last_pre_trah| > 1e-8 disqualify Iter-0 bypass
+    for jumped_energy, jumped_ec in [
+        ("-76.430000000000", "-7.6430e+01"),
+        ("-76.434622097478", "-7.6435e+01"),
+    ]:
+        jumped = make_trah_iter0(energy_str=jumped_energy, energy_change=jumped_ec)
+        jumped_ev = observe_scf_numerical_profile(jumped)
+        assert jumped_ev["passed"] is False
+        assert jumped_ev["trah_iter0_energy_change_uninitialized"] is False
+        assert "active final criterion not achieved: Energy change" in jumped_ev["failures"]
+
+
+def test_orca_input_cosx_tight_grid_preserves_frozen_default_and_emits_intaccx():
+    """cosx_tight_grid=False stays byte-for-byte frozen; True emits IntAccX 6,6,7 only for RIJCOSX."""
+    molecule, method, resources = system(MAPPING_V42)
+    for operation in ("optimize", "gradient"):
+        assert _orca_input(molecule, method, resources, operation) == actual_text(
+            "predeclared-intervention-" + operation + ".inp"
+        )
+        assert _orca_input(molecule, method, resources, operation, cosx_tight_grid=False) == actual_text(
+            "predeclared-intervention-" + operation + ".inp"
+        )
+        tight = _orca_input(molecule, method, resources, operation, cosx_tight_grid=True)
+        assert "%method\n  IntAccX 6,6,7\nend\n" in tight
+        assert SCF_BLOCK in tight
+        assert "TightSCF DEFGRID3" in tight
+        assert "RIJCOSX" in tight
+        if operation == "optimize":
+            assert "  EnforceStrictConvergence true\n" in tight
+
+    # Merges into %method block when strict_vpt2 already emits Z_Tol 1e-14.
+    strict_b3lyp = MethodSpec(
+        engine="orca", method="B3LYP", basis="def2-TZVPP", dispersion="D4",
+        engine_version="6.1.1", profile_id="orca-vpt2-reference-v1",
+    )
+    strict_tight = _orca_input(molecule, strict_b3lyp, resources, "optimize", cosx_tight_grid=True)
+    assert "%method\n  Z_Tol 1e-14\n  IntAccX 6,6,7\nend\n" in strict_tight
+    assert strict_tight.count("%method") == 1
+
+    # Non-RIJCOSX methods never emit IntAccX 6,6,7.
+    for non_cosx in (
+        MethodSpec(engine="orca", method="HF", basis="def2-TZVPP", engine_version="6.1.1", profile_id=MAPPING_V42),
+        MethodSpec(engine="orca", method="r2SCAN-3c", engine_version="6.1.1", profile_id=MAPPING_V42),
+    ):
+        deck = _orca_input(molecule, non_cosx, resources, "optimize", cosx_tight_grid=True)
+        assert "RIJCOSX" not in deck
+        assert "IntAccX" not in deck
+
+
+def _write_engrad(path: Path, molecule: Molecule, energy: float, gradient: list[list[float]]) -> None:
+    bohr_angstrom = physical_constants["Bohr radius"][0] * 1e10
+    atomic_numbers = {"H": 1, "O": 8}
+    lines = ["# Number of atoms", str(len(molecule.symbols)), "# Energy", f"{energy:.12f}", "# Gradient"]
+    for row in gradient:
+        for val in row:
+            lines.append(f"{val:.12f}")
+    lines.append("# Coordinates (Bohr)")
+    for sym, xyz in zip(molecule.symbols, molecule.coordinates, strict=True):
+        bohr = [v / bohr_angstrom for v in xyz]
+        lines.append(f"{atomic_numbers[sym]} {bohr[0]:.12f} {bohr[1]:.12f} {bohr[2]:.12f}")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def test_run_engine_cosx_grid_retry_recovers_with_intermediate_geometry_and_propagates_to_final_gradient(tmp_path):
+    """DEF-S2-01: RIJCOSX SCF failure triggers one IntAccX 6,6,7 retry from job.xyz and propagates to final-gradient."""
+    molecule, base_method, base_resources = system(MAPPING_V42)
+    method = base_method.model_copy(update={"method": "wB97M-V"})
+    resources = base_resources.model_copy(update={"threads": 1})
+
+    intermediate = molecule.model_copy(
+        update={"coordinates": [[0.14, -0.04, 0.075], [1.11, 0.12, 0.197], [-0.19, 0.90, -0.11]]}
+    )
+    converged_mol = molecule.model_copy(
+        update={
+            "coordinates": [
+                [0.15465705908082, -0.00643520581313, 0.07158475859768],
+                [1.09861316185156, 0.1127729129331, 0.19484782584268],
+                [-0.18327022093238, 0.87366229288002, -0.10643258444036],
+            ]
+        }
+    )
+    opt_stdout = actual_text("positive-optimization.stdout")
+    grad_stdout = actual_text("positive-cold.stdout")
+    grad_values = [
+        [-0.000000128, -0.000000112, 0.000000108],
+        [-0.000000076, -0.000000115, 0.000000065],
+        [0.000000204, 0.000000228, -0.000000173],
+    ]
+    recorded_jobs: list[tuple[str, str]] = []
+
+    def contract_runner(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1  -  RELEASE   -\n"
+                "SCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.807783957535\n"
+                "ORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+
+        deck = (work / "job.inp").read_text(encoding="utf-8")
+        recorded_jobs.append((work.name, deck))
+        if work.name == "attempt":
+            write_xyz(intermediate, work / "job.xyz")
+            stdout.write_text(
+                "Program Version 6.1.1  -  RELEASE   -\n"
+                "This wavefunction IS NOT CONVERGED!\n"
+                "SCF NOT CONVERGED AFTER 124 CYCLES\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "failed", 64, 0.02, 1.0, str(stdout), str(stderr), "engine process exited with code 64")
+        if work.name == "cosx-grid-retry":
+            write_xyz(converged_mol, work / "job.xyz")
+            stdout.write_text(opt_stdout, encoding="utf-8")
+            return ProcessResult(command, "completed", 0, 0.02, 1.0, str(stdout), str(stderr), None)
+        if work.name == "final-gradient":
+            _write_engrad(work / "job.engrad", converged_mol, -76.434622970034, grad_values)
+            stdout.write_text(grad_stdout, encoding="utf-8")
+            return ProcessResult(command, "completed", 0, 0.02, 1.0, str(stdout), str(stderr), None)
+        raise AssertionError(f"Unexpected stage directory: {work}")
+
+    result = run_engine(
+        molecule, method, resources, tmp_path / "attempt", operation="optimize",
+        executable=sys.executable, process_runner=contract_runner,
+    )
+    assert result.status == "completed", result.diagnostics
+    assert result.converged is True
+    assert [stage for stage, _ in recorded_jobs] == ["attempt", "cosx-grid-retry", "final-gradient"]
+
+    initial_deck, retry_deck, grad_deck = (deck for _, deck in recorded_jobs)
+    assert "IntAccX 6,6,7" not in initial_deck
+    for deck in (retry_deck, grad_deck):
+        assert "%method\n  IntAccX 6,6,7\nend\n" in deck
+        assert SCF_BLOCK in deck
+        assert "TightSCF DEFGRID3" in deck
+        assert "RIJCOSX" in deck
+    assert "  EnforceStrictConvergence true\n" in retry_deck
+    # Retry started from intermediate job.xyz, not initial unoptimized coordinates.
+    assert "O 0.14 -0.04 0.075\n" in retry_deck
+    assert "O 0.12 -0.1 0.08\n" not in retry_deck
+
+    assert result.metadata["cosx_grid_recovery"] == {
+        "triggered": True,
+        "intaccx": "6,6,7",
+        "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+    }
+    assert result.metadata["final_gradient_verification"]["directory"] == "cosx-grid-retry/final-gradient"
+    assert result.metadata["dipole_provenance"]["raw_output"] == "cosx-grid-retry/final-gradient/engine.stdout"
+    verify_numerical_profile_receipt(
+        MAPPING_V42,
+        result.metadata,
+        result.diagnostics,
+        Path(result.diagnostics["process"]["stdout_path"]).read_text(encoding="utf-8"),
+    )
+    artifact_rel = {Path(a.path).relative_to(tmp_path / "attempt").as_posix() for a in result.artifacts}
+    assert {"job.inp", "engine.stdout", "cosx-grid-retry/job.inp", "cosx-grid-retry/final-gradient/job.inp"}.issubset(artifact_rel)
+
+
+def test_run_engine_cosx_grid_retry_falls_back_on_bad_xyz_bounds_retries_and_skips_ineligible_failures(tmp_path):
+    """COSX retry falls back to input geometry on corrupt job.xyz, tries at most once, and skips non-RIJCOSX/non-SCF failures."""
+    molecule, base_method, base_resources = system(MAPPING_V42)
+    wb97m = base_method.model_copy(update={"method": "wB97M-V"})
+    resources = base_resources.model_copy(update={"threads": 1})
+
+    # 1. Corrupt job.xyz falls back to original molecule, and second SCF failure fails closed (no infinite loop).
+    retry_decks: list[tuple[str, str]] = []
+
+    def persistent_scf_failure(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.8\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        retry_decks.append((work.name, (work / "job.inp").read_text(encoding="utf-8")))
+        if work.name == "twice":
+            (work / "job.xyz").write_text("3\ncorrupt\nC 0 0 0\nH 1 0 0\nH 0 1 0\n", encoding="utf-8")
+        stdout.write_text("Program Version 6.1.1\nSCF CONVERGENCE FAILURE\n", encoding="utf-8")
+        return ProcessResult(command, "failed", 64, 0.01, 1.0, str(stdout), str(stderr), "scf failed")
+
+    failed_twice = run_engine(
+        molecule, wb97m, resources, tmp_path / "twice", operation="optimize",
+        executable=sys.executable, process_runner=persistent_scf_failure,
+    )
+    assert failed_twice.status == "failed" and failed_twice.converged is not True
+    assert [name for name, _ in retry_decks] == ["twice", "cosx-grid-retry"]
+    assert "O 0.12 -0.1 0.08\n" in retry_decks[1][1]
+    assert "%method\n  IntAccX 6,6,7\nend\n" in retry_decks[1][1]
+    assert failed_twice.metadata["cosx_grid_recovery"]["triggered"] is True
+    assert not (tmp_path / "twice" / "cosx-grid-retry" / "cosx-grid-retry").exists()
+
+    # 2. Non-SCF failure on wB97M-V does NOT trigger cosx-grid-retry.
+    non_scf_calls: list[str] = []
+
+    def non_scf_failure(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.8\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        non_scf_calls.append(work.name)
+        stdout.write_text("Program Version 6.1.1\nABORTING THE RUN: basis set error\n", encoding="utf-8")
+        return ProcessResult(command, "failed", 2, 0.01, 1.0, str(stdout), str(stderr), "basis error")
+
+    non_scf_res = run_engine(
+        molecule, wb97m, resources, tmp_path / "nonscf", operation="energy",
+        executable=sys.executable, process_runner=non_scf_failure,
+    )
+    assert non_scf_res.status == "failed"
+    assert non_scf_calls == ["nonscf"]
+    assert "cosx_grid_recovery" not in non_scf_res.metadata
+
+    # 3. Exit-0 ORCA output with SCF NOT CONVERGED also triggers cosx-grid-retry and recovers cleanly on energy.
+    energy_stdout = actual_text("positive-cold.stdout")
+    exit0_calls: list[str] = []
+
+    def exit0_scf_recovery(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.8\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        exit0_calls.append(work.name)
+        if work.name == "exit0":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        stdout.write_text(energy_stdout, encoding="utf-8")
+        return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+
+    exit0_res = run_engine(
+        molecule, wb97m, resources, tmp_path / "exit0", operation="energy",
+        executable=sys.executable, process_runner=exit0_scf_recovery,
+    )
+    assert exit0_res.status == "completed" and exit0_res.converged is True
+    assert exit0_calls == ["exit0", "cosx-grid-retry"]
+    assert exit0_res.metadata["cosx_grid_recovery"]["triggered"] is True
+    assert exit0_res.metadata["dipole_provenance"]["raw_output"] == "cosx-grid-retry/engine.stdout"
+
+    # 4. Non-RIJCOSX method (r2SCAN-3c) does NOT trigger cosx-grid-retry on SCF failure.
+    non_cosx_calls: list[str] = []
+
+    def non_cosx_scf_failure(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.8\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        non_cosx_calls.append(work.name)
+        stdout.write_text("Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\n", encoding="utf-8")
+        return ProcessResult(command, "failed", 64, 0.01, 1.0, str(stdout), str(stderr), "scf failed")
+
+    r2scan = MethodSpec(engine="orca", method="r2SCAN-3c", engine_version="6.1.1", profile_id=MAPPING_V42)
+    non_cosx_res = run_engine(
+        molecule, r2scan, resources, tmp_path / "r2scan", operation="optimize",
+        executable=sys.executable, process_runner=non_cosx_scf_failure,
+    )
+    assert non_cosx_res.status == "failed"
+    assert non_cosx_calls == ["r2scan"]
+    assert "cosx_grid_recovery" not in non_cosx_res.metadata
+
+    # 3. Cancelled after initial SCF failure does NOT launch cosx-grid-retry.
+    cancel = Event()
+    cancel_calls: list[str] = []
+
+    def cancel_after_initial(command, folder, res, *, log_prefix="engine", **kwargs):
+        work = Path(folder)
+        stdout = work / f"{log_prefix}.stdout"
+        stderr = work / f"{log_prefix}.stderr"
+        stderr.write_text("", encoding="utf-8")
+        if command[-1] == "version.inp":
+            stdout.write_text(
+                "Program Version 6.1.1\nSCF CONVERGED AFTER 1 CYCLES\n"
+                "FINAL SINGLE POINT ENERGY -2.8\nORCA TERMINATED NORMALLY\n",
+                encoding="utf-8",
+            )
+            return ProcessResult(command, "completed", 0, 0.01, 1.0, str(stdout), str(stderr), None)
+        cancel_calls.append(work.name)
+        cancel.set()
+        stdout.write_text("Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\n", encoding="utf-8")
+        return ProcessResult(command, "failed", 64, 0.01, 1.0, str(stdout), str(stderr), "scf failed")
+
+    cancelled_res = run_engine(
+        molecule, wb97m, resources, tmp_path / "cancelled", operation="energy",
+        cancel_event=cancel, executable=sys.executable, process_runner=cancel_after_initial,
+    )
+    assert cancelled_res.status == "failed"
+    assert cancel_calls == ["cancelled"]
+    assert "cosx_grid_recovery" not in cancelled_res.metadata

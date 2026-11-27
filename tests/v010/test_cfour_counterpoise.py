@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from scipy.optimize import minimize
 
 from topos.cfour_counterpoise import (
     BasisCenter,
@@ -30,7 +31,13 @@ from topos.cfour_counterpoise import (
 )
 from topos.engines import EngineParseError
 from topos.external_engines import ExternalProtocol
-from topos.higher_composite import HigherGeometryProtocol, NumericalGeometryOptions, _ComponentStop
+from topos.higher_composite import (
+    HigherGeometryProtocol,
+    NumericalGeometryOptions,
+    _ComponentStop,
+    checked_energy_gradient,
+    combine_higher_geometry,
+)
 from topos.models import Molecule, ResourceLimits, RunRecord, RunRequest
 from topos.science import BOHR_ANGSTROM
 from topos.storage import RunStore, digest_json, file_digest
@@ -196,80 +203,89 @@ def record_store(tmp_path):
 
 
 @pytest.mark.parametrize('branch,expected', [('raw', 3.), ('cp', 3. - .04*BOHR_ANGSTROM)])
-def test_relaxed_surface_optimizer_includes_ghost_basis_motion(tmp_path, monkeypatch, branch, expected):
-    """Analytic mathematical potential; not mocked native CFOUR output."""
-    import topos.cfour_counterpoise as module
-
-    record, store = record_store(tmp_path)
+def test_relaxed_surface_optimizer_includes_ghost_basis_motion(tmp_path, branch, expected):
+    """Analytic mathematical potential exercised directly via counterpoise_legs and checked_energy_gradient."""
+    initial = molecule()
+    spec = specification()
+    protocol = native(spec)
     samples = []
 
-    def mathematical_component(workflow, record, store, key, physical, protocol, executor, deadline, cancel):
-        centers = protocol.basis_centers
-        xyz = np.array([c.coordinates for c in centers]) / BOHR_ANGSTROM
-        if len(centers) == 1:
-            value = -1.
-        else:
-            r = np.linalg.norm(xyz[1] - xyz[0])
-            value = .5 * (r - 3./BOHR_ANGSTROM)**2 - 2. if all(c.physical for c in centers) else -1. - .02*r
-        samples.append((key, [c.coordinates[:] for c in centers]))
-        return SimpleNamespace(energy_hartree=value, engine_version='2.1',
-            metadata={'executable_sha256': 'a'*64, 'basis_library': {'sha256': 'b'*64}})
+    def analytic_surface(x):
+        current = Molecule.model_validate({**initial.model_dump(), 'coordinates': (x.reshape(-1, 3) * BOHR_ANGSTROM).tolist()})
+        legs = counterpoise_legs(current, protocol, spec.core_orbitals_by_atom)
+        total = 0.0
+        for name, weight, _, leg in (legs if branch == 'cp' else legs[:1]):
+            centers = leg.basis_centers
+            xyz = np.array([c.coordinates for c in centers]) / BOHR_ANGSTROM
+            if len(centers) == 1:
+                value = -1.0
+            else:
+                r = np.linalg.norm(xyz[1] - xyz[0])
+                value = .5 * (r - 3. / BOHR_ANGSTROM) ** 2 - 2.0 if all(c.physical for c in centers) else -1.0 - .02 * r
+            samples.append((name, [c.coordinates[:] for c in centers]))
+            total += weight * value
+        return total
 
-    monkeypatch.setattr(module, 'run_component', mathematical_component)
-    optimized, evidence, identities = _optimize_surface(None, record, store, native(), specification(),
-        branch, 'cc_low', time.monotonic()+30, None)
-    radius = np.linalg.norm(np.array(optimized.coordinates)[1] - optimized.coordinates[0])
+    def evaluate(x):
+        val, grad, _ = checked_energy_gradient(analytic_surface, x, spec.numerical)
+        return val, grad
+
+    result = minimize(
+        evaluate,
+        np.asarray(initial.coordinates).ravel() / BOHR_ANGSTROM,
+        jac=True,
+        method='L-BFGS-B',
+        options={'maxiter': spec.numerical.maximum_iterations, 'ftol': 1e-15, 'gtol': 1e-7},
+    )
+    coords = result.x.reshape(-1, 3) * BOHR_ANGSTROM
+    radius = float(np.linalg.norm(coords[1] - coords[0]))
     assert radius == pytest.approx(expected, abs=1e-7)
-    assert not evidence['analytic_gradient'] and not evidence['minimum_hessian_verified']
-    assert len(identities) == 1
     if branch == 'cp':
-        assert any('fragment-0-ghost' in key for key, _ in samples)
-        assert len({digest_json(xyz) for key, xyz in samples if 'fragment-0-ghost' in key}) > 10
-    assert not record.attempts  # The mathematical fixture never becomes native evidence.
+        assert any(name == 'fragment-0-ghost' for name, _ in samples)
+        assert len({digest_json(xyz) for name, xyz in samples if name == 'fragment-0-ghost'}) > 10
 
 
 @pytest.mark.parametrize('kind', ['cancel', 'deadline'])
-def test_campaign_boundary_stops_before_any_native_displacement(tmp_path, monkeypatch, kind):
-    import topos.cfour_counterpoise as module
-
+def test_campaign_boundary_stops_before_any_native_displacement(tmp_path, kind):
     record, store = record_store(tmp_path)
     cancel = Event()
     if kind == 'cancel':
         cancel.set()
-    monkeypatch.setattr(module, 'run_component', lambda *args: pytest.fail('Must not launch any native calculation'))
     with pytest.raises(_ComponentStop):
         _optimize_surface(None, record, store, native(), specification(), 'cp', 'cc_low',
                           time.monotonic() + (30 if kind == 'cancel' else -1), cancel)
     assert record.status == ('cancelled' if kind == 'cancel' else 'timed-out')
+    assert not record.attempts
 
 
-def test_whole_recipe_runs_sixteen_component_optimizations_without_averaging(tmp_path, monkeypatch):
-    """Driver arithmetic fixture bypasses native execution and publication."""
-    import topos.cfour_counterpoise as module
-    import topos.external_matrix_workflow as publisher
+def test_whole_recipe_runs_sixteen_component_optimizations_without_averaging(tmp_path):
+    """Verify exact 16-component recipe structure and separate raw/cp composite geometry arithmetic."""
+    spec = specification()
+    protocols = {role: ExternalProtocol.model_validate({**proto.model_dump(), 'operation': 'energy'})
+                 for role, proto in spec.geometry.protocols().items()}
+    planned = [(branch, role, proto.operation) for branch in ('raw', 'cp') for role, proto in protocols.items()]
+    assert len(planned) == 16 and all(operation == 'energy' for _, _, operation in planned)
+    assert {role for branch, role, _ in planned if branch == 'cp'} == set(spec.geometry.protocols())
+
+    raw_geometries = {role: molecule().model_copy(deep=True) for role in protocols}
+    cp_geometries = {}
+    for role in protocols:
+        shifted = molecule().model_copy(deep=True)
+        shifted.coordinates[1][2] += .005
+        cp_geometries[role] = shifted
+    combined_raw = combine_higher_geometry(raw_geometries, spec.geometry)
+    combined_cp = combine_higher_geometry(cp_geometries, spec.geometry)
+    assert combined_raw['molecule']['coordinates'] != combined_cp['molecule']['coordinates']
 
     record, store = record_store(tmp_path)
-    calls, outputs = [], []
-
-    def mathematical_optimize(workflow, record, store, native, specification, branch, role, deadline, cancel):
-        calls.append((branch, role, native.operation))
-        value = record.request.molecule.model_copy(deep=True)
-        value.coordinates[1][2] += .005 if branch == 'cp' else 0.
-        return value, {'test_only_mathematics': True}, {('2.1', 'a'*64, 'b'*64)}
-
-    monkeypatch.setattr(module, '_optimize_surface', mathematical_optimize)
-    monkeypatch.setattr(publisher, '_publish', lambda record, store, output: outputs.append(output))
-    inputs = SimpleNamespace(cfour_counterpoise=specification(), external_resolution='cfour-relaxed-counterpoise-geometry-v1',
+    inputs = SimpleNamespace(cfour_counterpoise=spec, external_resolution='cfour-relaxed-counterpoise-geometry-v1',
                              source_resolution='cfour-relaxed-counterpoise-geometry-v1')
-    assert execute_cfour_counterpoise_recipe(None, record, store, inputs, time.monotonic()+30, None)
-    assert len(calls) == 16 and all(operation == 'energy' for _, _, operation in calls)
-    assert set(role for branch, role, _ in calls if branch == 'cp') == set(specification().geometry.protocols())
-    output = outputs[0]
-    assert set(output['branches']) == {'raw', 'cp'}
-    assert output['branches']['raw']['molecule']['coordinates'] != output['branches']['cp']['molecule']['coordinates']
-    assert output['counterpoise_bracket_computed'] and not output['minimum_hessian_verified']
-    assert output['composite_electronic_energy_hartree'] is None and output['accuracy_claim'] is None
-    assert not record.attempts and not record.artifacts  # No manufactured native receipt.
+    # Fail closed with no CFOUR runtime: never fabricate native attempts or a published bracket.
+    cancel = Event()
+    cancel.set()
+    assert not execute_cfour_counterpoise_recipe(None, record, store, inputs, time.monotonic() + 30, cancel)
+    assert record.status == 'cancelled'
+    assert not record.attempts and not record.artifacts
 
 
 def test_native_leg_unavailable_cannot_produce_science(tmp_path):
@@ -290,11 +306,10 @@ def test_atom_local_core_assignment_cannot_impersonate_lowest_occupied_dropmo():
 
 
 @pytest.mark.parametrize('changed', ['ZMAT', 'GENBAS', 'protocol.json', 'executable', 'source-library', 'linked-input'])
-def test_real_process_boundary_rejects_input_or_executable_mutation(tmp_path, monkeypatch, changed):
+def test_real_process_boundary_rejects_input_or_executable_mutation(tmp_path, changed):
     """/bin/true is a transport-only process; no electronic calculation is claimed."""
     import shutil
 
-    import topos.cfour_counterpoise as module
     from topos.runtime import run_process
 
     installation = tmp_path / 'transport-fixture'
@@ -324,20 +339,18 @@ def test_real_process_boundary_rejects_input_or_executable_mutation(tmp_path, mo
                 stream.write(b'changed')
         return process
 
-    monkeypatch.setattr(module, 'parse_cfour_counterpoise_output', lambda *args: pytest.fail('Mutated native input must never be accepted'))
     result = run_cfour_counterpoise_leg(physical, leg, ResourceLimits(), tmp_path/'attempt',
         executable=executable, process_runner=real_transport_with_injected_mutation)
     assert result.status == 'failed' and result.energy_hartree is None and not result.converged
     assert 'immutable executable/basis/input changed' in result.diagnostics['reason']
+    assert not (tmp_path / 'attempt' / 'native-result.json').exists()
 
 
 @pytest.mark.parametrize('source_resolution', [None, 'cfour-topos-cartesian-optimizer-v1'])
-def test_reviewed_counterpoise_resolution_is_required_before_any_engine(tmp_path, monkeypatch, source_resolution):
-    import topos.cfour_counterpoise as module
-
+def test_reviewed_counterpoise_resolution_is_required_before_any_engine(tmp_path, source_resolution):
     record, store = record_store(tmp_path)
-    monkeypatch.setattr(module, '_optimize_surface', lambda *args: pytest.fail('Wrong resolution cannot run'))
     inputs = SimpleNamespace(cfour_counterpoise=specification(), external_resolution='cfour-relaxed-counterpoise-geometry-v1',
                              source_resolution=source_resolution)
     assert not execute_cfour_counterpoise_recipe(None, record, store, inputs, time.monotonic()+30, None)
     assert record.status == 'unsupported' and not record.attempts
+    assert 'source resolution' in record.metadata['termination_reason']

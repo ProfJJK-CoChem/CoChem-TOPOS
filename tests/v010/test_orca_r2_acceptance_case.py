@@ -103,13 +103,14 @@ def test_rejected_native_basis_authority_stops_before_high_level_geometry(tmp_pa
             observed.append((basis, elements, resources))
             raise RuntimeError('explicit native basis authority rejection')
 
-    def forbidden_geometry(*args, **kwargs):
-        pytest.fail('High-level geometry ran before basis availability was established')
+        def run_process(self, *args, **kwargs):
+            pytest.fail('High-level geometry ran before basis availability was established')
 
-    with acceptance._scoped_attr(acceptance, 'run_correlated', forbidden_geometry):
-        with pytest.raises(RuntimeError, match='basis authority rejection'):
-            acceptance.r2_composite_case(DeniedUtility(), tmp_path / 'acceptance',
-                                          ResourceLimits(threads=2, memory_mb=4096, budget_seconds=60))
+    with pytest.raises(RuntimeError, match='basis authority rejection'):
+        acceptance.r2_composite_case(DeniedUtility(), tmp_path / 'acceptance',
+                                      ResourceLimits(threads=2, memory_mb=4096, budget_seconds=60))
+    assert not (tmp_path / 'acceptance' / 'isolated-water').exists()
+    assert not (tmp_path / 'acceptance' / 'isolated-water-result.json').exists()
     assert len(observed) == 1 and observed[0][:2] == ('cc-pVDZ-F12', ['H', 'O'])
     assert observed[0][2].threads == 1 and 0 < observed[0][2].budget_seconds <= 60
     retained = json.loads((tmp_path / 'acceptance/native-process-calls.json').read_text())

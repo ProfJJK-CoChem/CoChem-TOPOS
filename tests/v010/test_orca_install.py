@@ -5,6 +5,7 @@ Network responses are deliberately controlled; no licensed archive is present.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import importlib.util
 import io
@@ -17,6 +18,34 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+
+
+@contextlib.contextmanager
+def _scoped_env(**updates: str | None):
+    previous = {key: os.environ.get(key) for key in updates}
+    for key, value in updates.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
 
 # BASE owns the installed ``scripts`` package. Load the TOPOS source helper
 # explicitly so this acceptance suite exercises the intended installer.
@@ -67,11 +96,10 @@ class Response(io.BytesIO):
 
 
 @pytest.fixture
-def network_fixture(tmp_path, monkeypatch):
+def network_fixture(tmp_path):
     root = tmp_path / "runner-temp"
     root.mkdir()
-    monkeypatch.setenv("RUNNER_TEMP", str(root))
-    monkeypatch.setenv("ORCA_611_ARCHIVE_URL", PRIVATE_URL)
+    original_build_opener = installer.urllib.request.build_opener
 
     def provide(payload, *, length=True, failure=None):
         def open_response(url, timeout):
@@ -81,10 +109,14 @@ def network_fixture(tmp_path, monkeypatch):
                 raise failure
             return Response(payload, length=length)
 
-        monkeypatch.setattr(installer.urllib.request, "build_opener", lambda *handlers: SimpleNamespace(open=open_response))
+        installer.urllib.request.build_opener = lambda *handlers: SimpleNamespace(open=open_response)
         return hashlib.sha256(payload).hexdigest()
 
-    return root, provide
+    with _scoped_env(RUNNER_TEMP=str(root), ORCA_611_ARCHIVE_URL=PRIVATE_URL):
+        try:
+            yield root, provide
+        finally:
+            installer.urllib.request.build_opener = original_build_opener
 
 
 @pytest.mark.parametrize("compression", ["", "gz", "xz", "bz2"])
@@ -105,12 +137,12 @@ def test_full_archive_installs_without_executing_payloads(network_fixture, compr
     assert sorted(p.name for p in root.iterdir()) == ["installed"]
 
 
-def test_checksum_mismatch_precedes_any_extraction(network_fixture, monkeypatch):
+def test_checksum_mismatch_precedes_any_extraction(network_fixture):
     root, provide = network_fixture
     provide(archive_bytes())
-    monkeypatch.setattr(installer, "_catalogue", lambda *a, **k: pytest.fail("must not inspect/extract an unverified archive"))
-    with pytest.raises(installer.InstallError, match="checksum mismatch"):
-        installer.install(root / "installed", "0" * 64, disk_reserve_bytes=0)
+    with _scoped_attr(installer, "_catalogue", lambda *a, **k: pytest.fail("must not inspect/extract an unverified archive")):
+        with pytest.raises(installer.InstallError, match="checksum mismatch"):
+            installer.install(root / "installed", "0" * 64, disk_reserve_bytes=0)
     assert not list(root.iterdir())
 
 
@@ -162,12 +194,12 @@ def test_download_expansion_and_member_limits_are_enforced(network_fixture, limi
     assert not list(root.iterdir())
 
 
-def test_disk_reserve_is_preserved(network_fixture, monkeypatch):
+def test_disk_reserve_is_preserved(network_fixture):
     root, provide = network_fixture
     digest = provide(archive_bytes())
-    monkeypatch.setattr(installer.shutil, "disk_usage", lambda path: SimpleNamespace(free=4))
-    with pytest.raises(installer.InstallError, match="disk space"):
-        installer.install(root / "installed", digest, disk_reserve_bytes=5)
+    with _scoped_attr(installer.shutil, "disk_usage", lambda path: SimpleNamespace(free=4)):
+        with pytest.raises(installer.InstallError, match="disk space"):
+            installer.install(root / "installed", digest, disk_reserve_bytes=5)
     assert not list(root.iterdir())
 
 
@@ -217,12 +249,12 @@ def test_redirect_handler_refuses_redirects_without_disclosing_target():
 
 
 @pytest.mark.parametrize("url", ["", "http://example/archive", "https://secret:password@example/archive", "https://example/archive#secret", "https://example/archive\nsecret"])
-def test_url_must_be_https_and_only_read_from_environment(network_fixture, monkeypatch, url):
+def test_url_must_be_https_and_only_read_from_environment(network_fixture, url):
     root, provide = network_fixture
     digest = provide(archive_bytes())
-    monkeypatch.setenv("ORCA_611_ARCHIVE_URL", url)
-    with pytest.raises(installer.InstallError, match="HTTPS") as caught:
-        installer.install(root / "installed", digest, disk_reserve_bytes=0)
+    with _scoped_env(ORCA_611_ARCHIVE_URL=url):
+        with pytest.raises(installer.InstallError, match="HTTPS") as caught:
+            installer.install(root / "installed", digest, disk_reserve_bytes=0)
     assert "password" not in str(caught.value)
 
 
@@ -281,28 +313,25 @@ def test_sparse_pax_variants_are_rejected_before_processing_maps(network_fixture
     assert not list(root.iterdir())
 
 
-def test_total_deadline_and_invalid_timeout_are_enforced(network_fixture, monkeypatch):
+def test_total_deadline_and_invalid_timeout_are_enforced(network_fixture):
     root, provide = network_fixture
     digest = provide(archive_bytes())
     with pytest.raises(installer.InstallError, match="finite"):
         installer.install(root / "installed", digest, total_timeout_seconds=float("inf"))
     moments = iter([0.0, 2.0])
-    monkeypatch.setattr(installer.time, "monotonic", lambda: next(moments))
-    with pytest.raises(installer.InstallError, match="time limit"):
-        installer.install(root / "installed", digest, total_timeout_seconds=1, disk_reserve_bytes=0)
+    with _scoped_attr(installer.time, "monotonic", lambda: next(moments)):
+        with pytest.raises(installer.InstallError, match="time limit"):
+            installer.install(root / "installed", digest, total_timeout_seconds=1, disk_reserve_bytes=0)
     assert not list(root.iterdir())
 
 
 @pytest.fixture
-def github_network_fixture(tmp_path, monkeypatch):
+def github_network_fixture(tmp_path):
     root = tmp_path / "runner-temp"
     root.mkdir()
-    monkeypatch.setenv("RUNNER_TEMP", str(root))
-    monkeypatch.setenv("GITHUB_REPOSITORY", GITHUB_REPOSITORY_FIXTURE)
-    monkeypatch.setenv("GITHUB_TOKEN", GITHUB_TOKEN_FIXTURE)
-    monkeypatch.delenv("ORCA_611_ARCHIVE_URL", raising=False)
     calls = []
     payload = archive_bytes()
+    original_build_opener = installer.urllib.request.build_opener
 
     def provide(responses):
         pending = iter(responses)
@@ -320,9 +349,18 @@ def github_network_fixture(tmp_path, monkeypatch):
 
             return SimpleNamespace(open=open_response)
 
-        monkeypatch.setattr(installer.urllib.request, "build_opener", opener)
+        installer.urllib.request.build_opener = opener
 
-    return root, payload, hashlib.sha256(payload).hexdigest(), calls, provide
+    with _scoped_env(
+        RUNNER_TEMP=str(root),
+        GITHUB_REPOSITORY=GITHUB_REPOSITORY_FIXTURE,
+        GITHUB_TOKEN=GITHUB_TOKEN_FIXTURE,
+        ORCA_611_ARCHIVE_URL=None,
+    ):
+        try:
+            yield root, payload, hashlib.sha256(payload).hexdigest(), calls, provide
+        finally:
+            installer.urllib.request.build_opener = original_build_opener
 
 
 def api_redirect(location=CDN_URL, *, status=302):
@@ -439,39 +477,39 @@ def test_private_asset_identifier_is_canonical_positive_decimal(github_network_f
 
 
 @pytest.mark.parametrize("repository", ["", "owner", "owner/repo/extra", "../repo", "owner/..", "owner/.", "-owner/repo", "owner-/repo", "owner/rep o", "owner/repo\n", "own%65r/repo", "https://github.com/owner/repo"])
-def test_private_asset_repository_cannot_change_fixed_api_origin_or_path(github_network_fixture, monkeypatch, repository):
+def test_private_asset_repository_cannot_change_fixed_api_origin_or_path(github_network_fixture, repository):
     root, _, digest, calls, provide = github_network_fixture
     provide([])
-    monkeypatch.setenv("GITHUB_REPOSITORY", repository)
-    with pytest.raises(installer.InstallError, match="owner/repository"):
-        installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
+    with _scoped_env(GITHUB_REPOSITORY=repository):
+        with pytest.raises(installer.InstallError, match="owner/repository"):
+            installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
     assert calls == []
 
 
 @pytest.mark.parametrize("token", ["", " token", "token ", "token\nAuthorization: different", "token\r", "token\t", "token\x7f", "é"])
-def test_private_asset_token_rejects_header_injection_before_request(github_network_fixture, monkeypatch, token):
+def test_private_asset_token_rejects_header_injection_before_request(github_network_fixture, token):
     root, _, digest, calls, provide = github_network_fixture
     provide([])
-    monkeypatch.setenv("GITHUB_TOKEN", token)
-    with pytest.raises(installer.InstallError, match="GITHUB_TOKEN"):
-        installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
+    with _scoped_env(GITHUB_TOKEN=token):
+        with pytest.raises(installer.InstallError, match="GITHUB_TOKEN"):
+            installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
     assert calls == []
 
 
-def test_private_asset_and_presigned_url_sources_are_mutually_exclusive(github_network_fixture, monkeypatch):
+def test_private_asset_and_presigned_url_sources_are_mutually_exclusive(github_network_fixture):
     root, _, digest, calls, provide = github_network_fixture
     provide([])
-    monkeypatch.setenv("ORCA_611_ARCHIVE_URL", PRIVATE_URL)
-    with pytest.raises(installer.InstallError, match="Choose one archive source"):
-        installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
+    with _scoped_env(ORCA_611_ARCHIVE_URL=PRIVATE_URL):
+        with pytest.raises(installer.InstallError, match="Choose one archive source"):
+            installer.install(root / "installed", digest, github_asset_id="12345", disk_reserve_bytes=0)
     assert calls == []
 
 
-def test_presigned_url_mode_does_not_use_github_token(network_fixture, monkeypatch):
+def test_presigned_url_mode_does_not_use_github_token(network_fixture):
     root, provide = network_fixture
     digest = provide(archive_bytes())
-    monkeypatch.setenv("GITHUB_TOKEN", "\ninvalid-token-would-fail-if-read")
-    binary = installer.install(root / "installed", digest, disk_reserve_bytes=0)
+    with _scoped_env(GITHUB_TOKEN="\ninvalid-token-would-fail-if-read"):
+        binary = installer.install(root / "installed", digest, disk_reserve_bytes=0)
     assert binary.read_bytes() == PAYLOAD
 
 
@@ -485,12 +523,12 @@ def test_private_asset_download_retains_stream_byte_limit(github_network_fixture
     assert not list(root.iterdir())
 
 
-def test_private_asset_checksum_mismatch_blocks_extraction(github_network_fixture, monkeypatch):
+def test_private_asset_checksum_mismatch_blocks_extraction(github_network_fixture):
     root, payload, _, _, provide = github_network_fixture
     provide([api_redirect(), Response(payload)])
-    monkeypatch.setattr(installer, "_catalogue", lambda *a, **k: pytest.fail("must not unpack mismatched private asset"))
-    with pytest.raises(installer.InstallError, match="checksum mismatch"):
-        installer.install(root / "installed", "0" * 64, github_asset_id="12345", disk_reserve_bytes=0)
+    with _scoped_attr(installer, "_catalogue", lambda *a, **k: pytest.fail("must not unpack mismatched private asset")):
+        with pytest.raises(installer.InstallError, match="checksum mismatch"):
+            installer.install(root / "installed", "0" * 64, github_asset_id="12345", disk_reserve_bytes=0)
     assert not list(root.iterdir())
 
 

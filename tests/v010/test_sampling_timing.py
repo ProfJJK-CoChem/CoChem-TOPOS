@@ -131,13 +131,19 @@ def test_diversity_records_actual_dispatch_and_durable_prelaunch_start(tmp_path,
     assert running['started_at'] == attempt.started_at and running['finished_at'] is None
 
 
-def test_diversity_prelaunch_deadline_abort_has_truthful_end_without_execution(tmp_path, monkeypatch):
+def test_diversity_prelaunch_deadline_abort_has_truthful_end_without_execution(tmp_path):
+    from topos import matrix_diversity
+
     workflow = Workflow(tmp_path, config=SystemConfig(execution_backend='development'))
     record = RunRecord(request=RunRequest(molecule=water(), purpose='matrix', matrix_row_id='T1-1mo'))
     store = RunStore(tmp_path / record.run_id)
     clock = iter([0., 200.])
-    monkeypatch.setattr('topos.matrix_diversity.time', SimpleNamespace(monotonic=lambda: next(clock)))
-    assert _sample(workflow, record, store, water(), 0, 'crest', MatrixInputs(), 100., None) is None
+    original_time = matrix_diversity.time
+    matrix_diversity.time = SimpleNamespace(monotonic=lambda: next(clock))
+    try:
+        assert _sample(workflow, record, store, water(), 0, 'crest', MatrixInputs(), 100., None) is None
+    finally:
+        matrix_diversity.time = original_time
     attempt = record.attempts[0]
     assert attempt.status == record.status == 'timed-out'
     assert attempt.started_at and attempt.finished_at and not attempt.command and not attempt.quantities

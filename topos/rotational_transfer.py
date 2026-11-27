@@ -196,6 +196,7 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
     from pathlib import Path
 
     from .anharmonic import (
+        VPT2_GRADIENT_THRESHOLD,
         orca_vpt2_input,
         parse_orca_vpt2,
         parse_orca_vpt2_geometry,
@@ -301,7 +302,7 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
             or not np.isclose(energy, reference['energy_hartree'], atol=1e-10, rtol=0)):
         raise ValueError('native stationary reference metadata differs from raw derivatives')
     analysis = harmonic_analysis(result.molecule, parsed_hessian['hessian_hartree_per_bohr2'],
-                                 gradient_hartree_per_bohr=gradient, gradient_threshold=1e-7)
+                                 gradient_hartree_per_bohr=gradient, gradient_threshold=VPT2_GRADIENT_THRESHOLD)
     if analysis['validity'] != 'harmonic-minimum-within-thresholds' or min(analysis['frequencies_cm1']) < 50:
         raise ValueError('native VPT2 reference is not a strict stationary semirigid minimum')
     # Original-pose stationarity does not certify the actual finite-grid pose
@@ -326,7 +327,7 @@ def transfer_rotational_correction(target: Molecule, native_vpt2: EngineResult,
     frame_protocol = json.loads(frame_protocol_path.read_text())
     expected_frame_protocol = {'schema': 'topos-native-orca-hessian/0.1.0',
                                'molecule': native_pose.model_dump(mode='json'), 'method': method,
-                               'gradient_threshold': 1e-7,
+                               'gradient_threshold': VPT2_GRADIENT_THRESHOLD,
                                'resources': resources.model_dump(exclude={'budget_seconds'}),
                                'executable_sha256': md.get('executable_sha256')}
     if frame_protocol != expected_frame_protocol or frame_md.get('protocol') != frame_protocol:

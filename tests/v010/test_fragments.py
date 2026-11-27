@@ -299,7 +299,7 @@ def test_frozen_association_preserves_supplied_reference_monomer_geometry(tmp_pa
 
 @pytest.mark.integration
 @pytest.mark.parametrize("interrupt_at", ["monomer-completed", "monomer-partial", "frozen-fragment-completed"])
-def test_association_resume_reuses_completed_child_jobs_and_raw_evidence(tmp_path, monkeypatch, interrupt_at):
+def test_association_resume_reuses_completed_child_jobs_and_raw_evidence(tmp_path, interrupt_at):
     from topos import fragments as fragment_module
     from topos import workflow as workflow_module
     from topos.review import validate_scientific_candidate
@@ -335,20 +335,25 @@ def test_association_resume_reuses_completed_child_jobs_and_raw_evidence(tmp_pat
             event.set()
         return record
 
-    monkeypatch.setattr(workflow_module, "run_engine", engine_observer)
-    monkeypatch.setattr(fragment_module, "run_engine", fragment_observer)
-    monkeypatch.setattr(Workflow, "run", stage_observer)
-    workflow = Workflow(tmp_path, config=SystemConfig(executables={"xtb": executable}, execution_backend="development"))
-    count = 2 if interrupt_at == "monomer-partial" else 1
-    record = workflow.run(RunRequest(molecule=dimer(), purpose="association", n_candidates=count,
-                                    profile_id="xtb-vtight-v1", budget_seconds=120), cancel_event=event)
-    assert record.status == "cancelled", record.metadata.get("termination_reason")
-    old_ids = {a.attempt_id for a in record.attempts}
-    original_frozen = {a.attempt_id: a.model_dump(mode="json") for a in record.attempts
-                       if a.metadata.get("advanced_role") == "frozen-fragment-energy"}
-    first_child = next(a.metadata["source_child_run_id"] for a in record.attempts if a.metadata.get("source_child_run_id"))
-    event.clear()
-    resumed = workflow.resume(tmp_path / record.run_id, cancel_event=event)
+    workflow_module.run_engine = engine_observer
+    fragment_module.run_engine = fragment_observer
+    Workflow.run = stage_observer
+    try:
+        workflow = Workflow(tmp_path, config=SystemConfig(executables={"xtb": executable}, execution_backend="development"))
+        count = 2 if interrupt_at == "monomer-partial" else 1
+        record = workflow.run(RunRequest(molecule=dimer(), purpose="association", n_candidates=count,
+                                        profile_id="xtb-vtight-v1", budget_seconds=120), cancel_event=event)
+        assert record.status == "cancelled", record.metadata.get("termination_reason")
+        old_ids = {a.attempt_id for a in record.attempts}
+        original_frozen = {a.attempt_id: a.model_dump(mode="json") for a in record.attempts
+                           if a.metadata.get("advanced_role") == "frozen-fragment-energy"}
+        first_child = next(a.metadata["source_child_run_id"] for a in record.attempts if a.metadata.get("source_child_run_id"))
+        event.clear()
+        resumed = workflow.resume(tmp_path / record.run_id, cancel_event=event)
+    finally:
+        workflow_module.run_engine = native_engine
+        fragment_module.run_engine = native_frozen
+        Workflow.run = native_run
     assert resumed.status == "completed", resumed.metadata.get("termination_reason")
     assert old_ids.issubset({a.attempt_id for a in resumed.attempts})
     assert resumed.candidates[-1].metadata["monomer_run_ids"][0] == first_child

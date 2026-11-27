@@ -167,11 +167,17 @@ def test_composite_goat_needs_no_external_xtb_when_no_xtb_uphill_selected(molecu
     assert [call["prefix"] for call in fixture_runner[-1]] == ["version", "goat"]
 
 
-def test_total_pal_allocation_is_separate_from_nested_thread_limit(molecule, method, fixture_runner, tmp_path, monkeypatch):
-    monkeypatch.setattr("topos.engines.available_cpu_count", lambda: 4)
+def test_total_pal_allocation_is_separate_from_nested_thread_limit(molecule, method, fixture_runner, tmp_path):
+    import topos.engines as engines_module
+
     orca, xtb, _, runner, _, calls = fixture_runner
-    result = run_goat(molecule, method, ResourceLimits(threads=4), tmp_path / "parallel",
-                      executable=orca, xtb_executable=xtb, process_runner=runner)
+    original = engines_module.available_cpu_count
+    engines_module.available_cpu_count = lambda: 4
+    try:
+        result = run_goat(molecule, method, ResourceLimits(threads=4), tmp_path / "parallel",
+                          executable=orca, xtb_executable=xtb, process_runner=runner)
+    finally:
+        engines_module.available_cpu_count = original
     assert result.status == "completed", result.diagnostics
     assert calls[-1]["resources"].threads == 4
     assert calls[-1]["threads_per_process"] == 1

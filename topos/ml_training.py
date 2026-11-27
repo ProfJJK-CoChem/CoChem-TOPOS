@@ -295,7 +295,8 @@ def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: 
                 raise IntegrityError("DFT refinement restart gradient has inconsistent energies")
             if native.gradient_hartree_per_bohr != gradient:
                 raise IntegrityError("DFT refinement receipt changed its independently evaluated native gradient")
-            _validate_final_stationarity(gradient, method, stage.get("independent_stationarity"), expected_passed=False)
+            _validate_final_stationarity(gradient, method, stage.get("independent_stationarity"),
+                                         expected_passed=False, molecule=output)
             retained.update({(Path(final_directory) / name).as_posix(): path for name, path in gradient_files.items()})
         elif index < len(stages) - 1 and (stage.get("final_gradient_verification") is not None
                                         or stage.get("independent_stationarity") is not None
@@ -306,16 +307,36 @@ def _optimization_refinement_evidence(snapshot: Path, attempt: Attempt, stages: 
 
 
 def _validate_final_stationarity(gradient: list[list[float]], method: MethodSpec, stationarity: dict,
-                                 *, expected_passed: bool = True) -> None:
-    """Recompute Cartesian stationarity; a stored pass flag is insufficient."""
+                                 *, expected_passed: bool = True, molecule: Molecule | None = None) -> None:
+    """Recompute stationarity; a stored pass flag is insufficient."""
     values = np.asarray(gradient, dtype=float)
     if values.ndim != 2 or not len(values) or values.shape[1] != 3 or not np.isfinite(values).all():
         raise IntegrityError("Final DFT gradient has invalid Cartesian components")
+    if not isinstance(stationarity, dict):
+        raise IntegrityError("Optimized DFT reference lacks independently verified final-gradient stationarity")
     strict = method.profile_id == "orca-vpt2-reference-v1"
-    max_limit, rms_limit = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
-    maximum, rms = float(np.max(np.abs(values))), float(np.sqrt(np.mean(values ** 2)))
-    passed = maximum <= max_limit and rms <= rms_limit
-    if (not isinstance(stationarity, dict) or passed is not expected_passed or stationarity.get("passed") is not passed
+    if stationarity.get("projection") == "rigid-translation-rotation-removed":
+        from .science import RIGID_GRADIENT_RESIDUAL_LIMIT, project_internal_gradient
+
+        if molecule is None or len(molecule.symbols) != len(values):
+            raise IntegrityError("Projected final-gradient stationarity requires matching molecular coordinates")
+        max_limit, rms_limit = (1e-6, 3e-7) if strict else (1e-5, 3e-6)
+        internal_values, rigid_values = project_internal_gradient(molecule, values)
+        maximum, rms = float(np.max(np.abs(internal_values))), float(np.sqrt(np.mean(internal_values ** 2)))
+        rigid_maximum = float(np.max(np.abs(rigid_values)))
+        rigid_limit = max(RIGID_GRADIENT_RESIDUAL_LIMIT, max_limit)
+        passed = maximum <= max_limit and rms <= rms_limit and rigid_maximum <= rigid_limit
+        if (stationarity.get("rigid_residual_threshold") != rigid_limit
+                or isinstance(stationarity.get("rigid_residual_max_hartree_per_bohr"), bool)
+                or not isinstance(stationarity.get("rigid_residual_max_hartree_per_bohr"), (float, int))
+                or not math.isfinite(stationarity["rigid_residual_max_hartree_per_bohr"])
+                or abs(stationarity["rigid_residual_max_hartree_per_bohr"] - rigid_maximum) > 1e-15):
+            raise IntegrityError("Optimized DFT reference lacks independently verified final-gradient stationarity")
+    else:
+        max_limit, rms_limit = (1e-7, 3e-8) if strict else (1e-5, 3e-6)
+        maximum, rms = float(np.max(np.abs(values))), float(np.sqrt(np.mean(values ** 2)))
+        passed = maximum <= max_limit and rms <= rms_limit
+    if (passed is not expected_passed or stationarity.get("passed") is not passed
             or stationarity.get("max_gradient_threshold") != max_limit
             or stationarity.get("rms_gradient_threshold") != rms_limit
             or any(isinstance(stationarity.get(key), bool) or not isinstance(stationarity.get(key), (float, int))
@@ -404,7 +425,8 @@ def import_dft_point(source: DFTSourcePoint, destination: str | Path) -> Referen
                 or stage.get("energy_hartree") != final_energy
                 or stage.get("energy_difference_hartree") != final_energy - optimizer_energy):
             raise IntegrityError("DFT optimization, final-gradient output and derivative energies disagree")
-        _validate_final_stationarity(gradient, method, attempt.diagnostics.get("independent_stationarity", {}))
+        _validate_final_stationarity(gradient, method, attempt.diagnostics.get("independent_stationarity", {}),
+                                     molecule=molecule)
         if stages:
             final_receipt = EngineResult.model_validate_json(retained[f"optimization-stage-{len(stages)-1}.json"].read_text())
             if final_receipt.gradient_hartree_per_bohr != gradient:

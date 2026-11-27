@@ -227,7 +227,7 @@ def test_context_binds_the_actual_tensor_atom_frame_density_and_print_evidence(b
         first_order_quadrupole_output(molecule(), verified, [mathematical_nucleus()], "requested-cartesian", context)
 
 
-def test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display(monkeypatch):
+def test_base_property_fingerprint_comes_from_actual_runtime_verification_not_registry_display():
     # Pure authorization-transport control; no executable or native output.
     authority = {"runtime_seal_sha256": "a" * 64, "binary_sha256": "b" * 64,
                  "executable": "/unexecuted-bookkeeping/bin/xcfour"}
@@ -239,17 +239,25 @@ def test_base_property_fingerprint_comes_from_actual_runtime_verification_not_re
                 "runtime_inventory_sha256": INVENTORY, "helpers": {"xprops": {"path": "/unexecuted-bookkeeping/bin/xprops", "sha256": XPROPS, "bytes": 113368}}}
     calls = []
     module = SimpleNamespace(verify_cfour_runtime=lambda executable: calls.append(executable) or observed)
-    monkeypatch.setitem(sys.modules, "cochem_base.core_engine.cfour_runtime", module)
-    runtime = object.__new__(BaseRuntime)
-    runtime.registry_path = Path("/unexecuted-bookkeeping/registry.json")
-    runtime.registry = SimpleNamespace(model_dump=lambda **kwargs: {"engines": {"cfour": record}})
-    runtime._authorize = lambda *args, **kwargs: authorization
-    fingerprint = runtime.cfour_property_runtime_identity()
-    assert calls == [authority["executable"]]
-    assert fingerprint["xprops"]["sha256"] == XPROPS
-    observed["runtime_seal_sha256"] = "d" * 64
-    with pytest.raises(BaseIntegrationError, match="complete BASE authority"):
-        runtime.cfour_property_runtime_identity()
+    module_key = "cochem_base.core_engine.cfour_runtime"
+    previous = sys.modules.get(module_key)
+    sys.modules[module_key] = module
+    try:
+        runtime = object.__new__(BaseRuntime)
+        runtime.registry_path = Path("/unexecuted-bookkeeping/registry.json")
+        runtime.registry = SimpleNamespace(model_dump=lambda **kwargs: {"engines": {"cfour": record}})
+        runtime._authorize = lambda *args, **kwargs: authorization
+        fingerprint = runtime.cfour_property_runtime_identity()
+        assert calls == [authority["executable"]]
+        assert fingerprint["xprops"]["sha256"] == XPROPS
+        observed["runtime_seal_sha256"] = "d" * 64
+        with pytest.raises(BaseIntegrationError, match="complete BASE authority"):
+            runtime.cfour_property_runtime_identity()
+    finally:
+        if previous is None:
+            sys.modules.pop(module_key, None)
+        else:
+            sys.modules[module_key] = previous
 
 
 def test_operator_context_cannot_be_transferred_to_changed_requested_isotopes_or_geometry(bookkeeping):

@@ -448,3 +448,33 @@ def test_nonlinear_projection_and_unstable_mode_classification(water):
 def test_harmonic_analysis_rejects_nonfinite_classification_thresholds(water, threshold, name):
     with pytest.raises(ValueError, match="thresholds"):
         harmonic_analysis(water, np.eye(9), **{name: threshold})
+
+
+def test_rigid_gradient_projection_removes_grid_torque_and_rejects_internal_or_huge_rigid_forces(water):
+    from topos.science import project_internal_gradient
+
+    xyz = np.asarray(water.coordinates, dtype=float)
+    centered = xyz - xyz.mean(axis=0)
+    # Pure rigid-body rotation torque (~3e-5 Eh/bohr, typical DFT grid noise) plus tiny translation
+    torque = np.cross(np.array([2.5e-5, -1.5e-5, 1.0e-5]), centered) + np.array([1e-6, -2e-6, 5e-7])
+    internal, rigid = project_internal_gradient(water, torque)
+    assert np.max(np.abs(internal)) < 1e-15
+    assert np.allclose(rigid, torque, atol=1e-15)
+    stationary = harmonic_analysis(water, np.eye(9), gradient_hartree_per_bohr=torque, gradient_threshold=1e-7)
+    assert stationary["stationary"] is True
+    assert stationary["validity"] == "harmonic-minimum-within-thresholds"
+
+    # Genuine internal bond stretch must remain nonstationary even after rigid projection
+    stretch = np.array([[0.0, 0.0, 0.0], [1e-3, 0.0, 0.0], [-1e-3, 0.0, 0.0]])
+    stretch_internal, _ = project_internal_gradient(water, stretch)
+    assert np.max(np.abs(stretch_internal)) > 5e-4
+    nonstat_int = harmonic_analysis(water, np.eye(9), gradient_hartree_per_bohr=stretch, gradient_threshold=1e-4)
+    assert nonstat_int["stationary"] is False and nonstat_int["validity"] == "nonstationary"
+
+    # Off-axis linear molecule (along [1, 1, 1]): rigid subspace has rank 5, preserving bond stretch
+    axis = np.array([1.0, 1.0, 1.0]) / np.sqrt(3.0)
+    co2 = Molecule(symbols=["O", "C", "O"], coordinates=[(-1.16 * axis).tolist(), [0.0, 0.0, 0.0], (1.16 * axis).tolist()])
+    axial_force = np.vstack([-1e-3 * axis, np.zeros(3), 1e-3 * axis])
+    lin_internal, lin_rigid = project_internal_gradient(co2, axial_force)
+    assert np.allclose(lin_internal, axial_force, atol=1e-14)
+    assert np.max(np.abs(lin_rigid)) < 1e-14

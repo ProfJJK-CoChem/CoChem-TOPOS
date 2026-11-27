@@ -10,8 +10,11 @@ import pytest
 
 from topos.counterpoise import (
     EXECUTION_TIMING_SCOPE,
+    _assert_uniform_cosx_grid,
     _leg_execution_timing,
+    _leg_used_tight_cosx,
     _validate_basis_export_receipts,
+    _validate_completed_leg,
     counterpoise_plan,
     execute_counterpoise,
 )
@@ -142,7 +145,7 @@ def test_cp_cancellation_does_not_produce_partial_sum(tmp_path):
     assert result["status"] == "cancelled" and not result["jobs"] and result["energies"] is None
 
 
-def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path, monkeypatch):
+def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path):
     """A parser fixture result is deliberately refused as chemical evidence."""
     import topos.counterpoise as module
 
@@ -150,9 +153,13 @@ def test_test_fixture_cannot_be_misreported_as_executed_counterpoise(tmp_path, m
         return EngineResult(status="completed", converged=True, engine="orca", method="wB97M-V",
                             operation="energy", energy_hartree=-1, engine_version="6.1.1",
                             metadata={"execution_kind": "unit-test-fixture"})
-    monkeypatch.setattr(module, "run_engine", fixture)
-    result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp",
-                                  **basis_files(tmp_path), process_runner=lambda *a, **kw: None)
+    original = module.run_engine
+    module.run_engine = fixture
+    try:
+        result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp",
+                                      **basis_files(tmp_path), process_runner=lambda *a, **kw: None)
+    finally:
+        module.run_engine = original
     assert result["status"] == "failed" and result["energies"] is None
     assert "actual versioned engine execution" in result["reason"]
 
@@ -279,7 +286,7 @@ def test_ghost_physical_fragment_preserves_declared_internal_bonds(tmp_path, fra
     assert result.metadata["physical_molecule"] == counterpoise_plan(molecule, method())[2]["physical_molecule"]
 
 
-def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, monkeypatch):
+def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path):
     """Synthetic parser/orchestration fixtures; no native execution or chemistry validation."""
     import topos.counterpoise as module
     from topos.engines import artifact_inventory
@@ -320,26 +327,30 @@ def test_partial_cp_orchestration_reuses_only_verified_completed_legs(tmp_path, 
                                       "resources": resources.model_dump(mode="json"), "external_basis": basis},
                             diagnostics={"process": {"stdout_path": str(output)}}, artifacts=artifact_inventory(folder))
 
-    monkeypatch.setattr(module, "run_engine", parser_fixture)
     options = {**basis_files(tmp_path), "executable": binary, "process_runner": lambda *a, **kw: None,
                "cancel_event": cancel}
-    interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
-    assert interrupted["status"] == "cancelled" and interrupted["energies"] is None and len(calls) == 2
-    original_jobs = deepcopy(interrupted["jobs"])
-    for entry, observed in zip(original_jobs, observed_calls, strict=True):
-        first, last = _leg_execution_timing(EngineResult.model_validate(entry["result"]))
-        assert datetime.fromisoformat(first) <= datetime.fromisoformat(observed) <= datetime.fromisoformat(last)
-        assert entry["result_sha256"] == digest_json(entry["result"])
-    cancel.clear()
-    resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
-    assert resumed["status"] == "completed" and len(calls) == 5
-    assert resumed["resumed_completed_roles"] == ["complex-in-complex-basis", "fragment-0-in-own-basis"]
-    assert resumed["validation_status"] == "human-review"  # arbitrary basis files never satisfy the matrix
-    assert resumed["jobs"][:2] == original_jobs  # Resume retains actual original invocation times.
-    output = Path(resumed["jobs"][0]["result"]["diagnostics"]["process"]["stdout_path"])
-    output.write_text(output.read_text().replace("-1.0000", "-2.0000"))
-    with pytest.raises(IntegrityError, match="retained artifact"):
-        execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+    original = module.run_engine
+    module.run_engine = parser_fixture
+    try:
+        interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert interrupted["status"] == "cancelled" and interrupted["energies"] is None and len(calls) == 2
+        original_jobs = deepcopy(interrupted["jobs"])
+        for entry, observed in zip(original_jobs, observed_calls, strict=True):
+            first, last = _leg_execution_timing(EngineResult.model_validate(entry["result"]))
+            assert datetime.fromisoformat(first) <= datetime.fromisoformat(observed) <= datetime.fromisoformat(last)
+            assert entry["result_sha256"] == digest_json(entry["result"])
+        cancel.clear()
+        resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert resumed["status"] == "completed" and len(calls) == 5
+        assert resumed["resumed_completed_roles"] == ["complex-in-complex-basis", "fragment-0-in-own-basis"]
+        assert resumed["validation_status"] == "human-review"  # arbitrary basis files never satisfy the matrix
+        assert resumed["jobs"][:2] == original_jobs  # Resume retains actual original invocation times.
+        output = Path(resumed["jobs"][0]["result"]["diagnostics"]["process"]["stdout_path"])
+        output.write_text(output.read_text().replace("-1.0000", "-2.0000"))
+        with pytest.raises(IntegrityError, match="retained artifact"):
+            execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+    finally:
+        module.run_engine = original
 
 
 def test_unavailable_cp_leg_retains_dated_invocation_without_native_execution_claim(tmp_path):
@@ -386,3 +397,436 @@ def test_historical_counterpoise_leg_without_invocation_timing_stays_undated():
     legacy = EngineResult(status="unavailable", engine="orca", method="HF", operation="energy")
     assert _leg_execution_timing(legacy) == (None, None)
     assert "execution_timing" not in legacy.metadata
+
+
+def test_counterpoise_leg_validation_accepts_verified_cosx_grid_recovery_and_rejects_unbacked_claim(tmp_path):
+    """_validate_completed_leg accepts authentic cosx-grid-retry decks and fails closed if initial failure is absent."""
+    from topos.counterpoise import _validate_completed_leg
+    from topos.engines import artifact_inventory
+
+    cp_method = method()
+    molecule = hydrogen_pair()
+    plan = counterpoise_plan(molecule, cp_method)
+    job = plan[0]
+    files = basis_files(tmp_path)
+    basis = {
+        "orbital": {"sha256": file_digest(files["orbital_basis_file"])},
+        "auxiliary": {"sha256": file_digest(files["auxiliary_basis_file"])},
+    }
+    binary = tmp_path / "inert-orca"
+    binary.write_text("INERT ORCHESTRATION FIXTURE: never executed", encoding="utf-8")
+
+    leg_root = tmp_path / "cp" / "leg-0-attempt-0"
+    retry_dir = leg_root / "cosx-grid-retry"
+    retry_dir.mkdir(parents=True)
+    initial_stdout = leg_root / "engine.stdout"
+    initial_stdout.write_text("Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\n", encoding="utf-8")
+    for kind, key in (("orbital", "orbital_basis_file"), ("auxiliary", "auxiliary_basis_file")):
+        (retry_dir / f"{kind}.bas").write_bytes(files[key].read_bytes())
+    res = ResourceLimits()
+    (retry_dir / "job.inp").write_text(
+        _orca_input(
+            molecule, cp_method, res, "energy",
+            ghost_atom_indices=[], ghost_electronic_state=None,
+            basis_files={"orbital": "orbital.bas", "auxiliary": "auxiliary.bas"},
+            cosx_tight_grid=True,
+        ),
+        encoding="utf-8",
+    )
+    retry_stdout = retry_dir / "engine.stdout"
+    retry_stdout.write_text(
+        "Program Version 6.1.1\nSCF CONVERGED AFTER 35 CYCLES\n"
+        "FINAL SINGLE POINT ENERGY -1.0000\nORCA TERMINATED NORMALLY\n",
+        encoding="utf-8",
+    )
+    calc = EngineResult(
+        status="completed", converged=True, engine="orca", method=cp_method.method,
+        operation="energy", energy_hartree=-1.0, molecule=molecule,
+        engine_version="6.1.1", command=[str(binary), "job.inp"],
+        metadata={
+            "execution_kind": "real",
+            "executable_sha256": file_digest(binary),
+            "resources": res.model_dump(mode="json"),
+            "external_basis": basis,
+            "cosx_grid_recovery": {
+                "triggered": True,
+                "intaccx": "6,6,7",
+                "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+            },
+        },
+        diagnostics={"process": {"stdout_path": str(retry_stdout)}},
+        artifacts=artifact_inventory(leg_root),
+    )
+    payload = calc.model_dump(mode="json")
+    entry = {"role": job["role"], "result": payload, "result_sha256": digest_json(payload)}
+    validated = _validate_completed_leg(entry, job, basis, cp_method, tmp_path / "cp")
+    assert validated.energy_hartree == -1.0
+
+    # Without an actual initial SCF failure in parent engine.stdout, cosx_grid_recovery MUST fail closed.
+    initial_stdout.write_text("Program Version 6.1.1\nORCA TERMINATED NORMALLY\n", encoding="utf-8")
+    calc_unbacked = calc.model_copy(update={"artifacts": artifact_inventory(leg_root)})
+    payload_unbacked = calc_unbacked.model_dump(mode="json")
+    entry_unbacked = {"role": job["role"], "result": payload_unbacked, "result_sha256": digest_json(payload_unbacked)}
+    with pytest.raises(IntegrityError, match="initial SCF convergence failure"):
+        _validate_completed_leg(entry_unbacked, job, basis, cp_method, tmp_path / "cp")
+
+
+def _write_cp_leg_fixture(
+    folder: Path,
+    binary: Path,
+    molecule: Molecule,
+    requested_method: MethodSpec,
+    resources: ResourceLimits,
+    energy: float,
+    *,
+    ghost_atom_indices: list[int],
+    ghost_electronic_state: tuple[int, int] | None,
+    orbital_basis_file: str | Path,
+    auxiliary_basis_file: str | Path,
+    deck_cosx_tight_grid: bool,
+    trigger_recovery: bool = False,
+    extra_metadata: dict | None = None,
+) -> EngineResult:
+    """Create retained native-format files for orchestration tests without invoking ORCA."""
+    from topos.engines import artifact_inventory
+    from topos.fragments import split_fragments
+
+    folder.mkdir(parents=True, exist_ok=True)
+    run_dir = folder
+    metadata: dict = {
+        "execution_kind": "real",
+        "executable_sha256": file_digest(binary),
+        "resources": resources.model_dump(mode="json"),
+    }
+    if trigger_recovery:
+        (folder / "engine.stdout").write_text(
+            "Program Version 6.1.1\nSCF NOT CONVERGED AFTER 124 CYCLES\n",
+            encoding="utf-8",
+        )
+        run_dir = folder / "cosx-grid-retry"
+        run_dir.mkdir(parents=True, exist_ok=True)
+        metadata["cosx_grid_recovery"] = {
+            "triggered": True,
+            "intaccx": "6,6,7",
+            "reason": "SCF NOT CONVERGED under default RIJCOSX grid",
+        }
+    basis = {}
+    for kind, source in (("orbital", orbital_basis_file), ("auxiliary", auxiliary_basis_file)):
+        path = run_dir / f"{kind}.bas"
+        path.write_bytes(Path(source).read_bytes())
+        basis[kind] = {"sha256": file_digest(path)}
+    metadata["external_basis"] = basis
+    if extra_metadata:
+        metadata.update(extra_metadata)
+    (run_dir / "job.inp").write_text(
+        _orca_input(
+            molecule, requested_method, resources, "energy",
+            ghost_atom_indices=ghost_atom_indices,
+            ghost_electronic_state=ghost_electronic_state,
+            basis_files={"orbital": "orbital.bas", "auxiliary": "auxiliary.bas"},
+            cosx_tight_grid=deck_cosx_tight_grid,
+        ),
+        encoding="utf-8",
+    )
+    stdout = run_dir / "engine.stdout"
+    stdout.write_text(
+        "PARSER FIXTURE ONLY\nProgram Version 6.1.1\nSCF CONVERGED AFTER 12 CYCLES\n"
+        f"FINAL SINGLE POINT ENERGY {energy:.6f}\nORCA TERMINATED NORMALLY\n",
+        encoding="utf-8",
+    )
+    physical = molecule
+    if ghost_atom_indices:
+        keep_ids = {molecule.atom_ids[i] for i in range(len(molecule.symbols)) if i not in ghost_atom_indices}
+        physical = next(m for m in split_fragments(molecule) if set(m.atom_ids) == keep_ids)
+    return EngineResult(
+        status="completed", converged=True, engine="orca", method=requested_method.method,
+        operation="energy", energy_hartree=energy, molecule=physical,
+        engine_version="6.1.1", command=[str(binary), "job.inp"],
+        metadata=metadata,
+        diagnostics={"process": {"stdout_path": str(stdout)}},
+        artifacts=artifact_inventory(folder),
+    )
+
+
+def test_counterpoise_uniform_cosx_reruns_earlier_leg_and_propagates_tight_grid_to_remaining_legs(tmp_path):
+    """If leg 1 triggers cosx_grid_recovery, leg 0 reruns and legs 2-4 run directly on IntAccX 6,6,7."""
+    import topos.counterpoise as module
+
+    binary = tmp_path / "inert-orca"
+    binary.write_text("INERT ORCHESTRATION FIXTURE: never executed", encoding="utf-8")
+    calls: list[tuple[str, bool]] = []
+    energies_by_stage = {
+        ("leg-0-attempt-0", False): -100.0100,
+        ("leg-1-attempt-0", False): -50.0005,
+        ("leg-2-attempt-0", True): -50.0035,
+        ("leg-3-attempt-0", True): -50.0005,
+        ("leg-4-attempt-0", True): -50.0045,
+        ("leg-0-attempt-1", True): -100.0110,
+    }
+
+    def runner_fixture(molecule, requested_method, resources, workdir, **kwargs):
+        folder = Path(workdir)
+        tight = bool(kwargs.get("cosx_tight_grid", False))
+        calls.append((folder.name, tight))
+        trigger_recovery = folder.name == "leg-1-attempt-0"
+        energy = energies_by_stage[(folder.name, tight)]
+        return _write_cp_leg_fixture(
+            folder, binary, molecule, requested_method, resources, energy,
+            ghost_atom_indices=kwargs["ghost_atom_indices"],
+            ghost_electronic_state=kwargs["ghost_electronic_state"],
+            orbital_basis_file=kwargs["orbital_basis_file"],
+            auxiliary_basis_file=kwargs["auxiliary_basis_file"],
+            deck_cosx_tight_grid=tight or trigger_recovery,
+            trigger_recovery=trigger_recovery,
+        )
+
+    options = {**basis_files(tmp_path), "executable": binary, "process_runner": lambda *a, **kw: None}
+    original = module.run_engine
+    module.run_engine = runner_fixture
+    try:
+        result = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert result["status"] == "completed", result.get("reason")
+        assert calls == [
+            ("leg-0-attempt-0", False),
+            ("leg-1-attempt-0", False),
+            ("leg-2-attempt-0", True),
+            ("leg-3-attempt-0", True),
+            ("leg-4-attempt-0", True),
+            ("leg-0-attempt-1", True),
+        ]
+        assert result["provenance"]["cosx_grid_policy"] == "uniform_intaccx_6_6_7"
+        assert len(result["jobs"]) == 6
+
+        latest_by_role = {entry["role"]: entry for entry in result["jobs"] if entry["result"]["status"] == "completed"}
+        assert len(latest_by_role) == 5
+        for role, entry in latest_by_role.items():
+            calc = EngineResult.model_validate(entry["result"])
+            assert _leg_used_tight_cosx(calc) is True
+            stdout = Path(calc.diagnostics["process"]["stdout_path"])
+            assert "%method\n  IntAccX 6,6,7\nend\n" in (stdout.parent / "job.inp").read_text(encoding="utf-8")
+            if role == "fragment-0-in-own-basis":
+                assert calc.metadata["cosx_grid_recovery"]["triggered"] is True
+                assert "cosx_uniform_tight_grid" not in calc.metadata
+            else:
+                assert calc.metadata.get("cosx_uniform_tight_grid") is True
+
+        expected_cp = counterpoise_interaction(-100.0110, -50.0035, -50.0045, -50.0005, -50.0005)
+        assert result["energies"]["leg_energies_hartree"]["complex-in-complex-basis"] == pytest.approx(-100.0110)
+        assert result["energies"]["cp_interaction_hartree"] == pytest.approx(expected_cp["cp_interaction_hartree"])
+
+        # Resuming the completed uniform tight-COSX checkpoint validates cleanly with zero extra runs.
+        resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert resumed["status"] == "completed"
+        assert resumed["provenance"]["cosx_grid_policy"] == "uniform_intaccx_6_6_7"
+        assert len(calls) == 6
+    finally:
+        module.run_engine = original
+
+
+def test_counterpoise_uniform_cosx_resume_after_recovery_interrupt_reruns_cached_default_leg(tmp_path):
+    """Resuming a checkpoint interrupted after leg 1 recovery upgrades cached default leg 0 to IntAccX 6,6,7."""
+    import topos.counterpoise as module
+
+    cancel = Event()
+    binary = tmp_path / "inert-orca"
+    binary.write_text("INERT ORCHESTRATION FIXTURE: never executed", encoding="utf-8")
+    calls: list[tuple[str, bool]] = []
+
+    def runner_fixture(molecule, requested_method, resources, workdir, **kwargs):
+        folder = Path(workdir)
+        tight = bool(kwargs.get("cosx_tight_grid", False))
+        calls.append((folder.name, tight))
+        trigger_recovery = folder.name == "leg-1-attempt-0"
+        if trigger_recovery:
+            cancel.set()
+        energy = -100.0110 if folder.name == "leg-0-attempt-1" else -1.0
+        return _write_cp_leg_fixture(
+            folder, binary, molecule, requested_method, resources, energy,
+            ghost_atom_indices=kwargs["ghost_atom_indices"],
+            ghost_electronic_state=kwargs["ghost_electronic_state"],
+            orbital_basis_file=kwargs["orbital_basis_file"],
+            auxiliary_basis_file=kwargs["auxiliary_basis_file"],
+            deck_cosx_tight_grid=tight or trigger_recovery,
+            trigger_recovery=trigger_recovery,
+        )
+
+    options = {
+        **basis_files(tmp_path), "executable": binary,
+        "process_runner": lambda *a, **kw: None, "cancel_event": cancel,
+    }
+    original = module.run_engine
+    module.run_engine = runner_fixture
+    try:
+        interrupted = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert interrupted["status"] == "cancelled" and interrupted["energies"] is None
+        assert calls == [("leg-0-attempt-0", False), ("leg-1-attempt-0", False)]
+        cancel.clear()
+        resumed = execute_counterpoise(hydrogen_pair(), method(), ResourceLimits(), tmp_path / "cp", **options)
+        assert resumed["status"] == "completed", resumed.get("reason")
+        assert resumed["provenance"]["cosx_grid_policy"] == "uniform_intaccx_6_6_7"
+        assert calls == [
+            ("leg-0-attempt-0", False),
+            ("leg-1-attempt-0", False),
+            ("leg-2-attempt-0", True),
+            ("leg-3-attempt-0", True),
+            ("leg-4-attempt-0", True),
+            ("leg-0-attempt-1", True),
+        ]
+        assert resumed["energies"]["leg_energies_hartree"]["complex-in-complex-basis"] == pytest.approx(-100.0110)
+    finally:
+        module.run_engine = original
+
+
+def test_counterpoise_mixed_cosx_grids_fail_closed(tmp_path):
+    """Mixed default/tight COSX grids and unbacked uniform tight-grid claims must always fail closed."""
+    import json
+
+    import topos.counterpoise as module
+
+    cp_method = method()
+    molecule = hydrogen_pair()
+    plan = counterpoise_plan(molecule, cp_method)
+    roles = [job["role"] for job in plan]
+
+    # 1. Direct uniform-grid guard accepts uniform dicts and fails closed on any mixed grid.
+    assert _assert_uniform_cosx_grid({r: False for r in roles}, roles) is False
+    assert _assert_uniform_cosx_grid({r: True for r in roles}, roles) is True
+    mixed = {r: (r == roles[1]) for r in roles}
+    with pytest.raises(IntegrityError, match="inconsistent COSX integration grids"):
+        _assert_uniform_cosx_grid(mixed, roles)
+    with pytest.raises(IntegrityError, match="inconsistent COSX integration grids"):
+        _assert_uniform_cosx_grid({r: False for r in roles[:-1]}, roles)
+
+    # 2. _validate_completed_leg rejects unbacked cosx_uniform_tight_grid when allow_uniform_tight_cosx=False,
+    #    accepts it when allow_uniform_tight_cosx=True with matching tight deck, and rejects missing IntAccX.
+    files = basis_files(tmp_path)
+    basis = {
+        "orbital": {"sha256": file_digest(files["orbital_basis_file"])},
+        "auxiliary": {"sha256": file_digest(files["auxiliary_basis_file"])},
+    }
+    binary = tmp_path / "inert-orca"
+    binary.write_text("INERT ORCHESTRATION FIXTURE: never executed", encoding="utf-8")
+    res = ResourceLimits()
+
+    tight_calc = _write_cp_leg_fixture(
+        tmp_path / "vcheck" / "leg-0-attempt-0", binary, molecule, cp_method, res, -1.0,
+        ghost_atom_indices=[], ghost_electronic_state=None,
+        orbital_basis_file=files["orbital_basis_file"],
+        auxiliary_basis_file=files["auxiliary_basis_file"],
+        deck_cosx_tight_grid=True,
+        extra_metadata={"cosx_uniform_tight_grid": True},
+    )
+    assert _leg_used_tight_cosx(tight_calc) is True
+    tight_payload = tight_calc.model_dump(mode="json")
+    tight_entry = {"role": plan[0]["role"], "result": tight_payload, "result_sha256": digest_json(tight_payload)}
+    with pytest.raises(IntegrityError, match="sibling COSX recovery"):
+        _validate_completed_leg(tight_entry, plan[0], basis, cp_method, tmp_path / "vcheck")
+    assert _validate_completed_leg(
+        tight_entry, plan[0], basis, cp_method, tmp_path / "vcheck", allow_uniform_tight_cosx=True
+    ).energy_hartree == -1.0
+
+    spoofed_default_deck = _write_cp_leg_fixture(
+        tmp_path / "vcheck" / "leg-0-attempt-1", binary, molecule, cp_method, res, -1.0,
+        ghost_atom_indices=[], ghost_electronic_state=None,
+        orbital_basis_file=files["orbital_basis_file"],
+        auxiliary_basis_file=files["auxiliary_basis_file"],
+        deck_cosx_tight_grid=False,
+        extra_metadata={"cosx_uniform_tight_grid": True},
+    )
+    spoof_payload = spoofed_default_deck.model_dump(mode="json")
+    spoof_entry = {"role": plan[0]["role"], "result": spoof_payload, "result_sha256": digest_json(spoof_payload)}
+    with pytest.raises(IntegrityError, match="native deck does not match"):
+        _validate_completed_leg(
+            spoof_entry, plan[0], basis, cp_method, tmp_path / "vcheck", allow_uniform_tight_cosx=True
+        )
+
+    # 3. End-to-end: if a subsequent leg drops IntAccX 6,6,7 despite cosx_tight_grid=True, fail closed.
+    original = module.run_engine
+    options = {**files, "executable": binary, "process_runner": lambda *a, **kw: None}
+
+    def silent_default_deck_on_leg2(mol, requested_method, resources, workdir, **kwargs):
+        folder = Path(workdir)
+        trigger_recovery = folder.name == "leg-1-attempt-0"
+        return _write_cp_leg_fixture(
+            folder, binary, mol, requested_method, resources, -1.0,
+            ghost_atom_indices=kwargs["ghost_atom_indices"],
+            ghost_electronic_state=kwargs["ghost_electronic_state"],
+            orbital_basis_file=kwargs["orbital_basis_file"],
+            auxiliary_basis_file=kwargs["auxiliary_basis_file"],
+            deck_cosx_tight_grid=trigger_recovery,  # omits IntAccX 6,6,7 on leg 2!
+            trigger_recovery=trigger_recovery,
+        )
+
+    module.run_engine = silent_default_deck_on_leg2
+    try:
+        failed_leg2 = execute_counterpoise(molecule, cp_method, res, tmp_path / "cp-mixed-leg2", **options)
+    finally:
+        module.run_engine = original
+    assert failed_leg2["status"] == "failed" and failed_leg2["energies"] is None
+
+    # 4. End-to-end: if the leg-0 uniform tight rerun fails, never emit CP energy using default leg 0.
+    def failed_leg0_rerun(mol, requested_method, resources, workdir, **kwargs):
+        folder = Path(workdir)
+        tight = bool(kwargs.get("cosx_tight_grid", False))
+        if folder.name == "leg-0-attempt-1":
+            return EngineResult(
+                status="failed", converged=False, engine="orca", method=requested_method.method,
+                operation="energy", engine_version="6.1.1",
+                metadata={"execution_kind": "real", "executable_sha256": file_digest(binary)},
+                diagnostics={"reason": "SCF failed on tight rerun"},
+            )
+        trigger_recovery = folder.name == "leg-1-attempt-0"
+        return _write_cp_leg_fixture(
+            folder, binary, mol, requested_method, resources, -1.0,
+            ghost_atom_indices=kwargs["ghost_atom_indices"],
+            ghost_electronic_state=kwargs["ghost_electronic_state"],
+            orbital_basis_file=kwargs["orbital_basis_file"],
+            auxiliary_basis_file=kwargs["auxiliary_basis_file"],
+            deck_cosx_tight_grid=tight or trigger_recovery,
+            trigger_recovery=trigger_recovery,
+        )
+
+    module.run_engine = failed_leg0_rerun
+    try:
+        failed_rerun = execute_counterpoise(molecule, cp_method, res, tmp_path / "cp-failed-rerun", **options)
+    finally:
+        module.run_engine = original
+    assert failed_rerun["status"] == "failed" and failed_rerun["energies"] is None
+
+    # 5. Resuming a checkpoint with an unbacked cosx_uniform_tight_grid leg (no sibling recovery) fails closed.
+    def uniform_default_run(mol, requested_method, resources, workdir, **kwargs):
+        return _write_cp_leg_fixture(
+            Path(workdir), binary, mol, requested_method, resources, -1.0,
+            ghost_atom_indices=kwargs["ghost_atom_indices"],
+            ghost_electronic_state=kwargs["ghost_electronic_state"],
+            orbital_basis_file=kwargs["orbital_basis_file"],
+            auxiliary_basis_file=kwargs["auxiliary_basis_file"],
+            deck_cosx_tight_grid=False,
+        )
+
+    module.run_engine = uniform_default_run
+    try:
+        default_res = execute_counterpoise(molecule, cp_method, res, tmp_path / "cp-default", **options)
+    finally:
+        module.run_engine = original
+    assert default_res["status"] == "completed"
+    assert default_res["provenance"]["cosx_grid_policy"] == "uniform_default"
+
+    # Tamper leg 0 in checkpoint to claim cosx_uniform_tight_grid=True with no sibling recovery.
+    cp_dir = tmp_path / "cp-default"
+    leg0_tight = _write_cp_leg_fixture(
+        cp_dir / "leg-0-attempt-1", binary, molecule, cp_method, res, -1.0,
+        ghost_atom_indices=[], ghost_electronic_state=None,
+        orbital_basis_file=files["orbital_basis_file"],
+        auxiliary_basis_file=files["auxiliary_basis_file"],
+        deck_cosx_tight_grid=True,
+        extra_metadata={"cosx_uniform_tight_grid": True},
+    )
+    ckpt_path = cp_dir / "counterpoise-result.json"
+    ckpt = json.loads(ckpt_path.read_text(encoding="utf-8"))
+    leg0_payload = leg0_tight.model_dump(mode="json")
+    ckpt["jobs"][0] = {"role": plan[0]["role"], "result": leg0_payload, "result_sha256": digest_json(leg0_payload)}
+    ckpt["artifacts"].extend(leg0_payload["artifacts"])
+    ckpt_path.write_text(json.dumps(ckpt), encoding="utf-8")
+    with pytest.raises(IntegrityError, match="sibling COSX recovery"):
+        execute_counterpoise(molecule, cp_method, res, cp_dir, **options)

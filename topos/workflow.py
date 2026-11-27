@@ -117,10 +117,15 @@ class _EvaluationStopped(RuntimeError):
 
 class Workflow:
     def __init__(
-        self, output_root: str | Path | None = None, *, config: SystemConfig | None = None
+        self,
+        output_root: str | Path | None = None,
+        *,
+        config: SystemConfig | None = None,
+        base_runtime: Any | None = None,
     ) -> None:
         self.config = config if config is not None else load_config()
-        self.base_runtime = None
+        self._configured_base_runtime = base_runtime
+        self.base_runtime = base_runtime
         self.output_root = Path(output_root or self.config.output_root).expanduser().resolve()
         source_root = Path(__file__).resolve().parent.parent
         if (source_root / ".git").exists() and self.output_root.is_relative_to(source_root):
@@ -312,7 +317,11 @@ class Workflow:
             from .base_integration import BaseRuntime
 
             try:
-                self.base_runtime = BaseRuntime(registry_path=self.config.base_registry_path)
+                self.base_runtime = (
+                    self._configured_base_runtime
+                    if self._configured_base_runtime is not None
+                    else BaseRuntime(registry_path=self.config.base_registry_path)
+                )
                 if request.device == "gpu" and request.purpose == "matrix":
                     from .ml import ModelManifest
 

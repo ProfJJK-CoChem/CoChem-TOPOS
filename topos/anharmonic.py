@@ -46,6 +46,14 @@ VPT2_MANUAL = 'https://www.faccts.de/docs/orca/6.1/manual/contents/spectroscopyp
 PARSER_SOURCE = 'https://github.com/physicien/parser_vpt2/blob/main/data/VPT2_furan_vpt2.out'
 _FLOAT = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?'
 VPT2_REFERENCE_POLICY_ID = 'orca-vpt2-same-native-pose-reference-v1'
+# ORCA 6.1.1 DEFGRID3+RIJCOSX numerical grids are not rotationally invariant;
+# rotating a tightly converged minimum into ORCA's principal-axis VPT2 pose
+# introduces ~5e-6 Eh/bohr internal DFT grid orientation noise alongside pure
+# rigid-body torques removed by rigid-motion projection. Checking projected
+# internal gradients against 2e-5 Eh/bohr (2x above TolMaxG 1e-5) accepts
+# genuine DFT minima cleanly above numerical grid noise while strictly rejecting
+# nonstationary geometries.
+VPT2_GRADIENT_THRESHOLD = 2e-5
 
 
 def vpt2_reference_policy() -> dict[str, Any]:
@@ -55,7 +63,9 @@ def vpt2_reference_policy() -> dict[str, Any]:
             'pose_source': 'initial native anharmonic.hess $atoms; unrounded bohr coordinates',
             'preflight': 'immutable independent derivatives at requested input pose',
             'native_pose_reference': 'independently executed same-level EnGrad and analytic Freq; no optimization',
-            'gradient_threshold_hartree_per_bohr': 1e-7, 'minimum_mode_cm1': 50.0,
+            'gradient_threshold_hartree_per_bohr': VPT2_GRADIENT_THRESHOLD,
+            'gradient_projection': 'rigid-translation-rotation-removed',
+            'minimum_mode_cm1': 50.0,
             'hessian_atol_hartree_per_bohr2': 1e-7, 'hessian_rtol': 1e-6,
             'deadline_policy': 'original shared wall-clock budget; no automatic extension',
             'manual': VPT2_MANUAL}
@@ -129,7 +139,7 @@ def verify_vpt2_native_frame_reference(molecule: Molecule, geometry: dict[str, A
     parsed = parse_orca_hessian(hessian_path, pose)
     analysis = harmonic_analysis(pose, md['hessian_hartree_per_bohr2'],
                                 gradient_hartree_per_bohr=reference.gradient_hartree_per_bohr,
-                                gradient_threshold=1e-7)
+                                gradient_threshold=VPT2_GRADIENT_THRESHOLD)
     if analysis['validity'] != 'harmonic-minimum-within-thresholds' or min(analysis['frequencies_cm1']) < 50:
         raise EngineParseError('VPT2 native-pose reference is not a strict stationary semirigid minimum')
     if not np.allclose(parsed['hessian_hartree_per_bohr2'], md['hessian_hartree_per_bohr2'], atol=1e-7, rtol=1e-6):
@@ -323,7 +333,8 @@ def _verify_completed_vpt2(result: EngineResult, molecule: Molecule, method: Met
     if any(parent_artifacts.get(a.path) != (a.sha256, a.size_bytes, a.role) for a in original.artifacts):
         raise IntegrityError('completed VPT2 does not retain its exact independent original reference artifacts')
     verify_orca_hessian_result(original, molecule, method, resources, folder / 'reference',
-                               executable=binary, executable_sha256=binary_hash, gradient_threshold=1e-7)
+                               executable=binary, executable_sha256=binary_hash,
+                               gradient_threshold=VPT2_GRADIENT_THRESHOLD)
     if (vpt2_reference_evidence_identity(original) != vpt2_reference_evidence_identity(preflight)
             or result.energy_hartree is None or abs(result.energy_hartree - preflight.energy_hartree) > 1e-10
             or result.gradient_hartree_per_bohr is None
@@ -352,7 +363,8 @@ def _verify_completed_vpt2(result: EngineResult, molecule: Molecule, method: Met
         raise IntegrityError('completed VPT2 does not retain its exact independent native-pose reference artifacts')
     frame_folder = folder / 'native-frame-reference' / digest_json(native_pose.model_dump(mode='json'))
     verify_orca_hessian_result(frame_reference, native_pose, method, resources, frame_folder,
-                               executable=binary, executable_sha256=binary_hash, gradient_threshold=1e-7)
+                               executable=binary, executable_sha256=binary_hash,
+                               gradient_threshold=VPT2_GRADIENT_THRESHOLD)
     receipt = _raw_artifact(result, folder / 'native-frame-reference-result.json', folder)
     if EngineResult.model_validate(json.loads(receipt.read_text())['result']).model_dump(mode='json') != frame_reference.model_dump(mode='json'):
         raise IntegrityError('completed VPT2 actual-pose reference differs from its immutable result receipt')
@@ -445,7 +457,8 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         # Always pass through the reference's binary/protocol gate, even when
         # the final VPT2 receipt already exists.
         reference = run_orca_hessian(molecule, method, remaining(), folder / 'reference', executable=executable,
-                                     process_runner=process_runner, cancel_event=cancel_event, gradient_threshold=1e-7)
+                                     process_runner=process_runner, cancel_event=cancel_event,
+                                     gradient_threshold=VPT2_GRADIENT_THRESHOLD)
         result.metadata['reference_hessian_result'] = reference.model_dump(mode='json')
         result.artifacts = reference.artifacts.copy()
         result.artifacts.append(Artifact(path=str(manifest), sha256=file_digest(manifest),
@@ -505,7 +518,7 @@ def run_orca_vpt2(molecule: Molecule, method: MethodSpec, resources: ResourceLim
         frame_folder = folder / 'native-frame-reference' / digest_json(native_pose.model_dump(mode='json'))
         frame_reference = run_orca_hessian(native_pose, method, remaining(), frame_folder,
                                            executable=binary, process_runner=process_runner,
-                                           cancel_event=cancel_event, gradient_threshold=1e-7)
+                                           cancel_event=cancel_event, gradient_threshold=VPT2_GRADIENT_THRESHOLD)
         result.metadata['native_frame_reference_hessian_result'] = frame_reference.model_dump(mode='json')
         result.artifacts.extend(frame_reference.artifacts)
         frame_receipt = folder / 'native-frame-reference-result.json'

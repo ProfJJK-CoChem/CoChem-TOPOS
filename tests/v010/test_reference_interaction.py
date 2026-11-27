@@ -139,7 +139,7 @@ def substituted_half_cp(payload):
     payload["energies"]["cp_interaction_hartree"] = payload["energies"]["half_cp_interaction_hartree"]
 
 
-def fake_execution(payload):
+def non_real_execution_kind(payload):
     payload["jobs"][0]["result"]["metadata"]["execution_kind"] = "mock"
 
 
@@ -154,7 +154,7 @@ def changed_export_identity(payload):
 
 @pytest.mark.parametrize("change,error", [
     (missing_leg, "five distinct"), (substituted_half_cp, "recomputed five"),
-    (fake_execution, "genuine native"), (failed_process, "process did not complete"),
+    (non_real_execution_kind, "genuine native"), (failed_process, "process did not complete"),
     (changed_export_identity, "native retained artifacts|export disagrees"),
 ])
 def test_forged_consistent_receipts_cannot_replace_actual_native_cp_proof(tmp_path, change, error):

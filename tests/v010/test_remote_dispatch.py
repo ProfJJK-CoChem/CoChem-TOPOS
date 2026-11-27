@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import hashlib
 import io
 import json
+import os
 import stat
 import zipfile
 from dataclasses import replace
@@ -26,6 +28,34 @@ from topos.models import Artifact, Molecule, RunRecord, RunRequest
 from topos.storage import RunStore, atomic_json
 
 SHA = "a" * 40
+
+
+@contextlib.contextmanager
+def _scoped_env(**updates: str | None):
+    previous = {key: os.environ.get(key) for key in updates}
+    for key, value in updates.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
 
 
 class GitHubFixture:
@@ -213,12 +243,10 @@ def test_changed_controller_profile_cannot_recover_an_owned_job(submitted):
     assert transport.calls == []
 
 
-def test_missing_repository_credentials_are_honest_without_local_fallback(submitted, monkeypatch):
+def test_missing_repository_credentials_are_honest_without_local_fallback(submitted):
     _, _, receipt = submitted
-    monkeypatch.delenv("GH_TOKEN", raising=False)
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.setattr("topos.actions.dispatch.shutil.which", lambda *args, **kwargs: None)
-    result = ActionDispatchClient(target_repo="owner/controller").dispatch_request(receipt.inputs)
+    with _scoped_env(GH_TOKEN=None, GITHUB_TOKEN=None, PATH=""):
+        result = ActionDispatchClient(target_repo="owner/controller").dispatch_request(receipt.inputs)
     assert result.status == "unavailable"
     assert "credential" in result.details
     assert result.remote_job_id is None
@@ -389,7 +417,7 @@ def test_wait_cancellation_requests_only_its_owned_job(submitted, tmp_path):
     assert result.status == "cancellation-requested"
 
 
-def test_cancel_during_run_index_delay_is_not_abandoned(submitted, tmp_path, monkeypatch):
+def test_cancel_during_run_index_delay_is_not_abandoned(submitted, tmp_path):
     client, transport, receipt = submitted
     original = transport.request
     counter = {"lists": 0}
@@ -401,45 +429,45 @@ def test_cancel_during_run_index_delay_is_not_abandoned(submitted, tmp_path, mon
                 return {"workflow_runs": []}
         return original(method, path, payload)
 
-    monkeypatch.setattr(transport, "request", delayed)
     cancelled = Event()
     cancelled.set()
-    result = client.wait_for_result(receipt, tmp_path / "result", cancel_event=cancelled,
-                                     timeout_seconds=1, poll_interval=.001)
+    with _scoped_attr(transport, "request", delayed):
+        result = client.wait_for_result(receipt, tmp_path / "result", cancel_event=cancelled,
+                                         timeout_seconds=1, poll_interval=.001)
     assert counter["lists"] >= 3
     assert result.status == "cancellation-requested"
     assert transport.calls[-1][:2] == ("POST", "/repos/owner/controller/actions/runs/123/cancel")
 
 
-def test_remote_workflow_records_missing_configuration_without_execution(tmp_path, monkeypatch):
+def test_remote_workflow_records_missing_configuration_without_execution(tmp_path):
     from topos.config import SystemConfig
     from topos.remote_workflow import run_remote
     from topos.workflow import Workflow
 
-    monkeypatch.delenv("GH_TOKEN", raising=False)
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     workflow = Workflow(output_root=tmp_path / "runs", config=SystemConfig())
     request = RunRequest(molecule=Molecule(symbols=["He"], coordinates=[[0, 0, 0]]),
                          calculation_environment="github-actions", purpose="energy")
-    result = run_remote(workflow, request)
+    with _scoped_env(GH_TOKEN=None, GITHUB_TOKEN=None):
+        result = run_remote(workflow, request)
     assert result.status == "unavailable"
     assert result.request == request
     assert not result.attempts and not result.candidates
     assert RunStore(result.metadata["run_dir"]).load()["status"] == "unavailable"
 
 
-def test_remote_workflow_imports_verified_record_and_preserves_user_request(submitted, tmp_path, monkeypatch):
+def test_remote_workflow_imports_verified_record_and_preserves_user_request(submitted, tmp_path):
     from topos import remote_workflow
     from topos.config import SystemConfig
     from topos.workflow import Workflow
 
     client, transport, receipt = submitted
     original = make_evidence(tmp_path / "source", transport, receipt)
-    monkeypatch.setattr(client, "dispatch_request", lambda request, ref: receipt)
-    monkeypatch.setattr(remote_workflow, "ActionDispatchClient", lambda **kwargs: client)
     request = RunRequest.model_validate(receipt.inputs)
     workflow = Workflow(tmp_path / "reviews", config=SystemConfig(remote_repository="owner/controller"))
-    result = remote_workflow.run_remote(workflow, request)
+    with _scoped_attr(client, "dispatch_request", lambda request, ref: receipt), _scoped_attr(
+        remote_workflow, "ActionDispatchClient", lambda **kwargs: client
+    ):
+        result = remote_workflow.run_remote(workflow, request)
     assert result.status == "failed"
     assert result.request == request
     assert result.metadata["remote_completion_confirmed"] is True
@@ -449,7 +477,7 @@ def test_remote_workflow_imports_verified_record_and_preserves_user_request(subm
     assert RunStore(folder).load() == result.model_dump(mode="json")
 
 
-def test_artifact_redirect_never_forwards_github_authorization(monkeypatch):
+def test_artifact_redirect_never_forwards_github_authorization():
     import urllib.request
 
     requests = []
@@ -463,8 +491,8 @@ def test_artifact_redirect_never_forwards_github_authorization(monkeypatch):
                 raise urllib.error.HTTPError(request.full_url, 302, "redirect", headers, io.BytesIO())
             return io.BytesIO(b"artifact bytes")
 
-    monkeypatch.setattr(urllib.request, "build_opener", lambda *args: Opener())
-    result = _GitHubTransport("explicit-credential").download("/repos/owner/controller/actions/artifacts/123/zip")
+    with _scoped_attr(urllib.request, "build_opener", lambda *args: Opener()):
+        result = _GitHubTransport("explicit-credential").download("/repos/owner/controller/actions/artifacts/123/zip")
     assert result == b"artifact bytes"
     assert requests[0].get_header("Authorization") == "Bearer explicit-credential"
     assert requests[1].get_header("Authorization") is None
@@ -474,7 +502,7 @@ def test_artifact_redirect_never_forwards_github_authorization(monkeypatch):
 @pytest.mark.parametrize("location", ["https://evil.example/secret", "http://productionresultssa0.blob.core.windows.net/archive",
                                      "https://user:password@productionresultssa0.blob.core.windows.net/archive",
                                      "https://productionresultssa0.blob.core.windows.net:8443/archive"])
-def test_artifact_redirect_rejects_unexpected_destinations(monkeypatch, location):
+def test_artifact_redirect_rejects_unexpected_destinations(location):
     import urllib.request
 
     headers = Message()
@@ -484,9 +512,9 @@ def test_artifact_redirect_rejects_unexpected_destinations(monkeypatch, location
         def open(self, request, timeout):
             raise urllib.error.HTTPError(request.full_url, 302, "redirect", headers, io.BytesIO())
 
-    monkeypatch.setattr(urllib.request, "build_opener", lambda *args: Opener())
-    with pytest.raises(RemoteExecutionError, match="outside GitHub") as error:
-        _GitHubTransport("explicit-credential").download("/repos/owner/controller/actions/artifacts/123/zip")
+    with _scoped_attr(urllib.request, "build_opener", lambda *args: Opener()):
+        with pytest.raises(RemoteExecutionError, match="outside GitHub") as error:
+            _GitHubTransport("explicit-credential").download("/repos/owner/controller/actions/artifacts/123/zip")
     assert "explicit-credential" not in str(error.value)
     assert location not in str(error.value)
 

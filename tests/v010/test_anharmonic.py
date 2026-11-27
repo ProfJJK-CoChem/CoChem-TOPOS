@@ -1,4 +1,5 @@
 """Public native-format evidence and domain gates; no fabricated engine science."""
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -7,6 +8,16 @@ from scipy import constants
 from topos.anharmonic import orca_vpt2_input, parse_orca_vpt2, run_orca_vpt2, vpt2_execution_policy
 from topos.engines import EngineParseError, _method_problem, _orca_input
 from topos.models import MethodSpec, Molecule, ResourceLimits
+
+
+@contextmanager
+def _scoped_attr(target, name, value):
+    original = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, original)
 
 
 def water():
@@ -60,27 +71,28 @@ def test_vpt2_input_enforces_documented_precision_and_actual_d4():
 
 
 @pytest.mark.parametrize('threads,memory', [(1, 4096), (2, 4096), (4, 8192)])
-def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, monkeypatch, threads, memory):
+def test_vpt2_serial_policy_retains_original_maxcore_and_base_authority(tmp_path, threads, memory):
+    import topos.engines as engines_mod
     from topos.base_integration import _orca_deck_allocation
 
     # Exercise declared deck allocations, including four workers on two-vCPU CI.
     # No process is launched here; native execution retains its real affinity gate.
-    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: threads)
-    resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
-    policy = vpt2_execution_policy(resources)
-    deck = orca_vpt2_input(water(), method(), resources)
-    expected_maxcore = int(memory * .75 / threads)
-    assert '%pal nprocs 1 end' in deck
-    assert f'%maxcore {expected_maxcore}\n' in deck
-    assert policy['requested_workers'] == threads and policy['effective_workers'] == 1
-    assert policy['native_maxcore_mb'] == expected_maxcore
-    assert policy['total_memory_ceiling_mb'] == memory
-    (tmp_path / 'anharmonic.inp').write_text(deck)
-    effective = resources.model_copy(update={'threads': 1})
-    # This is the actual native-deck authority path used by BaseRuntime.
-    assert _orca_deck_allocation(['orca', 'anharmonic.inp'], tmp_path, effective) == expected_maxcore
-    assert effective.memory_mb == resources.memory_mb and effective.budget_seconds == resources.budget_seconds
-    assert f'%pal nprocs {threads} end' in _orca_input(water(), method(), resources, 'gradient')
+    with _scoped_attr(engines_mod, 'available_cpu_count', lambda: threads):
+        resources = ResourceLimits(budget_seconds=1200, threads=threads, memory_mb=memory)
+        policy = vpt2_execution_policy(resources)
+        deck = orca_vpt2_input(water(), method(), resources)
+        expected_maxcore = int(memory * .75 / threads)
+        assert '%pal nprocs 1 end' in deck
+        assert f'%maxcore {expected_maxcore}\n' in deck
+        assert policy['requested_workers'] == threads and policy['effective_workers'] == 1
+        assert policy['native_maxcore_mb'] == expected_maxcore
+        assert policy['total_memory_ceiling_mb'] == memory
+        (tmp_path / 'anharmonic.inp').write_text(deck)
+        effective = resources.model_copy(update={'threads': 1})
+        # This is the actual native-deck authority path used by BaseRuntime.
+        assert _orca_deck_allocation(['orca', 'anharmonic.inp'], tmp_path, effective) == expected_maxcore
+        assert effective.memory_mb == resources.memory_mb and effective.budget_seconds == resources.budget_seconds
+        assert f'%pal nprocs {threads} end' in _orca_input(water(), method(), resources, 'gradient')
 
 
 def test_vpt2_policy_does_not_turn_a_requested_gpu_into_cpu():
@@ -88,21 +100,22 @@ def test_vpt2_policy_does_not_turn_a_requested_gpu_into_cpu():
         orca_vpt2_input(water(), method(), ResourceLimits(device='gpu', threads=2, memory_mb=4096))
 
 
-def test_offline_native_deck_verification_preserves_recorded_allocation_on_smaller_controller(monkeypatch):
+def test_offline_native_deck_verification_preserves_recorded_allocation_on_smaller_controller():
+    import topos.engines as engines_mod
     from topos.native_hessian import orca_frequency_input
 
     resources = ResourceLimits(threads=4, memory_mb=8192)
-    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: 4)
-    original_frequency = orca_frequency_input(water(), method(), resources)
-    original_vpt2 = orca_vpt2_input(water(), method(), resources)
-    monkeypatch.setattr('topos.engines.available_cpu_count', lambda: 1)
-    assert orca_frequency_input(water(), method(), resources, check_cpu_affinity=False) == original_frequency
-    assert orca_vpt2_input(water(), method(), resources, check_cpu_affinity=False) == original_vpt2
-    for writer in (orca_frequency_input, orca_vpt2_input):
-        with pytest.raises(ValueError, match='available CPU affinity'):
-            writer(water(), method(), resources)
-        with pytest.raises(ValueError, match='requested GPU'):
-            writer(water(), method(), resources.model_copy(update={'device': 'gpu'}), check_cpu_affinity=False)
+    with _scoped_attr(engines_mod, 'available_cpu_count', lambda: 4):
+        original_frequency = orca_frequency_input(water(), method(), resources)
+        original_vpt2 = orca_vpt2_input(water(), method(), resources)
+    with _scoped_attr(engines_mod, 'available_cpu_count', lambda: 1):
+        assert orca_frequency_input(water(), method(), resources, check_cpu_affinity=False) == original_frequency
+        assert orca_vpt2_input(water(), method(), resources, check_cpu_affinity=False) == original_vpt2
+        for writer in (orca_frequency_input, orca_vpt2_input):
+            with pytest.raises(ValueError, match='available CPU affinity'):
+                writer(water(), method(), resources)
+            with pytest.raises(ValueError, match='requested GPU'):
+                writer(water(), method(), resources.model_copy(update={'device': 'gpu'}), check_cpu_affinity=False)
 
 
 def test_vpt2_recovery_rejects_policy_change_before_native_execution(tmp_path):
@@ -201,7 +214,7 @@ def test_anharmonic_and_dispersion_citations_require_actual_execution():
     assert not refs
 
 
-def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path, monkeypatch):
+def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path):
     import os
     import shutil
 
@@ -319,24 +332,19 @@ def test_authentic_orca_vpt2_water_and_completed_recovery(tmp_path, monkeypatch)
         finally:
             completed.write_bytes(original_bytes)
         assert {str(path.relative_to(folder)): file_digest(path) for path in folder.rglob('*') if path.is_file()} == preserved
-    actual_verify = anharmonic.verify_vpt2_native_frame_reference
     for stop_kind in ('cancelled', 'timed-out'):
         cancel = Event()
-        clock = {'value': 0.0}
+        clock_ticks = {'count': 0}
+        if stop_kind == 'cancelled':
+            cancel.set()
 
-        def verify_then_stop(*args, stop_kind=stop_kind, cancel=cancel, clock=clock, **kwargs):
-            association = actual_verify(*args, **kwargs)
-            # Use the real completed cache and actual physical derivatives,
-            # then stop after its final native-pose scientific verification.
-            if stop_kind == 'cancelled':
-                cancel.set()
-            else:
-                clock['value'] = resources.budget_seconds + 1
-            return association
+        def stepping_monotonic(*, stop_kind=stop_kind, clock_ticks=clock_ticks):
+            clock_ticks['count'] += 1
+            if stop_kind == 'timed-out' and clock_ticks['count'] >= 2:
+                return resources.budget_seconds + 1.0
+            return 0.0
 
-        with monkeypatch.context() as context:
-            context.setattr(anharmonic, 'verify_vpt2_native_frame_reference', verify_then_stop)
-            context.setattr(anharmonic.time, 'monotonic', lambda clock=clock: clock['value'])
+        with _scoped_attr(anharmonic.time, 'monotonic', stepping_monotonic):
             stopped = run_orca_vpt2(optimized.molecule, method(), resources, folder,
                                     executable=binary, semirigid_modes=True,
                                     process_runner=no_new_process, cancel_event=cancel)

@@ -9,6 +9,7 @@ import copy
 import os
 import shutil
 import time
+from contextlib import contextmanager
 from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
@@ -176,31 +177,45 @@ def test_completed_cache_cannot_accept_damaged_genuine_campaign(tmp_path, actual
     assert workflow.base_runtime.calls == calls
 
 
+@contextmanager
+def _scoped_attrs(*bindings):
+    originals = [(obj, name, getattr(obj, name)) for obj, name, _ in bindings]
+    for obj, name, value in bindings:
+        setattr(obj, name, value)
+    try:
+        yield
+    finally:
+        for obj, name, original in reversed(originals):
+            setattr(obj, name, original)
+
+
 @pytest.mark.parametrize("failure", ["derived", "receipt", "final-commit"])
-def test_failure_after_actual_inference_never_persists_completed_attempt(tmp_path, monkeypatch, failure):
+def test_failure_after_actual_inference_never_persists_completed_attempt(tmp_path, failure):
     workflow, record, store, inputs = context(tmp_path)
+    active_store = store
+    bindings = []
     if failure == "derived":
         def fail_derivation(*args, **kwargs):
             assert record.attempts[-1].status == "running"
             raise OSError("injected derived publication failure")
 
-        monkeypatch.setattr(ml_workflow, "_derived_campaign", fail_derivation)
+        bindings.append((ml_workflow, "_derived_campaign", fail_derivation))
     elif failure == "receipt":
         def fail_receipt(path, payload):
             assert path.name == "ml-campaign.json" and record.attempts[-1].status == "running"
             raise OSError("injected receipt publication failure")
 
-        monkeypatch.setattr(ml_workflow, "atomic_json", fail_receipt)
+        bindings.append((ml_workflow, "atomic_json", fail_receipt))
     else:
-        original_commit = store.commit
+        class _FailFinalCommitStore(RunStore):
+            def commit(self, value):
+                if value.attempts and value.attempts[-1].status == "completed":
+                    raise OSError("injected final commit failure")
+                return super().commit(value)
 
-        def fail_one_completion(value):
-            if value.attempts and value.attempts[-1].status == "completed":
-                raise OSError("injected final commit failure")
-            return original_commit(value)
-
-        monkeypatch.setattr(store, "commit", fail_one_completion)
-    assert execute_ml_matrix(workflow, record, store, time.monotonic() + 180, None, inputs)
+        active_store = _FailFinalCommitStore(store.run_dir)
+    with _scoped_attrs(*bindings):
+        assert execute_ml_matrix(workflow, record, active_store, time.monotonic() + 180, None, inputs)
     assert workflow.base_runtime.calls == 1
     persisted = RunRecord.model_validate(store.recover())
     attempt = persisted.attempts[-1]
@@ -212,7 +227,7 @@ def test_failure_after_actual_inference_never_persists_completed_attempt(tmp_pat
     assert store.verify()
 
 
-def test_hdf5_failure_after_1000_actual_mace_points_is_not_completed(tmp_path, monkeypatch):
+def test_hdf5_failure_after_1000_actual_mace_points_is_not_completed(tmp_path):
     workflow, record, store, inputs = context(tmp_path, backend="mace")
     original_file = ml_workflow.h5py.File
 
@@ -222,8 +237,8 @@ def test_hdf5_failure_after_1000_actual_mace_points_is_not_completed(tmp_path, m
             raise OSError("injected HDF5 publication failure")
         return original_file(path, *args, **kwargs)
 
-    monkeypatch.setattr(ml_workflow.h5py, "File", fail_surface_only)
-    assert execute_ml_matrix(workflow, record, store, time.monotonic() + 180, None, inputs)
+    with _scoped_attrs((ml_workflow.h5py, "File", fail_surface_only)):
+        assert execute_ml_matrix(workflow, record, store, time.monotonic() + 180, None, inputs)
     persisted = RunRecord.model_validate(store.recover())
     attempt = persisted.attempts[-1]
     assert workflow.base_runtime.calls == 1 and persisted.status == attempt.status == "failed"
@@ -234,18 +249,18 @@ def test_hdf5_failure_after_1000_actual_mace_points_is_not_completed(tmp_path, m
     assert attempt.converged is False and store.verify()
 
 
-def test_commit_acknowledgement_loss_recovers_the_verified_publication(tmp_path, monkeypatch):
+def test_commit_acknowledgement_loss_recovers_the_verified_publication(tmp_path):
     workflow, record, store, inputs = context(tmp_path)
-    original_commit = store.commit
 
-    def lose_acknowledgement(value):
-        result = original_commit(value)
-        if value.attempts and value.attempts[-1].status == "completed":
-            raise OSError("injected failure after complete commit pointer publication")
-        return result
+    class _LostAckStore(RunStore):
+        def commit(self, value):
+            result = super().commit(value)
+            if value.attempts and value.attempts[-1].status == "completed":
+                raise OSError("injected failure after complete commit pointer publication")
+            return result
 
-    monkeypatch.setattr(store, "commit", lose_acknowledgement)
-    assert execute_ml_matrix(workflow, record, store, time.monotonic() + 180, None, inputs)
+    fault_store = _LostAckStore(store.run_dir)
+    assert execute_ml_matrix(workflow, record, fault_store, time.monotonic() + 180, None, inputs)
     persisted = RunRecord.model_validate(store.recover())
     assert persisted.status == record.status == "completed"
     assert persisted.attempts == record.attempts and workflow.base_runtime.calls == 1

@@ -1,6 +1,7 @@
 """Release metadata, refusal gates and archive contracts; native install is separate."""
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import importlib.util
 import io
@@ -17,6 +18,26 @@ import pytest
 from topos.release import release_gate, source_inventory
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@contextlib.contextmanager
+def _scoped_sys_path(entry: str):
+    previous = list(sys.path)
+    sys.path.insert(0, entry)
+    try:
+        yield
+    finally:
+        sys.path[:] = previous
+
+
+@contextlib.contextmanager
+def _scoped_attr(target, name: str, value):
+    previous = getattr(target, name)
+    setattr(target, name, value)
+    try:
+        yield
+    finally:
+        setattr(target, name, previous)
 
 
 def script(name):
@@ -437,9 +458,9 @@ def test_source_identity_is_content_based_and_ignores_local_caches(tmp_path):
     assert source_inventory(tmp_path) != before
 
 
-def test_worker_source_inventory_rejects_namespace_symlinks(tmp_path, monkeypatch):
-    monkeypatch.syspath_prepend(str(ROOT / 'scripts'))
-    module = script('build_ml_worker')
+def test_worker_source_inventory_rejects_namespace_symlinks(tmp_path):
+    with _scoped_sys_path(str(ROOT / 'scripts')):
+        module = script('build_ml_worker')
     (tmp_path / 'topos').mkdir()
     (tmp_path / 'topos/ml_worker.py').write_text('# exact worker\n')
     assert module.worker_sources(tmp_path) == {
@@ -450,15 +471,16 @@ def test_worker_source_inventory_rejects_namespace_symlinks(tmp_path, monkeypatc
         module.worker_sources(tmp_path)
 
 
-def test_worker_installer_refuses_controller_ownership_before_pip(tmp_path, monkeypatch):
+def test_worker_installer_refuses_controller_ownership_before_pip(tmp_path):
     module = script('install_ml_worker')
-    monkeypatch.setattr(module.sys, 'prefix', str(tmp_path / 'venv'))
-    monkeypatch.setattr(module.sys, 'base_prefix', str(tmp_path / 'system'))
-    monkeypatch.setattr(module.importlib.metadata, 'distribution', lambda name: object())
     invoked = []
-    monkeypatch.setattr(module.subprocess, 'run', lambda *a, **k: invoked.append(a))
-    with pytest.raises(ValueError, match='controller namespace'):
-        module.install(tmp_path / 'unread.whl', tmp_path / 'unread.json')
+    with _scoped_attr(module.sys, 'prefix', str(tmp_path / 'venv')), _scoped_attr(
+        module.sys, 'base_prefix', str(tmp_path / 'system')
+    ), _scoped_attr(module.importlib.metadata, 'distribution', lambda name: object()), _scoped_attr(
+        module.subprocess, 'run', lambda *a, **k: invoked.append(a)
+    ):
+        with pytest.raises(ValueError, match='controller namespace'):
+            module.install(tmp_path / 'unread.whl', tmp_path / 'unread.json')
     assert invoked == []
 
 
@@ -590,7 +612,7 @@ def test_hosted_receipts_require_same_selected_run_and_both_native_case_sets(tmp
     assert any('current package source' in reason for reason in gate()['blockers'])
 
 
-def test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps(tmp_path, monkeypatch):
+def test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved_gaps(tmp_path):
     import topos.matrix_workflow as matrix
 
     source = tmp_path / 'wiki/Method_Matrix.md'
@@ -602,14 +624,14 @@ def test_release_distinguishes_source_declared_unavailable_tiers_from_unresolved
                    'source_lines': [1], 'source_excerpt': 'CFOUR has no 10 s or 1 min entry',
                    'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
                   for row in ['T3C-10s', 'T3C-1min']]}
-    monkeypatch.setattr(matrix, 'execution_support_report', lambda: report)
-    result = release_gate(tmp_path)
-    assert not any(reason.startswith('Method matrix') for reason in result['blockers'])
-    assert result['status'] == 'blocked'  # All scientific/runtime evidence remains mandatory.
-    report['topos_track_gaps'].append('T3O-1w')
-    report['unresolved_track_gaps'].append('T3O-1w')
-    assert any('unresolved source track gaps T3O-1w' in reason for reason in release_gate(tmp_path)['blockers'])
-    report['unresolved_track_gaps'].clear()
-    assert any('lack an explicit' in reason for reason in release_gate(tmp_path)['blockers'])
-    source.write_text('Changed source does not declare the unsupported tiers\n')
-    assert any('matching source evidence' in reason for reason in release_gate(tmp_path)['blockers'])
+    with _scoped_attr(matrix, 'execution_support_report', lambda: report):
+        result = release_gate(tmp_path)
+        assert not any(reason.startswith('Method matrix') for reason in result['blockers'])
+        assert result['status'] == 'blocked'  # All scientific/runtime evidence remains mandatory.
+        report['topos_track_gaps'].append('T3O-1w')
+        report['unresolved_track_gaps'].append('T3O-1w')
+        assert any('unresolved source track gaps T3O-1w' in reason for reason in release_gate(tmp_path)['blockers'])
+        report['unresolved_track_gaps'].clear()
+        assert any('lack an explicit' in reason for reason in release_gate(tmp_path)['blockers'])
+        source.write_text('Changed source does not declare the unsupported tiers\n')
+        assert any('matching source evidence' in reason for reason in release_gate(tmp_path)['blockers'])
