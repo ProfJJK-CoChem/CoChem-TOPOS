@@ -18,7 +18,7 @@ dependencies = [
   "rdkit>=2026.3.5",
   "MolSym>=1.2,<2",
   "ase>=3.29,<4",
-  "qcengine==0.51.0", "qcelemental==0.51.2",
+  "qcelemental>=0.51.2,<0.53",
 ]
 
 [project.optional-dependencies]

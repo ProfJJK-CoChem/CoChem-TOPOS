@@ -38,8 +38,8 @@ def test_standard_package_metadata_requires_pinned_parsers_for_every_installatio
     metadata = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     requirements = [Requirement(item) for item in metadata["dependencies"]]
     selected = {r.name: str(r.specifier) for r in requirements if not r.marker or r.marker.evaluate({"extra": extra})}
-    assert selected["qcengine"] == "==0.51.0"
-    assert selected["qcelemental"] == "==0.51.2"
+    assert "qcengine" not in selected
+    assert selected["qcelemental"] == "<0.53,>=0.51.2"
     assert set(metadata["optional-dependencies"]["external"]) == {"qcengine==0.51.0", "qcelemental==0.51.2"}
     assert selected["CoChem-BASE"] == "<1.2,>=1.0.1"
     assert "CoChem-TORQ" not in selected  # BASE supplies its independently verified sidecar.

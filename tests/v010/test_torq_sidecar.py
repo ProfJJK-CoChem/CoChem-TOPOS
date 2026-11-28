@@ -107,3 +107,167 @@ def test_invalid_configured_sidecar_cannot_fall_back_to_source(sidecar, tmp_path
     assert not status.available
     assert not status.components["CoChem-TORQ"]["available"]
     assert any("receipt changed" in problem for problem in status.problems)
+
+
+def _create_isolated_torq_venv(root: Path, *, version: str = "0.1.0") -> tuple[Path, Path]:
+    """Create a minimal isolated sibling venv layout with a cochem-torq CLI and dist-info."""
+    venv_root = root / "Modules" / "torq-env"
+    bin_dir = venv_root / "bin"
+    bin_dir.mkdir(parents=True)
+    (venv_root / "pyvenv.cfg").write_text("include-system-site-packages = false\n", encoding="utf-8")
+    py_exe = bin_dir / "python"
+    py_exe.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    py_exe.chmod(0o755)
+    torq_bin = bin_dir / "cochem-torq"
+    torq_bin.write_text(f"#!{py_exe}\n# Isolated TORQ CLI marker\n", encoding="utf-8")
+    torq_bin.chmod(0o755)
+    dist_info = venv_root / "lib" / "python3.12" / "site-packages" / f"cochem_torq-{version}.dist-info"
+    dist_info.mkdir(parents=True)
+    (dist_info / "METADATA").write_text(
+        f"Metadata-Version: 2.1\nName: CoChem-TORQ\nVersion: {version}\n",
+        encoding="utf-8",
+    )
+    return venv_root, torq_bin
+
+
+def test_external_torq_binary_env_is_discovered_without_importing_torq(tmp_path):
+    venv_root, torq_bin = _create_isolated_torq_venv(tmp_path, version="0.1.0")
+    overrides = {
+        "COCHEM_TORQ_SIDECAR": None,
+        "COCHEM_TORQ_ROOT": None,
+        "COCHEM_TORQ_BIN": str(torq_bin),
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    for k, val in overrides.items():
+        if val is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = val
+    try:
+        status = base_integration.inspect_ecosystem()
+    finally:
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
+    torq = status.components["CoChem-TORQ"]
+    assert torq["available"] is True
+    assert torq["kind"] == "external-isolated-binary"
+    assert torq["version"] == "0.1.0"
+    assert torq["discovery_source"] == "COCHEM_TORQ_BIN"
+    assert torq["isolated_env_root"] == str(venv_root.resolve())
+    assert torq["consumer_ready"] is False
+
+
+def test_invalid_external_torq_binary_env_fails_closed(tmp_path):
+    missing = tmp_path / "does-not-exist" / "cochem-torq"
+    overrides = {
+        "COCHEM_TORQ_SIDECAR": None,
+        "COCHEM_TORQ_ROOT": None,
+        "COCHEM_TORQ_BIN": str(missing),
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    for k, val in overrides.items():
+        if val is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = val
+    try:
+        status = base_integration.inspect_ecosystem()
+    finally:
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
+    assert not status.available
+    assert status.components["CoChem-TORQ"]["available"] is False
+    assert any("COCHEM_TORQ_BIN" in problem for problem in status.problems)
+
+
+def test_doctor_autodiscovers_isolated_torq_binary_on_path_when_not_in_python_env(tmp_path, capsys):
+    import importlib.metadata
+
+    from topos.cli import main as cli_main
+
+    venv_root, torq_bin = _create_isolated_torq_venv(tmp_path, version="0.1.0")
+    original_dist = importlib.metadata.distribution
+
+    def _no_torq_dist(name: str):
+        if name.lower().replace("_", "-") == "cochem-torq":
+            raise importlib.metadata.PackageNotFoundError(name)
+        return original_dist(name)
+
+    overrides = {
+        "COCHEM_TORQ_SIDECAR": None,
+        "COCHEM_TORQ_ROOT": None,
+        "COCHEM_TORQ_BIN": None,
+        "HOME": str(tmp_path),
+        "USERPROFILE": str(tmp_path),
+        "PATH": str(torq_bin.parent) + os.pathsep + os.environ.get("PATH", ""),
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    for k, val in overrides.items():
+        if val is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = val
+    importlib.metadata.distribution = _no_torq_dist
+    try:
+        # Strict default inspect_ecosystem remains False without explicit env var or autodiscovery.
+        strict_status = base_integration.inspect_ecosystem()
+        assert strict_status.components["CoChem-TORQ"]["available"] is False
+
+        # Autodiscovery enabled (used by `topos doctor`) detects the isolated sibling binary via PATH.
+        doctor_status = base_integration.inspect_ecosystem(allow_external_torq_binary=True)
+        torq = doctor_status.components["CoChem-TORQ"]
+        assert torq["available"] is True
+        assert torq["kind"] == "external-isolated-binary"
+        assert torq["version"] == "0.1.0"
+        assert torq["isolated_env_root"] == str(venv_root.resolve())
+        assert torq["discovery_source"] == "PATH"
+
+        # Also verify workstation_direct_bin discovery when ~/CoChem_Workstation_Direct/bin/cochem-torq exists.
+        ws_bin = tmp_path / "CoChem_Workstation_Direct" / "bin" / "cochem-torq"
+        ws_bin.parent.mkdir(parents=True, exist_ok=True)
+        ws_bin.symlink_to(torq_bin)
+        ws_status = base_integration.inspect_ecosystem(allow_external_torq_binary=True)
+        assert ws_status.components["CoChem-TORQ"]["discovery_source"] == "workstation_direct_bin"
+        assert ws_status.components["CoChem-TORQ"]["isolated_env_root"] == str(venv_root.resolve())
+
+        rc = cli_main(["doctor"])
+        out = json.loads(capsys.readouterr().out)
+        assert out["components"]["CoChem-TORQ"]["available"] is True
+        assert out["components"]["CoChem-TORQ"]["kind"] == "external-isolated-binary"
+        assert rc == (0 if out["available"] else 3)
+    finally:
+        importlib.metadata.distribution = original_dist
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
+
+
+def test_invalid_sidecar_still_cannot_fall_back_to_external_torq_binary(sidecar, tmp_path):
+    path, _payload, receipt = sidecar
+    receipt.write_text('{"changed":true}\n', encoding="utf-8")
+    _, torq_bin = _create_isolated_torq_venv(tmp_path)
+    overrides = {
+        "COCHEM_TORQ_SIDECAR": str(path),
+        "COCHEM_TORQ_BIN": str(torq_bin),
+    }
+    previous = {k: os.environ.get(k) for k in overrides}
+    os.environ.update(overrides)
+    try:
+        status = base_integration.inspect_ecosystem(allow_external_torq_binary=True)
+    finally:
+        for k, val in previous.items():
+            if val is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = val
+    assert not status.available
+    assert status.components["CoChem-TORQ"]["available"] is False
+    assert any("receipt changed" in problem for problem in status.problems)

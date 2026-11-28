@@ -15,6 +15,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
 import time
 import urllib.parse
@@ -124,7 +125,138 @@ class EcosystemStatus:
         return {**asdict(self), "problems": list(self.problems)}
 
 
-def inspect_ecosystem(*, require_torq: bool = True) -> EcosystemStatus:
+def _is_executable_file(path: Path) -> bool:
+    return path.is_file() and (os.name == "nt" or os.access(path, os.X_OK))
+
+
+def _isolated_torq_env_metadata(resolved_binary: Path) -> tuple[str | None, Path | None, Path | None]:
+    """Inspect sibling venv metadata for an external ``cochem-torq`` binary without importing TORQ."""
+    python_path: Path | None = None
+    try:
+        with resolved_binary.open("rb") as stream:
+            first_line = stream.readline(512)
+    except OSError:
+        first_line = b""
+    if first_line.startswith(b"#!"):
+        shebang = first_line[2:].decode("utf-8", errors="replace").strip()
+        parts = shebang.split()
+        if parts:
+            candidate_py = Path(parts[0])
+            if candidate_py.name == "env" and len(parts) > 1:
+                resolved_env_py = shutil.which(parts[1])
+                candidate_py = Path(resolved_env_py) if resolved_env_py else Path()
+            if candidate_py.is_file():
+                python_path = Path(os.path.abspath(candidate_py))
+
+    env_root: Path | None = None
+    for anchor in (python_path, resolved_binary):
+        if anchor is None:
+            continue
+        parent_root = anchor.parent.parent
+        if (parent_root / "pyvenv.cfg").is_file():
+            env_root = parent_root.resolve()
+            break
+
+    if env_root is not None and python_path is None:
+        for rel in ("bin/python", "bin/python3", "Scripts/python.exe"):
+            candidate_py = env_root / rel
+            if candidate_py.is_file():
+                python_path = Path(os.path.abspath(candidate_py))
+                break
+
+    detected_version: str | None = None
+    if env_root is not None:
+        metadata_files = list(env_root.glob("lib/python*/site-packages/cochem_torq-*.dist-info/METADATA"))
+        metadata_files.extend((env_root / "Lib" / "site-packages").glob("cochem_torq-*.dist-info/METADATA"))
+        for metadata_file in sorted(metadata_files):
+            if not metadata_file.is_file():
+                continue
+            name_val: str | None = None
+            version_val: str | None = None
+            for line in metadata_file.read_text(encoding="utf-8", errors="replace").splitlines():
+                if not line:
+                    break
+                if line.startswith("Name:"):
+                    name_val = line.split(":", 1)[1].strip()
+                elif line.startswith("Version:"):
+                    version_val = line.split(":", 1)[1].strip()
+            if name_val and name_val.lower().replace("_", "-") == "cochem-torq" and version_val:
+                detected_version = version_val
+                break
+    return detected_version, python_path, env_root
+
+
+def _external_torq_binary_provider(*, allow_autodiscovery: bool) -> dict[str, Any] | None:
+    """Detect an external ``cochem-torq`` CLI installed in an isolated sibling environment."""
+    current_prefix = Path(sys.prefix).resolve()
+    configured = os.environ.get("COCHEM_TORQ_BIN")
+    if configured:
+        candidate = Path(configured).expanduser()
+        if not _is_executable_file(candidate):
+            raise BaseIntegrationError("COCHEM_TORQ_BIN must identify an executable cochem-torq binary")
+        resolved = candidate.resolve(strict=True)
+        detected_version, python_path, env_root = _isolated_torq_env_metadata(resolved)
+        return {
+            "available": True,
+            "kind": "external-isolated-binary",
+            "installed": True,
+            "version": detected_version,
+            "path": str(resolved),
+            "binary_path": str(resolved),
+            "configured_path": str(candidate),
+            "python_path": str(python_path) if python_path else None,
+            "isolated_env_root": str(env_root) if env_root else None,
+            "discovery_source": "COCHEM_TORQ_BIN",
+            "consumer_ready": False,
+            "execution": "Isolated external cochem-torq CLI provider; TORQ namespaces are not imported into TOPOS",
+        }
+
+    if not allow_autodiscovery:
+        return None
+
+    candidates: list[tuple[str, Path]] = [
+        ("workstation_direct_bin", Path.home() / "CoChem_Workstation_Direct" / "bin" / "cochem-torq"),
+    ]
+    if os.name == "nt":
+        candidates.append(
+            ("workstation_direct_bin", Path.home() / "CoChem_Workstation_Direct" / "bin" / "cochem-torq.exe")
+        )
+    which_hit = shutil.which("cochem-torq")
+    if which_hit:
+        candidates.append(("PATH", Path(which_hit)))
+
+    for source_label, candidate in candidates:
+        if not _is_executable_file(candidate):
+            continue
+        try:
+            resolved = candidate.resolve(strict=True)
+        except OSError:
+            continue
+        detected_version, python_path, env_root = _isolated_torq_env_metadata(resolved)
+        if (
+            resolved.is_relative_to(current_prefix)
+            or (env_root is not None and env_root == current_prefix)
+            or (python_path is not None and python_path.is_relative_to(current_prefix))
+        ):
+            continue
+        return {
+            "available": True,
+            "kind": "external-isolated-binary",
+            "installed": True,
+            "version": detected_version,
+            "path": str(resolved),
+            "binary_path": str(resolved),
+            "configured_path": str(candidate),
+            "python_path": str(python_path) if python_path else None,
+            "isolated_env_root": str(env_root) if env_root else None,
+            "discovery_source": source_label,
+            "consumer_ready": False,
+            "execution": "Isolated external cochem-torq CLI provider; TORQ namespaces are not imported into TOPOS",
+        }
+    return None
+
+
+def inspect_ecosystem(*, require_torq: bool = True, allow_external_torq_binary: bool = False) -> EcosystemStatus:
     """Discover installations without importing TORQ's side-effectful bootstrap.
 
     An explicitly configured source checkout is supported during development.
@@ -159,12 +291,22 @@ def inspect_ecosystem(*, require_torq: bool = True) -> EcosystemStatus:
                     components[project].update(installed=True, import_path=str(origin) if origin else None,
                                                import_shadowed=shadowed, consumer_ready=False)
                 continue
+            if project == "CoChem-TORQ" and os.environ.get("COCHEM_TORQ_BIN"):
+                external = _external_torq_binary_provider(allow_autodiscovery=False)
+                if external is not None:
+                    components[project] = external
+                    continue
             try:
                 distribution = importlib.metadata.distribution(project)
             except importlib.metadata.PackageNotFoundError:
                 distribution = None
             spec = importlib.util.find_spec(package)
             if spec is None or (project == "CoChem-TORQ" and distribution is None):
+                if project == "CoChem-TORQ" and allow_external_torq_binary:
+                    external = _external_torq_binary_provider(allow_autodiscovery=True)
+                    if external is not None:
+                        components[project] = external
+                        continue
                 raise BaseIntegrationError(f"{project} is not installed; provision the mandatory CoChem package")
             components[project] = {
                 "available": True, "kind": "installed" if distribution else "importable-source",
@@ -275,8 +417,17 @@ def _orca_deck_allocation(command: list[str], workdir: str | Path, resources: Re
 class BaseRuntime:
     """Bind native engine attempts to BASE's audited registry and broker APIs."""
 
-    def __init__(self, registry_path: str | Path | None = None, *, require_torq: bool = True):
-        self.ecosystem = inspect_ecosystem(require_torq=require_torq)
+    def __init__(
+        self,
+        registry_path: str | Path | None = None,
+        *,
+        require_torq: bool = True,
+        allow_external_torq_binary: bool = False,
+    ):
+        self.ecosystem = inspect_ecosystem(
+            require_torq=require_torq,
+            allow_external_torq_binary=allow_external_torq_binary,
+        )
         if not self.ecosystem.available:
             raise BaseIntegrationError("; ".join(self.ecosystem.problems))
         try:

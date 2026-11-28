@@ -158,9 +158,12 @@ def main(argv: list[str] | None = None) -> int:
             result = capability_report()
         elif args.command == "doctor":
             from topos.base_integration import BaseRuntime, inspect_ecosystem
-            result = inspect_ecosystem().to_dict()
+            result = inspect_ecosystem(allow_external_torq_binary=True).to_dict()
             if args.verify_runtime:
-                result["runtime"] = BaseRuntime(args.registry).provenance()
+                result["runtime"] = BaseRuntime(
+                    args.registry,
+                    allow_external_torq_binary=True,
+                ).provenance()
             _emit(result)
             return 0 if result["available"] else 3
         elif args.command == "matrix":
